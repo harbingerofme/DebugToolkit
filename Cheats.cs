@@ -17,7 +17,7 @@ using ArgsHelper = Utilities.Generic.ArgsHelper;
 
 namespace RoR2Cheats {
     [BepInDependency("com.bepis.r2api")]
-    [BepInPlugin("com.morris1927.RoR2Cheats", "RoR2Cheats", "2.3.1")]
+    [BepInPlugin("com.harbingerofme.RoR2Cheats", "RoR2Cheats", "2.4.0")]
     public class Cheats : BaseUnityPlugin {
 
         private static ConfigEntry<float> SprintFovMultiplierConfig;
@@ -40,6 +40,8 @@ namespace RoR2Cheats {
 
         public void Awake()
         {
+            Logger.LogMessage("Harb's Version. Original by Morris1927.");
+
             SprintFovMultiplierConfig = Config.AddSetting(
                 "FOV",
                 "sprint Fov Multiplier",
@@ -89,9 +91,10 @@ namespace RoR2Cheats {
         private static void togglegod(object _=null, EventArgs __=null)
         {
             godMode = !godMode;
+            var godToggleMethod = typeof(CharacterMaster).GetMethodCached("ToggleGod");
             foreach (var playerInstance in PlayerCharacterMasterController.instances)
             {
-                playerInstance.master.InvokeMethod("ToggleGod");
+                godToggleMethod.Invoke(playerInstance.master, null);
             }
             Debug.Log($"God mode {(godMode ? "enabled":"disabled")}.");
         }
