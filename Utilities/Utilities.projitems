@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>6c9bf8bd-671a-4e13-a895-757f20c837db</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Utilities</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Generic.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)NetworkHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Reflection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TinyJson\JSONParser.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TinyJson\JSONWriter.cs" />
+  </ItemGroup>
+</Project>
