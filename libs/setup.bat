@@ -4,4 +4,4 @@ del RoR2Libs\.gitignore
 del RoR2Libs\RoR2Libs.sln
 rmdir /S /Q RoR2Libs\.git
 copy RoR2Libs\libs\*.dll .\
-rmdir RoR2Libs
+rmdir /S /Q RoR2Libs
