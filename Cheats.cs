@@ -36,12 +36,12 @@ namespace RoR2Cheats {
 
         private ConfigEntry<KeyboardShortcut> KeyMultiplayerPause;
         private ConfigEntry<KeyboardShortcut> KeyGodMode;
+        private KeyboardShortcut KeyNextLevel;
 
 
         public void Awake()
         {
             Logger.LogMessage("Harb's Version. Original by Morris1927.");
-
             SprintFovMultiplierConfig = Config.AddSetting(
                 "FOV",
                 "sprint Fov Multiplier",
@@ -65,8 +65,9 @@ namespace RoR2Cheats {
                 );
             if (GodMode.Value) { togglegod();}
             GodMode.SettingChanged += togglegod;
-            KeyGodMode = Config.AddSetting("Hotkeys", "Toggle God mode", new KeyboardShortcut());
+            KeyGodMode = Config.AddSetting("Hotkeys", "Toggle God mode", new KeyboardShortcut(KeyCode.F3));
             KeyMultiplayerPause = Config.AddSetting("Hotkeys","True Multiplayer Pause", new KeyboardShortcut(KeyCode.F2));
+            KeyNextLevel = new KeyboardShortcut(KeyCode.F4);
 
 
             Hooks.InitializeHooks();
@@ -81,7 +82,10 @@ namespace RoR2Cheats {
             {
                 GodMode.Value = !godMode;
             }
-
+            if(KeyNextLevel.IsDown())
+            {
+                RoR2.Console.instance.SubmitCmd(NetworkUser.readOnlyLocalPlayersList[0], "next_round");
+            }
         }
 
         [ConCommand(commandName = "god", flags = ConVarFlags.ExecuteOnServer, helpText = "Godmode")]
