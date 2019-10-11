@@ -307,19 +307,15 @@ namespace RoR2Cheats {
             }
         }
 
-        [ConCommand(commandName = "seed", flags = ConVarFlags.None, helpText = "Set seed.")]
+        [ConCommand(commandName = "seed", flags = ConVarFlags.ExecuteOnServer, helpText = "Set seed.")]
         private static void CCUseSeed(ConCommandArgs args) {
-
-            if (args.Count == 0) {
-                Debug.Log(seed);
-            }
-
-            string stringSeed = ArgsHelper.GetValue(args.userArgs, 0);
-            if (!ulong.TryParse(stringSeed, out seed)) {
-                Debug.Log("Incorrect arguments given. Try: seed 12345");
-            } else {
-                Debug.Log("Seed set to " + seed);
-            }
+            args.CheckArgumentCount(1);
+            if (!PreGameController.instance)
+                throw new ConCommandException("Pregame controller does not currently exist to set the seed for.");
+            ulong result;
+            if (!TextSerialization.TryParseInvariant(args[0], out result))
+                throw new ConCommandException("Specified seed is not a parsable uint64.");
+            PreGameController.instance.runSeed = result;
         }
 
         [ConCommand(commandName = "fixed_time", flags = ConVarFlags.ExecuteOnServer, helpText = "Sets fixed time - Affects monster difficulty")]
