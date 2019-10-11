@@ -74,7 +74,7 @@ namespace RoR2Cheats {
 
             for (int i = 0; i< 12; i++)
             {
-                KeyGiveItem[i] = Config.AddSetting("Give_Item", $"CtrlF{i}", "hoof");
+                KeyGiveItem[i] = Config.AddSetting("Give_Item", $"[GiveItemKeyModifier]F{i}", "hoof");
             }
 
 
