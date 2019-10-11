@@ -17,24 +17,16 @@ namespace RoR2Cheats
         public static void InitializeHooks() {
             ConCommandHooks();
 
-            SeedHooks();
-
             CameraFOVHooks();
 
             SetupNoEnemyIL();
             SetupFOVIL();
         }
 
+
         private static void CameraFOVHooks() {
             On.RoR2.CameraRigController.Start += (orig, self) => {
                 self.baseFov = Cheats.FieldOfVision;
-                orig(self);
-            };
-        }
-
-        private static void SeedHooks() {
-            On.RoR2.Run.Start += (orig, self) => {
-                self.seed = Cheats.seed == 0 ? self.seed : Cheats.seed;
                 orig(self);
             };
         }
