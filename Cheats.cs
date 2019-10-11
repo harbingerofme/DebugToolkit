@@ -34,9 +34,7 @@ namespace RoR2Cheats {
 
         public static bool noEnemies = false;
 
-        private ConfigEntry<KeyboardShortcut> KeyMultiplayerPause;
-        private ConfigEntry<KeyboardShortcut> KeyGodMode;
-        private KeyboardShortcut KeyNextLevel;
+        private ConfigEntry<KeyboardShortcut> KeyMultiplayerPause, KeyGodMode, KeyNextStage, KeyKillAll, KeyNoEnemies, KeyRespawn;
 
 
         public void Awake()
@@ -67,7 +65,10 @@ namespace RoR2Cheats {
             GodMode.SettingChanged += togglegod;
             KeyGodMode = Config.AddSetting("Hotkeys", "Toggle God mode", new KeyboardShortcut(KeyCode.F3));
             KeyMultiplayerPause = Config.AddSetting("Hotkeys","True Multiplayer Pause", new KeyboardShortcut(KeyCode.F2));
-            KeyNextLevel = new KeyboardShortcut(KeyCode.F4);
+            KeyNextStage = Config.AddSetting ("Hotkeys", "Next Stage", new KeyboardShortcut(KeyCode.F4));
+            KeyKillAll = Config.AddSetting("Hotkeys", "Kill All", new KeyboardShortcut(KeyCode.F5));
+            KeyNoEnemies = Config.AddSetting("Hotkeys", "No Enemies", new KeyboardShortcut(KeyCode.F6));
+            KeyRespawn = Config.AddSetting("Hotkeys", "Respawn", new KeyboardShortcut(KeyCode.F7));
 
 
             Hooks.InitializeHooks();
@@ -82,9 +83,21 @@ namespace RoR2Cheats {
             {
                 GodMode.Value = !godMode;
             }
-            if(KeyNextLevel.IsDown())
+            if (KeyNextStage.Value.IsDown())
             {
                 RoR2.Console.instance.SubmitCmd(NetworkUser.readOnlyLocalPlayersList[0], "next_round");
+            }
+            if (KeyKillAll.Value.IsDown())
+            {
+                RoR2.Console.instance.SubmitCmd(NetworkUser.readOnlyLocalPlayersList[0], "Kill_all");
+            }
+            if (KeyNoEnemies.Value.IsDown())
+            {
+                RoR2.Console.instance.SubmitCmd(NetworkUser.readOnlyLocalPlayersList[0], "no_enemies");
+            }
+            if (KeyRespawn.Value.IsDown())
+            {
+                RoR2.Console.instance.SubmitCmd(NetworkUser.readOnlyLocalPlayersList[0], "respawn");
             }
         }
 
