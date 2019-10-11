@@ -71,12 +71,10 @@ namespace RoR2Cheats {
             KeyNoEnemies = Config.AddSetting("Hotkeys", "No Enemies", new KeyboardShortcut(KeyCode.F6));
             KeyRespawn = Config.AddSetting("Hotkeys", "Respawn", new KeyboardShortcut(KeyCode.F7));
             KeyItemModifier = Config.AddSetting("Hotkeys", "GiveItemKeyModifier", new KeyboardShortcut(KeyCode.RightControl));
-
             for (int i = 0; i< 12; i++)
             {
-                KeyGiveItem[i] = Config.AddSetting("Give_Item", $"[GiveItemKeyModifier]F{i}", "hoof");
+                KeyGiveItem[i] = Config.AddSetting("Give_Item", $"GiveItemKeyModifierF{(1+i).ToString("00")}", "hoof");
             }
-
 
             Hooks.InitializeHooks();
             NetworkHandler.RegisterNetworkHandlerAttributes();
