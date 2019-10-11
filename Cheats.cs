@@ -34,7 +34,8 @@ namespace RoR2Cheats {
 
         public static bool noEnemies = false;
 
-        private ConfigEntry<KeyboardShortcut> KeyMultiplayerPause, KeyGodMode, KeyNextStage, KeyKillAll, KeyNoEnemies, KeyRespawn;
+        private ConfigEntry<KeyboardShortcut> KeyMultiplayerPause, KeyGodMode, KeyNextStage, KeyKillAll, KeyNoEnemies, KeyRespawn, KeyItemModifier;
+        private ConfigEntry<String>[] KeyGiveItem = new ConfigEntry<String>[12];
 
 
         public void Awake()
@@ -69,6 +70,12 @@ namespace RoR2Cheats {
             KeyKillAll = Config.AddSetting("Hotkeys", "Kill All", new KeyboardShortcut(KeyCode.F5));
             KeyNoEnemies = Config.AddSetting("Hotkeys", "No Enemies", new KeyboardShortcut(KeyCode.F6));
             KeyRespawn = Config.AddSetting("Hotkeys", "Respawn", new KeyboardShortcut(KeyCode.F7));
+            KeyItemModifier = Config.AddSetting("Hotkeys", "GiveItemKeyModifier", new KeyboardShortcut(KeyCode.RightControl));
+
+            for (int i = 0; i< 12; i++)
+            {
+                KeyGiveItem[i] = Config.AddSetting("Give_Item", $"CtrlF{i}", "hoof");
+            }
 
 
             Hooks.InitializeHooks();
@@ -98,6 +105,18 @@ namespace RoR2Cheats {
             if (KeyRespawn.Value.IsDown())
             {
                 RoR2.Console.instance.SubmitCmd(NetworkUser.readOnlyLocalPlayersList[0], "respawn");
+            }
+            if(Input.GetKey(KeyItemModifier.Value.MainKey))
+            {
+                Debug.Log("ModifierDown");
+                for (int i = 0; i < 12; i++)
+                {
+                    if (Input.GetKeyDown((KeyCode)282 + i))
+                    {
+                        Debug.Log("MainDown");
+                        RoR2.Console.instance.SubmitCmd(NetworkUser.readOnlyLocalPlayersList[0], "Give_Item " + KeyGiveItem[i].Value.ToString());
+                    }
+                }
             }
         }
 
