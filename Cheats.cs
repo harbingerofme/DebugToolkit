@@ -22,7 +22,6 @@ namespace RoR2Cheats {
 
         private static ConfigEntry<float> SprintFovMultiplierConfig;
         private static ConfigEntry<float> FovConfig;
-        private static ConfigEntry<bool> GodMode;
        // private static ConfigEntry<float> fovConfig { get; set; }
 
         public static float SprintFoVMultiplier { get { return SprintFovMultiplierConfig.Value; } set { SprintFovMultiplierConfig.Value = value; } }
@@ -30,19 +29,20 @@ namespace RoR2Cheats {
 
 
         public static ulong seed = 0;
-        public static bool godMode = false;
 
         public static bool noEnemies = false;
 
-        private ConfigEntry<KeyboardShortcut> KeyMultiplayerPause, KeyGodMode, KeyNextStage, KeyKillAll, KeyNoEnemies, KeyRespawn, KeyItemModifier;
-        private ConfigEntry<String>[] KeyGiveItem = new ConfigEntry<String>[12];
+        public const int maxMacros = 5;
+
+        private ConfigEntry<KeyboardShortcut>[] KeyMacro = new ConfigEntry<KeyboardShortcut>[maxMacros];
+        private ConfigEntry<String>[] MacroText = new ConfigEntry<String>[maxMacros];
 
 
         public void Awake()
         {
             Logger.LogMessage("Harb's Version. Original by Morris1927.");
             SprintFovMultiplierConfig = Config.AddSetting(
-                "FOV",
+                "0 FOV",
                 "sprint Fov Multiplier",
                 1.3f,
                 new ConfigDescription(
@@ -51,29 +51,16 @@ namespace RoR2Cheats {
                 )
             );
             FovConfig = Config.AddSetting(
-                "FOV",
+                "0 FOV",
                 "Base FOV",
                 60f,
                 "Your base Field of vision"
             );
-            GodMode = Config.AddSetting(
-                "Cheats",
-                "God mode",
-                false,
-                "Disables the HealthComponent.takeDamage method for all players."
-                );
-            if (GodMode.Value) { togglegod();}
-            GodMode.SettingChanged += togglegod;
-            KeyGodMode = Config.AddSetting("Hotkeys", "Toggle God mode", new KeyboardShortcut(KeyCode.F3));
-            KeyMultiplayerPause = Config.AddSetting("Hotkeys","True Multiplayer Pause", new KeyboardShortcut(KeyCode.F2));
-            KeyNextStage = Config.AddSetting ("Hotkeys", "Next Stage", new KeyboardShortcut(KeyCode.F4));
-            KeyKillAll = Config.AddSetting("Hotkeys", "Kill All", new KeyboardShortcut(KeyCode.F5));
-            KeyNoEnemies = Config.AddSetting("Hotkeys", "No Enemies", new KeyboardShortcut(KeyCode.F6));
-            KeyRespawn = Config.AddSetting("Hotkeys", "Respawn", new KeyboardShortcut(KeyCode.F7));
-            KeyItemModifier = Config.AddSetting("Hotkeys", "GiveItemKeyModifier", new KeyboardShortcut(KeyCode.RightControl));
-            for (int i = 0; i< 12; i++)
+
+            for (int i = 0; i < 5; i++)
             {
-                KeyGiveItem[i] = Config.AddSetting("Give_Item", $"GiveItemKeyModifierF{(1+i).ToString("00")}", "hoof");
+                MacroText[i] = Config.AddSetting($"Macro {i + 1}", "Definition", "", "Write your commands here, seperated by `;`.");
+                KeyMacro[i] = Config.AddSetting<KeyboardShortcut>($"Macro {i + 1}", "Keybind", new KeyboardShortcut(), "the key for the above macro");
             }
 
             Hooks.InitializeHooks();
@@ -81,56 +68,28 @@ namespace RoR2Cheats {
 
         }
         public void Update() {
-            if (KeyMultiplayerPause.Value.IsDown()) {
-                RoR2.Console.instance.SubmitCmd(NetworkUser.readOnlyLocalPlayersList[0], "time_scale " + (Time.timeScale != 0 ? 0 : 1));
-            }
-            if (KeyGodMode.Value.IsDown())
+            for (int i = 0; i < maxMacros; i++)
             {
-                GodMode.Value = !godMode;
-            }
-            if (KeyNextStage.Value.IsDown())
-            {
-                RoR2.Console.instance.SubmitCmd(NetworkUser.readOnlyLocalPlayersList[0], "next_round");
-            }
-            if (KeyKillAll.Value.IsDown())
-            {
-                RoR2.Console.instance.SubmitCmd(NetworkUser.readOnlyLocalPlayersList[0], "Kill_all");
-            }
-            if (KeyNoEnemies.Value.IsDown())
-            {
-                RoR2.Console.instance.SubmitCmd(NetworkUser.readOnlyLocalPlayersList[0], "no_enemies");
-            }
-            if (KeyRespawn.Value.IsDown())
-            {
-                RoR2.Console.instance.SubmitCmd(NetworkUser.readOnlyLocalPlayersList[0], "respawn");
-            }
-            if(Input.GetKey(KeyItemModifier.Value.MainKey))
-            {
-                Debug.Log("ModifierDown");
-                for (int i = 0; i < 12; i++)
+                if (KeyMacro[i].Value.IsDown())
                 {
-                    if (Input.GetKeyDown((KeyCode)282 + i))
-                    {
-                        Debug.Log("MainDown");
-                        RoR2.Console.instance.SubmitCmd(NetworkUser.readOnlyLocalPlayersList[0], "Give_Item " + KeyGiveItem[i].Value.ToString());
-                    }
+                    RoR2.Console.instance.SubmitCmd(NetworkUser.readOnlyLocalPlayersList[0], MacroText[i].Value);
                 }
             }
         }
 
         [ConCommand(commandName = "god", flags = ConVarFlags.ExecuteOnServer, helpText = "Godmode")]
         private static void CCGodModeToggle(ConCommandArgs _) {
-            GodMode.Value = !godMode;
-        }
-        private static void togglegod(object _=null, EventArgs __=null)
-        {
-            godMode = !godMode;
             var godToggleMethod = typeof(CharacterMaster).GetMethodCached("ToggleGod");
+            bool hasNotYetRun = true;
             foreach (var playerInstance in PlayerCharacterMasterController.instances)
             {
                 godToggleMethod.Invoke(playerInstance.master, null);
+                if (hasNotYetRun)
+                {
+                    Debug.Log($"God mode {(playerInstance.master.GetBody().healthComponent.godMode ? "enabled" : "disabled")}.");
+                    hasNotYetRun = false;
+                }
             }
-            Debug.Log($"God mode {(godMode ? "enabled":"disabled")}.");
         }
 
         [ConCommand(commandName = "time_scale", flags = ConVarFlags.None | ConVarFlags.ExecuteOnServer, helpText = "Time scale")]
@@ -173,7 +132,6 @@ namespace RoR2Cheats {
                 string line = string.Format("{0} = {1}", index, item);
                 text.AppendLine(line);
             }
-
             Debug.Log(text.ToString());
         }
 
