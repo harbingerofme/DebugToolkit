@@ -40,7 +40,7 @@ namespace RoR2Cheats {
 
         public void Awake()
         {
-            Logger.LogMessage("Harb's Version. Original by Morris1927.");
+            Logger.LogMessage("Harb's and Paddy's Version. Original by Morris1927.");
             SprintFovMultiplierConfig = Config.AddSetting(
                 "0 FOV",
                 "sprint Fov Multiplier",
