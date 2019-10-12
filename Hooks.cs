@@ -1,7 +1,6 @@
 ﻿using MonoMod.Cil;
 using System;
 using UnityEngine;
-using Utilities;
 
 namespace RoR2Cheats
 {
