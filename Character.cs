@@ -1,53 +1,54 @@
 ﻿using System;
 using System.Collections.Generic;
-using Utilities;
 
-public class Character
+namespace RoR2Cheats
 {
-
-    public string body;
-    public string master;
-    public List<string> aliases;
-
-    public Character(string _body, string _master, string[] _alises)
-    {
-        body = _body;
-        master = _master;
-        aliases = new List<string>(_alises);
-    }
-
-    public bool IsMatch(string name)
+    public class Character
     {
 
-        if (body.Equals(name, StringComparison.OrdinalIgnoreCase) || master.Equals(name, StringComparison.OrdinalIgnoreCase))
+        public string body;
+        public string master;
+        public List<string> aliases;
+
+        public Character(string _body, string _master, string[] _aliases)
         {
-            return true;
+            body = _body;
+            master = _master;
+            aliases = new List<string>(_aliases);
         }
 
-        foreach (var alias in aliases)
+        public bool IsMatch(string name)
         {
-            if (name.Equals(alias, StringComparison.OrdinalIgnoreCase))
+
+            if (body.Equals(name, StringComparison.OrdinalIgnoreCase) || master.Equals(name, StringComparison.OrdinalIgnoreCase))
             {
                 return true;
             }
+
+            foreach (var alias in aliases)
+            {
+                if (name.Equals(alias, StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+
+
+            return false;
         }
 
-
-        return false;
-    }
-
-    public static Character GetCharacter(string name)
-    {
-        foreach (var character in characters)
+        public static Character GetCharacter(string name)
         {
-            if (character.IsMatch(name))
-                return character;
+            foreach (var character in characters)
+            {
+                if (character.IsMatch(name))
+                    return character;
+            }
+
+            return new Character(name, name.Remove("Body") + "Master", new string[] { "" });
         }
 
-        return new Character(name, name.Remove("Body") + "Master", new string[] { "" });
-    }
-
-    public static List<Character> characters = new List<Character>() {
+        public static List<Character> characters = new List<Character>() {
             new Character("AssassinBody", "AssassinMaster", new string[] {"Assassin"}),
             new Character("CommandoBody", "CommandoMaster", new string[] {"Commando"}),
             new Character("HuntressBody", "HuntressMaster", new string[] {"Huntress"}),
@@ -110,4 +111,5 @@ public class Character
             new Character("WispBody", "WispMaster", new string[] { "Wisp" })
 
         };
+    }
 }

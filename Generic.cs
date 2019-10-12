@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Text;
 using UnityEngine;
 
-namespace Utilities
+namespace RoR2Cheats
 {
     static class Generic
     {

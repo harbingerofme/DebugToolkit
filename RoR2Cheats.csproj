@@ -2,6 +2,11 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <Version>2.4.0</Version>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <Authors>Harbingerofme; Paddywan</Authors>
+    <Description>Bepinex plugin for Risk of Rain 2.</Description>
+    <RepositoryUrl>https://github.com/harbingerofme/RoR2Cheats</RepositoryUrl>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -12,7 +17,6 @@
     <LangVersion>7.1</LangVersion>
   </PropertyGroup>
 
-  <Import Project="Utilities\Utilities.projitems" Label="Shared" />
 
   <ItemGroup>
     <Folder Include="libs\" />
