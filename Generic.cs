@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Text;
 using UnityEngine;
 
-namespace Utilities
+namespace RoR2Cheats
 {
     static class Generic
     {
@@ -15,17 +15,20 @@ namespace Utilities
         private static Dictionary<string, UnityEngine.Object> resources = new Dictionary<string, UnityEngine.Object>();
 
 
-        public static string Remove(this string String, string stringToRemove) {
+        public static string Remove(this string String, string stringToRemove)
+        {
             return String.Replace(stringToRemove, "");
         }
 
-        public static void PrintFields(Type type, object instance) {
+        public static void PrintFields(Type type, object instance)
+        {
             FieldInfo[] fields = type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance);
             List<string> list = new List<string>();
             string listString = "";
 
             list.Add("============================================================================================");
-            foreach (var item in fields) {
+            foreach (var item in fields)
+            {
                 list.Add(string.Format("{0}: {1}", item.Name, item.GetValue(instance)));
             }
             list.Add("============================================================================================");
@@ -33,16 +36,25 @@ namespace Utilities
             Debug.Log(listString);
         }
 
-        public static TReturn FindResource<TReturn>(string name) where TReturn : UnityEngine.Object {
-            if (resources.ContainsKey(name)) {
-                try {
+        public static TReturn FindResource<TReturn>(string name) where TReturn : UnityEngine.Object
+        {
+            if (resources.ContainsKey(name))
+            {
+                try
+                {
                     return (TReturn)Convert.ChangeType(resources[name], typeof(TReturn));
-                } catch (InvalidCastException) {
+                }
+                catch (InvalidCastException)
+                {
                     return default;
                 }
-            } else {
-                foreach (var item in Resources.FindObjectsOfTypeAll<TReturn>()) {
-                    if (item.name.Equals(name)) {
+            }
+            else
+            {
+                foreach (var item in Resources.FindObjectsOfTypeAll<TReturn>())
+                {
+                    if (item.name.Equals(name))
+                    {
                         resources.Add(name, item);
                         return (TReturn)Convert.ChangeType(item, typeof(TReturn));
                     }
@@ -51,10 +63,13 @@ namespace Utilities
             return default;
         }
 
-        public class ArgsHelper {
+        public class ArgsHelper
+        {
 
-            public static string GetValue(List<string> args, int index) {
-                if (index < args.Count && index >= 0) {
+            public static string GetValue(List<string> args, int index)
+            {
+                if (index < args.Count && index >= 0)
+                {
                     return args[index];
                 }
 
@@ -63,14 +78,18 @@ namespace Utilities
         }
 
         //CommandHelper written by Wildbook
-        public class CommandHelper {
-            public static void RegisterCommands(RoR2.Console self) {
+        public class CommandHelper
+        {
+            public static void RegisterCommands(RoR2.Console self)
+            {
                 var types = typeof(CommandHelper).Assembly.GetTypes();
                 var catalog = self.GetFieldValue<IDictionary>("concommandCatalog");
 
-                foreach (var methodInfo in types.SelectMany(x => x.GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic))) {
+                foreach (var methodInfo in types.SelectMany(x => x.GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)))
+                {
                     var customAttributes = methodInfo.GetCustomAttributes(false);
-                    foreach (var attribute in customAttributes.OfType<ConCommandAttribute>()) {
+                    foreach (var attribute in customAttributes.OfType<ConCommandAttribute>())
+                    {
                         var conCommand = Reflection.GetNestedType<RoR2.Console>("ConCommand").Instantiate();
 
                         conCommand.SetFieldValue("flags", attribute.flags);
