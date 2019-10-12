@@ -11,11 +11,24 @@ namespace RoR2Cheats
         {
             ConCommandHooks();
 
+            SeedHooks();
+
             CameraFOVHooks();
 
             SetupNoEnemyIL();
             SetupFOVIL();
         }
+
+        private static void SeedHooks()
+        {
+            On.RoR2.PreGameController.Awake += (orig,self)=> 
+            {
+                orig(self);
+                if(Cheats.seed != 0)
+                    self.runSeed = Cheats.seed;
+            };
+        }
+
 
 
         private static void CameraFOVHooks()

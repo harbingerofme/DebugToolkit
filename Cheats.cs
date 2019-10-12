@@ -29,7 +29,8 @@ namespace RoR2Cheats
         public static float FieldOfVision { get { return FovConfig.Value; } set { FovConfig.Value = value; } }
 
         public static bool noEnemies = false;
-
+        public static ulong seed =0;
+        public static readonly Cheats instance;
 
         public void Awake()
         {
@@ -282,12 +283,28 @@ namespace RoR2Cheats
         [ConCommand(commandName = "seed", flags = ConVarFlags.ExecuteOnServer, helpText = "Set seed.")]
         private static void CCUseSeed(ConCommandArgs args)
         {
+            if (args.Count == 0)
+            {
+                string s = "Current Seed is ";
+                if (PreGameController.instance)
+                {
+                    s += PreGameController.instance.runSeed;
+                }
+                else 
+                {
+                    s += (seed == 0) ? "random" : seed.ToString();
+                }
+                Debug.Log(s);
+                return;
+            }
             args.CheckArgumentCount(1);
-            if (!PreGameController.instance)
-                throw new ConCommandException("Pregame controller does not currently exist to set the seed for.");
             if (!TextSerialization.TryParseInvariant(args[0], out ulong result))
                 throw new ConCommandException("Specified seed is not a parsable uint64.");
-            PreGameController.instance.runSeed = result;
+            if (PreGameController.instance)
+            {
+                PreGameController.instance.runSeed = (result == 0) ? RoR2Application.rng.nextUlong  : result ;
+            }
+            seed = result;
         }
 
         [ConCommand(commandName = "fixed_time", flags = ConVarFlags.ExecuteOnServer, helpText = "Sets fixed time - Affects monster difficulty")]
