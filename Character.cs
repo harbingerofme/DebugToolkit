@@ -2,26 +2,32 @@
 using System.Collections.Generic;
 using Utilities;
 
-public class Character {
+public class Character
+{
 
     public string body;
     public string master;
     public List<string> aliases;
 
-    public Character(string _body, string _master, string[] _alises) {
+    public Character(string _body, string _master, string[] _alises)
+    {
         body = _body;
         master = _master;
         aliases = new List<string>(_alises);
     }
 
-    public bool IsMatch(string name) {
+    public bool IsMatch(string name)
+    {
 
-        if (body.Equals(name, StringComparison.OrdinalIgnoreCase) || master.Equals(name, StringComparison.OrdinalIgnoreCase)) {
+        if (body.Equals(name, StringComparison.OrdinalIgnoreCase) || master.Equals(name, StringComparison.OrdinalIgnoreCase))
+        {
             return true;
         }
 
-        foreach (var alias in aliases) {
-            if (name.Equals(alias, StringComparison.OrdinalIgnoreCase)) {
+        foreach (var alias in aliases)
+        {
+            if (name.Equals(alias, StringComparison.OrdinalIgnoreCase))
+            {
                 return true;
             }
         }
@@ -30,12 +36,14 @@ public class Character {
         return false;
     }
 
-    public static Character GetCharacter(string name) {
-        foreach (var character in characters) {
+    public static Character GetCharacter(string name)
+    {
+        foreach (var character in characters)
+        {
             if (character.IsMatch(name))
                 return character;
         }
-        
+
         return new Character(name, name.Remove("Body") + "Master", new string[] { "" });
     }
 

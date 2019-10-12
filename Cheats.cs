@@ -15,27 +15,21 @@ using UnityEngine.SceneManagement;
 using Utilities;
 using ArgsHelper = Utilities.Generic.ArgsHelper;
 
-namespace RoR2Cheats {
+namespace RoR2Cheats
+{
     [BepInDependency("com.bepis.r2api")]
     [BepInPlugin("com.harbingerofme.RoR2Cheats", "RoR2Cheats", "2.4.0")]
-    public class Cheats : BaseUnityPlugin {
+    public class Cheats : BaseUnityPlugin
+    {
 
         private static ConfigEntry<float> SprintFovMultiplierConfig;
         private static ConfigEntry<float> FovConfig;
-       // private static ConfigEntry<float> fovConfig { get; set; }
+        // private static ConfigEntry<float> fovConfig { get; set; }
 
         public static float SprintFoVMultiplier { get { return SprintFovMultiplierConfig.Value; } set { SprintFovMultiplierConfig.Value = value; } }
         public static float FieldOfVision { get { return FovConfig.Value; } set { FovConfig.Value = value; } }
 
-
-        public static ulong seed = 0;
-
         public static bool noEnemies = false;
-
-        public const int maxMacros = 5;
-
-        private ConfigEntry<KeyboardShortcut>[] KeyMacro = new ConfigEntry<KeyboardShortcut>[maxMacros];
-        private ConfigEntry<String>[] MacroText = new ConfigEntry<String>[maxMacros];
 
 
         public void Awake()
@@ -47,7 +41,7 @@ namespace RoR2Cheats {
                 1.3f,
                 new ConfigDescription(
                 "What FOV gets multiplied by while sprinting",
-                new AcceptableValueRange<float>(1f,2f)
+                new AcceptableValueRange<float>(1f, 2f)
                 )
             );
             FovConfig = Config.AddSetting(
@@ -57,28 +51,13 @@ namespace RoR2Cheats {
                 "Your base Field of vision"
             );
 
-            for (int i = 0; i < 5; i++)
-            {
-                MacroText[i] = Config.AddSetting($"Macro {i + 1}", "Definition", "", "Write your commands here, seperated by `;`.");
-                KeyMacro[i] = Config.AddSetting<KeyboardShortcut>($"Macro {i + 1}", "Keybind", new KeyboardShortcut(), "the key for the above macro");
-            }
-
             Hooks.InitializeHooks();
             NetworkHandler.RegisterNetworkHandlerAttributes();
-
-        }
-        public void Update() {
-            for (int i = 0; i < maxMacros; i++)
-            {
-                if (KeyMacro[i].Value.IsDown())
-                {
-                    RoR2.Console.instance.SubmitCmd(NetworkUser.readOnlyLocalPlayersList[0], MacroText[i].Value);
-                }
-            }
         }
 
         [ConCommand(commandName = "god", flags = ConVarFlags.ExecuteOnServer, helpText = "Godmode")]
-        private static void CCGodModeToggle(ConCommandArgs _) {
+        private static void CCGodModeToggle(ConCommandArgs _)
+        {
             var godToggleMethod = typeof(CharacterMaster).GetMethodCached("ToggleGod");
             bool hasNotYetRun = true;
             foreach (var playerInstance in PlayerCharacterMasterController.instances)
@@ -92,20 +71,24 @@ namespace RoR2Cheats {
             }
         }
 
-        [ConCommand(commandName = "time_scale", flags = ConVarFlags.None | ConVarFlags.ExecuteOnServer, helpText = "Time scale")]
-        private static void CCTimeScale(ConCommandArgs args) {
+        [ConCommand(commandName = "time_scale", flags = ConVarFlags.Engine | ConVarFlags.ExecuteOnServer, helpText = "Time scale")]
+        private static void CCTimeScale(ConCommandArgs args)
+        {
             string scaleString = ArgsHelper.GetValue(args.userArgs, 0);
-            float scale = 1f;
 
-            if (args.Count == 0) {
+            if (args.Count == 0)
+            {
                 Debug.Log(Time.timeScale);
                 return;
             }
 
-            if (float.TryParse(scaleString, out scale)) {
+            if (float.TryParse(scaleString, out float scale))
+            {
                 Time.timeScale = scale;
                 Debug.Log("Time scale set to " + scale);
-            } else {
+            }
+            else
+            {
                 Debug.Log("Incorrect arguments. Try: time_scale 0.5");
             }
 
@@ -118,13 +101,15 @@ namespace RoR2Cheats {
         }
 
         [NetworkMessageHandler(msgType = 101, client = true, server = false)]
-        private static void HandleTimeScale(NetworkMessage netMsg) {
+        private static void HandleTimeScale(NetworkMessage netMsg)
+        {
             NetworkReader reader = netMsg.reader;
             Time.timeScale = (float)reader.ReadDouble();
         }
 
-        [ConCommand(commandName = "list_items", flags = ConVarFlags.ExecuteOnServer, helpText = "List all item names and their IDs")]
-        private static void CCListItems(ConCommandArgs args) {
+        [ConCommand(commandName = "list_items", flags = ConVarFlags.None, helpText = "List all item names and their IDs")]
+        private static void CCListItems(ConCommandArgs _)
+        {
             StringBuilder text = new StringBuilder();
             foreach (ItemIndex item in ItemCatalog.allItems)
             {
@@ -137,7 +122,8 @@ namespace RoR2Cheats {
 
 
         [ConCommand(commandName = "list_equips", flags = ConVarFlags.None, helpText = "List all equipment items and their IDs")]
-        private static void CCListEquipments(ConCommandArgs args) {
+        private static void CCListEquipments(ConCommandArgs _)
+        {
             StringBuilder text = new StringBuilder();
             foreach (EquipmentIndex item in EquipmentCatalog.allEquipment)
             {
@@ -145,12 +131,12 @@ namespace RoR2Cheats {
                 string line = string.Format("{0} = {1}", index, item);
                 text.AppendLine(line);
             }
-
             Debug.Log(text.ToString());
         }
 
-        [ConCommand(commandName = "give_item", flags = ConVarFlags.None, helpText = "Give item")]
-        private static void CCGiveItem(ConCommandArgs args) {
+        [ConCommand(commandName = "give_item", flags = ConVarFlags.None, helpText = "Give item directly in the player's inventory. give_item <id> <amount> <playerid>")]
+        private static void CCGiveItem(ConCommandArgs args)
+        {
 
             string indexString = ArgsHelper.GetValue(args.userArgs, 0);
             string countString = ArgsHelper.GetValue(args.userArgs, 1);
@@ -161,28 +147,33 @@ namespace RoR2Cheats {
             Inventory inventory = player != null ? player.master.inventory : args.sender.master.inventory;
 
 
-            int itemCount = 1;
-            if (!int.TryParse(countString, out itemCount))
+            if (!int.TryParse(countString, out int itemCount))
                 itemCount = 1;
 
-            int itemIndex = 0;
-            ItemIndex itemType = ItemIndex.Syringe;
-            if (int.TryParse(indexString, out itemIndex)) {
-                if (itemIndex < (int)ItemIndex.Count && itemIndex >= 0) {
+            ItemIndex itemType;
+            if (int.TryParse(indexString, out int itemIndex))
+            {
+                if (itemIndex < (int)ItemIndex.Count && itemIndex >= 0)
+                {
                     itemType = (ItemIndex)itemIndex;
                     inventory.GiveItem(itemType, itemCount);
                 }
-            } else if (Enum.TryParse<ItemIndex>(indexString, true, out itemType)) {
+            }
+            else if (Enum.TryParse<ItemIndex>(indexString, true, out itemType))
+            {
                 inventory.GiveItem(itemType, itemCount);
-            } else {
+            }
+            else
+            {
                 Debug.Log("Incorrect arguments. Try: give_item syringe 10   --- list_items for a list of items");
             }
 
 
         }
 
-        [ConCommand(commandName = "give_equip", flags = ConVarFlags.ExecuteOnServer, helpText = "Give equipment")]
-        private static void CCGiveEquipment(ConCommandArgs args) {
+        [ConCommand(commandName = "give_equip", flags = ConVarFlags.ExecuteOnServer, helpText = "Give equipment directly to a player's inventory.")]
+        private static void CCGiveEquipment(ConCommandArgs args)
+        {
 
             string equipString = ArgsHelper.GetValue(args.userArgs, 0);
             string playerString = ArgsHelper.GetValue(args.userArgs, 1);
@@ -191,42 +182,60 @@ namespace RoR2Cheats {
 
             Inventory inventory = player != null ? player.master.inventory : args.sender.master.inventory;
 
-            int equipIndex = 0;
-            EquipmentIndex equipType = EquipmentIndex.None;
-
-            if (int.TryParse(equipString, out equipIndex)) {
-                if (equipIndex < (int)EquipmentIndex.Count && equipIndex >= -1) {
+            if (int.TryParse(equipString, out int equipIndex))
+            {
+                if (equipIndex < (int)EquipmentIndex.Count && equipIndex >= -1)
+                {
                     inventory.SetEquipmentIndex((EquipmentIndex)equipIndex);
                 }
-            } else if (Enum.TryParse<EquipmentIndex>(equipString, true, out equipType)) {
+            }
+            else if (Enum.TryParse<EquipmentIndex>(equipString, true, out EquipmentIndex equipType))
+            {
                 inventory.SetEquipmentIndex(equipType);
-            } else {
+            }
+            else
+            {
                 Debug.Log("Incorrect arguments. Try: give_equip meteor   --- list_equips for a list of all equipments");
             }
 
         }
 
         [ConCommand(commandName = "give_money", flags = ConVarFlags.ExecuteOnServer, helpText = "Gives money")]
-        private static void CCGiveMoney(ConCommandArgs args) {
-            if (args.Count == 0) {
+        private static void CCGiveMoney(ConCommandArgs args)
+        {
+            if (args.Count == 0)
+            {
                 return;
             }
 
             string moneyString = ArgsHelper.GetValue(args.userArgs, 0);
             string playerString = ArgsHelper.GetValue(args.userArgs, 1);
 
-            NetworkUser player = GetNetUserFromString(playerString);
-            CharacterMaster master = player != null ? player.master : args.sender.master;
+            if (!uint.TryParse(moneyString, out uint result))
+            {
+                return;
+            }
 
-            uint result;
-            if (uint.TryParse(moneyString, out result)) {
+            if (playerString.ToLower() != "all")
+            {
+                NetworkUser player = GetNetUserFromString(playerString);
+                CharacterMaster master = player != null ? player.master : args.sender.master;
                 master.GiveMoney(result);
+            }
+            else
+            {
+                foreach (var playerInstance in PlayerCharacterMasterController.instances)
+                {
+                    playerInstance.master.GiveMoney(result);
+                }
             }
         }
 
         [ConCommand(commandName = "give_exp", flags = ConVarFlags.ExecuteOnServer, helpText = "Gives experience")]
-        private static void CCGiveExperience(ConCommandArgs args) {
-            if (args.Count == 0) {
+        private static void CCGiveExperience(ConCommandArgs args)
+        {
+            if (args.Count == 0)
+            {
                 return;
             }
 
@@ -236,15 +245,17 @@ namespace RoR2Cheats {
             NetworkUser player = GetNetUserFromString(playerString);
             CharacterMaster master = player != null ? player.master : args.sender.master;
 
-            uint result;
-            if (uint.TryParse(expString, out result)) {
+            if (uint.TryParse(expString, out uint result))
+            {
                 master.GiveExperience(result);
             }
         }
 
         [ConCommand(commandName = "next_round", flags = ConVarFlags.ExecuteOnServer, helpText = "Start next round. Additional args for specific scene.")]
-        private static void CCNextRound(ConCommandArgs args) {
-            if (args.Count == 0) {
+        private static void CCNextRound(ConCommandArgs args)
+        {
+            if (args.Count == 0)
+            {
                 Run.instance.AdvanceStage(Run.instance.nextStageScene);
                 return;
             }
@@ -252,80 +263,105 @@ namespace RoR2Cheats {
             string stageString = ArgsHelper.GetValue(args.userArgs, 0);
 
             List<string> array = new List<string>();
-            for (int i = 0; i < SceneManager.sceneCountInBuildSettings; i++) {
+            for (int i = 0; i < SceneManager.sceneCountInBuildSettings; i++)
+            {
                 array.Add(SceneUtility.GetScenePathByBuildIndex(i).Replace("Assets/RoR2/Scenes/", "").Replace(".unity", ""));
             }
 
-            if (array.Contains(stageString)) {
+            if (array.Contains(stageString))
+            {
                 Run.instance.AdvanceStage(SceneCatalog.GetSceneDefFromSceneName(stageString));
                 return;
-            } else {
+            }
+            else
+            {
                 Debug.Log("Incorrect arguments. Try: next_round golemplains   --- Here is a list of available scenes");
                 Debug.Log(string.Join("\n", array));
             }
         }
 
         [ConCommand(commandName = "seed", flags = ConVarFlags.ExecuteOnServer, helpText = "Set seed.")]
-        private static void CCUseSeed(ConCommandArgs args) {
+        private static void CCUseSeed(ConCommandArgs args)
+        {
             args.CheckArgumentCount(1);
             if (!PreGameController.instance)
                 throw new ConCommandException("Pregame controller does not currently exist to set the seed for.");
-            ulong result;
-            if (!TextSerialization.TryParseInvariant(args[0], out result))
+            if (!TextSerialization.TryParseInvariant(args[0], out ulong result))
                 throw new ConCommandException("Specified seed is not a parsable uint64.");
             PreGameController.instance.runSeed = result;
         }
 
         [ConCommand(commandName = "fixed_time", flags = ConVarFlags.ExecuteOnServer, helpText = "Sets fixed time - Affects monster difficulty")]
-        private static void CCSetTime(ConCommandArgs args) {
+        private static void CCSetTime(ConCommandArgs args)
+        {
 
-            if (args.Count == 0) {
+            if (args.Count == 0)
+            {
                 Debug.Log(Run.instance.fixedTime);
                 return;
             }
 
             string stringTime = ArgsHelper.GetValue(args.userArgs, 0);
-            float setTime;
-            if (float.TryParse(stringTime, out setTime)) {
+            if (float.TryParse(stringTime, out float setTime))
+            {
                 Run.instance.fixedTime = setTime;
                 ResetEnemyTeamLevel();
                 Debug.Log("Fixed_time set to " + setTime);
-            } else {
+            }
+            else
+            {
                 Debug.Log("Incorrect arguments. Try: fixed_time 600");
             }
 
         }
 
         [ConCommand(commandName = "stage_clear_count", flags = ConVarFlags.ExecuteOnServer, helpText = "Sets stage clear count - Affects monster difficulty")]
-        private static void CCSetClearCount(ConCommandArgs args) {
+        private static void CCSetClearCount(ConCommandArgs args)
+        {
             string stringClearCount = ArgsHelper.GetValue(args.userArgs, 0);
 
-            if (args.Count == 0) {
+            if (args.Count == 0)
+            {
                 Debug.Log(Run.instance.stageClearCount);
                 return;
             }
 
-            int setClearCount;
-            if (int.TryParse(stringClearCount, out setClearCount)) {
+            if (int.TryParse(stringClearCount, out int setClearCount))
+            {
                 Run.instance.stageClearCount = setClearCount;
                 ResetEnemyTeamLevel();
                 Debug.Log("Stage_clear_count set to " + setClearCount);
-            } else {
+            }
+            else
+            {
                 Debug.Log("Incorrect arguments. Try: stage_clear_count 5");
             }
 
         }
 
         [ConCommand(commandName = "no_enemies", flags = ConVarFlags.ExecuteOnServer, helpText = "Stops enemies from spawning")]
-        private static void CCNoEnemies(ConCommandArgs args) {
-            noEnemies = !noEnemies;
-            Debug.Log("No_enemies toggled " + noEnemies);
+        private static void CCNoEnemies(ConCommandArgs args)
+        {
+            if (args.Count > 0 && int.TryParse(args.GetArgString(0), out int desired))
+            {
+                if (desired == 0)
+                    noEnemies = false;
+                else
+                    noEnemies = true;
+            }
+            else
+            {
+                noEnemies = !noEnemies;
+            }
+            Debug.Log("No_enemies set to " + noEnemies);
         }
 
 
         [ConCommand(commandName = "spawn_as", flags = ConVarFlags.ExecuteOnServer, helpText = "Spawn as a new character. Type body_list for a full list of characters")]
-        private static void CCSpawnAs(ConCommandArgs args) {
-            if (args.Count == 0) {
+        private static void CCSpawnAs(ConCommandArgs args)
+        {
+            if (args.Count == 0)
+            {
 
                 return;
             }
@@ -334,7 +370,8 @@ namespace RoR2Cheats {
             string playerString = ArgsHelper.GetValue(args.userArgs, 1);
 
             var character = Character.GetCharacter(bodyString);
-            if (character == null) {
+            if (character == null)
+            {
                 Debug.LogFormat("Could not spawn {0}, Try: spawn_ai GolemBody", character.body);
                 return;
             }
@@ -343,16 +380,19 @@ namespace RoR2Cheats {
 
             CharacterMaster master = player != null ? player.master : args.sender.master;
 
-            if (!master.alive) {
+            if (!master.alive)
+            {
                 Debug.Log("Player is dead and cannot respawn.");
                 return;
             }
 
             GameObject newBody = BodyCatalog.FindBodyPrefab(character.body);
-                
-            if (newBody == null) {
+
+            if (newBody == null)
+            {
                 List<string> array = new List<string>();
-                foreach (var item in BodyCatalog.allBodyPrefabs) {
+                foreach (var item in BodyCatalog.allBodyPrefabs)
+                {
                     array.Add(item.name);
                 }
                 string list = string.Join("\n", array);
@@ -365,20 +405,26 @@ namespace RoR2Cheats {
             master.Respawn(master.GetBody().transform.position, master.GetBody().transform.rotation);
         }
 
-        private static NetworkUser GetNetUserFromString(string playerString) {
-            int result = 0;
-
-            if (playerString != "") {
-                if (int.TryParse(playerString, out result)) {
-                    if (result < NetworkUser.readOnlyInstancesList.Count && result >= 0) {
+        private static NetworkUser GetNetUserFromString(string playerString)
+        {
+            if (playerString != "")
+            {
+                if (int.TryParse(playerString, out int result))
+                {
+                    if (result < NetworkUser.readOnlyInstancesList.Count && result >= 0)
+                    {
 
                         return NetworkUser.readOnlyInstancesList[result];
                     }
                     Debug.Log("Specified player index does not exist");
                     return null;
-                } else {
-                    foreach (NetworkUser n in NetworkUser.readOnlyInstancesList) {
-                        if (n.userName.Equals(playerString, StringComparison.CurrentCultureIgnoreCase)) {
+                }
+                else
+                {
+                    foreach (NetworkUser n in NetworkUser.readOnlyInstancesList)
+                    {
+                        if (n.userName.Equals(playerString, StringComparison.CurrentCultureIgnoreCase))
+                        {
                             return n;
                         }
                     }
@@ -391,65 +437,89 @@ namespace RoR2Cheats {
         }
 
         [ConCommand(commandName = "player_list", flags = ConVarFlags.ExecuteOnServer, helpText = "Shows list of players with their ID")]
-        private static void CCPlayerList(ConCommandArgs args) {
+        private static void CCPlayerList(ConCommandArgs _)
+        {
             NetworkUser n;
-            for (int i = 0; i < NetworkUser.readOnlyInstancesList.Count; i++) {
+            for (int i = 0; i < NetworkUser.readOnlyInstancesList.Count; i++)
+            {
                 n = NetworkUser.readOnlyInstancesList[i];
                 Debug.Log(i + ": " + n.userName);
             }
         }
 
         [ConCommand(commandName = "fov_sprint_multiplier", flags = ConVarFlags.Engine, helpText = "Set your sprint FOV multiplier")]
-        private static void CCSetSprintFOVMulti(ConCommandArgs args) {
-            if (args.Count == 0) {
+        private static void CCSetSprintFOVMulti(ConCommandArgs args)
+        {
+            if (args.Count == 0)
+            {
                 Debug.Log(SprintFoVMultiplier);
                 return;
             }
             string multiString = ArgsHelper.GetValue(args.userArgs, 0);
 
-            float sprintFov = 1f;
-            if (float.TryParse(multiString, out sprintFov)) {
+            if (float.TryParse(multiString, out float sprintFov))
+            {
                 SprintFoVMultiplier = sprintFov;
                 Debug.Log("Set Sprint FOV Multiplier to " + SprintFoVMultiplier);
-            } else
+            }
+            else
                 Debug.Log("Incorrect arguments. Try: sprint_fov_multiplier 1");
         }
 
 
         [ConCommand(commandName = "fov", flags = ConVarFlags.Engine, helpText = "Set your FOV")]
-        private static void CCSetFov(ConCommandArgs args) {
-            if (args.Count == 0) {
+        private static void CCSetFov(ConCommandArgs args)
+        {
+            if (args.Count == 0)
+            {
                 Debug.Log(FieldOfVision);
                 return;
             }
 
             string fovString = ArgsHelper.GetValue(args.userArgs, 0);
 
-            float fovTemp = 60f;
-            if (float.TryParse(fovString, out fovTemp)) {
+            if (float.TryParse(fovString, out float fovTemp))
+            {
                 FieldOfVision = fovTemp;
                 DodgeState.dodgeFOV = FieldOfVision - 10f;
                 BackflipState.dodgeFOV = FieldOfVision - 10f;
                 Debug.Log("Set FOV to " + FieldOfVision);
 
                 List<CameraRigController> instancesList = (List<CameraRigController>)typeof(CameraRigController).GetField("instancesList", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic).GetValue(null);
-                foreach (CameraRigController c in instancesList) {
+                foreach (CameraRigController c in instancesList)
+                {
                     c.baseFov = FieldOfVision;
                 }
-            } else {
+            }
+            else
+            {
                 Debug.Log("Incorrect arguments. Try: fov 60");
             }
         }
 
         [ConCommand(commandName = "kill_all", flags = ConVarFlags.ExecuteOnServer, helpText = "Kill all enemies (not you, don't worry. Unless you talk ^@#$ behind my back. Watch out.)")]
-        private static void CCKillAll(ConCommandArgs args) {
-            int count = 0;
+        private static void CCKillAll(ConCommandArgs args)
+        {
 
-            foreach (CharacterMaster cm in FindObjectsOfType<CharacterMaster>()) {
-                if (cm.teamIndex == TeamIndex.Monster) {
+            TeamIndex team;
+            if (args.Count == 0)
+            {
+                team = (TeamIndex)2;
+            }
+            else
+            {
+                team = (TeamIndex)args.GetArgInt(0);
+            }
+            int count = 0;
+            foreach (CharacterMaster cm in FindObjectsOfType<CharacterMaster>())
+            {
+                if (cm.teamIndex == team)
+                {
                     CharacterBody cb = cm.GetBody();
-                    if (cb) {
-                        if (cb.healthComponent) {
+                    if (cb)
+                    {
+                        if (cb.healthComponent)
+                        {
                             cb.healthComponent.Suicide(null);
                             count++;
                         }
@@ -458,12 +528,12 @@ namespace RoR2Cheats {
                 }
 
             }
-
-            Debug.Log("Killed " + count + " - you monster");
+            Debug.Log("Killed " + count + " of team " + team + ".");
         }
 
         [ConCommand(commandName = "spawn_ai", flags = ConVarFlags.ExecuteOnServer, helpText = "Spawn an AI")]
-        private static void CCSpawnAI(ConCommandArgs args) {
+        private static void CCSpawnAI(ConCommandArgs args)
+        {
 
             string prefabString = ArgsHelper.GetValue(args.userArgs, 0);
             string eliteString = ArgsHelper.GetValue(args.userArgs, 1);
@@ -471,7 +541,8 @@ namespace RoR2Cheats {
             string braindeadString = ArgsHelper.GetValue(args.userArgs, 3);
 
             var character = Character.GetCharacter(prefabString);
-            if (character == null) {
+            if (character == null)
+            {
                 Debug.LogFormat("Could not spawn {0}, Try: spawn_ai GolemBody", character.body);
                 return;
             }
@@ -485,23 +556,26 @@ namespace RoR2Cheats {
             NetworkServer.Spawn(bodyGameObject);
             master.SpawnBody(body, args.sender.master.GetBody().transform.position, Quaternion.identity);
 
-            EliteIndex eliteIndex = EliteIndex.None;
-            if (Enum.TryParse<EliteIndex>(eliteString, true, out eliteIndex)) {
-                if ((int)eliteIndex > (int)EliteIndex.None && (int)eliteIndex < (int)EliteIndex.Count) {
+            if (Enum.TryParse<EliteIndex>(eliteString, true, out EliteIndex eliteIndex))
+            {
+                if ((int)eliteIndex > (int)EliteIndex.None && (int)eliteIndex < (int)EliteIndex.Count)
+                {
                     master.inventory.SetEquipmentIndex(EliteCatalog.GetEliteDef(eliteIndex).eliteEquipmentIndex);
                 }
             }
 
-            TeamIndex teamIndex = TeamIndex.Neutral;
-            if (Enum.TryParse<TeamIndex>(teamString, true, out teamIndex)) {
-                if ((int)teamIndex >= (int)TeamIndex.None && (int)teamIndex < (int)TeamIndex.Count) {
+            if (Enum.TryParse<TeamIndex>(teamString, true, out TeamIndex teamIndex))
+            {
+                if ((int)teamIndex >= (int)TeamIndex.None && (int)teamIndex < (int)TeamIndex.Count)
+                {
                     master.teamIndex = teamIndex;
                 }
             }
 
-            bool braindead;
-            if (bool.TryParse(braindeadString, out braindead)) {
-                if (braindead) {
+            if (bool.TryParse(braindeadString, out bool braindead))
+            {
+                if (braindead)
+                {
                     Destroy(master.GetComponent<BaseAI>());
                 }
             }
@@ -509,11 +583,13 @@ namespace RoR2Cheats {
         }
 
         [ConCommand(commandName = "spawn_body", flags = ConVarFlags.ExecuteOnServer, helpText = "Spawns a CharacterBody")]
-        private static void CCSpawnBody(ConCommandArgs args) {
+        private static void CCSpawnBody(ConCommandArgs args)
+        {
             string prefabString = ArgsHelper.GetValue(args.userArgs, 0);
 
             var character = Character.GetCharacter(prefabString);
-            if (character == null) {
+            if (character == null)
+            {
                 Debug.LogFormat("Could not spawn {0}, Try: spawn_ai GolemBody", character.body);
                 return;
             }
@@ -526,65 +602,69 @@ namespace RoR2Cheats {
             Debug.Log("Attempting to spawn " + character.body);
         }
 
-        private static void ResetEnemyTeamLevel() {
+        private static void ResetEnemyTeamLevel()
+        {
             TeamManager.instance.SetTeamLevel(TeamIndex.Monster, 1);
         }
-        
+
         [ConCommand(commandName = "true_kill", flags = ConVarFlags.ExecuteOnServer, helpText = "Truly kill a player, ignoring revival effects")]
-		private static void CCTrueKill(ConCommandArgs args)
-		{
+        private static void CCTrueKill(ConCommandArgs args)
+        {
             string playerString = ArgsHelper.GetValue(args.userArgs, 0);
 
             NetworkUser player = GetNetUserFromString(playerString);
             player = player ?? args.sender;
 
             player.master.TrueKill();
-		}
-        
-        [ConCommand(commandName = "add_blue", flags = ConVarFlags.ExecuteOnServer, helpText = "Teleporter will attempt to spawn a blue portal on completion")]
-		private static void CCAddBlueOrb(ConCommandArgs args)
-		{
-            if (TeleporterInteraction.instance)
-			    TeleporterInteraction.instance.Network_shouldAttemptToSpawnShopPortal = true;
-		}
+        }
 
-		[ConCommand(commandName = "add_gold", flags = ConVarFlags.ExecuteOnServer, helpText = "Teleporter will attempt to spawn a gold portal on completion")]
-		private static void CCAddGoldOrb(ConCommandArgs args)
-		{
+        [ConCommand(commandName = "add_blue", flags = ConVarFlags.ExecuteOnServer, helpText = "Teleporter will attempt to spawn a blue portal on completion")]
+        private static void CCAddBlueOrb(ConCommandArgs _)
+        {
+            if (TeleporterInteraction.instance)
+                TeleporterInteraction.instance.Network_shouldAttemptToSpawnShopPortal = true;
+        }
+
+        [ConCommand(commandName = "add_gold", flags = ConVarFlags.ExecuteOnServer, helpText = "Teleporter will attempt to spawn a gold portal on completion")]
+        private static void CCAddGoldOrb(ConCommandArgs _)
+        {
             if (TeleporterInteraction.instance)
                 TeleporterInteraction.instance.Network_shouldAttemptToSpawnGoldshoresPortal = true;
-		}
+        }
 
-		[ConCommand(commandName = "add_celestial", flags = ConVarFlags.ExecuteOnServer, helpText = "Teleporter will attempt to spawn a celestial portal on completion")]
-		private static void CCAddCelestialOrb(ConCommandArgs args)
-		{
+        [ConCommand(commandName = "add_celestial", flags = ConVarFlags.ExecuteOnServer, helpText = "Teleporter will attempt to spawn a celestial portal on completion")]
+        private static void CCAddCelestialOrb(ConCommandArgs _)
+        {
             if (TeleporterInteraction.instance)
                 TeleporterInteraction.instance.Network_shouldAttemptToSpawnMSPortal = true;
-		}
+        }
 
         [ConCommand(commandName = "change_team", flags = ConVarFlags.ExecuteOnServer, helpText = "Change team to Neutral, Player or Monster (0, 1, 2)")]
-        private static void CCChangeTeam(ConCommandArgs args) {
+        private static void CCChangeTeam(ConCommandArgs args)
+        {
             string teamString = ArgsHelper.GetValue(args.userArgs, 0);
             string playerString = ArgsHelper.GetValue(args.userArgs, 1);
 
             NetworkUser player = GetNetUserFromString(playerString);
             player = player ?? args.sender;
 
-            TeamIndex teamIndex = TeamIndex.Player;
-            if (Enum.TryParse(teamString, true, out teamIndex)) {
-                if ((int)teamIndex >= (int)TeamIndex.None && (int)teamIndex < (int)TeamIndex.Count) {
+            if (Enum.TryParse(teamString, true, out TeamIndex teamIndex))
+            {
+                if ((int)teamIndex >= (int)TeamIndex.None && (int)teamIndex < (int)TeamIndex.Count)
+                {
                     Debug.Log("Changed to team " + teamIndex);
-                    if (player.master.GetBody()) {
+                    if (player.master.GetBody())
+                    {
                         player.master.GetBody().teamComponent.teamIndex = teamIndex;
                         player.master.teamIndex = teamIndex;
                     }
                 }
             }
         }
-        
+
         [ConCommand(commandName = "respawn", flags = ConVarFlags.ExecuteOnServer, helpText = "Respawn a player")]
-		private static void RespawnPlayer(ConCommandArgs args)
-		{
+        private static void RespawnPlayer(ConCommandArgs args)
+        {
             string playerString = ArgsHelper.GetValue(args.userArgs, 0);
 
             NetworkUser player = GetNetUserFromString(playerString);
@@ -592,6 +672,6 @@ namespace RoR2Cheats {
 
             Transform spawnPoint = Stage.instance.GetPlayerSpawnTransform();
             player.master.Respawn(spawnPoint.position, spawnPoint.rotation, false);
-		}
+        }
     }
 }
