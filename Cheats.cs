@@ -650,21 +650,27 @@ namespace RoR2Cheats
         [ConCommand(commandName = "change_team", flags = ConVarFlags.ExecuteOnServer, helpText = "Change team to Neutral, Player or Monster (0, 1, 2)")]
         private static void CCChangeTeam(ConCommandArgs args)
         {
-            string teamString = ArgsHelper.GetValue(args.userArgs, 0);
-            string playerString = ArgsHelper.GetValue(args.userArgs, 1);
+            args.CheckArgumentCount(1);
 
-            NetworkUser player = GetNetUserFromString(playerString);
-            player = player ?? args.sender;
+            CharacterMaster master = args.sender.master;
+            if (args.Count > 1)
+            {
+                NetworkUser player = GetNetUserFromString(args[1]);
+                if (player != null)
+                {
+                    master = player.master;
+                }
+            }
 
-            if (Enum.TryParse(teamString, true, out TeamIndex teamIndex))
+            if (Enum.TryParse(args[0], true, out TeamIndex teamIndex))
             {
                 if ((int)teamIndex >= (int)TeamIndex.None && (int)teamIndex < (int)TeamIndex.Count)
                 {
-                    Debug.Log("Changed to team " + teamIndex);
-                    if (player.master.GetBody())
+                    if (master.GetBody())
                     {
-                        player.master.GetBody().teamComponent.teamIndex = teamIndex;
-                        player.master.teamIndex = teamIndex;
+                        master.GetBody().teamComponent.teamIndex = teamIndex;
+                        master.teamIndex = teamIndex;
+                        Debug.Log("Changed to team " + teamIndex);
                     }
                 }
             }
@@ -673,13 +679,18 @@ namespace RoR2Cheats
         [ConCommand(commandName = "respawn", flags = ConVarFlags.ExecuteOnServer, helpText = "Respawn a player")]
         private static void RespawnPlayer(ConCommandArgs args)
         {
-            string playerString = ArgsHelper.GetValue(args.userArgs, 0);
-
-            NetworkUser player = GetNetUserFromString(playerString);
-            player = player ?? args.sender;
+            CharacterMaster master = args.sender.master;
+            if (args.Count > 0)
+            {
+                NetworkUser player = GetNetUserFromString(args[0]);
+                if (player != null)
+                {
+                    master = player.master;
+                }
+            }
 
             Transform spawnPoint = Stage.instance.GetPlayerSpawnTransform();
-            player.master.Respawn(spawnPoint.position, spawnPoint.rotation, false);
+            master.Respawn(spawnPoint.position, spawnPoint.rotation, false);
         }
     }
 }
