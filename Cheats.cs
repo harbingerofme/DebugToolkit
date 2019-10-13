@@ -310,18 +310,17 @@ namespace RoR2Cheats
 
         }
 
+        [Obsolete("Fix this in issue #14. Use run_set_stages_cleared")]
         [ConCommand(commandName = "stage_clear_count", flags = ConVarFlags.ExecuteOnServer, helpText = "Sets stage clear count - Affects monster difficulty")]
         private static void CCSetClearCount(ConCommandArgs args)
         {
-            string stringClearCount = ArgsHelper.GetValue(args.userArgs, 0);
-
             if (args.Count == 0)
             {
                 Debug.Log(Run.instance.stageClearCount);
                 return;
             }
 
-            if (int.TryParse(stringClearCount, out int setClearCount))
+            if (TextSerialization.TryParseInvariant(args[0], out int setClearCount))
             {
                 Run.instance.stageClearCount = setClearCount;
                 ResetEnemyTeamLevel();
@@ -337,7 +336,7 @@ namespace RoR2Cheats
         [ConCommand(commandName = "no_enemies", flags = ConVarFlags.ExecuteOnServer, helpText = "Stops enemies from spawning")]
         private static void CCNoEnemies(ConCommandArgs args)
         {
-            if (args.Count > 0 && int.TryParse(args.GetArgString(0), out int desired))
+            if (args.Count > 0 && TextSerialization.TryParseInvariant(args[0], out int desired))
             {
                 if (desired == 0)
                 {
@@ -365,20 +364,23 @@ namespace RoR2Cheats
                 return;
             }
 
-            string bodyString = ArgsHelper.GetValue(args.userArgs, 0);
-            string playerString = ArgsHelper.GetValue(args.userArgs, 1);
-
             //var character = Character.GetCharacter(bodyString);
             //if (character == null)
             //{
             //    Debug.LogFormat("Could not spawn {0}, Try: spawn_ai GolemBody", character.body);
             //    return;
             //}
-            string character = Character.Instance.GetBodyName(bodyString);
+            string character = Character.Instance.GetBodyName(args[0]);
 
-            NetworkUser player = GetNetUserFromString(playerString);
-
-            CharacterMaster master = player != null ? player.master : args.sender.master;
+            CharacterMaster master = args.sender.master;
+            if (args.Count > 1)
+            {
+                NetworkUser player = GetNetUserFromString(args[1]);
+                if(player != null)
+                {
+                    master = player.master;
+                }
+            }
 
             if (!master.alive)
             {
@@ -455,9 +457,8 @@ namespace RoR2Cheats
                 Debug.Log(SprintFoVMultiplier);
                 return;
             }
-            string multiString = ArgsHelper.GetValue(args.userArgs, 0);
 
-            if (float.TryParse(multiString, out float sprintFov))
+            if (TextSerialization.TryParseInvariant(args[0], out float sprintFov))
             {
                 SprintFoVMultiplier = sprintFov;
                 Debug.Log("Set Sprint FOV Multiplier to " + SprintFoVMultiplier);
@@ -478,9 +479,7 @@ namespace RoR2Cheats
                 return;
             }
 
-            string fovString = ArgsHelper.GetValue(args.userArgs, 0);
-
-            if (float.TryParse(fovString, out float fovTemp))
+            if (TextSerialization.TryParseInvariant(args[0], out float fovTemp))
             {
                 FieldOfVision = fovTemp;
                 DodgeState.dodgeFOV = FieldOfVision - 10f;
@@ -499,14 +498,14 @@ namespace RoR2Cheats
             }
         }
 
-        [ConCommand(commandName = "kill_all", flags = ConVarFlags.ExecuteOnServer, helpText = "Kill all enemies (not you, don't worry. Unless you talk ^@#$ behind my back. Watch out.)")]
+        [ConCommand(commandName = "kill_all", flags = ConVarFlags.ExecuteOnServer, helpText = "Kill all members of a team. Default is monster.")]
         private static void CCKillAll(ConCommandArgs args)
         {
 
             TeamIndex team;
             if (args.Count == 0)
             {
-                team = (TeamIndex)2;
+                team = TeamIndex.Monster;
             }
             else
             {
