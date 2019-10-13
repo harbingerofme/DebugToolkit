@@ -39,14 +39,26 @@ namespace RoR2Cheats
         private static void GameNetworkManager_FixedUpdateServer(ILContext il)
         {
             ILCursor c = new ILCursor(il);
+            //c.GotoNext(
+            //    x => x.MatchLdarg(0),
+            //    x => x.MatchLdfld("RoR2.Networking.GameNetworkManager", "timeTransmitTimer"),
+            //    x => x.MatchLdsfld("RoR2.Networking.GameNetworkManager", "svTimeTransmitInterval")
+            //    );
+            //c.Index += 4;
+            //c.Emit(OpCodes.Ldc_R4, Cheats.TickIntervalMulti);
+            //c.Emit(OpCodes.Mul);
             c.GotoNext(
                 x => x.MatchLdarg(0),
                 x => x.MatchLdfld("RoR2.Networking.GameNetworkManager", "timeTransmitTimer"),
                 x => x.MatchLdsfld("RoR2.Networking.GameNetworkManager", "svTimeTransmitInterval")
                 );
-            c.Index += 4;
-            c.Emit(OpCodes.Ldc_R4, Cheats.TickIntervalMulti);
-            c.Emit(OpCodes.Mul);
+            //c.Index += 4;
+            //c.Emit(OpCodes.Ldc_R4, Cheats.TickIntervalMulti);
+            //c.Emit(OpCodes.Mul);
+            //c.Prev.OpCode = OpCodes.Nop;
+            c.Index += 2;
+            c.RemoveRange(2);
+            c.Emit(OpCodes.Ldc_R4, Cheats.TickRate);
 
         }
 

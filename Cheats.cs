@@ -30,6 +30,7 @@ namespace RoR2Cheats
         public static bool noEnemies = false;
         public static ulong seed =0;
         public static float TickIntervalMulti = 1f;
+        public static float TickRate = 1f/60f;
         public static readonly Cheats instance;
 
         public void Awake()
@@ -112,19 +113,35 @@ namespace RoR2Cheats
             }
         }
 
-        [ConCommand(commandName = "net_TickMulti", flags = ConVarFlags.None, helpText = "The server tick interval multiplier. Tickrate is 0.1666*, or 60FPS. Multiplying the value increases the delay between ticks.")]
-        private static void CCnetwork_TickIntervalMultiplier(ConCommandArgs args)
+        //[ConCommand(commandName = "net_TickMulti", flags = ConVarFlags.None, helpText = "The server tick interval multiplier. Tickrate is 0.1666*, or 60FPS. Multiplying the value increases the delay between ticks.")]
+        //private static void CCnetwork_TickIntervalMultiplier(ConCommandArgs args)
+        //{
+        //    if (args[0] == null) Cheats.TickIntervalMulti = 1f;
+        //    else
+        //    {
+        //        float val;
+        //        if (float.TryParse(args[0], out val))
+        //        {
+        //            Mathf.Clamp(val, 1f, 4f);
+        //        }
+        //        Cheats.TickIntervalMulti = val;
+        //        Debug.Log($"Server network tickrate multiplier set to {val}X 0.1666");
+        //    }
+        //}
+
+        [ConCommand(commandName = "net_TickRate", flags = ConVarFlags.None, helpText = "The server TickRate. 1-60")]
+        private static void CCnetwork_TickRate(ConCommandArgs args)
         {
-            if (args[0] == null) Cheats.TickIntervalMulti = 1f;
+            if (args[0] == null) Cheats.TickIntervalMulti = 60f;
             else
             {
                 float val;
                 if (float.TryParse(args[0], out val))
                 {
-                    Mathf.Clamp(val, 1f, 4f);
+                    Mathf.Clamp(val, 1f, 60f);
                 }
-                Cheats.TickIntervalMulti = val;
-                Debug.Log($"Server network tickrate multiplier set to {val}X 0.1666");
+                Cheats.TickRate = 1f/val;
+                Debug.Log($"Server network tickrate set to {val} FPS");
             }
         }
 
