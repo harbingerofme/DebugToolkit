@@ -509,7 +509,7 @@ namespace RoR2Cheats
             }
             else
             {
-                team = (TeamIndex)args.GetArgInt(0);
+                team = args.GetArgEnum<TeamIndex>(0);
             }
             int count = 0;
             foreach (CharacterMaster cm in FindObjectsOfType<CharacterMaster>())
@@ -535,11 +535,7 @@ namespace RoR2Cheats
         [ConCommand(commandName = "spawn_ai", flags = ConVarFlags.ExecuteOnServer, helpText = "Spawn an AI")]
         private static void CCSpawnAI(ConCommandArgs args)
         {
-
-            string prefabString = ArgsHelper.GetValue(args.userArgs, 0);
-            string eliteString = ArgsHelper.GetValue(args.userArgs, 1);
-            string teamString = ArgsHelper.GetValue(args.userArgs, 2);
-            string braindeadString = ArgsHelper.GetValue(args.userArgs, 3);
+            args.CheckArgumentCount(1);
 
             //var character = Character.GetCharacter(prefabString);
             //if (character == null)
@@ -547,8 +543,8 @@ namespace RoR2Cheats
             //    Debug.LogFormat("Could not spawn {0}, Try: spawn_ai GolemBody", character.body);
             //    return;
             //}
-            string character = Character.Instance.GetBodyName(prefabString);
-            var prefab = MasterCatalog.FindMasterPrefab(Character.Instance.GetMasterName(prefabString));
+            string character = Character.Instance.GetBodyName(args[0]);
+            var prefab = MasterCatalog.FindMasterPrefab(Character.Instance.GetMasterName(args[0]));
             var body = BodyCatalog.FindBodyPrefab(character);
 
 
@@ -557,7 +553,7 @@ namespace RoR2Cheats
             NetworkServer.Spawn(bodyGameObject);
             master.SpawnBody(body, args.sender.master.GetBody().transform.position, Quaternion.identity);
 
-            if (Enum.TryParse<EliteIndex>(eliteString, true, out EliteIndex eliteIndex))
+            if (args.Count>1 && Enum.TryParse<EliteIndex>(args[1], true, out EliteIndex eliteIndex))
             {
                 if ((int)eliteIndex > (int)EliteIndex.None && (int)eliteIndex < (int)EliteIndex.Count)
                 {
@@ -565,7 +561,7 @@ namespace RoR2Cheats
                 }
             }
 
-            if (Enum.TryParse<TeamIndex>(teamString, true, out TeamIndex teamIndex))
+            if (args.Count > 2 && Enum.TryParse<TeamIndex>(args[2], true, out TeamIndex teamIndex))
             {
                 if ((int)teamIndex >= (int)TeamIndex.None && (int)teamIndex < (int)TeamIndex.Count)
                 {
@@ -573,7 +569,7 @@ namespace RoR2Cheats
                 }
             }
 
-            if (bool.TryParse(braindeadString, out bool braindead))
+            if (args.Count > 3 && bool.TryParse(args[3], out bool braindead))
             {
                 if (braindead)
                 {
@@ -586,15 +582,14 @@ namespace RoR2Cheats
         [ConCommand(commandName = "spawn_body", flags = ConVarFlags.ExecuteOnServer, helpText = "Spawns a CharacterBody")]
         private static void CCSpawnBody(ConCommandArgs args)
         {
-            string prefabString = ArgsHelper.GetValue(args.userArgs, 0);
-
+            args.CheckArgumentCount(1);
             //var character = Character.GetCharacter(prefabString);
             //if (character == null)
             //{
             //    Debug.LogFormat("Could not spawn {0}, Try: spawn_ai GolemBody", character.body);
             //    return;
             //}
-            string character = Character.Instance.GetBodyName(prefabString);
+            string character = Character.Instance.GetBodyName(args[0]);
 
             GameObject body = BodyCatalog.FindBodyPrefab(character);
 
@@ -612,12 +607,17 @@ namespace RoR2Cheats
         [ConCommand(commandName = "true_kill", flags = ConVarFlags.ExecuteOnServer, helpText = "Truly kill a player, ignoring revival effects")]
         private static void CCTrueKill(ConCommandArgs args)
         {
-            string playerString = ArgsHelper.GetValue(args.userArgs, 0);
+            CharacterMaster master = args.sender.master;
+            if (args.Count > 0)
+            {
+                NetworkUser player = GetNetUserFromString(args[0]);
+                if(player != null)
+                {
+                    master = player.master;
+                }
+            }
 
-            NetworkUser player = GetNetUserFromString(playerString);
-            player = player ?? args.sender;
-
-            player.master.TrueKill();
+            master.TrueKill();
         }
 
         [ConCommand(commandName = "add_blue", flags = ConVarFlags.ExecuteOnServer, helpText = "Teleporter will attempt to spawn a blue portal on completion")]
