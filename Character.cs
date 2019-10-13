@@ -1,16 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using RoR2;
-using System.Linq;
-using UnityEngine;
+﻿using System.Collections.Generic;
 
 
 namespace RoR2Cheats
 {
     public class Character
     {
-        private static Dictionary<string, string[]> BodyAlias = new Dictionary<string, string[]>();
-        private static Dictionary<string, string[]> MasterAlias = new Dictionary<string, string[]>();
+        private static readonly Dictionary<string, string[]> BodyAlias = new Dictionary<string, string[]>();
+        private static readonly Dictionary<string, string[]> MasterAlias = new Dictionary<string, string[]>();
         private static Character instance;
 
         public static Character Instance
