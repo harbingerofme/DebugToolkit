@@ -54,12 +54,12 @@ namespace RoR2Cheats
             NetworkHandler.RegisterNetworkHandlerAttributes();
         }
 
-        [ConCommand(commandName = "getBodyMatch", flags = ConVarFlags.None, helpText = "Match a body prefab")]
-        private static void CCGetBodyMatch(ConCommandArgs args)
-        {
+        //[ConCommand(commandName = "getBodyMatch", flags = ConVarFlags.None, helpText = "Match a body prefab")]
+        //private static void CCGetBodyMatch(ConCommandArgs args)
+        //{
             
-            Debug.Log(Character.Instance.GetBodyName(args[0]).ToString());
-        }
+        //    Debug.Log(Character.Instance.GetBodyName(args[0]).ToString());
+        //}
 
         [ConCommand(commandName = "god", flags = ConVarFlags.ExecuteOnServer, helpText = "Godmode")]
         private static void CCGodModeToggle(ConCommandArgs _)
@@ -123,8 +123,6 @@ namespace RoR2Cheats
             }
             Debug.Log(text.ToString());
         }
-
-
 
         [ConCommand(commandName = "list_equips", flags = ConVarFlags.None, helpText = "List all equipment items and their IDs")]
         private static void CCListEquipments(ConCommandArgs _)
@@ -364,13 +362,13 @@ namespace RoR2Cheats
                 return;
             }
 
-            //var character = Character.GetCharacter(bodyString);
-            //if (character == null)
-            //{
-            //    Debug.LogFormat("Could not spawn {0}, Try: spawn_ai GolemBody", character.body);
-            //    return;
-            //}
+
             string character = Character.Instance.GetBodyName(args[0]);
+            if (character == null)
+            {
+                Debug.LogFormat("Could not spawn {0}, Try: spawn_ai GolemBody", character);
+                return;
+            }
 
             CharacterMaster master = args.sender.master;
             if (args.Count > 1)
@@ -469,7 +467,6 @@ namespace RoR2Cheats
             }
         }
 
-
         [ConCommand(commandName = "fov", flags = ConVarFlags.Engine, helpText = "Set your FOV")]
         private static void CCSetFov(ConCommandArgs args)
         {
@@ -537,13 +534,12 @@ namespace RoR2Cheats
         {
             args.CheckArgumentCount(1);
 
-            //var character = Character.GetCharacter(prefabString);
-            //if (character == null)
-            //{
-            //    Debug.LogFormat("Could not spawn {0}, Try: spawn_ai GolemBody", character.body);
-            //    return;
-            //}
             string character = Character.Instance.GetBodyName(args[0]);
+            if (character == null)
+            {
+                Debug.LogFormat("Could not spawn {0}, Try: spawn_ai GolemBody", character);
+                return;
+            }
             var prefab = MasterCatalog.FindMasterPrefab(Character.Instance.GetMasterName(args[0]));
             var body = BodyCatalog.FindBodyPrefab(character);
 
@@ -583,13 +579,13 @@ namespace RoR2Cheats
         private static void CCSpawnBody(ConCommandArgs args)
         {
             args.CheckArgumentCount(1);
-            //var character = Character.GetCharacter(prefabString);
-            //if (character == null)
-            //{
-            //    Debug.LogFormat("Could not spawn {0}, Try: spawn_ai GolemBody", character.body);
-            //    return;
-            //}
+
             string character = Character.Instance.GetBodyName(args[0]);
+            if (character == null)
+            {
+                Debug.LogFormat("Could not spawn {0}, Try: spawn_ai GolemBody", character);
+                return;
+            }
 
             GameObject body = BodyCatalog.FindBodyPrefab(character);
 
