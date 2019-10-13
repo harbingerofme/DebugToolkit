@@ -19,6 +19,15 @@ namespace RoR2Cheats
             SetupFOVIL();
         }
 
+        private static void ConCommandHooks()
+        {
+            On.RoR2.Console.Awake += (orig, self) =>
+            {
+                R2API.Utils.CommandHelper.RegisterCommands(self);
+                orig(self);
+            };
+        }
+
         private static void SeedHooks()
         {
             On.RoR2.PreGameController.Awake += (orig,self)=> 
@@ -36,15 +45,6 @@ namespace RoR2Cheats
             On.RoR2.CameraRigController.Start += (orig, self) =>
             {
                 self.baseFov = Cheats.FieldOfVision;
-                orig(self);
-            };
-        }
-
-        private static void ConCommandHooks()
-        {
-            On.RoR2.Console.Awake += (orig, self) =>
-            {
-                R2API.Utils.CommandHelper.RegisterCommands(self);
                 orig(self);
             };
         }
