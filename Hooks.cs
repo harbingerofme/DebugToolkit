@@ -16,6 +16,7 @@ namespace RoR2Cheats
             CameraFOVHooks();
 
             SetupNoEnemyIL();
+
             SetupFOVIL();
         }
 
