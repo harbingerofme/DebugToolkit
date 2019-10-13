@@ -352,7 +352,6 @@ namespace RoR2Cheats
             Debug.Log("No_enemies set to " + noEnemies);
         }
 
-
         [ConCommand(commandName = "spawn_as", flags = ConVarFlags.ExecuteOnServer, helpText = "Spawn as a new character. Type body_list for a full list of characters")]
         private static void CCSpawnAs(ConCommandArgs args)
         {
@@ -366,7 +365,7 @@ namespace RoR2Cheats
             string character = Character.Instance.GetBodyName(args[0]);
             if (character == null)
             {
-                Debug.LogFormat("Could not spawn {0}, Try: spawn_ai GolemBody", character);
+                Debug.LogFormat(MagicVars.SPAWN_ERROR, character);
                 return;
             }
 
@@ -382,7 +381,7 @@ namespace RoR2Cheats
 
             if (!master.alive)
             {
-                Debug.Log("Player is dead and cannot respawn.");
+                Debug.Log(MagicVars.PLAYER_DEADRESPAWN);
                 return;
             }
 
@@ -396,7 +395,7 @@ namespace RoR2Cheats
                     array.Add(item.name);
                 }
                 string list = string.Join("\n", array);
-                Debug.LogFormat("Could not spawn as {0}, Try: spawn_as GolemBody   --- \n{1}", character, list);
+                Debug.LogFormat(MagicVars.SPAWN_ERROR + "   --- \n{1}", character, list);
                 return;
             }
             master.bodyPrefab = newBody;
@@ -416,7 +415,7 @@ namespace RoR2Cheats
 
                         return NetworkUser.readOnlyInstancesList[result];
                     }
-                    Debug.Log("Specified player index does not exist");
+                    Debug.Log(MagicVars.PLAYER_NOTFOUND);
                     return null;
                 }
                 else
@@ -428,7 +427,7 @@ namespace RoR2Cheats
                             return n;
                         }
                     }
-                    Debug.Log("Specified player does not exist");
+                    Debug.Log(MagicVars.PLAYER_NOTFOUND);
                     return null;
                 }
             }
@@ -537,7 +536,7 @@ namespace RoR2Cheats
             string character = Character.Instance.GetBodyName(args[0]);
             if (character == null)
             {
-                Debug.LogFormat("Could not spawn {0}, Try: spawn_ai GolemBody", character);
+                Debug.LogFormat(MagicVars.SPAWN_ERROR, character);
                 return;
             }
             var prefab = MasterCatalog.FindMasterPrefab(Character.Instance.GetMasterName(args[0]));
@@ -572,7 +571,7 @@ namespace RoR2Cheats
                     Destroy(master.GetComponent<BaseAI>());
                 }
             }
-            Debug.Log("Attempting to spawn " + character);
+            Debug.Log(MagicVars.SPAWN_ATTEMPT + character);
         }
 
         [ConCommand(commandName = "spawn_body", flags = ConVarFlags.ExecuteOnServer, helpText = "Spawns a CharacterBody")]
@@ -583,7 +582,7 @@ namespace RoR2Cheats
             string character = Character.Instance.GetBodyName(args[0]);
             if (character == null)
             {
-                Debug.LogFormat("Could not spawn {0}, Try: spawn_ai GolemBody", character);
+                Debug.LogFormat(MagicVars.SPAWN_ERROR, character);
                 return;
             }
 
@@ -592,7 +591,7 @@ namespace RoR2Cheats
             GameObject gameObject = Instantiate<GameObject>(body, args.sender.master.GetBody().transform.position, Quaternion.identity);
 
             NetworkServer.Spawn(gameObject);
-            Debug.Log("Attempting to spawn " + character);
+            Debug.Log(MagicVars.SPAWN_ATTEMPT + character);
         }
 
         private static void ResetEnemyTeamLevel()
