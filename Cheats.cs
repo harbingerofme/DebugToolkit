@@ -246,7 +246,7 @@ namespace RoR2Cheats
                 return;
             }
 
-            string stageString = ArgsHelper.GetValue(args.userArgs, 0);
+            string stageString = args[0];
 
             List<string> array = new List<string>();
             for (int i = 0; i < SceneManager.sceneCountInBuildSettings; i++)
