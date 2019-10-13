@@ -29,6 +29,7 @@ namespace RoR2Cheats
 
         public static bool noEnemies = false;
         public static ulong seed =0;
+        public static float TickIntervalMulti = 1f;
         public static readonly Cheats instance;
 
         public void Awake()
@@ -60,6 +61,8 @@ namespace RoR2Cheats
 
         //    Debug.Log(Character.Instance.GetBodyName(args[0]).ToString());
         //}
+
+
 
         [ConCommand(commandName = "fov_sprint_multiplier", flags = ConVarFlags.Engine, helpText = "Set your sprint FOV multiplier")]
         private static void CCSetSprintFOVMulti(ConCommandArgs args)
@@ -106,6 +109,22 @@ namespace RoR2Cheats
             else
             {
                 Debug.Log("Incorrect arguments. Try: fov 60");
+            }
+        }
+
+        [ConCommand(commandName = "net_TickMulti", flags = ConVarFlags.None, helpText = "The server tick interval multiplier. Tickrate is 0.1666*, or 60FPS. Multiplying the value increases the delay between ticks.")]
+        private static void CCnetwork_TickIntervalMultiplier(ConCommandArgs args)
+        {
+            if (args[0] == null) Cheats.TickIntervalMulti = 1f;
+            else
+            {
+                float val;
+                if (float.TryParse(args[0], out val))
+                {
+                    Mathf.Clamp(val, 1f, 4f);
+                }
+                Cheats.TickIntervalMulti = val;
+                Debug.Log($"Server network tickrate multiplier set to {val}X 0.1666");
             }
         }
 
