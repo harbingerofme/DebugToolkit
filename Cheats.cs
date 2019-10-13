@@ -12,7 +12,6 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
-using ArgsHelper = RoR2Cheats.Generic.ArgsHelper;
 
 namespace RoR2Cheats
 {
