@@ -209,10 +209,7 @@ namespace RoR2Cheats
             }
             else
             {
-                foreach (var playerInstance in PlayerCharacterMasterController.instances)
-                {
-                    playerInstance.master.GiveMoney(result);
-                }
+                TeamManager.instance.GiveTeamMoney(args.sender.master.teamIndex, result);
             }
         }
 
@@ -225,15 +222,9 @@ namespace RoR2Cheats
                 return;
             }
 
-            string expString = ArgsHelper.GetValue(args.userArgs, 0);
-            string playerString = ArgsHelper.GetValue(args.userArgs, 1);
-
-            NetworkUser player = GetNetUserFromString(playerString);
-            CharacterMaster master = player != null ? player.master : args.sender.master;
-
-            if (uint.TryParse(expString, out uint result))
+            if (TeamManager.instance && uint.TryParse(args[0], out uint result))
             {
-                master.GiveExperience(result);
+                TeamManager.instance.GiveTeamExperience(args.sender.master.teamIndex,result);
             }
         }
 
