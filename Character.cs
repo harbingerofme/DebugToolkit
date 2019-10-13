@@ -14,7 +14,10 @@ namespace RoR2Cheats
             get
             {
                 if (instance == null)
+                {
                     instance = new Character();
+                }
+
                 return instance;
             }
         }
@@ -42,13 +45,18 @@ namespace RoR2Cheats
                 foreach(string alias in dictEnt.Value)
                 {
                     if (alias.ToUpper().Contains(name.ToUpper()))
+                    {
                         name = dictEnt.Key.ToString();
+                    }
                 }
             }
             //if(BodyCatalog.allBodyPrefabs.Any<>)
             foreach(var body in RoR2.BodyCatalog.allBodyPrefabs)
             {
-                if (body.name.ToUpper().Contains(name.ToUpper())) return body.name;
+                if (body.name.ToUpper().Contains(name.ToUpper()))
+                {
+                    return body.name;
+                }
             }
             return null;
         }
@@ -60,13 +68,18 @@ namespace RoR2Cheats
                 foreach (string alias in dictEnt.Value)
                 {
                     if (alias.ToUpper().Contains(name.ToUpper()))
+                    {
                         name = dictEnt.Key.ToString();
+                    }
                 }
             }
             //if(BodyCatalog.allBodyPrefabs.Any<>)
             foreach (var master in RoR2.MasterCatalog.allMasters)
             {
-                if (master.name.ToUpper().Contains(name.ToUpper())) return master.name;
+                if (master.name.ToUpper().Contains(name.ToUpper()))
+                {
+                    return master.name;
+                }
             }
             return null;
         }

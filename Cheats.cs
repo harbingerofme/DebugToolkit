@@ -155,7 +155,9 @@ namespace RoR2Cheats
 
 
             if (!int.TryParse(countString, out int itemCount))
+            {
                 itemCount = 1;
+            }
 
             ItemIndex itemType;
             if (int.TryParse(indexString, out int itemIndex))
@@ -306,7 +308,10 @@ namespace RoR2Cheats
             }
             args.CheckArgumentCount(1);
             if (!TextSerialization.TryParseInvariant(args[0], out ulong result))
+            {
                 throw new ConCommandException("Specified seed is not a parsable uint64.");
+            }
+
             if (PreGameController.instance)
             {
                 PreGameController.instance.runSeed = (result == 0) ? RoR2Application.rng.nextUlong  : result ;
@@ -368,9 +373,13 @@ namespace RoR2Cheats
             if (args.Count > 0 && int.TryParse(args.GetArgString(0), out int desired))
             {
                 if (desired == 0)
+                {
                     noEnemies = false;
+                }
                 else
+                {
                     noEnemies = true;
+                }
             }
             else
             {
@@ -487,7 +496,9 @@ namespace RoR2Cheats
                 Debug.Log("Set Sprint FOV Multiplier to " + SprintFoVMultiplier);
             }
             else
+            {
                 Debug.Log("Incorrect arguments. Try: sprint_fov_multiplier 1");
+            }
         }
 
 
@@ -647,21 +658,27 @@ namespace RoR2Cheats
         private static void CCAddBlueOrb(ConCommandArgs _)
         {
             if (TeleporterInteraction.instance)
+            {
                 TeleporterInteraction.instance.Network_shouldAttemptToSpawnShopPortal = true;
+            }
         }
 
         [ConCommand(commandName = "add_gold", flags = ConVarFlags.ExecuteOnServer, helpText = "Teleporter will attempt to spawn a gold portal on completion")]
         private static void CCAddGoldOrb(ConCommandArgs _)
         {
             if (TeleporterInteraction.instance)
+            {
                 TeleporterInteraction.instance.Network_shouldAttemptToSpawnGoldshoresPortal = true;
+            }
         }
 
         [ConCommand(commandName = "add_celestial", flags = ConVarFlags.ExecuteOnServer, helpText = "Teleporter will attempt to spawn a celestial portal on completion")]
         private static void CCAddCelestialOrb(ConCommandArgs _)
         {
             if (TeleporterInteraction.instance)
+            {
                 TeleporterInteraction.instance.Network_shouldAttemptToSpawnMSPortal = true;
+            }
         }
 
         [ConCommand(commandName = "change_team", flags = ConVarFlags.ExecuteOnServer, helpText = "Change team to Neutral, Player or Monster (0, 1, 2)")]

@@ -33,8 +33,10 @@ namespace RoR2Cheats
             On.RoR2.PreGameController.Awake += (orig,self)=> 
             {
                 orig(self);
-                if(Cheats.seed != 0)
+                if (Cheats.seed != 0)
+                {
                     self.runSeed = Cheats.seed;
+                }
             };
         }
 
