@@ -25,7 +25,6 @@ namespace RoR2Cheats
 
         private Character()
         {
-            Debug.Log("Added aliases to CharacterDict");
             BodyAlias.Add("ToolbotBody", new string[] { "MULT", "MUL-T" });
             BodyAlias.Add("MercBody", new string[] { "Mercenary" });
             BodyAlias.Add("MageBody", new string[] { "Artificer" });
@@ -55,7 +54,7 @@ namespace RoR2Cheats
             {
                 if (body.name.ToUpper().Contains(name.ToUpper())) return body.name;
             }
-            return $"No match found for {name}";
+            return null;
         }
 
         internal string GetMasterName(string name)
@@ -73,7 +72,7 @@ namespace RoR2Cheats
             {
                 if (master.name.ToUpper().Contains(name.ToUpper())) return master.name;
             }
-            return $"No match found for {name}";
+            return null;
         }
     }
 }
