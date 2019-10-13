@@ -55,6 +55,13 @@ namespace RoR2Cheats
             NetworkHandler.RegisterNetworkHandlerAttributes();
         }
 
+        [ConCommand(commandName = "getBodyMatch", flags = ConVarFlags.None, helpText = "Match a body prefab")]
+        private static void CCGetBodyMatch(ConCommandArgs args)
+        {
+            
+            Debug.Log(Character.Instance.GetMatch(args[0]).ToString());
+        }
+
         [ConCommand(commandName = "god", flags = ConVarFlags.ExecuteOnServer, helpText = "Godmode")]
         private static void CCGodModeToggle(ConCommandArgs _)
         {
@@ -119,6 +126,7 @@ namespace RoR2Cheats
             }
             Debug.Log(text.ToString());
         }
+
 
 
         [ConCommand(commandName = "list_equips", flags = ConVarFlags.None, helpText = "List all equipment items and their IDs")]
@@ -385,12 +393,13 @@ namespace RoR2Cheats
             string bodyString = ArgsHelper.GetValue(args.userArgs, 0);
             string playerString = ArgsHelper.GetValue(args.userArgs, 1);
 
-            var character = Character.GetCharacter(bodyString);
-            if (character == null)
-            {
-                Debug.LogFormat("Could not spawn {0}, Try: spawn_ai GolemBody", character.body);
-                return;
-            }
+            //var character = Character.GetCharacter(bodyString);
+            //if (character == null)
+            //{
+            //    Debug.LogFormat("Could not spawn {0}, Try: spawn_ai GolemBody", character.body);
+            //    return;
+            //}
+            string character = Character.Instance.GetMatch(bodyString);
 
             NetworkUser player = GetNetUserFromString(playerString);
 
@@ -402,7 +411,7 @@ namespace RoR2Cheats
                 return;
             }
 
-            GameObject newBody = BodyCatalog.FindBodyPrefab(character.body);
+            GameObject newBody = BodyCatalog.FindBodyPrefab(character);
 
             if (newBody == null)
             {
@@ -412,11 +421,11 @@ namespace RoR2Cheats
                     array.Add(item.name);
                 }
                 string list = string.Join("\n", array);
-                Debug.LogFormat("Could not spawn as {0}, Try: spawn_as GolemBody   --- \n{1}", character.body, list);
+                Debug.LogFormat("Could not spawn as {0}, Try: spawn_as GolemBody   --- \n{1}", character, list);
                 return;
             }
             master.bodyPrefab = newBody;
-            Debug.Log(args.sender.userName + " is spawning as " + character.body);
+            Debug.Log(args.sender.userName + " is spawning as " + character);
 
             master.Respawn(master.GetBody().transform.position, master.GetBody().transform.rotation);
         }
@@ -547,75 +556,76 @@ namespace RoR2Cheats
             Debug.Log("Killed " + count + " of team " + team + ".");
         }
 
-        [ConCommand(commandName = "spawn_ai", flags = ConVarFlags.ExecuteOnServer, helpText = "Spawn an AI")]
-        private static void CCSpawnAI(ConCommandArgs args)
-        {
+        //[ConCommand(commandName = "spawn_ai", flags = ConVarFlags.ExecuteOnServer, helpText = "Spawn an AI")]
+        //private static void CCSpawnAI(ConCommandArgs args)
+        //{
 
-            string prefabString = ArgsHelper.GetValue(args.userArgs, 0);
-            string eliteString = ArgsHelper.GetValue(args.userArgs, 1);
-            string teamString = ArgsHelper.GetValue(args.userArgs, 2);
-            string braindeadString = ArgsHelper.GetValue(args.userArgs, 3);
+        //    string prefabString = ArgsHelper.GetValue(args.userArgs, 0);
+        //    string eliteString = ArgsHelper.GetValue(args.userArgs, 1);
+        //    string teamString = ArgsHelper.GetValue(args.userArgs, 2);
+        //    string braindeadString = ArgsHelper.GetValue(args.userArgs, 3);
 
-            var character = Character.GetCharacter(prefabString);
-            if (character == null)
-            {
-                Debug.LogFormat("Could not spawn {0}, Try: spawn_ai GolemBody", character.body);
-                return;
-            }
+        //    //var character = Character.GetCharacter(prefabString);
+        //    //if (character == null)
+        //    //{
+        //    //    Debug.LogFormat("Could not spawn {0}, Try: spawn_ai GolemBody", character.body);
+        //    //    return;
+        //    //}
+        //    string character = Character.GetMatch(prefabString);
+        //    var prefab = MasterCatalog.FindMasterPrefab(character.master);
+        //    var body = BodyCatalog.FindBodyPrefab(character);
 
-            var prefab = MasterCatalog.FindMasterPrefab(character.master);
-            var body = BodyCatalog.FindBodyPrefab(character.body);
 
+        //    var bodyGameObject = Instantiate<GameObject>(prefab, args.sender.master.GetBody().transform.position, Quaternion.identity);
+        //    CharacterMaster master = bodyGameObject.GetComponent<CharacterMaster>();
+        //    NetworkServer.Spawn(bodyGameObject);
+        //    master.SpawnBody(body, args.sender.master.GetBody().transform.position, Quaternion.identity);
 
-            var bodyGameObject = Instantiate<GameObject>(prefab, args.sender.master.GetBody().transform.position, Quaternion.identity);
-            CharacterMaster master = bodyGameObject.GetComponent<CharacterMaster>();
-            NetworkServer.Spawn(bodyGameObject);
-            master.SpawnBody(body, args.sender.master.GetBody().transform.position, Quaternion.identity);
+        //    if (Enum.TryParse<EliteIndex>(eliteString, true, out EliteIndex eliteIndex))
+        //    {
+        //        if ((int)eliteIndex > (int)EliteIndex.None && (int)eliteIndex < (int)EliteIndex.Count)
+        //        {
+        //            master.inventory.SetEquipmentIndex(EliteCatalog.GetEliteDef(eliteIndex).eliteEquipmentIndex);
+        //        }
+        //    }
 
-            if (Enum.TryParse<EliteIndex>(eliteString, true, out EliteIndex eliteIndex))
-            {
-                if ((int)eliteIndex > (int)EliteIndex.None && (int)eliteIndex < (int)EliteIndex.Count)
-                {
-                    master.inventory.SetEquipmentIndex(EliteCatalog.GetEliteDef(eliteIndex).eliteEquipmentIndex);
-                }
-            }
+        //    if (Enum.TryParse<TeamIndex>(teamString, true, out TeamIndex teamIndex))
+        //    {
+        //        if ((int)teamIndex >= (int)TeamIndex.None && (int)teamIndex < (int)TeamIndex.Count)
+        //        {
+        //            master.teamIndex = teamIndex;
+        //        }
+        //    }
 
-            if (Enum.TryParse<TeamIndex>(teamString, true, out TeamIndex teamIndex))
-            {
-                if ((int)teamIndex >= (int)TeamIndex.None && (int)teamIndex < (int)TeamIndex.Count)
-                {
-                    master.teamIndex = teamIndex;
-                }
-            }
-
-            if (bool.TryParse(braindeadString, out bool braindead))
-            {
-                if (braindead)
-                {
-                    Destroy(master.GetComponent<BaseAI>());
-                }
-            }
-            Debug.Log("Attempting to spawn " + character.body);
-        }
+        //    if (bool.TryParse(braindeadString, out bool braindead))
+        //    {
+        //        if (braindead)
+        //        {
+        //            Destroy(master.GetComponent<BaseAI>());
+        //        }
+        //    }
+        //    Debug.Log("Attempting to spawn " + character);
+        //}
 
         [ConCommand(commandName = "spawn_body", flags = ConVarFlags.ExecuteOnServer, helpText = "Spawns a CharacterBody")]
         private static void CCSpawnBody(ConCommandArgs args)
         {
             string prefabString = ArgsHelper.GetValue(args.userArgs, 0);
 
-            var character = Character.GetCharacter(prefabString);
-            if (character == null)
-            {
-                Debug.LogFormat("Could not spawn {0}, Try: spawn_ai GolemBody", character.body);
-                return;
-            }
+            //var character = Character.GetCharacter(prefabString);
+            //if (character == null)
+            //{
+            //    Debug.LogFormat("Could not spawn {0}, Try: spawn_ai GolemBody", character.body);
+            //    return;
+            //}
+            string character = Character.Instance.GetMatch(prefabString);
 
-            GameObject body = BodyCatalog.FindBodyPrefab(character.body);
+            GameObject body = BodyCatalog.FindBodyPrefab(character);
 
             GameObject gameObject = Instantiate<GameObject>(body, args.sender.master.GetBody().transform.position, Quaternion.identity);
 
             NetworkServer.Spawn(gameObject);
-            Debug.Log("Attempting to spawn " + character.body);
+            Debug.Log("Attempting to spawn " + character);
         }
 
         private static void ResetEnemyTeamLevel()
