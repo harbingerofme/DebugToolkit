@@ -80,15 +80,13 @@ namespace RoR2Cheats
         [ConCommand(commandName = "time_scale", flags = ConVarFlags.Engine | ConVarFlags.ExecuteOnServer, helpText = "Time scale")]
         private static void CCTimeScale(ConCommandArgs args)
         {
-            string scaleString = ArgsHelper.GetValue(args.userArgs, 0);
-
             if (args.Count == 0)
             {
                 Debug.Log(Time.timeScale);
                 return;
             }
 
-            if (float.TryParse(scaleString, out float scale))
+            if (TextSerialization.TryParseInvariant(args[0], out float scale))
             {
                 Time.timeScale = scale;
                 Debug.Log("Time scale set to " + scale);
