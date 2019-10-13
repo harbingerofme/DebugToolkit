@@ -9,7 +9,8 @@ namespace RoR2Cheats
 {
     public class Character
     {
-        private static Dictionary<string, string[]> DictAlias = new Dictionary<string, string[]>();
+        private static Dictionary<string, string[]> BodyAlias = new Dictionary<string, string[]>();
+        private static Dictionary<string, string[]> MasterAlias = new Dictionary<string, string[]>();
         private static Character instance;
 
         public static Character Instance
@@ -25,16 +26,23 @@ namespace RoR2Cheats
         private Character()
         {
             Debug.Log("Added aliases to CharacterDict");
-            DictAlias.Add("ToolbotBody", new string[] { "MULT", "MUL-T" });
-            DictAlias.Add("MercBody", new string[] { "Mercenary" });
-            DictAlias.Add("MageBody", new string[] { "Artificer" });
-            DictAlias.Add("HANDBody", new string[] { "HAN-D" });
-            DictAlias.Add("TreebotBody", new string[] { "Treebot", "REX" });
+            BodyAlias.Add("ToolbotBody", new string[] { "MULT", "MUL-T" });
+            BodyAlias.Add("MercBody", new string[] { "Mercenary" });
+            BodyAlias.Add("MageBody", new string[] { "Artificer" });
+            BodyAlias.Add("HANDBody", new string[] { "HAN-D" });
+            BodyAlias.Add("TreebotBody", new string[] { "Treebot", "REX" });
+
+            MasterAlias.Add("DroneBackupMaster", new string[] { "DroneBackup", "BackupDrone" });
+            MasterAlias.Add("DroneMissileMaster", new string[] { "DroneMissile", "MissileDrone" });
+            MasterAlias.Add("LemurianBruiserMasterFire", new string[] { "LemurianBruiserFire" });
+            MasterAlias.Add("LemurianBruiserMasterIce", new string[] { "LemurianBruiserIce" });
+            MasterAlias.Add("LemurianBruiserMasterPoison", new string[] { "LemurianBruiserPoison", "LemurianBruiserBlight", "LemurianBruisermalechite" });
+            MasterAlias.Add("MercMonsterMaster", new string[] { "MercMonster" });
         }
 
-        public string GetMatch(string name)
+        public string GetBodyName(string name)
         {
-            foreach (KeyValuePair<string, string[]> dictEnt in DictAlias)
+            foreach (KeyValuePair<string, string[]> dictEnt in BodyAlias)
             {
                 foreach(string alias in dictEnt.Value)
                 {
@@ -46,6 +54,24 @@ namespace RoR2Cheats
             foreach(var body in RoR2.BodyCatalog.allBodyPrefabs)
             {
                 if (body.name.ToUpper().Contains(name.ToUpper())) return body.name;
+            }
+            return $"No match found for {name}";
+        }
+
+        internal string GetMasterName(string name)
+        {
+            foreach (KeyValuePair<string, string[]> dictEnt in MasterAlias)
+            {
+                foreach (string alias in dictEnt.Value)
+                {
+                    if (alias.ToUpper().Contains(name.ToUpper()))
+                        name = dictEnt.Key.ToString();
+                }
+            }
+            //if(BodyCatalog.allBodyPrefabs.Any<>)
+            foreach (var master in RoR2.MasterCatalog.allMasters)
+            {
+                if (master.name.ToUpper().Contains(name.ToUpper())) return master.name;
             }
             return $"No match found for {name}";
         }

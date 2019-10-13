@@ -59,7 +59,7 @@ namespace RoR2Cheats
         private static void CCGetBodyMatch(ConCommandArgs args)
         {
             
-            Debug.Log(Character.Instance.GetMatch(args[0]).ToString());
+            Debug.Log(Character.Instance.GetBodyName(args[0]).ToString());
         }
 
         [ConCommand(commandName = "god", flags = ConVarFlags.ExecuteOnServer, helpText = "Godmode")]
@@ -399,7 +399,7 @@ namespace RoR2Cheats
             //    Debug.LogFormat("Could not spawn {0}, Try: spawn_ai GolemBody", character.body);
             //    return;
             //}
-            string character = Character.Instance.GetMatch(bodyString);
+            string character = Character.Instance.GetBodyName(bodyString);
 
             NetworkUser player = GetNetUserFromString(playerString);
 
@@ -556,56 +556,56 @@ namespace RoR2Cheats
             Debug.Log("Killed " + count + " of team " + team + ".");
         }
 
-        //[ConCommand(commandName = "spawn_ai", flags = ConVarFlags.ExecuteOnServer, helpText = "Spawn an AI")]
-        //private static void CCSpawnAI(ConCommandArgs args)
-        //{
+        [ConCommand(commandName = "spawn_ai", flags = ConVarFlags.ExecuteOnServer, helpText = "Spawn an AI")]
+        private static void CCSpawnAI(ConCommandArgs args)
+        {
 
-        //    string prefabString = ArgsHelper.GetValue(args.userArgs, 0);
-        //    string eliteString = ArgsHelper.GetValue(args.userArgs, 1);
-        //    string teamString = ArgsHelper.GetValue(args.userArgs, 2);
-        //    string braindeadString = ArgsHelper.GetValue(args.userArgs, 3);
+            string prefabString = ArgsHelper.GetValue(args.userArgs, 0);
+            string eliteString = ArgsHelper.GetValue(args.userArgs, 1);
+            string teamString = ArgsHelper.GetValue(args.userArgs, 2);
+            string braindeadString = ArgsHelper.GetValue(args.userArgs, 3);
 
-        //    //var character = Character.GetCharacter(prefabString);
-        //    //if (character == null)
-        //    //{
-        //    //    Debug.LogFormat("Could not spawn {0}, Try: spawn_ai GolemBody", character.body);
-        //    //    return;
-        //    //}
-        //    string character = Character.GetMatch(prefabString);
-        //    var prefab = MasterCatalog.FindMasterPrefab(character.master);
-        //    var body = BodyCatalog.FindBodyPrefab(character);
+            //var character = Character.GetCharacter(prefabString);
+            //if (character == null)
+            //{
+            //    Debug.LogFormat("Could not spawn {0}, Try: spawn_ai GolemBody", character.body);
+            //    return;
+            //}
+            string character = Character.Instance.GetBodyName(prefabString);
+            var prefab = MasterCatalog.FindMasterPrefab(Character.Instance.GetMasterName(prefabString));
+            var body = BodyCatalog.FindBodyPrefab(character);
 
 
-        //    var bodyGameObject = Instantiate<GameObject>(prefab, args.sender.master.GetBody().transform.position, Quaternion.identity);
-        //    CharacterMaster master = bodyGameObject.GetComponent<CharacterMaster>();
-        //    NetworkServer.Spawn(bodyGameObject);
-        //    master.SpawnBody(body, args.sender.master.GetBody().transform.position, Quaternion.identity);
+            var bodyGameObject = Instantiate<GameObject>(prefab, args.sender.master.GetBody().transform.position, Quaternion.identity);
+            CharacterMaster master = bodyGameObject.GetComponent<CharacterMaster>();
+            NetworkServer.Spawn(bodyGameObject);
+            master.SpawnBody(body, args.sender.master.GetBody().transform.position, Quaternion.identity);
 
-        //    if (Enum.TryParse<EliteIndex>(eliteString, true, out EliteIndex eliteIndex))
-        //    {
-        //        if ((int)eliteIndex > (int)EliteIndex.None && (int)eliteIndex < (int)EliteIndex.Count)
-        //        {
-        //            master.inventory.SetEquipmentIndex(EliteCatalog.GetEliteDef(eliteIndex).eliteEquipmentIndex);
-        //        }
-        //    }
+            if (Enum.TryParse<EliteIndex>(eliteString, true, out EliteIndex eliteIndex))
+            {
+                if ((int)eliteIndex > (int)EliteIndex.None && (int)eliteIndex < (int)EliteIndex.Count)
+                {
+                    master.inventory.SetEquipmentIndex(EliteCatalog.GetEliteDef(eliteIndex).eliteEquipmentIndex);
+                }
+            }
 
-        //    if (Enum.TryParse<TeamIndex>(teamString, true, out TeamIndex teamIndex))
-        //    {
-        //        if ((int)teamIndex >= (int)TeamIndex.None && (int)teamIndex < (int)TeamIndex.Count)
-        //        {
-        //            master.teamIndex = teamIndex;
-        //        }
-        //    }
+            if (Enum.TryParse<TeamIndex>(teamString, true, out TeamIndex teamIndex))
+            {
+                if ((int)teamIndex >= (int)TeamIndex.None && (int)teamIndex < (int)TeamIndex.Count)
+                {
+                    master.teamIndex = teamIndex;
+                }
+            }
 
-        //    if (bool.TryParse(braindeadString, out bool braindead))
-        //    {
-        //        if (braindead)
-        //        {
-        //            Destroy(master.GetComponent<BaseAI>());
-        //        }
-        //    }
-        //    Debug.Log("Attempting to spawn " + character);
-        //}
+            if (bool.TryParse(braindeadString, out bool braindead))
+            {
+                if (braindead)
+                {
+                    Destroy(master.GetComponent<BaseAI>());
+                }
+            }
+            Debug.Log("Attempting to spawn " + character);
+        }
 
         [ConCommand(commandName = "spawn_body", flags = ConVarFlags.ExecuteOnServer, helpText = "Spawns a CharacterBody")]
         private static void CCSpawnBody(ConCommandArgs args)
@@ -618,7 +618,7 @@ namespace RoR2Cheats
             //    Debug.LogFormat("Could not spawn {0}, Try: spawn_ai GolemBody", character.body);
             //    return;
             //}
-            string character = Character.Instance.GetMatch(prefabString);
+            string character = Character.Instance.GetBodyName(prefabString);
 
             GameObject body = BodyCatalog.FindBodyPrefab(character);
 
