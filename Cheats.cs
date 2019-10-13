@@ -160,36 +160,25 @@ namespace RoR2Cheats
             }
 
             inventory.GiveItem((ItemIndex)Enum.Parse(typeof(ItemIndex), args[0], true), itemCount);
-
-
         }
 
         [ConCommand(commandName = "give_equip", flags = ConVarFlags.ExecuteOnServer, helpText = "Give equipment directly to a player's inventory.")]
         private static void CCGiveEquipment(ConCommandArgs args)
         {
 
-            string equipString = ArgsHelper.GetValue(args.userArgs, 0);
-            string playerString = ArgsHelper.GetValue(args.userArgs, 1);
-
-            NetworkUser player = GetNetUserFromString(playerString);
-
-            Inventory inventory = player != null ? player.master.inventory : args.sender.master.inventory;
-
-            if (int.TryParse(equipString, out int equipIndex))
+            if (args.Count == 0)
             {
-                if (equipIndex < (int)EquipmentIndex.Count && equipIndex >= -1)
-                {
-                    inventory.SetEquipmentIndex((EquipmentIndex)equipIndex);
-                }
+                return;
             }
-            else if (Enum.TryParse<EquipmentIndex>(equipString, true, out EquipmentIndex equipType))
+
+            Inventory inventory = args.sender.master.inventory;
+            if (args.Count >= 2)
             {
-                inventory.SetEquipmentIndex(equipType);
+                NetworkUser player = GetNetUserFromString(args[1]);
+                inventory = (player == null) ? inventory : player.master.inventory;
             }
-            else
-            {
-                Debug.Log("Incorrect arguments. Try: give_equip meteor   --- list_equips for a list of all equipments");
-            }
+
+            inventory.SetEquipmentIndex((EquipmentIndex)Enum.Parse(typeof(EquipmentIndex), args[0], true));
 
         }
 
