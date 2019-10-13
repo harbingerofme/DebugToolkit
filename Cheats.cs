@@ -57,60 +57,59 @@ namespace RoR2Cheats
         //[ConCommand(commandName = "getBodyMatch", flags = ConVarFlags.None, helpText = "Match a body prefab")]
         //private static void CCGetBodyMatch(ConCommandArgs args)
         //{
-            
+
         //    Debug.Log(Character.Instance.GetBodyName(args[0]).ToString());
         //}
 
-        [ConCommand(commandName = "god", flags = ConVarFlags.ExecuteOnServer, helpText = "Godmode")]
-        private static void CCGodModeToggle(ConCommandArgs _)
-        {
-            var godToggleMethod = typeof(CharacterMaster).GetMethodCached("ToggleGod");
-            bool hasNotYetRun = true;
-            foreach (var playerInstance in PlayerCharacterMasterController.instances)
-            {
-                godToggleMethod.Invoke(playerInstance.master, null);
-                if (hasNotYetRun)
-                {
-                    Debug.Log($"God mode {(playerInstance.master.GetBody().healthComponent.godMode ? "enabled" : "disabled")}.");
-                    hasNotYetRun = false;
-                }
-            }
-        }
-
-        [ConCommand(commandName = "time_scale", flags = ConVarFlags.Engine | ConVarFlags.ExecuteOnServer, helpText = "Time scale")]
-        private static void CCTimeScale(ConCommandArgs args)
+        [ConCommand(commandName = "fov_sprint_multiplier", flags = ConVarFlags.Engine, helpText = "Set your sprint FOV multiplier")]
+        private static void CCSetSprintFOVMulti(ConCommandArgs args)
         {
             if (args.Count == 0)
             {
-                Debug.Log(Time.timeScale);
+                Debug.Log(SprintFoVMultiplier);
                 return;
             }
 
-            if (TextSerialization.TryParseInvariant(args[0], out float scale))
+            if (TextSerialization.TryParseInvariant(args[0], out float sprintFov))
             {
-                Time.timeScale = scale;
-                Debug.Log("Time scale set to " + scale);
+                SprintFoVMultiplier = sprintFov;
+                Debug.Log("Set Sprint FOV Multiplier to " + SprintFoVMultiplier);
             }
             else
             {
-                Debug.Log("Incorrect arguments. Try: time_scale 0.5");
+                Debug.Log("Incorrect arguments. Try: sprint_fov_multiplier 1");
+            }
+        }
+
+        [ConCommand(commandName = "fov", flags = ConVarFlags.Engine, helpText = "Set your FOV")]
+        private static void CCSetFov(ConCommandArgs args)
+        {
+            if (args.Count == 0)
+            {
+                Debug.Log(FieldOfVision);
+                return;
             }
 
-            NetworkWriter networkWriter = new NetworkWriter();
-            networkWriter.StartMessage(101);
-            networkWriter.Write((double)Time.timeScale);
+            if (TextSerialization.TryParseInvariant(args[0], out float fovTemp))
+            {
+                FieldOfVision = fovTemp;
+                DodgeState.dodgeFOV = FieldOfVision - 10f;
+                BackflipState.dodgeFOV = FieldOfVision - 10f;
+                Debug.Log("Set FOV to " + FieldOfVision);
 
-            networkWriter.FinishMessage();
-            NetworkServer.SendWriterToReady(null, networkWriter, QosChannelIndex.time.intVal);
+                List<CameraRigController> instancesList = (List<CameraRigController>)typeof(CameraRigController).GetField("instancesList", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic).GetValue(null);
+                foreach (CameraRigController c in instancesList)
+                {
+                    c.baseFov = FieldOfVision;
+                }
+            }
+            else
+            {
+                Debug.Log("Incorrect arguments. Try: fov 60");
+            }
         }
 
-        [NetworkMessageHandler(msgType = 101, client = true, server = false)]
-        private static void HandleTimeScale(NetworkMessage netMsg)
-        {
-            NetworkReader reader = netMsg.reader;
-            Time.timeScale = (float)reader.ReadDouble();
-        }
-
+        #region Items&Stats
         [ConCommand(commandName = "list_items", flags = ConVarFlags.None, helpText = "List all item names and their IDs")]
         private static void CCListItems(ConCommandArgs _)
         {
@@ -225,6 +224,15 @@ namespace RoR2Cheats
                 TeamManager.instance.GiveTeamExperience(args.sender.master.teamIndex,result);
             }
         }
+        #endregion
+
+        #region Run.instance
+        [NetworkMessageHandler(msgType = 101, client = true, server = false)]
+        private static void HandleTimeScale(NetworkMessage netMsg)
+        {
+            NetworkReader reader = netMsg.reader;
+            Time.timeScale = (float)reader.ReadDouble();
+        }
 
         [ConCommand(commandName = "next_round", flags = ConVarFlags.ExecuteOnServer, helpText = "Start next round. Additional args for specific scene.")]
         private static void CCNextRound(ConCommandArgs args)
@@ -308,6 +316,33 @@ namespace RoR2Cheats
 
         }
 
+        [ConCommand(commandName = "time_scale", flags = ConVarFlags.Engine | ConVarFlags.ExecuteOnServer, helpText = "Time scale")]
+        private static void CCTimeScale(ConCommandArgs args)
+        {
+            if (args.Count == 0)
+            {
+                Debug.Log(Time.timeScale);
+                return;
+            }
+
+            if (TextSerialization.TryParseInvariant(args[0], out float scale))
+            {
+                Time.timeScale = scale;
+                Debug.Log("Time scale set to " + scale);
+            }
+            else
+            {
+                Debug.Log("Incorrect arguments. Try: time_scale 0.5");
+            }
+
+            NetworkWriter networkWriter = new NetworkWriter();
+            networkWriter.StartMessage(101);
+            networkWriter.Write((double)Time.timeScale);
+
+            networkWriter.FinishMessage();
+            NetworkServer.SendWriterToReady(null, networkWriter, QosChannelIndex.time.intVal);
+        }
+
         [Obsolete("Fix this in issue #14. Use run_set_stages_cleared")]
         [ConCommand(commandName = "stage_clear_count", flags = ConVarFlags.ExecuteOnServer, helpText = "Sets stage clear count - Affects monster difficulty")]
         private static void CCSetClearCount(ConCommandArgs args)
@@ -329,6 +364,122 @@ namespace RoR2Cheats
                 Debug.Log("Incorrect arguments. Try: stage_clear_count 5");
             }
 
+        }
+
+        #endregion
+
+        #region Entities
+        private static NetworkUser GetNetUserFromString(string playerString)
+        {
+            if (playerString != "")
+            {
+                if (int.TryParse(playerString, out int result))
+                {
+                    if (result < NetworkUser.readOnlyInstancesList.Count && result >= 0)
+                    {
+
+                        return NetworkUser.readOnlyInstancesList[result];
+                    }
+                    Debug.Log(MagicVars.PLAYER_NOTFOUND);
+                    return null;
+                }
+                else
+                {
+                    foreach (NetworkUser n in NetworkUser.readOnlyInstancesList)
+                    {
+                        if (n.userName.Equals(playerString, StringComparison.CurrentCultureIgnoreCase))
+                        {
+                            return n;
+                        }
+                    }
+                    Debug.Log(MagicVars.PLAYER_NOTFOUND);
+                    return null;
+                }
+            }
+
+            return null;
+        }
+
+        private static void ResetEnemyTeamLevel()
+        {
+            TeamManager.instance.SetTeamLevel(TeamIndex.Monster, 1);
+        }
+
+        [ConCommand(commandName = "god", flags = ConVarFlags.ExecuteOnServer, helpText = "Godmode")]
+        private static void CCGodModeToggle(ConCommandArgs _)
+        {
+            var godToggleMethod = typeof(CharacterMaster).GetMethodCached("ToggleGod");
+            bool hasNotYetRun = true;
+            foreach (var playerInstance in PlayerCharacterMasterController.instances)
+            {
+                godToggleMethod.Invoke(playerInstance.master, null);
+                if (hasNotYetRun)
+                {
+                    Debug.Log($"God mode {(playerInstance.master.GetBody().healthComponent.godMode ? "enabled" : "disabled")}.");
+                    hasNotYetRun = false;
+                }
+            }
+        }
+
+        [ConCommand(commandName = "kill_all", flags = ConVarFlags.ExecuteOnServer, helpText = "Kill all members of a team. Default is monster.")]
+        private static void CCKillAll(ConCommandArgs args)
+        {
+
+            TeamIndex team;
+            if (args.Count == 0)
+            {
+                team = TeamIndex.Monster;
+            }
+            else
+            {
+                team = args.GetArgEnum<TeamIndex>(0);
+            }
+            int count = 0;
+            foreach (CharacterMaster cm in FindObjectsOfType<CharacterMaster>())
+            {
+                if (cm.teamIndex == team)
+                {
+                    CharacterBody cb = cm.GetBody();
+                    if (cb)
+                    {
+                        if (cb.healthComponent)
+                        {
+                            cb.healthComponent.Suicide(null);
+                            count++;
+                        }
+                    }
+
+                }
+
+            }
+            Debug.Log("Killed " + count + " of team " + team + ".");
+        }
+
+        [ConCommand(commandName = "true_kill", flags = ConVarFlags.ExecuteOnServer, helpText = "Truly kill a player, ignoring revival effects")]
+        private static void CCTrueKill(ConCommandArgs args)
+        {
+            CharacterMaster master = args.sender.master;
+            if (args.Count > 0)
+            {
+                NetworkUser player = GetNetUserFromString(args[0]);
+                if (player != null)
+                {
+                    master = player.master;
+                }
+            }
+
+            master.TrueKill();
+        }
+
+        [ConCommand(commandName = "player_list", flags = ConVarFlags.ExecuteOnServer, helpText = "Shows list of players with their ID")]
+        private static void CCPlayerList(ConCommandArgs _)
+        {
+            NetworkUser n;
+            for (int i = 0; i < NetworkUser.readOnlyInstancesList.Count; i++)
+            {
+                n = NetworkUser.readOnlyInstancesList[i];
+                Debug.Log(i + ": " + n.userName);
+            }
         }
 
         [ConCommand(commandName = "no_enemies", flags = ConVarFlags.ExecuteOnServer, helpText = "Stops enemies from spawning")]
@@ -373,7 +524,7 @@ namespace RoR2Cheats
             if (args.Count > 1)
             {
                 NetworkUser player = GetNetUserFromString(args[1]);
-                if(player != null)
+                if (player != null)
                 {
                     master = player.master;
                 }
@@ -402,130 +553,6 @@ namespace RoR2Cheats
             Debug.Log(args.sender.userName + " is spawning as " + character);
 
             master.Respawn(master.GetBody().transform.position, master.GetBody().transform.rotation);
-        }
-
-        private static NetworkUser GetNetUserFromString(string playerString)
-        {
-            if (playerString != "")
-            {
-                if (int.TryParse(playerString, out int result))
-                {
-                    if (result < NetworkUser.readOnlyInstancesList.Count && result >= 0)
-                    {
-
-                        return NetworkUser.readOnlyInstancesList[result];
-                    }
-                    Debug.Log(MagicVars.PLAYER_NOTFOUND);
-                    return null;
-                }
-                else
-                {
-                    foreach (NetworkUser n in NetworkUser.readOnlyInstancesList)
-                    {
-                        if (n.userName.Equals(playerString, StringComparison.CurrentCultureIgnoreCase))
-                        {
-                            return n;
-                        }
-                    }
-                    Debug.Log(MagicVars.PLAYER_NOTFOUND);
-                    return null;
-                }
-            }
-
-            return null;
-        }
-
-        [ConCommand(commandName = "player_list", flags = ConVarFlags.ExecuteOnServer, helpText = "Shows list of players with their ID")]
-        private static void CCPlayerList(ConCommandArgs _)
-        {
-            NetworkUser n;
-            for (int i = 0; i < NetworkUser.readOnlyInstancesList.Count; i++)
-            {
-                n = NetworkUser.readOnlyInstancesList[i];
-                Debug.Log(i + ": " + n.userName);
-            }
-        }
-
-        [ConCommand(commandName = "fov_sprint_multiplier", flags = ConVarFlags.Engine, helpText = "Set your sprint FOV multiplier")]
-        private static void CCSetSprintFOVMulti(ConCommandArgs args)
-        {
-            if (args.Count == 0)
-            {
-                Debug.Log(SprintFoVMultiplier);
-                return;
-            }
-
-            if (TextSerialization.TryParseInvariant(args[0], out float sprintFov))
-            {
-                SprintFoVMultiplier = sprintFov;
-                Debug.Log("Set Sprint FOV Multiplier to " + SprintFoVMultiplier);
-            }
-            else
-            {
-                Debug.Log("Incorrect arguments. Try: sprint_fov_multiplier 1");
-            }
-        }
-
-        [ConCommand(commandName = "fov", flags = ConVarFlags.Engine, helpText = "Set your FOV")]
-        private static void CCSetFov(ConCommandArgs args)
-        {
-            if (args.Count == 0)
-            {
-                Debug.Log(FieldOfVision);
-                return;
-            }
-
-            if (TextSerialization.TryParseInvariant(args[0], out float fovTemp))
-            {
-                FieldOfVision = fovTemp;
-                DodgeState.dodgeFOV = FieldOfVision - 10f;
-                BackflipState.dodgeFOV = FieldOfVision - 10f;
-                Debug.Log("Set FOV to " + FieldOfVision);
-
-                List<CameraRigController> instancesList = (List<CameraRigController>)typeof(CameraRigController).GetField("instancesList", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic).GetValue(null);
-                foreach (CameraRigController c in instancesList)
-                {
-                    c.baseFov = FieldOfVision;
-                }
-            }
-            else
-            {
-                Debug.Log("Incorrect arguments. Try: fov 60");
-            }
-        }
-
-        [ConCommand(commandName = "kill_all", flags = ConVarFlags.ExecuteOnServer, helpText = "Kill all members of a team. Default is monster.")]
-        private static void CCKillAll(ConCommandArgs args)
-        {
-
-            TeamIndex team;
-            if (args.Count == 0)
-            {
-                team = TeamIndex.Monster;
-            }
-            else
-            {
-                team = args.GetArgEnum<TeamIndex>(0);
-            }
-            int count = 0;
-            foreach (CharacterMaster cm in FindObjectsOfType<CharacterMaster>())
-            {
-                if (cm.teamIndex == team)
-                {
-                    CharacterBody cb = cm.GetBody();
-                    if (cb)
-                    {
-                        if (cb.healthComponent)
-                        {
-                            cb.healthComponent.Suicide(null);
-                            count++;
-                        }
-                    }
-
-                }
-
-            }
-            Debug.Log("Killed " + count + " of team " + team + ".");
         }
 
         [ConCommand(commandName = "spawn_ai", flags = ConVarFlags.ExecuteOnServer, helpText = "Spawn an AI")]
@@ -594,27 +621,54 @@ namespace RoR2Cheats
             Debug.Log(MagicVars.SPAWN_ATTEMPT + character);
         }
 
-        private static void ResetEnemyTeamLevel()
-        {
-            TeamManager.instance.SetTeamLevel(TeamIndex.Monster, 1);
-        }
-
-        [ConCommand(commandName = "true_kill", flags = ConVarFlags.ExecuteOnServer, helpText = "Truly kill a player, ignoring revival effects")]
-        private static void CCTrueKill(ConCommandArgs args)
+        [ConCommand(commandName = "respawn", flags = ConVarFlags.ExecuteOnServer, helpText = "Respawn a player")]
+        private static void RespawnPlayer(ConCommandArgs args)
         {
             CharacterMaster master = args.sender.master;
             if (args.Count > 0)
             {
                 NetworkUser player = GetNetUserFromString(args[0]);
-                if(player != null)
+                if (player != null)
                 {
                     master = player.master;
                 }
             }
 
-            master.TrueKill();
+            Transform spawnPoint = Stage.instance.GetPlayerSpawnTransform();
+            master.Respawn(spawnPoint.position, spawnPoint.rotation, false);
         }
 
+        [ConCommand(commandName = "change_team", flags = ConVarFlags.ExecuteOnServer, helpText = "Change team to Neutral, Player or Monster (0, 1, 2)")]
+        private static void CCChangeTeam(ConCommandArgs args)
+        {
+            args.CheckArgumentCount(1);
+
+            CharacterMaster master = args.sender.master;
+            if (args.Count > 1)
+            {
+                NetworkUser player = GetNetUserFromString(args[1]);
+                if (player != null)
+                {
+                    master = player.master;
+                }
+            }
+
+            if (Enum.TryParse(args[0], true, out TeamIndex teamIndex))
+            {
+                if ((int)teamIndex >= (int)TeamIndex.None && (int)teamIndex < (int)TeamIndex.Count)
+                {
+                    if (master.GetBody())
+                    {
+                        master.GetBody().teamComponent.teamIndex = teamIndex;
+                        master.teamIndex = teamIndex;
+                        Debug.Log("Changed to team " + teamIndex);
+                    }
+                }
+            }
+        }
+        #endregion
+
+        #region portals
         [ConCommand(commandName = "add_portal", flags = ConVarFlags.ExecuteOnServer, helpText = "Teleporter will attempt to spawn a blue, gold, or celestial portal")]
         private static void CCAddPortal(ConCommandArgs args)
         {
@@ -667,51 +721,6 @@ namespace RoR2Cheats
                 TeleporterInteraction.instance.Network_shouldAttemptToSpawnMSPortal = true;
             }
         }
-
-        [ConCommand(commandName = "change_team", flags = ConVarFlags.ExecuteOnServer, helpText = "Change team to Neutral, Player or Monster (0, 1, 2)")]
-        private static void CCChangeTeam(ConCommandArgs args)
-        {
-            args.CheckArgumentCount(1);
-
-            CharacterMaster master = args.sender.master;
-            if (args.Count > 1)
-            {
-                NetworkUser player = GetNetUserFromString(args[1]);
-                if (player != null)
-                {
-                    master = player.master;
-                }
-            }
-
-            if (Enum.TryParse(args[0], true, out TeamIndex teamIndex))
-            {
-                if ((int)teamIndex >= (int)TeamIndex.None && (int)teamIndex < (int)TeamIndex.Count)
-                {
-                    if (master.GetBody())
-                    {
-                        master.GetBody().teamComponent.teamIndex = teamIndex;
-                        master.teamIndex = teamIndex;
-                        Debug.Log("Changed to team " + teamIndex);
-                    }
-                }
-            }
-        }
-
-        [ConCommand(commandName = "respawn", flags = ConVarFlags.ExecuteOnServer, helpText = "Respawn a player")]
-        private static void RespawnPlayer(ConCommandArgs args)
-        {
-            CharacterMaster master = args.sender.master;
-            if (args.Count > 0)
-            {
-                NetworkUser player = GetNetUserFromString(args[0]);
-                if (player != null)
-                {
-                    master = player.master;
-                }
-            }
-
-            Transform spawnPoint = Stage.instance.GetPlayerSpawnTransform();
-            master.Respawn(spawnPoint.position, spawnPoint.rotation, false);
-        }
+        #endregion
     }
 }
