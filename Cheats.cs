@@ -142,38 +142,24 @@ namespace RoR2Cheats
         [ConCommand(commandName = "give_item", flags = ConVarFlags.None, helpText = "Give item directly in the player's inventory. give_item <id> <amount> <playerid>")]
         private static void CCGiveItem(ConCommandArgs args)
         {
+            if (args.Count == 0)
+            {
+                return;
+            }
 
-            string indexString = ArgsHelper.GetValue(args.userArgs, 0);
-            string countString = ArgsHelper.GetValue(args.userArgs, 1);
-            string playerString = ArgsHelper.GetValue(args.userArgs, 2);
-
-            NetworkUser player = GetNetUserFromString(playerString);
-
-            Inventory inventory = player != null ? player.master.inventory : args.sender.master.inventory;
-
-
-            if (!int.TryParse(countString, out int itemCount))
+            if (args.Count<2 || !TextSerialization.TryParseInvariant(args[1], out int itemCount))
             {
                 itemCount = 1;
             }
 
-            ItemIndex itemType;
-            if (int.TryParse(indexString, out int itemIndex))
+            Inventory inventory = args.sender.master.inventory;
+            if (args.Count >= 3)
             {
-                if (itemIndex < (int)ItemIndex.Count && itemIndex >= 0)
-                {
-                    itemType = (ItemIndex)itemIndex;
-                    inventory.GiveItem(itemType, itemCount);
-                }
+                NetworkUser player = GetNetUserFromString(args[2]);
+                inventory = (player == null) ? inventory : player.master.inventory;
             }
-            else if (Enum.TryParse<ItemIndex>(indexString, true, out itemType))
-            {
-                inventory.GiveItem(itemType, itemCount);
-            }
-            else
-            {
-                Debug.Log("Incorrect arguments. Try: give_item syringe 10   --- list_items for a list of items");
-            }
+
+            inventory.GiveItem((ItemIndex)Enum.Parse(typeof(ItemIndex), args[0], true), itemCount);
 
 
         }
