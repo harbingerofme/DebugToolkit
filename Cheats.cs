@@ -165,7 +165,6 @@ namespace RoR2Cheats
         [ConCommand(commandName = "give_equip", flags = ConVarFlags.ExecuteOnServer, helpText = "Give equipment directly to a player's inventory.")]
         private static void CCGiveEquipment(ConCommandArgs args)
         {
-
             if (args.Count == 0)
             {
                 return;
@@ -190,18 +189,22 @@ namespace RoR2Cheats
                 return;
             }
 
-            string moneyString = ArgsHelper.GetValue(args.userArgs, 0);
-            string playerString = ArgsHelper.GetValue(args.userArgs, 1);
-
-            if (!uint.TryParse(moneyString, out uint result))
+            if (!TextSerialization.TryParseInvariant(args[0], out uint result))
             {
                 return;
             }
 
-            if (playerString.ToLower() != "all")
+            if (args.Count <2 || args[1].ToLower() != "all")
             {
-                NetworkUser player = GetNetUserFromString(playerString);
-                CharacterMaster master = player != null ? player.master : args.sender.master;
+                CharacterMaster master = args.sender.master;
+                if (args.Count >= 2)
+                {
+                    NetworkUser player = GetNetUserFromString(args[1]);
+                    if (player != null)
+                    {
+                        master = player.master;
+                    }
+                }
                 master.GiveMoney(result);
             }
             else
