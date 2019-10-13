@@ -615,6 +615,30 @@ namespace RoR2Cheats
             master.TrueKill();
         }
 
+        [ConCommand(commandName = "add_portal", flags = ConVarFlags.ExecuteOnServer, helpText = "Teleporter will attempt to spawn a blue, gold, or celestial portal")]
+        private static void CCAddPortal(ConCommandArgs args)
+        {
+            if (TeleporterInteraction.instance)
+            {
+                switch (args[0])
+                {
+                    case "blue":
+                        TeleporterInteraction.instance.Network_shouldAttemptToSpawnShopPortal = true;
+                        break;
+                    case "gold":
+                        TeleporterInteraction.instance.Network_shouldAttemptToSpawnGoldshoresPortal = true;
+                        break;
+                    case "celestial":
+                        TeleporterInteraction.instance.Network_shouldAttemptToSpawnMSPortal = true;
+                        break;
+                    default: Debug.Log("Accepeter parameters are blue, gold, celestial");
+                        break;
+
+                }
+            }
+        }
+
+        [Obsolete("Use add_portal instead")]
         [ConCommand(commandName = "add_blue", flags = ConVarFlags.ExecuteOnServer, helpText = "Teleporter will attempt to spawn a blue portal on completion")]
         private static void CCAddBlueOrb(ConCommandArgs _)
         {
@@ -624,6 +648,7 @@ namespace RoR2Cheats
             }
         }
 
+        [Obsolete("Use add_portal instead")]
         [ConCommand(commandName = "add_gold", flags = ConVarFlags.ExecuteOnServer, helpText = "Teleporter will attempt to spawn a gold portal on completion")]
         private static void CCAddGoldOrb(ConCommandArgs _)
         {
@@ -633,6 +658,7 @@ namespace RoR2Cheats
             }
         }
 
+        [Obsolete("Use add_portal instead")]
         [ConCommand(commandName = "add_celestial", flags = ConVarFlags.ExecuteOnServer, helpText = "Teleporter will attempt to spawn a celestial portal on completion")]
         private static void CCAddCelestialOrb(ConCommandArgs _)
         {
