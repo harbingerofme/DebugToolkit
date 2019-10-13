@@ -12,7 +12,6 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
-using ArgsHelper = RoR2Cheats.Generic.ArgsHelper;
 
 namespace RoR2Cheats
 {
@@ -81,15 +80,13 @@ namespace RoR2Cheats
         [ConCommand(commandName = "time_scale", flags = ConVarFlags.Engine | ConVarFlags.ExecuteOnServer, helpText = "Time scale")]
         private static void CCTimeScale(ConCommandArgs args)
         {
-            string scaleString = ArgsHelper.GetValue(args.userArgs, 0);
-
             if (args.Count == 0)
             {
                 Debug.Log(Time.timeScale);
                 return;
             }
 
-            if (float.TryParse(scaleString, out float scale))
+            if (TextSerialization.TryParseInvariant(args[0], out float scale))
             {
                 Time.timeScale = scale;
                 Debug.Log("Time scale set to " + scale);
@@ -145,66 +142,42 @@ namespace RoR2Cheats
         [ConCommand(commandName = "give_item", flags = ConVarFlags.None, helpText = "Give item directly in the player's inventory. give_item <id> <amount> <playerid>")]
         private static void CCGiveItem(ConCommandArgs args)
         {
+            if (args.Count == 0)
+            {
+                return;
+            }
 
-            string indexString = ArgsHelper.GetValue(args.userArgs, 0);
-            string countString = ArgsHelper.GetValue(args.userArgs, 1);
-            string playerString = ArgsHelper.GetValue(args.userArgs, 2);
-
-            NetworkUser player = GetNetUserFromString(playerString);
-
-            Inventory inventory = player != null ? player.master.inventory : args.sender.master.inventory;
-
-
-            if (!int.TryParse(countString, out int itemCount))
+            if (args.Count<2 || !TextSerialization.TryParseInvariant(args[1], out int itemCount))
+            {
                 itemCount = 1;
-
-            ItemIndex itemType;
-            if (int.TryParse(indexString, out int itemIndex))
-            {
-                if (itemIndex < (int)ItemIndex.Count && itemIndex >= 0)
-                {
-                    itemType = (ItemIndex)itemIndex;
-                    inventory.GiveItem(itemType, itemCount);
-                }
-            }
-            else if (Enum.TryParse<ItemIndex>(indexString, true, out itemType))
-            {
-                inventory.GiveItem(itemType, itemCount);
-            }
-            else
-            {
-                Debug.Log("Incorrect arguments. Try: give_item syringe 10   --- list_items for a list of items");
             }
 
+            Inventory inventory = args.sender.master.inventory;
+            if (args.Count >= 3)
+            {
+                NetworkUser player = GetNetUserFromString(args[2]);
+                inventory = (player == null) ? inventory : player.master.inventory;
+            }
 
+            inventory.GiveItem((ItemIndex)Enum.Parse(typeof(ItemIndex), args[0], true), itemCount);
         }
 
         [ConCommand(commandName = "give_equip", flags = ConVarFlags.ExecuteOnServer, helpText = "Give equipment directly to a player's inventory.")]
         private static void CCGiveEquipment(ConCommandArgs args)
         {
-
-            string equipString = ArgsHelper.GetValue(args.userArgs, 0);
-            string playerString = ArgsHelper.GetValue(args.userArgs, 1);
-
-            NetworkUser player = GetNetUserFromString(playerString);
-
-            Inventory inventory = player != null ? player.master.inventory : args.sender.master.inventory;
-
-            if (int.TryParse(equipString, out int equipIndex))
+            if (args.Count == 0)
             {
-                if (equipIndex < (int)EquipmentIndex.Count && equipIndex >= -1)
-                {
-                    inventory.SetEquipmentIndex((EquipmentIndex)equipIndex);
-                }
+                return;
             }
-            else if (Enum.TryParse<EquipmentIndex>(equipString, true, out EquipmentIndex equipType))
+
+            Inventory inventory = args.sender.master.inventory;
+            if (args.Count >= 2)
             {
-                inventory.SetEquipmentIndex(equipType);
+                NetworkUser player = GetNetUserFromString(args[1]);
+                inventory = (player == null) ? inventory : player.master.inventory;
             }
-            else
-            {
-                Debug.Log("Incorrect arguments. Try: give_equip meteor   --- list_equips for a list of all equipments");
-            }
+
+            inventory.SetEquipmentIndex((EquipmentIndex)Enum.Parse(typeof(EquipmentIndex), args[0], true));
 
         }
 
@@ -216,29 +189,31 @@ namespace RoR2Cheats
                 return;
             }
 
-            string moneyString = ArgsHelper.GetValue(args.userArgs, 0);
-            string playerString = ArgsHelper.GetValue(args.userArgs, 1);
-
-            if (!uint.TryParse(moneyString, out uint result))
+            if (!TextSerialization.TryParseInvariant(args[0], out uint result))
             {
                 return;
             }
 
-            if (playerString.ToLower() != "all")
+            if (args.Count <2 || args[1].ToLower() != "all")
             {
-                NetworkUser player = GetNetUserFromString(playerString);
-                CharacterMaster master = player != null ? player.master : args.sender.master;
+                CharacterMaster master = args.sender.master;
+                if (args.Count >= 2)
+                {
+                    NetworkUser player = GetNetUserFromString(args[1]);
+                    if (player != null)
+                    {
+                        master = player.master;
+                    }
+                }
                 master.GiveMoney(result);
             }
             else
             {
-                foreach (var playerInstance in PlayerCharacterMasterController.instances)
-                {
-                    playerInstance.master.GiveMoney(result);
-                }
+                TeamManager.instance.GiveTeamMoney(args.sender.master.teamIndex, result);
             }
         }
 
+        [Obsolete("Fix this in issue #14. Use team_set_level")]
         [ConCommand(commandName = "give_exp", flags = ConVarFlags.ExecuteOnServer, helpText = "Gives experience")]
         private static void CCGiveExperience(ConCommandArgs args)
         {
@@ -247,15 +222,9 @@ namespace RoR2Cheats
                 return;
             }
 
-            string expString = ArgsHelper.GetValue(args.userArgs, 0);
-            string playerString = ArgsHelper.GetValue(args.userArgs, 1);
-
-            NetworkUser player = GetNetUserFromString(playerString);
-            CharacterMaster master = player != null ? player.master : args.sender.master;
-
-            if (uint.TryParse(expString, out uint result))
+            if (TeamManager.instance && uint.TryParse(args[0], out uint result))
             {
-                master.GiveExperience(result);
+                TeamManager.instance.GiveTeamExperience(args.sender.master.teamIndex,result);
             }
         }
 
@@ -268,7 +237,7 @@ namespace RoR2Cheats
                 return;
             }
 
-            string stageString = ArgsHelper.GetValue(args.userArgs, 0);
+            string stageString = args[0];
 
             List<string> array = new List<string>();
             for (int i = 0; i < SceneManager.sceneCountInBuildSettings; i++)
@@ -307,7 +276,10 @@ namespace RoR2Cheats
             }
             args.CheckArgumentCount(1);
             if (!TextSerialization.TryParseInvariant(args[0], out ulong result))
+            {
                 throw new ConCommandException("Specified seed is not a parsable uint64.");
+            }
+
             if (PreGameController.instance)
             {
                 PreGameController.instance.runSeed = (result == 0) ? RoR2Application.rng.nextUlong  : result ;
@@ -325,8 +297,7 @@ namespace RoR2Cheats
                 return;
             }
 
-            string stringTime = ArgsHelper.GetValue(args.userArgs, 0);
-            if (float.TryParse(stringTime, out float setTime))
+            if (TextSerialization.TryParseInvariant(args[0], out float setTime))
             {
                 Run.instance.fixedTime = setTime;
                 ResetEnemyTeamLevel();
@@ -339,18 +310,17 @@ namespace RoR2Cheats
 
         }
 
+        [Obsolete("Fix this in issue #14. Use run_set_stages_cleared")]
         [ConCommand(commandName = "stage_clear_count", flags = ConVarFlags.ExecuteOnServer, helpText = "Sets stage clear count - Affects monster difficulty")]
         private static void CCSetClearCount(ConCommandArgs args)
         {
-            string stringClearCount = ArgsHelper.GetValue(args.userArgs, 0);
-
             if (args.Count == 0)
             {
                 Debug.Log(Run.instance.stageClearCount);
                 return;
             }
 
-            if (int.TryParse(stringClearCount, out int setClearCount))
+            if (TextSerialization.TryParseInvariant(args[0], out int setClearCount))
             {
                 Run.instance.stageClearCount = setClearCount;
                 ResetEnemyTeamLevel();
@@ -366,12 +336,16 @@ namespace RoR2Cheats
         [ConCommand(commandName = "no_enemies", flags = ConVarFlags.ExecuteOnServer, helpText = "Stops enemies from spawning")]
         private static void CCNoEnemies(ConCommandArgs args)
         {
-            if (args.Count > 0 && int.TryParse(args.GetArgString(0), out int desired))
+            if (args.Count > 0 && TextSerialization.TryParseInvariant(args[0], out int desired))
             {
                 if (desired == 0)
+                {
                     noEnemies = false;
+                }
                 else
+                {
                     noEnemies = true;
+                }
             }
             else
             {
@@ -390,20 +364,23 @@ namespace RoR2Cheats
                 return;
             }
 
-            string bodyString = ArgsHelper.GetValue(args.userArgs, 0);
-            string playerString = ArgsHelper.GetValue(args.userArgs, 1);
-
             //var character = Character.GetCharacter(bodyString);
             //if (character == null)
             //{
             //    Debug.LogFormat("Could not spawn {0}, Try: spawn_ai GolemBody", character.body);
             //    return;
             //}
-            string character = Character.Instance.GetBodyName(bodyString);
+            string character = Character.Instance.GetBodyName(args[0]);
 
-            NetworkUser player = GetNetUserFromString(playerString);
-
-            CharacterMaster master = player != null ? player.master : args.sender.master;
+            CharacterMaster master = args.sender.master;
+            if (args.Count > 1)
+            {
+                NetworkUser player = GetNetUserFromString(args[1]);
+                if(player != null)
+                {
+                    master = player.master;
+                }
+            }
 
             if (!master.alive)
             {
@@ -480,15 +457,16 @@ namespace RoR2Cheats
                 Debug.Log(SprintFoVMultiplier);
                 return;
             }
-            string multiString = ArgsHelper.GetValue(args.userArgs, 0);
 
-            if (float.TryParse(multiString, out float sprintFov))
+            if (TextSerialization.TryParseInvariant(args[0], out float sprintFov))
             {
                 SprintFoVMultiplier = sprintFov;
                 Debug.Log("Set Sprint FOV Multiplier to " + SprintFoVMultiplier);
             }
             else
+            {
                 Debug.Log("Incorrect arguments. Try: sprint_fov_multiplier 1");
+            }
         }
 
 
@@ -501,9 +479,7 @@ namespace RoR2Cheats
                 return;
             }
 
-            string fovString = ArgsHelper.GetValue(args.userArgs, 0);
-
-            if (float.TryParse(fovString, out float fovTemp))
+            if (TextSerialization.TryParseInvariant(args[0], out float fovTemp))
             {
                 FieldOfVision = fovTemp;
                 DodgeState.dodgeFOV = FieldOfVision - 10f;
@@ -522,18 +498,18 @@ namespace RoR2Cheats
             }
         }
 
-        [ConCommand(commandName = "kill_all", flags = ConVarFlags.ExecuteOnServer, helpText = "Kill all enemies (not you, don't worry. Unless you talk ^@#$ behind my back. Watch out.)")]
+        [ConCommand(commandName = "kill_all", flags = ConVarFlags.ExecuteOnServer, helpText = "Kill all members of a team. Default is monster.")]
         private static void CCKillAll(ConCommandArgs args)
         {
 
             TeamIndex team;
             if (args.Count == 0)
             {
-                team = (TeamIndex)2;
+                team = TeamIndex.Monster;
             }
             else
             {
-                team = (TeamIndex)args.GetArgInt(0);
+                team = args.GetArgEnum<TeamIndex>(0);
             }
             int count = 0;
             foreach (CharacterMaster cm in FindObjectsOfType<CharacterMaster>())
@@ -559,11 +535,7 @@ namespace RoR2Cheats
         [ConCommand(commandName = "spawn_ai", flags = ConVarFlags.ExecuteOnServer, helpText = "Spawn an AI")]
         private static void CCSpawnAI(ConCommandArgs args)
         {
-
-            string prefabString = ArgsHelper.GetValue(args.userArgs, 0);
-            string eliteString = ArgsHelper.GetValue(args.userArgs, 1);
-            string teamString = ArgsHelper.GetValue(args.userArgs, 2);
-            string braindeadString = ArgsHelper.GetValue(args.userArgs, 3);
+            args.CheckArgumentCount(1);
 
             //var character = Character.GetCharacter(prefabString);
             //if (character == null)
@@ -571,8 +543,8 @@ namespace RoR2Cheats
             //    Debug.LogFormat("Could not spawn {0}, Try: spawn_ai GolemBody", character.body);
             //    return;
             //}
-            string character = Character.Instance.GetBodyName(prefabString);
-            var prefab = MasterCatalog.FindMasterPrefab(Character.Instance.GetMasterName(prefabString));
+            string character = Character.Instance.GetBodyName(args[0]);
+            var prefab = MasterCatalog.FindMasterPrefab(Character.Instance.GetMasterName(args[0]));
             var body = BodyCatalog.FindBodyPrefab(character);
 
 
@@ -581,7 +553,7 @@ namespace RoR2Cheats
             NetworkServer.Spawn(bodyGameObject);
             master.SpawnBody(body, args.sender.master.GetBody().transform.position, Quaternion.identity);
 
-            if (Enum.TryParse<EliteIndex>(eliteString, true, out EliteIndex eliteIndex))
+            if (args.Count>1 && Enum.TryParse<EliteIndex>(args[1], true, out EliteIndex eliteIndex))
             {
                 if ((int)eliteIndex > (int)EliteIndex.None && (int)eliteIndex < (int)EliteIndex.Count)
                 {
@@ -589,7 +561,7 @@ namespace RoR2Cheats
                 }
             }
 
-            if (Enum.TryParse<TeamIndex>(teamString, true, out TeamIndex teamIndex))
+            if (args.Count > 2 && Enum.TryParse<TeamIndex>(args[2], true, out TeamIndex teamIndex))
             {
                 if ((int)teamIndex >= (int)TeamIndex.None && (int)teamIndex < (int)TeamIndex.Count)
                 {
@@ -597,7 +569,7 @@ namespace RoR2Cheats
                 }
             }
 
-            if (bool.TryParse(braindeadString, out bool braindead))
+            if (args.Count > 3 && bool.TryParse(args[3], out bool braindead))
             {
                 if (braindead)
                 {
@@ -610,15 +582,14 @@ namespace RoR2Cheats
         [ConCommand(commandName = "spawn_body", flags = ConVarFlags.ExecuteOnServer, helpText = "Spawns a CharacterBody")]
         private static void CCSpawnBody(ConCommandArgs args)
         {
-            string prefabString = ArgsHelper.GetValue(args.userArgs, 0);
-
+            args.CheckArgumentCount(1);
             //var character = Character.GetCharacter(prefabString);
             //if (character == null)
             //{
             //    Debug.LogFormat("Could not spawn {0}, Try: spawn_ai GolemBody", character.body);
             //    return;
             //}
-            string character = Character.Instance.GetBodyName(prefabString);
+            string character = Character.Instance.GetBodyName(args[0]);
 
             GameObject body = BodyCatalog.FindBodyPrefab(character);
 
@@ -636,53 +607,70 @@ namespace RoR2Cheats
         [ConCommand(commandName = "true_kill", flags = ConVarFlags.ExecuteOnServer, helpText = "Truly kill a player, ignoring revival effects")]
         private static void CCTrueKill(ConCommandArgs args)
         {
-            string playerString = ArgsHelper.GetValue(args.userArgs, 0);
+            CharacterMaster master = args.sender.master;
+            if (args.Count > 0)
+            {
+                NetworkUser player = GetNetUserFromString(args[0]);
+                if(player != null)
+                {
+                    master = player.master;
+                }
+            }
 
-            NetworkUser player = GetNetUserFromString(playerString);
-            player = player ?? args.sender;
-
-            player.master.TrueKill();
+            master.TrueKill();
         }
 
         [ConCommand(commandName = "add_blue", flags = ConVarFlags.ExecuteOnServer, helpText = "Teleporter will attempt to spawn a blue portal on completion")]
         private static void CCAddBlueOrb(ConCommandArgs _)
         {
             if (TeleporterInteraction.instance)
+            {
                 TeleporterInteraction.instance.Network_shouldAttemptToSpawnShopPortal = true;
+            }
         }
 
         [ConCommand(commandName = "add_gold", flags = ConVarFlags.ExecuteOnServer, helpText = "Teleporter will attempt to spawn a gold portal on completion")]
         private static void CCAddGoldOrb(ConCommandArgs _)
         {
             if (TeleporterInteraction.instance)
+            {
                 TeleporterInteraction.instance.Network_shouldAttemptToSpawnGoldshoresPortal = true;
+            }
         }
 
         [ConCommand(commandName = "add_celestial", flags = ConVarFlags.ExecuteOnServer, helpText = "Teleporter will attempt to spawn a celestial portal on completion")]
         private static void CCAddCelestialOrb(ConCommandArgs _)
         {
             if (TeleporterInteraction.instance)
+            {
                 TeleporterInteraction.instance.Network_shouldAttemptToSpawnMSPortal = true;
+            }
         }
 
         [ConCommand(commandName = "change_team", flags = ConVarFlags.ExecuteOnServer, helpText = "Change team to Neutral, Player or Monster (0, 1, 2)")]
         private static void CCChangeTeam(ConCommandArgs args)
         {
-            string teamString = ArgsHelper.GetValue(args.userArgs, 0);
-            string playerString = ArgsHelper.GetValue(args.userArgs, 1);
+            args.CheckArgumentCount(1);
 
-            NetworkUser player = GetNetUserFromString(playerString);
-            player = player ?? args.sender;
+            CharacterMaster master = args.sender.master;
+            if (args.Count > 1)
+            {
+                NetworkUser player = GetNetUserFromString(args[1]);
+                if (player != null)
+                {
+                    master = player.master;
+                }
+            }
 
-            if (Enum.TryParse(teamString, true, out TeamIndex teamIndex))
+            if (Enum.TryParse(args[0], true, out TeamIndex teamIndex))
             {
                 if ((int)teamIndex >= (int)TeamIndex.None && (int)teamIndex < (int)TeamIndex.Count)
                 {
-                    Debug.Log("Changed to team " + teamIndex);
-                    if (player.master.GetBody())
+                    if (master.GetBody())
                     {
-                        player.master.GetBody().teamComponent.teamIndex = teamIndex;
-                        player.master.teamIndex = teamIndex;
+                        master.GetBody().teamComponent.teamIndex = teamIndex;
+                        master.teamIndex = teamIndex;
+                        Debug.Log("Changed to team " + teamIndex);
                     }
                 }
             }
@@ -691,13 +679,18 @@ namespace RoR2Cheats
         [ConCommand(commandName = "respawn", flags = ConVarFlags.ExecuteOnServer, helpText = "Respawn a player")]
         private static void RespawnPlayer(ConCommandArgs args)
         {
-            string playerString = ArgsHelper.GetValue(args.userArgs, 0);
-
-            NetworkUser player = GetNetUserFromString(playerString);
-            player = player ?? args.sender;
+            CharacterMaster master = args.sender.master;
+            if (args.Count > 0)
+            {
+                NetworkUser player = GetNetUserFromString(args[0]);
+                if (player != null)
+                {
+                    master = player.master;
+                }
+            }
 
             Transform spawnPoint = Stage.instance.GetPlayerSpawnTransform();
-            player.master.Respawn(spawnPoint.position, spawnPoint.rotation, false);
+            master.Respawn(spawnPoint.position, spawnPoint.rotation, false);
         }
     }
 }
