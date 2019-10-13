@@ -44,7 +44,7 @@ namespace RoR2Cheats
         {
             On.RoR2.Console.Awake += (orig, self) =>
             {
-                Generic.CommandHelper.RegisterCommands(self);
+                R2API.Utils.CommandHelper.RegisterCommands(self);
                 orig(self);
             };
         }
