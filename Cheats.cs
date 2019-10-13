@@ -216,6 +216,7 @@ namespace RoR2Cheats
             }
         }
 
+        [Obsolete("Fix this in issue #14. Use team_set_level")]
         [ConCommand(commandName = "give_exp", flags = ConVarFlags.ExecuteOnServer, helpText = "Gives experience")]
         private static void CCGiveExperience(ConCommandArgs args)
         {
