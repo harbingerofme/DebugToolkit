@@ -306,8 +306,7 @@ namespace RoR2Cheats
                 return;
             }
 
-            string stringTime = ArgsHelper.GetValue(args.userArgs, 0);
-            if (float.TryParse(stringTime, out float setTime))
+            if (TextSerialization.TryParseInvariant(args[0], out float setTime))
             {
                 Run.instance.fixedTime = setTime;
                 ResetEnemyTeamLevel();
