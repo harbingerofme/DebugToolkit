@@ -129,21 +129,21 @@ namespace RoR2Cheats
         //    }
         //}
 
-        [ConCommand(commandName = "net_TickRate", flags = ConVarFlags.None, helpText = "The server TickRate. 1-60")]
-        private static void CCnetwork_TickRate(ConCommandArgs args)
-        {
-            if (args[0] == null) Cheats.TickIntervalMulti = 60f;
-            else
-            {
-                float val;
-                if (float.TryParse(args[0], out val))
-                {
-                    Mathf.Clamp(val, 1f, 60f);
-                }
-                Cheats.TickRate = 1f/val;
-                Debug.Log($"Server network tickrate set to {val} FPS");
-            }
-        }
+        //[ConCommand(commandName = "net_TickRate", flags = ConVarFlags.None, helpText = "The server TickRate. 1-60")]
+        //private static void CCnetwork_TickRate(ConCommandArgs args)
+        //{
+        //    if (args[0] == null) Cheats.TickIntervalMulti = 60f;
+        //    else
+        //    {
+        //        float val;
+        //        if (float.TryParse(args[0], out val))
+        //        {
+        //            Mathf.Clamp(val, 1f, 60f);
+        //        }
+        //        Cheats.TickRate = 1f/val;
+        //        Debug.Log($"Server network tickrate set to {val} FPS");
+        //    }
+        //}
 
         #region Items&Stats
         [ConCommand(commandName = "list_items", flags = ConVarFlags.None, helpText = "List all item names and their IDs")]
