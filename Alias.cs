@@ -108,17 +108,17 @@ namespace RoR2Cheats
             //if(BodyCatalog.allBodyPrefabs.Any<>)
             foreach(var body in RoR2.BodyCatalog.allBodyPrefabs)
             {
-                langInvar = Language.GetString(body.name.ToUpper().Replace("BODY","_BODY_NAME"));
-                if (body.name.ToUpper().Contains(name.ToUpper()) || langInvar.Contains(name.ToUpper()));
-                {
-                    return body.name;
-                }
+                //langInvar = Language.GetString(body.name.ToUpper().Replace("BODY","_BODY_NAME"));
+                langInvar = Language.GetString(body.GetComponent<CharacterBody>().baseNameToken);
+                //Debug.Log(body.name + ":" + langInvar + ":" + name.ToUpper());
+                if (body.name.ToUpper().Contains(name.ToUpper()) || langInvar.Contains(name.ToUpper())) return body.name;
             }
             return null;
         }
 
         internal string GetMasterName(string name)
         {
+            string langInvar;
             foreach (KeyValuePair<string, string[]> dictEnt in MasterAlias)
             {
                 foreach (string alias in dictEnt.Value)
@@ -132,9 +132,9 @@ namespace RoR2Cheats
             //if(BodyCatalog.allBodyPrefabs.Any<>)
             foreach (var master in RoR2.MasterCatalog.allMasters)
             {
-                //Will not implement languiage invariant for master because there is no direct correlation between a master name and a language translation. Multiple masters exist under
-                //varying names for a single language translation, and are not named in a consistent, predictable manner that will allow a naiive match. Body names have a direct correlation to lang.
-                if (master.name.ToUpper().Contains(name.ToUpper()))
+                langInvar = Language.GetString(master.bodyPrefab.GetComponent<CharacterBody>().baseNameToken);
+                //Debug.Log(master.name + ":" + langInvar + ":" + name.ToUpper());
+                if (master.name.ToUpper().Contains(name.ToUpper()) || langInvar.Contains(name.ToUpper()))
                 {
                     return master.name;
                 }

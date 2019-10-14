@@ -56,7 +56,7 @@ namespace RoR2Cheats
             NetworkHandler.RegisterNetworkHandlerAttributes();
         }
 
-       /*[ConCommand(commandName = "getItemName", flags = ConVarFlags.None, helpText = "Match a body prefab")]
+        [ConCommand(commandName = "getItemName", flags = ConVarFlags.None, helpText = "Match a body prefab")]
         private static void CCGetItemName(ConCommandArgs args)
         {
             Alias.Instance.GetItemName(args[0]);
@@ -66,14 +66,20 @@ namespace RoR2Cheats
         private static void CCGetBodyName(ConCommandArgs args)
         {
             Alias.Instance.GetBodyName(args[0]);
-            Debug.Log(Alias.Instance.GetItemName(args[0]));
+            Debug.Log(Alias.Instance.GetBodyName(args[0]));
         }
         [ConCommand(commandName = "getEquipName", flags = ConVarFlags.None, helpText = "Match a body prefab")]
-        private static void CCGetEquiprName(ConCommandArgs args)
+        private static void CCGetEquipName(ConCommandArgs args)
         {
             Alias.Instance.GetEquipName(args[0]);
             Debug.Log(Alias.Instance.GetEquipName(args[0]));
-        }*/
+        }
+        [ConCommand(commandName = "getMasterName", flags = ConVarFlags.None, helpText = "Match a body prefab")]
+        private static void CCGetMasterName(ConCommandArgs args)
+        {
+            Alias.Instance.GetMasterName(args[0]);
+            Debug.Log(Alias.Instance.GetMasterName(args[0]));
+        }
 
         [ConCommand(commandName = "fov_sprint_multiplier", flags = ConVarFlags.Engine, helpText = "Set your sprint FOV multiplier")]
         private static void CCSetSprintFOVMulti(ConCommandArgs args)
@@ -185,29 +191,26 @@ namespace RoR2Cheats
         [ConCommand(commandName = "give_item", flags = ConVarFlags.None, helpText = "Give item directly in the player's inventory. give_item <id> <amount> <playerid>")]
         private static void CCGiveItem(ConCommandArgs args)
         {
-            args.CheckArgumentCount(1);
-
-            if (args.Count<2 || !TextSerialization.TryParseInvariant(args[1], out int itemCount))
+            if (args.Count == 0)
             {
-                itemCount = 1;
+                Debug.Log(MagicVars.GIVEITEM_ARGS);
+                return;
             }
+
+            if (args.Count<=2 || !TextSerialization.TryParseInvariant(args[1], out int itemCount)) itemCount = 1;
 
             Inventory inventory = args.sender.master.inventory;
             if (args.Count >= 3)
             {
                 NetworkUser player = GetNetUserFromString(args[2]);
+                if (player == null) Debug.Log(MagicVars.PLAYER_NOTFOUND);
                 inventory = (player == null) ? inventory : player.master.inventory;
             }
 
-            if (Enum.TryParse(args[0],true, out ItemIndex itemIndex))
-            {
-                inventory.GiveItem(itemIndex, itemCount);
-            }
-            else
-            {
-                Debug.Log("Item "+args[0]+" not found! (Consider `list_items`)");
-            }
-
+            var item = Alias.Instance.GetItemName(args[0]);
+            Debug.Log(item);
+            if (item != null) inventory.GiveItem((ItemIndex)Enum.Parse(typeof(ItemIndex), item, true), itemCount);
+            else Debug.Log(MagicVars.OBJECT_NOTFOUND + args[0] + ":" + item);
         }
 
         [ConCommand(commandName = "give_equip", flags = ConVarFlags.ExecuteOnServer, helpText = "Give equipment directly to a player's inventory.")]
@@ -215,6 +218,7 @@ namespace RoR2Cheats
         {
             if (args.Count == 0)
             {
+                Debug.Log(MagicVars.GIVEEQUIP_ARGS);
                 return;
             }
 
@@ -222,11 +226,13 @@ namespace RoR2Cheats
             if (args.Count >= 2)
             {
                 NetworkUser player = GetNetUserFromString(args[1]);
+                if (player == null) Debug.Log(MagicVars.PLAYER_NOTFOUND);
                 inventory = (player == null) ? inventory : player.master.inventory;
             }
 
-            inventory.SetEquipmentIndex((EquipmentIndex)Enum.Parse(typeof(EquipmentIndex), args[0], true));
-
+            var equip = Alias.Instance.GetEquipName(args[0]);
+            if(equip != null) inventory.SetEquipmentIndex((EquipmentIndex)Enum.Parse(typeof(EquipmentIndex), equip, true));
+            else Debug.Log(MagicVars.OBJECT_NOTFOUND + args[0] + ":" + equip);
         }
 
         [ConCommand(commandName = "give_money", flags = ConVarFlags.ExecuteOnServer, helpText = "Gives money")]
