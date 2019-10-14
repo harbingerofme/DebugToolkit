@@ -566,7 +566,7 @@ namespace RoR2Cheats
         {
             if (args.Count == 0)
             {
-
+                Debug.Log(MagicVars.SPAWNAS_ARGS);
                 return;
             }
 
@@ -574,7 +574,7 @@ namespace RoR2Cheats
             string character = Alias.Instance.GetBodyName(args[0]);
             if (character == null)
             {
-                Debug.LogFormat(MagicVars.SPAWN_ERROR, character);
+                Debug.LogFormat(MagicVars.SPAWN_ERROR + character);
                 return;
             }
 
@@ -582,9 +582,11 @@ namespace RoR2Cheats
             if (args.Count > 1)
             {
                 NetworkUser player = GetNetUserFromString(args[1]);
-                if (player != null)
+                if (player != null) master = player.master;
+                else
                 {
-                    master = player.master;
+                    Debug.Log(MagicVars.PLAYER_NOTFOUND);
+                    return;
                 }
             }
 
@@ -595,7 +597,6 @@ namespace RoR2Cheats
             }
 
             GameObject newBody = BodyCatalog.FindBodyPrefab(character);
-
             if (newBody == null)
             {
                 List<string> array = new List<string>();
