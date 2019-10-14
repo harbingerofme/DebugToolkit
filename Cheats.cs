@@ -208,9 +208,9 @@ namespace RoR2Cheats
             }
 
             var item = Alias.Instance.GetItemName(args[0]);
-            Debug.Log(item);
             if (item != null) inventory.GiveItem((ItemIndex)Enum.Parse(typeof(ItemIndex), item, true), itemCount);
             else Debug.Log(MagicVars.OBJECT_NOTFOUND + args[0] + ":" + item);
+            Debug.Log(item);
         }
 
         [ConCommand(commandName = "give_equip", flags = ConVarFlags.ExecuteOnServer, helpText = "Give equipment directly to a player's inventory.")]
@@ -233,6 +233,7 @@ namespace RoR2Cheats
             var equip = Alias.Instance.GetEquipName(args[0]);
             if(equip != null) inventory.SetEquipmentIndex((EquipmentIndex)Enum.Parse(typeof(EquipmentIndex), equip, true));
             else Debug.Log(MagicVars.OBJECT_NOTFOUND + args[0] + ":" + equip);
+            Debug.Log(equip);
         }
 
         [ConCommand(commandName = "give_money", flags = ConVarFlags.ExecuteOnServer, helpText = "Gives money")]
