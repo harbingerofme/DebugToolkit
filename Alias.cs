@@ -42,6 +42,8 @@ namespace RoR2Cheats
 
         public string GetItemName(string name)
         {
+            string langinvar;
+            //Language.SetCurrentLanguage("fr");
             foreach (KeyValuePair<string, string[]> dictEnt in ItemAlias)
             {
                 foreach (string alias in dictEnt.Value)
@@ -56,8 +58,9 @@ namespace RoR2Cheats
             //if(BodyCatalog.allBodyPrefabs.Any<>)
             foreach (var item in RoR2.ItemCatalog.allItems)
             {
-                if(item.ToString().ToUpper().Contains(name.ToUpper()) || Language.GetString(item.ToString()).ToUpper().Contains(name.ToUpper())) //needs testing
-
+                langinvar = Language.GetString("ITEM_" + item.ToString().ToUpper() + "_NAME").ToUpper();
+                //Debug.Log(langinvar + ":" + item.ToString());
+                if (item.ToString().ToUpper().Contains(name.ToUpper()) || langinvar.Contains(name.ToUpper())) //needs testing
                 {
                     return item.ToString();
                 }
