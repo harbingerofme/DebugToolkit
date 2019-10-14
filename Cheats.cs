@@ -56,12 +56,12 @@ namespace RoR2Cheats
             NetworkHandler.RegisterNetworkHandlerAttributes();
         }
 
-        //[ConCommand(commandName = "getBodyMatch", flags = ConVarFlags.None, helpText = "Match a body prefab")]
-        //private static void CCGetBodyMatch(ConCommandArgs args)
-        //{
-
-        //    Debug.Log(Character.Instance.GetBodyName(args[0]).ToString());
-        //}
+        [ConCommand(commandName = "getItemName", flags = ConVarFlags.None, helpText = "Match a body prefab")]
+        private static void CCGetBodyMatch(ConCommandArgs args)
+        {
+            Alias.Instance.GetItemName(args[0]);
+            Debug.Log(Alias.Instance.GetItemName(args[0]));
+        }
 
 
 
@@ -554,7 +554,7 @@ namespace RoR2Cheats
             }
 
 
-            string character = Character.Instance.GetBodyName(args[0]);
+            string character = Alias.Instance.GetBodyName(args[0]);
             if (character == null)
             {
                 Debug.LogFormat(MagicVars.SPAWN_ERROR, character);
@@ -601,13 +601,13 @@ namespace RoR2Cheats
         {
             args.CheckArgumentCount(1);
 
-            string character = Character.Instance.GetBodyName(args[0]);
+            string character = Alias.Instance.GetBodyName(args[0]);
             if (character == null)
             {
                 Debug.LogFormat(MagicVars.SPAWN_ERROR, character);
                 return;
             }
-            var prefab = MasterCatalog.FindMasterPrefab(Character.Instance.GetMasterName(args[0]));
+            var prefab = MasterCatalog.FindMasterPrefab(Alias.Instance.GetMasterName(args[0]));
             var body = BodyCatalog.FindBodyPrefab(character);
 
 
@@ -647,7 +647,7 @@ namespace RoR2Cheats
         {
             args.CheckArgumentCount(1);
 
-            string character = Character.Instance.GetBodyName(args[0]);
+            string character = Alias.Instance.GetBodyName(args[0]);
             if (character == null)
             {
                 Debug.LogFormat(MagicVars.SPAWN_ERROR, character);
