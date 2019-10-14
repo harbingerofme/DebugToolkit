@@ -139,10 +139,7 @@ namespace RoR2Cheats
         [ConCommand(commandName = "give_item", flags = ConVarFlags.None, helpText = "Give item directly in the player's inventory. give_item <id> <amount> <playerid>")]
         private static void CCGiveItem(ConCommandArgs args)
         {
-            if (args.Count == 0)
-            {
-                return;
-            }
+            args.CheckArgumentCount(1);
 
             if (args.Count<2 || !TextSerialization.TryParseInvariant(args[1], out int itemCount))
             {
@@ -156,7 +153,15 @@ namespace RoR2Cheats
                 inventory = (player == null) ? inventory : player.master.inventory;
             }
 
-            inventory.GiveItem((ItemIndex)Enum.Parse(typeof(ItemIndex), args[0], true), itemCount);
+            if (Enum.TryParse(args[0],true, out ItemIndex itemIndex))
+            {
+                inventory.GiveItem(itemIndex, itemCount);
+            }
+            else
+            {
+                Debug.Log("Item "+args[0]+" not found! (Consider `list_items`)");
+            }
+
         }
 
         [ConCommand(commandName = "give_equip", flags = ConVarFlags.ExecuteOnServer, helpText = "Give equipment directly to a player's inventory.")]
