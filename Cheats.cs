@@ -724,9 +724,7 @@ namespace RoR2Cheats
                 }
             }
         }
-        #endregion
 
-        #region portals
         [ConCommand(commandName = "add_portal", flags = ConVarFlags.ExecuteOnServer, helpText = "Teleporter will attempt to spawn a blue, gold, or celestial portal")]
         private static void CCAddPortal(ConCommandArgs args)
         {
@@ -747,36 +745,6 @@ namespace RoR2Cheats
                         break;
 
                 }
-            }
-        }
-
-        [Obsolete("Use add_portal instead")]
-        [ConCommand(commandName = "add_blue", flags = ConVarFlags.ExecuteOnServer, helpText = "Teleporter will attempt to spawn a blue portal on completion")]
-        private static void CCAddBlueOrb(ConCommandArgs _)
-        {
-            if (TeleporterInteraction.instance)
-            {
-                TeleporterInteraction.instance.Network_shouldAttemptToSpawnShopPortal = true;
-            }
-        }
-
-        [Obsolete("Use add_portal instead")]
-        [ConCommand(commandName = "add_gold", flags = ConVarFlags.ExecuteOnServer, helpText = "Teleporter will attempt to spawn a gold portal on completion")]
-        private static void CCAddGoldOrb(ConCommandArgs _)
-        {
-            if (TeleporterInteraction.instance)
-            {
-                TeleporterInteraction.instance.Network_shouldAttemptToSpawnGoldshoresPortal = true;
-            }
-        }
-
-        [Obsolete("Use add_portal instead")]
-        [ConCommand(commandName = "add_celestial", flags = ConVarFlags.ExecuteOnServer, helpText = "Teleporter will attempt to spawn a celestial portal on completion")]
-        private static void CCAddCelestialOrb(ConCommandArgs _)
-        {
-            if (TeleporterInteraction.instance)
-            {
-                TeleporterInteraction.instance.Network_shouldAttemptToSpawnMSPortal = true;
             }
         }
         #endregion
