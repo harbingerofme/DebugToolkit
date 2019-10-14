@@ -56,14 +56,24 @@ namespace RoR2Cheats
             NetworkHandler.RegisterNetworkHandlerAttributes();
         }
 
-        [ConCommand(commandName = "getItemName", flags = ConVarFlags.None, helpText = "Match a body prefab")]
-        private static void CCGetBodyMatch(ConCommandArgs args)
+       /*[ConCommand(commandName = "getItemName", flags = ConVarFlags.None, helpText = "Match a body prefab")]
+        private static void CCGetItemName(ConCommandArgs args)
         {
             Alias.Instance.GetItemName(args[0]);
             Debug.Log(Alias.Instance.GetItemName(args[0]));
         }
-
-
+        [ConCommand(commandName = "getBodyName", flags = ConVarFlags.None, helpText = "Match a body prefab")]
+        private static void CCGetBodyName(ConCommandArgs args)
+        {
+            Alias.Instance.GetBodyName(args[0]);
+            Debug.Log(Alias.Instance.GetItemName(args[0]));
+        }
+        [ConCommand(commandName = "getEquipName", flags = ConVarFlags.None, helpText = "Match a body prefab")]
+        private static void CCGetEquiprName(ConCommandArgs args)
+        {
+            Alias.Instance.GetEquipName(args[0]);
+            Debug.Log(Alias.Instance.GetEquipName(args[0]));
+        }*/
 
         [ConCommand(commandName = "fov_sprint_multiplier", flags = ConVarFlags.Engine, helpText = "Set your sprint FOV multiplier")]
         private static void CCSetSprintFOVMulti(ConCommandArgs args)
