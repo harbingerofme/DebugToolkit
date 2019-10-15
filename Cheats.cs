@@ -329,8 +329,8 @@ namespace RoR2Cheats
             Time.timeScale = (float)reader.ReadDouble();
         }
 
-        [ConCommand(commandName = "next_round", flags = ConVarFlags.ExecuteOnServer, helpText = "Start next round. Additional args for specific scene.")]
-        private static void CCNextRound(ConCommandArgs args)
+        [ConCommand(commandName = "next_stage", flags = ConVarFlags.ExecuteOnServer, helpText = "Start next round. Additional args for specific scene.")]
+        private static void CCNextStage(ConCommandArgs args)
         {
             if (args.Count == 0)
             {
