@@ -572,21 +572,7 @@ namespace RoR2Cheats
         [ConCommand(commandName = "no_enemies", flags = ConVarFlags.ExecuteOnServer, helpText = "Stops enemies from spawning")]
         private static void CCNoEnemies(ConCommandArgs args)
         {
-            if (args.Count > 0 && TextSerialization.TryParseInvariant(args[0], out int desired))
-            {
-                if (desired == 0)
-                {
-                    noEnemies = false;
-                }
-                else
-                {
-                    noEnemies = true;
-                }
-            }
-            else
-            {
-                noEnemies = !noEnemies;
-            }
+            noEnemies = (noEnemies) ? false : true;
             Debug.Log("No_enemies set to " + noEnemies);
         }
 
