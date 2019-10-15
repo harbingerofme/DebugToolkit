@@ -7,6 +7,7 @@
     <Authors>Harbingerofme; Paddywan</Authors>
     <Description>Bepinex plugin for Risk of Rain 2.</Description>
     <RepositoryUrl>https://github.com/harbingerofme/RoR2Cheats</RepositoryUrl>
+    <Configurations>Debug;Release;OLDBEPIN</Configurations>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -14,6 +15,10 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <LangVersion>7.1</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='OLDBEPIN|AnyCPU'">
     <LangVersion>7.1</LangVersion>
   </PropertyGroup>
 

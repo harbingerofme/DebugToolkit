@@ -19,9 +19,15 @@ namespace RoR2Cheats
     [BepInPlugin("com.harbingerofme.RoR2Cheats", "RoR2Cheats", "2.4.0")]
     public class Cheats : BaseUnityPlugin
     {
-
+#if OLDBEPIN
+        private static ConfigWrapper<float> SprintFovMultiplierConfig;
+        private static ConfigWrapper<float> FovConfig;
+#else
         private static ConfigEntry<float> SprintFovMultiplierConfig;
         private static ConfigEntry<float> FovConfig;
+#endif
+
+
         // private static ConfigEntry<float> fovConfig { get; set; }
 
         public static float SprintFoVMultiplier { get { return SprintFovMultiplierConfig.Value; } set { SprintFovMultiplierConfig.Value = value; } }
@@ -36,6 +42,10 @@ namespace RoR2Cheats
         public void Awake()
         {
             Logger.LogMessage("Harb's and Paddy's Version. Original by Morris1927.");
+#if OLDBEPIN
+            SprintFovMultiplierConfig = Config.Wrap<float>("FOV", "sprint FOV multiplier", "What FOV gets multiplied by while sprinting", 1.3f);
+            FovConfig = Config.Wrap<float>("FOV","Base FOV","Your base Field of vision",60f);
+#else
             SprintFovMultiplierConfig = Config.AddSetting(
                 "0 FOV",
                 "sprint Fov Multiplier",
@@ -51,6 +61,7 @@ namespace RoR2Cheats
                 60f,
                 "Your base Field of vision"
             );
+#endif
 
             Hooks.InitializeHooks();
             NetworkHandler.RegisterNetworkHandlerAttributes();
@@ -162,7 +173,7 @@ namespace RoR2Cheats
         //    }
         //}
 
-        #region Items&Stats
+#region Items&Stats
         [ConCommand(commandName = "list_items", flags = ConVarFlags.None, helpText = "List all item names and their IDs")]
         private static void CCListItems(ConCommandArgs _)
         {
@@ -335,9 +346,9 @@ namespace RoR2Cheats
                 TeamManager.instance.GiveTeamExperience(args.sender.master.teamIndex,result);
             }
         }
-        #endregion
+#endregion
 
-        #region Run.instance
+#region Run.instance
         [NetworkMessageHandler(msgType = 101, client = true, server = false)]
         private static void HandleTimeScale(NetworkMessage netMsg)
         {
@@ -478,9 +489,9 @@ namespace RoR2Cheats
 
         }
 
-        #endregion
+#endregion
 
-        #region Entities
+#region Entities
         private static NetworkUser GetNetUserFromString(string playerString)
         {
             if (playerString != "")
@@ -824,7 +835,7 @@ namespace RoR2Cheats
             }
             return tierdefs[tier];
         }
-        #endregion
+#endregion
 
     }
 }
