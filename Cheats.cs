@@ -56,6 +56,7 @@ namespace RoR2Cheats
             NetworkHandler.RegisterNetworkHandlerAttributes();
         }
 
+
         [ConCommand(commandName = "getItemName", flags = ConVarFlags.None, helpText = "Match a body prefab")]
         private static void CCGetItemName(ConCommandArgs args)
         {
@@ -296,10 +297,11 @@ namespace RoR2Cheats
             }
         }
 
-        [Obsolete("Fix this in issue #14. Use team_set_level")]
         [ConCommand(commandName = "give_exp", flags = ConVarFlags.ExecuteOnServer, helpText = "Gives experience")]
         private static void CCGiveExperience(ConCommandArgs args)
         {
+            Debug.LogWarning(MagicVars.OBSOLETEWARNING +"Use team_set_level instead.");
+
             if (args.Count == 0)
             {
                 return;
@@ -429,10 +431,11 @@ namespace RoR2Cheats
             NetworkServer.SendWriterToReady(null, networkWriter, QosChannelIndex.time.intVal);
         }
 
-        [Obsolete("Fix this in issue #14. Use run_set_stages_cleared")]
         [ConCommand(commandName = "stage_clear_count", flags = ConVarFlags.ExecuteOnServer, helpText = "Sets stage clear count - Affects monster difficulty")]
         private static void CCSetClearCount(ConCommandArgs args)
         {
+            Debug.LogWarning(MagicVars.OBSOLETEWARNING + "Use run_set_stages_cleared instead.");
+
             if (args.Count == 0)
             {
                 Debug.Log(Run.instance.stageClearCount);
