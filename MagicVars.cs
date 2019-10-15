@@ -13,7 +13,8 @@ namespace RoR2Cheats
             OBJECT_NOTFOUND = "The requested object could not be found: ",
             GIVEEQUIP_ARGS = "Requires 1 arguement: give_equip {localised_object_name} {playername}",
             GIVEITEM_ARGS = "Requires 1 arguement: give_item {localised_object_name} {count} {playername}",
-            SPAWNAS_ARGS = "Requires 1 arguement: spawn {localised_objectname} {playername}",
+            SPAWNAS_ARGS = "Requires 1 arguement: spawn_as {localised_objectname} {playername}",
+            SPAWNBODY_ARGS = "Requires 1 arguement: spawn_body {localised_objectname}",
             INTEGER_EXPECTED = "Argument must be a whole number."
             ;
     }

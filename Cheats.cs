@@ -162,10 +162,11 @@ namespace RoR2Cheats
         //}
 
         #region Items&Stats
+        [Obsolete("WARNING: This method is scheduled for obseletion next update.")]
         [ConCommand(commandName = "list_items", flags = ConVarFlags.None, helpText = "List all item names and their IDs")]
         private static void CCListItems(ConCommandArgs _)
         {
-            Debug.Log("WARNING: This method is scheduled for deprecation next update.");
+            Debug.Log("WARNING: This method is scheduled for obseletion next update.");
             StringBuilder text = new StringBuilder();
             foreach (ItemIndex item in ItemCatalog.allItems)
             {
@@ -175,11 +176,11 @@ namespace RoR2Cheats
             }
             Debug.Log(text.ToString());
         }
-
+        [Obsolete("WARNING: This method is scheduled for obseletion next update.")]
         [ConCommand(commandName = "list_equips", flags = ConVarFlags.None, helpText = "List all equipment items and their IDs")]
         private static void CCListEquipments(ConCommandArgs _)
         {
-            Debug.Log("WARNING: This method is scheduled for deprecation next update.");
+            Debug.Log("WARNING: This method is scheduled for obseletion next update.");
             StringBuilder text = new StringBuilder();
             foreach (EquipmentIndex item in EquipmentCatalog.allEquipment)
             {
@@ -601,7 +602,7 @@ namespace RoR2Cheats
             if (character == null)
             {
                 Debug.LogFormat(MagicVars.SPAWN_ERROR + args[0]);
-                Debug.Log("Please use _list to print CharacterBodies");
+                Debug.Log("Please use list_body to print CharacterBodies");
                 return;
             }
             GameObject newBody = BodyCatalog.FindBodyPrefab(character);
@@ -645,6 +646,7 @@ namespace RoR2Cheats
         [ConCommand(commandName = "spawn_ai", flags = ConVarFlags.ExecuteOnServer, helpText = "Spawn an AI")]
         private static void CCSpawnAI(ConCommandArgs args)
         {
+
             args.CheckArgumentCount(1);
 
             string character = Alias.Instance.GetBodyName(args[0]);
@@ -691,19 +693,21 @@ namespace RoR2Cheats
         [ConCommand(commandName = "spawn_body", flags = ConVarFlags.ExecuteOnServer, helpText = "Spawns a CharacterBody")]
         private static void CCSpawnBody(ConCommandArgs args)
         {
-            args.CheckArgumentCount(1);
+            if (args.Count == 0)
+            {
+                Debug.Log(MagicVars.SPAWNBODY_ARGS);
+                return;
+            }
 
             string character = Alias.Instance.GetBodyName(args[0]);
             if (character == null)
             {
-                Debug.LogFormat(MagicVars.SPAWN_ERROR, character);
+                Debug.LogFormat(MagicVars.SPAWN_ERROR, args[0]);
                 return;
             }
 
             GameObject body = BodyCatalog.FindBodyPrefab(character);
-
             GameObject gameObject = Instantiate<GameObject>(body, args.sender.master.GetBody().transform.position, Quaternion.identity);
-
             NetworkServer.Spawn(gameObject);
             Debug.Log(MagicVars.SPAWN_ATTEMPT + character);
         }
