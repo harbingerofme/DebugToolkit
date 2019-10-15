@@ -738,7 +738,11 @@ namespace RoR2Cheats
         [ConCommand(commandName = "change_team", flags = ConVarFlags.ExecuteOnServer, helpText = "Change team to Neutral, Player or Monster (0, 1, 2)")]
         private static void CCChangeTeam(ConCommandArgs args)
         {
-            args.CheckArgumentCount(1);
+            if(args.Count == 0)
+            {
+                Debug.Log(MagicVars.TEAM_ARGS);
+                return;
+            }
 
             CharacterMaster master = args.sender.master;
             if (args.Count > 1)

@@ -15,9 +15,11 @@ namespace RoR2Cheats
             GIVEITEM_ARGS = "Requires 1 argument: give_item {localised_object_name} {count} {playername}",
             SPAWNAS_ARGS = "Requires 1 argument: spawn_as {localised_objectname} {playername}",
             SPAWNBODY_ARGS = "Requires 1 arguement: spawn_body {localised_objectname}",
+            TEAM_ARGS = "Requires 1 arguement: change_team {TeamIndex} {playername}",
             INTEGER_EXPECTED = "Argument must be a whole number.",
             RUNSETSTAGESCLEARED_HELP = "Sets the amount of stages cleared. This does not change the current stage.",
-            OBSOLETEWARNING = "This command has become obsolete and will be removed in the next version. "
+            OBSOLETEWARNING = "This command has become obsolete and will be removed in the next version. ",
+            PORTAL_NOTFOUND = "The specified portal could not be found: add_portal {blue|celestial|gold}"
             ;
     }
 }
