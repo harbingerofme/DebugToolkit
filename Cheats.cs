@@ -666,16 +666,9 @@ namespace RoR2Cheats
 
             if (args.Count>1 && Enum.TryParse<EliteIndex>(args[1], true, out EliteIndex eliteIndex))
             {
-                CombatDirector.EliteTierDef[] teirdefs = typeof(CombatDirector).GetFieldValue<CombatDirector.EliteTierDef[]>("eliteTiers");
-                if ((int)eliteIndex > (int)EliteIndex.None && (int)eliteIndex < (int)EliteIndex.Count)
-                {
-                    int teir = ((int)eliteIndex <= 2) ? 1 : 2;
-
-                    master.inventory.SetEquipmentIndex(EliteCatalog.GetEliteDef(eliteIndex).eliteEquipmentIndex);
-                    Debug.Log(Mathf.RoundToInt(teirdefs[teir].healthBoostCoefficient));
-                    master.inventory.GiveItem(ItemIndex.BoostHp, Mathf.RoundToInt(teirdefs[teir].healthBoostCoefficient));
-                    master.inventory.GiveItem(ItemIndex.BoostDamage, Mathf.RoundToInt(teirdefs[teir].damageBoostCoefficient));
-                }
+                master.inventory.SetEquipmentIndex(EliteCatalog.GetEliteDef(eliteIndex).eliteEquipmentIndex);
+                master.inventory.GiveItem(ItemIndex.BoostHp, Mathf.RoundToInt((GetTierDef(eliteIndex).healthBoostCoefficient -1)*10));
+                master.inventory.GiveItem(ItemIndex.BoostDamage, Mathf.RoundToInt((GetTierDef(eliteIndex).damageBoostCoefficient -1)*10));
             }
 
             if (args.Count > 2 && Enum.TryParse<TeamIndex>(args[2], true, out TeamIndex teamIndex))
@@ -792,6 +785,25 @@ namespace RoR2Cheats
                 }
             }
         }
+
+        private static CombatDirector.EliteTierDef GetTierDef(EliteIndex index)
+        {
+            int tier = 0;
+            CombatDirector.EliteTierDef[] tierdefs = typeof(CombatDirector).GetFieldValue<CombatDirector.EliteTierDef[]>("eliteTiers");
+            if ((int)index > (int)EliteIndex.None && (int)index < (int)EliteIndex.Count)
+            {
+                
+                for (int i = 0; i < tierdefs.Length; i++)
+                {
+                    for (int j = 0; j < tierdefs[i].eliteTypes.Length; j++)
+                    {
+                        if (tierdefs[i].eliteTypes[j] == (index)) { tier = i; }
+                    }
+                }
+            }
+            return tierdefs[tier];
+        }
         #endregion
+
     }
 }
