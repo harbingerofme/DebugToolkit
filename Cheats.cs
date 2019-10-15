@@ -406,7 +406,7 @@ namespace RoR2Cheats
         [ConCommand(commandName = "stage_clear_count", flags = ConVarFlags.ExecuteOnServer, helpText = "Sets stage clear count - Affects monster difficulty")]
         private static void CCSetClearCount(ConCommandArgs args)
         {
-            Debug.LogWarning(MagicVars.OBSOLETEWARNING+"Use run_set_stages_cleared instead.")
+            Debug.LogWarning(MagicVars.OBSOLETEWARNING + "Use run_set_stages_cleared instead.");
 
             if (args.Count == 0)
             {
