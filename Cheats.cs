@@ -163,11 +163,10 @@ namespace RoR2Cheats
         //}
 
         #region Items&Stats
-        [Obsolete("WARNING: This method is scheduled for obseletion next update.")]
         [ConCommand(commandName = "list_items", flags = ConVarFlags.None, helpText = "List all item names and their IDs")]
         private static void CCListItems(ConCommandArgs _)
         {
-            Debug.Log("WARNING: This method is scheduled for obseletion next update.");
+            Debug.Log(MagicVars.OBSOLETEWARNING);
             StringBuilder text = new StringBuilder();
             foreach (ItemIndex item in ItemCatalog.allItems)
             {
@@ -177,11 +176,10 @@ namespace RoR2Cheats
             }
             Debug.Log(text.ToString());
         }
-        [Obsolete("WARNING: This method is scheduled for obseletion next update.")]
         [ConCommand(commandName = "list_equips", flags = ConVarFlags.None, helpText = "List all equipment items and their IDs")]
         private static void CCListEquipments(ConCommandArgs _)
         {
-            Debug.Log("WARNING: This method is scheduled for obseletion next update.");
+            Debug.Log(MagicVars.OBSOLETEWARNING);
             StringBuilder text = new StringBuilder();
             foreach (EquipmentIndex item in EquipmentCatalog.allEquipment)
             {
@@ -782,7 +780,7 @@ namespace RoR2Cheats
                     case "celestial":
                         TeleporterInteraction.instance.Network_shouldAttemptToSpawnMSPortal = true;
                         break;
-                    default: Debug.Log("Accepeter parameters are blue, gold, celestial");
+                    default: Debug.Log(MagicVars.PORTAL_NOTFOUND);
                         break;
 
                 }
