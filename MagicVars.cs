@@ -24,7 +24,7 @@ namespace RoR2Cheats
             RUNSETSTAGESCLEARED_HELP = "Sets the amount of stages cleared. This does not change the current stage.",
             SPAWN_ATTEMPT = "Attempting to spawn: ",
             SPAWN_ERROR = "Could not spawn: ",
-            SPAWNAI_ARGS = "Requires 1 arguement: spawn_ai {localised_objectname} {EliteIndex[0=Fire|1=Overloading,2=Ice,3=Malechite,4=Haunted]} {TeamIndex[1=P,2=M]} {BrainDead[0,1]}",
+            SPAWNAI_ARGS = "Requires 1 arguement: spawn_ai {localised_objectname} {EliteIndex[0=Fire,1=Overloading,2=Ice,3=Malechite,4=Haunted]} {TeamIndex[1=P,2=M]} {BrainDead[0,1]}",
             SPAWNAS_ARGS = "Requires 1 argument: spawn_as {localised_objectname} {playername}",
             SPAWNBODY_ARGS = "Requires 1 argument: spawn_body {localised_objectname}",
             TEAM_ARGS = "Requires 1 argument: change_team {TeamIndex[1=P,2=M]} {playername}"

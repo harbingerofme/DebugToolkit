@@ -625,19 +625,6 @@ namespace RoR2Cheats
                 return;
             }
 
-            //GameObject newBody = BodyCatalog.FindBodyPrefab(character);
-            //if (newBody == null)
-            //{
-            //    List<string> array = new List<string>();
-            //    foreach (var item in BodyCatalog.allBodyPrefabs)
-            //    {
-            //        array.Add(item.name);
-            //    }
-            //    string list = string.Join("\n", array);
-            //    Debug.LogFormat(MagicVars.SPAWN_ERROR + "   --- \n{1}", character, list);
-            //    return;
-            //}
-
             master.bodyPrefab = newBody;
             Debug.Log(args.sender.userName + " is spawning as " + character);
             master.Respawn(master.GetBody().transform.position, master.GetBody().transform.rotation);
@@ -712,7 +699,7 @@ namespace RoR2Cheats
             Debug.Log(MagicVars.SPAWN_ATTEMPT + character);
         }
 
-        [ConCommand(commandName = "respawn", flags = ConVarFlags.ExecuteOnServer, helpText = "Respawn a player")]
+        [ConCommand(commandName = "respawn", flags = ConVarFlags.ExecuteOnServer, helpText = "Respawn a player at the map spawnpoint.")]
         private static void RespawnPlayer(ConCommandArgs args)
         {
             CharacterMaster master = args.sender.master;
