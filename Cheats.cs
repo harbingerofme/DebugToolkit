@@ -163,30 +163,58 @@ namespace RoR2Cheats
         //}
 
         #region Items&Stats
+        [Obsolete("WARNING: This method is scheduled for obseletion next update.")]
         [ConCommand(commandName = "list_items", flags = ConVarFlags.None, helpText = "List all item names and their IDs")]
         private static void CCListItems(ConCommandArgs _)
         {
+            Debug.Log("WARNING: This method is scheduled for obseletion next update.");
             StringBuilder text = new StringBuilder();
             foreach (ItemIndex item in ItemCatalog.allItems)
             {
                 int index = (int)item;
-                string line = string.Format("{0} = {1}", index, item);
+                string line = string.Format("[{0}]{1}", index, item);
+                text.AppendLine(line);
+            }
+            Debug.Log(text.ToString());
+        }
+        [Obsolete("WARNING: This method is scheduled for obseletion next update.")]
+        [ConCommand(commandName = "list_equips", flags = ConVarFlags.None, helpText = "List all equipment items and their IDs")]
+        private static void CCListEquipments(ConCommandArgs _)
+        {
+            Debug.Log("WARNING: This method is scheduled for obseletion next update.");
+            StringBuilder text = new StringBuilder();
+            foreach (EquipmentIndex item in EquipmentCatalog.allEquipment)
+            {
+                int index = (int)item;
+                string line = string.Format("[{0}]{1}", index, item);
                 text.AppendLine(line);
             }
             Debug.Log(text.ToString());
         }
 
-        [ConCommand(commandName = "list_equips", flags = ConVarFlags.None, helpText = "List all equipment items and their IDs")]
-        private static void CCListEquipments(ConCommandArgs _)
+        [ConCommand(commandName = "list_AI", flags = ConVarFlags.None, helpText = "List all Masters and their language invariants")]
+        private static void CCListAI(ConCommandArgs _)
         {
-            StringBuilder text = new StringBuilder();
-            foreach (EquipmentIndex item in EquipmentCatalog.allEquipment)
+            string langInvar;
+            int i = 0;
+            foreach (var master in RoR2.MasterCatalog.allAiMasters)
             {
-                int index = (int)item;
-                string line = string.Format("{0} = {1}", index, item);
-                text.AppendLine(line);
+                langInvar = Language.GetString(master.bodyPrefab.GetComponent<CharacterBody>().baseNameToken);
+                i++;
+                Debug.Log($"[{i}]{master.name}={langInvar}");
             }
-            Debug.Log(text.ToString());
+        }
+        [ConCommand(commandName = "list_Body", flags = ConVarFlags.None, helpText = "List all Bodies and their language invariants")]
+        private static void CCListBody(ConCommandArgs _)
+        {
+            string langInvar;
+            int i = 0;
+            foreach (var body in BodyCatalog.allBodyPrefabBodyBodyComponents)
+            {
+                langInvar = Language.GetString(body.baseNameToken);
+                i++;
+                Debug.Log($"[{i}]{body.name}={langInvar}");
+            }
         }
 
         [ConCommand(commandName = "give_item", flags = ConVarFlags.None, helpText = "Give item directly in the player's inventory. give_item <id> <amount> <playerid>")]
@@ -573,13 +601,14 @@ namespace RoR2Cheats
                 return;
             }
 
-
             string character = Alias.Instance.GetBodyName(args[0]);
             if (character == null)
             {
-                Debug.LogFormat(MagicVars.SPAWN_ERROR + character);
+                Debug.LogFormat(MagicVars.SPAWN_ERROR + args[0]);
+                Debug.Log("Please use list_body to print CharacterBodies");
                 return;
             }
+            GameObject newBody = BodyCatalog.FindBodyPrefab(character);
 
             CharacterMaster master = args.sender.master;
             if (args.Count > 1)
@@ -599,27 +628,28 @@ namespace RoR2Cheats
                 return;
             }
 
-            GameObject newBody = BodyCatalog.FindBodyPrefab(character);
-            if (newBody == null)
-            {
-                List<string> array = new List<string>();
-                foreach (var item in BodyCatalog.allBodyPrefabs)
-                {
-                    array.Add(item.name);
-                }
-                string list = string.Join("\n", array);
-                Debug.LogFormat(MagicVars.SPAWN_ERROR + "   --- \n{1}", character, list);
-                return;
-            }
+            //GameObject newBody = BodyCatalog.FindBodyPrefab(character);
+            //if (newBody == null)
+            //{
+            //    List<string> array = new List<string>();
+            //    foreach (var item in BodyCatalog.allBodyPrefabs)
+            //    {
+            //        array.Add(item.name);
+            //    }
+            //    string list = string.Join("\n", array);
+            //    Debug.LogFormat(MagicVars.SPAWN_ERROR + "   --- \n{1}", character, list);
+            //    return;
+            //}
+
             master.bodyPrefab = newBody;
             Debug.Log(args.sender.userName + " is spawning as " + character);
-
             master.Respawn(master.GetBody().transform.position, master.GetBody().transform.rotation);
         }
 
         [ConCommand(commandName = "spawn_ai", flags = ConVarFlags.ExecuteOnServer, helpText = "Spawn an AI")]
         private static void CCSpawnAI(ConCommandArgs args)
         {
+
             args.CheckArgumentCount(1);
 
             string character = Alias.Instance.GetBodyName(args[0]);
@@ -639,6 +669,7 @@ namespace RoR2Cheats
 
             if (args.Count>1 && Enum.TryParse<EliteIndex>(args[1], true, out EliteIndex eliteIndex))
             {
+                //CombatDirector.EliteTierDef[] teirdefs = typeof(CombatDirector).GetFieldValue<CombatDirector.EliteTierDef[]>("eliteTiers");
                 if ((int)eliteIndex > (int)EliteIndex.None && (int)eliteIndex < (int)EliteIndex.Count)
                 {
                     master.inventory.SetEquipmentIndex(EliteCatalog.GetEliteDef(eliteIndex).eliteEquipmentIndex);
@@ -666,19 +697,21 @@ namespace RoR2Cheats
         [ConCommand(commandName = "spawn_body", flags = ConVarFlags.ExecuteOnServer, helpText = "Spawns a CharacterBody")]
         private static void CCSpawnBody(ConCommandArgs args)
         {
-            args.CheckArgumentCount(1);
+            if (args.Count == 0)
+            {
+                Debug.Log(MagicVars.SPAWNBODY_ARGS);
+                return;
+            }
 
             string character = Alias.Instance.GetBodyName(args[0]);
             if (character == null)
             {
-                Debug.LogFormat(MagicVars.SPAWN_ERROR, character);
+                Debug.LogFormat(MagicVars.SPAWN_ERROR, args[0]);
                 return;
             }
 
             GameObject body = BodyCatalog.FindBodyPrefab(character);
-
             GameObject gameObject = Instantiate<GameObject>(body, args.sender.master.GetBody().transform.position, Quaternion.identity);
-
             NetworkServer.Spawn(gameObject);
             Debug.Log(MagicVars.SPAWN_ATTEMPT + character);
         }
@@ -694,10 +727,16 @@ namespace RoR2Cheats
                 {
                     master = player.master;
                 }
+                else
+                {
+                    Debug.Log(MagicVars.PLAYER_NOTFOUND);
+                    return;
+                }
             }
 
             Transform spawnPoint = Stage.instance.GetPlayerSpawnTransform();
             master.Respawn(spawnPoint.position, spawnPoint.rotation, false);
+            Debug.Log(MagicVars.SPAWN_ATTEMPT + master.name);
         }
 
         [ConCommand(commandName = "change_team", flags = ConVarFlags.ExecuteOnServer, helpText = "Change team to Neutral, Player or Monster (0, 1, 2)")]
