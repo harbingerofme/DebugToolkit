@@ -225,8 +225,8 @@ namespace RoR2Cheats
                 Debug.Log(MagicVars.GIVEITEM_ARGS);
                 return;
             }
-
-            if (args.Count<=2 || !TextSerialization.TryParseInvariant(args[1], out int itemCount)) itemCount = 1;
+            int iCount = 1;
+            if (args.Count >= 2) int.TryParse(args[1], out iCount);
 
             Inventory inventory = args.sender.master.inventory;
             if (args.Count >= 3)
@@ -237,7 +237,7 @@ namespace RoR2Cheats
             }
 
             var item = Alias.Instance.GetItemName(args[0]);
-            if (item != null) inventory.GiveItem((ItemIndex)Enum.Parse(typeof(ItemIndex), item, true), itemCount);
+            if (item != null) inventory.GiveItem((ItemIndex)Enum.Parse(typeof(ItemIndex), item, true), iCount);
             else Debug.Log(MagicVars.OBJECT_NOTFOUND + args[0] + ":" + item);
             Debug.Log(item);
         }

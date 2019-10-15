@@ -111,7 +111,7 @@ namespace RoR2Cheats
                 //langInvar = Language.GetString(body.name.ToUpper().Replace("BODY","_BODY_NAME"));
                 langInvar = Language.GetString(body.baseNameToken);
                 //Debug.Log(body.name + ":" + langInvar + ":" + name.ToUpper());
-                if (body.name.ToUpper().Contains(name.ToUpper()) || langInvar.Contains(name.ToUpper())) return body.name;
+                if (body.name.ToUpper().Contains(name.ToUpper()) || langInvar.ToUpper().Contains(name.ToUpper())) return body.name;
             }
             return null;
         }
@@ -133,8 +133,8 @@ namespace RoR2Cheats
             foreach (var master in RoR2.MasterCatalog.allAiMasters)
             {
                 langInvar = Language.GetString(master.bodyPrefab.GetComponent<CharacterBody>().baseNameToken);
-                //Debug.Log(master.name + ":" + langInvar + ":" + name.ToUpper());
-                if (master.name.ToUpper().Contains(name.ToUpper()) || langInvar.Contains(name.ToUpper()))
+                Debug.Log(master.name + ":" + langInvar + ":" + name.ToUpper());
+                if (master.name.ToUpper().Contains(name.ToUpper()) || langInvar.ToUpper().Contains(name.ToUpper()))
                 {
                     return master.name;
                 }
