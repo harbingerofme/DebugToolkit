@@ -17,11 +17,7 @@ namespace RoR2Cheats
 
             SeedHooks();
 
-            CameraFOVHooks();
-
             SetupNoEnemyIL();
-
-            SetupFOVIL();
 
             //IL.RoR2.Networking.GameNetworkManager.FixedUpdateServer += GameNetworkManager_FixedUpdateServer;
             //IL.RoR2.Networking.GameNetworkManager.cctor += GameNetworkManager_cctor;
@@ -94,16 +90,6 @@ namespace RoR2Cheats
         }
 
 
-
-        private static void CameraFOVHooks()
-        {
-            On.RoR2.CameraRigController.Start += (orig, self) =>
-            {
-                self.baseFov = Cheats.FieldOfVision;
-                orig(self);
-            };
-        }
-
         private static void SetupNoEnemyIL()
         {
             IL.RoR2.CombatDirector.FixedUpdate += il =>
@@ -150,54 +136,6 @@ namespace RoR2Cheats
                 else
                 {
                     Debug.LogWarning("RoR2Cheats - Could not create IL hook IL.RoR2.SceneDirector.Start");
-                }
-            };
-        }
-
-        private static void SetupFOVIL()
-        {
-
-            IL.RoR2.CameraRigController.Update += il =>
-            {
-                var c = new ILCursor(il);
-                if (c.TryGotoNext(
-                    x => x.MatchLdcR4(1.3f)
-                ))
-                {
-                    c.Index++;
-                    c.EmitDelegate<Func<float, float>>((f) => { return 1; });
-                }
-                else
-                {
-                    Debug.LogWarning("RoR2Cheats - Could not create IL hook IL.RoR2.CameraRigController.Update");
-                }
-            };
-
-            IL.EntityStates.Huntress.BackflipState.FixedUpdate += il =>
-            {
-                var c = new ILCursor(il);
-                if (c.TryGotoNext(x => x.MatchLdcR4(60f)))
-                {
-                    c.Index++;
-                    c.EmitDelegate<Func<float, float>>(f => { return Cheats.FieldOfVision - 10f; });
-                }
-                else
-                {
-                    Debug.LogWarning("RoR2Cheats - Could not create IL hook IL.EntityStates.Huntress.BackflipState.FixedUpdate");
-                }
-            };
-
-            IL.EntityStates.Commando.DodgeState.FixedUpdate += il =>
-            {
-                var c = new ILCursor(il);
-                if (c.TryGotoNext(x => x.MatchLdcR4(60f)))
-                {
-                    c.Index++;
-                    c.EmitDelegate<Func<float, float>>(f => { return Cheats.FieldOfVision - 10f; });
-                }
-                else
-                {
-                    Debug.LogWarning("RoR2Cheats - Could not create IL hook IL.EntityStates.Commando.DodgeState.FixedUpdate");
                 }
             };
         }
