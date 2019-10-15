@@ -647,7 +647,11 @@ namespace RoR2Cheats
         private static void CCSpawnAI(ConCommandArgs args)
         {
 
-            args.CheckArgumentCount(1);
+            if (args.Count == 0)
+            {
+                Debug.Log(MagicVars.SPAWNAI_ARGS);
+                return;
+            }
 
             string character = Alias.Instance.GetBodyName(args[0]);
             if (character == null)
@@ -793,7 +797,6 @@ namespace RoR2Cheats
             CombatDirector.EliteTierDef[] tierdefs = typeof(CombatDirector).GetFieldValue<CombatDirector.EliteTierDef[]>("eliteTiers");
             if ((int)index > (int)EliteIndex.None && (int)index < (int)EliteIndex.Count)
             {
-                
                 for (int i = 0; i < tierdefs.Length; i++)
                 {
                     for (int j = 0; j < tierdefs[i].eliteTypes.Length; j++)
