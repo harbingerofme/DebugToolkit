@@ -19,16 +19,6 @@ namespace RoR2Cheats
     [BepInPlugin("com.harbingerofme.RoR2Cheats", "RoR2Cheats", "2.4.0")]
     public class Cheats : BaseUnityPlugin
     {
-#if OLDBEPIN
-        private static ConfigWrapper<float> SprintFovMultiplierConfig;
-        private static ConfigWrapper<float> FovConfig;
-#else
-        private static ConfigEntry<float> SprintFovMultiplierConfig;
-        private static ConfigEntry<float> FovConfig;
-#endif
-        // private static ConfigEntry<float> fovConfig { get; set; }
-        public static float SprintFoVMultiplier { get { return SprintFovMultiplierConfig.Value; } set { SprintFovMultiplierConfig.Value = value; } }
-        public static float FieldOfVision { get { return FovConfig.Value; } set { FovConfig.Value = value; } }
 
         public static bool noEnemies = false;
         public static ulong seed =0;
@@ -38,30 +28,8 @@ namespace RoR2Cheats
 
         public void Awake()
         {
-            Logger.LogMessage("Harb's and 's Version. Original by Morris1927.");
-            #region Configs
-#if OLDBEPIN
-            SprintFovMultiplierConfig = Config.Wrap<float>(MagicVars.CONFIG_SECTION_FOV, MagicVars.FOVMULTI_SHORTDESCR,  MagicVars.FOVMULTI_DESCR, 1.3f);
-            FovConfig = Config.Wrap<float>(MagicVars.CONFIG_SECTION_FOV,MagicVars.FOVBASE_SHORTDESCR, MagicVars.FOVBASE_DESCR ,60f);
-#else
-            SprintFovMultiplierConfig = Config.AddSetting(
-                MagicVars.CONFIG_SECTION_FOV,
-                 MagicVars.FOVMULTI_SHORTDESCR,
-                1.3f,
-                new ConfigDescription(
-                MagicVars.FOVMULTI_DESCR,
-                new AcceptableValueRange<float>(1f, 2f)
-                )
-            );
-            FovConfig = Config.AddSetting(
-                MagicVars.CONFIG_SECTION_FOV,
-                MagicVars.FOVBASE_SHORTDESCR,
-                60f,
-                MagicVars.FOVBASE_DESCR
-            );
-#endif
-            #endregion
-
+            Logger.LogMessage("Harb's and 's Version. Original by Morris1927.");/*Check github for the other contributor, lmao*/
+            
             Hooks.InitializeHooks();
             NetworkHandler.RegisterNetworkHandlerAttributes();
         }
@@ -101,49 +69,13 @@ namespace RoR2Cheats
         [ConCommand(commandName = "fov_sprint_multiplier", flags = ConVarFlags.Engine, helpText = "Set your sprint FOV multiplier")]
         private static void CCSetSprintFOVMulti(ConCommandArgs args)
         {
-            if (args.Count == 0)
-            {
-                Debug.Log(SprintFoVMultiplier);
-                return;
-            }
-
-            if (TextSerialization.TryParseInvariant(args[0], out float sprintFov))
-            {
-                SprintFoVMultiplier = sprintFov;
-                Debug.Log("Set Sprint FOV Multiplier to " + SprintFoVMultiplier);
-            }
-            else
-            {
-                Debug.Log("Incorrect arguments. Try: sprint_fov_multiplier 1");
-            }
+            Debug.LogWarning(MagicVars.OBSOLETEWARNING + "FOV is no longer part of RoR2Cheats.");
         }
 
         [ConCommand(commandName = "fov", flags = ConVarFlags.Engine, helpText = "Set your FOV")]
         private static void CCSetFov(ConCommandArgs args)
         {
-            if (args.Count == 0)
-            {
-                Debug.Log(FieldOfVision);
-                return;
-            }
-
-            if (TextSerialization.TryParseInvariant(args[0], out float fovTemp))
-            {
-                FieldOfVision = fovTemp;
-                DodgeState.dodgeFOV = FieldOfVision - 10f;
-                BackflipState.dodgeFOV = FieldOfVision - 10f;
-                Debug.Log("Set FOV to " + FieldOfVision);
-
-                List<CameraRigController> instancesList = (List<CameraRigController>)typeof(CameraRigController).GetField("instancesList", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic).GetValue(null);
-                foreach (CameraRigController c in instancesList)
-                {
-                    c.baseFov = FieldOfVision;
-                }
-            }
-            else
-            {
-                Debug.Log("Incorrect arguments. Try: fov 60");
-            }
+            Debug.LogWarning(MagicVars.OBSOLETEWARNING + "FOV is no longer part of RoR2Cheats.");
         }
 
 #region Items&Stats
