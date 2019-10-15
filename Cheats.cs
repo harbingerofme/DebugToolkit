@@ -140,39 +140,6 @@ namespace RoR2Cheats
                 Debug.Log("Incorrect arguments. Try: fov 60");
             }
         }
-
-        //[ConCommand(commandName = "net_TickMulti", flags = ConVarFlags.None, helpText = "The server tick interval multiplier. Tickrate is 0.1666*, or 60FPS. Multiplying the value increases the delay between ticks.")]
-        //private static void CCnetwork_TickIntervalMultiplier(ConCommandArgs args)
-        //{
-        //    if (args[0] == null) Cheats.TickIntervalMulti = 1f;
-        //    else
-        //    {
-        //        float val;
-        //        if (float.TryParse(args[0], out val))
-        //        {
-        //            Mathf.Clamp(val, 1f, 4f);
-        //        }
-        //        Cheats.TickIntervalMulti = val;
-        //        Debug.Log($"Server network tickrate multiplier set to {val}X 0.1666");
-        //    }
-        //}
-
-        //[ConCommand(commandName = "net_TickRate", flags = ConVarFlags.None, helpText = "The server TickRate. 1-60")]
-        //private static void CCnetwork_TickRate(ConCommandArgs args)
-        //{
-        //    if (args[0] == null) Cheats.TickIntervalMulti = 60f;
-        //    else
-        //    {
-        //        float val;
-        //        if (float.TryParse(args[0], out val))
-        //        {
-        //            Mathf.Clamp(val, 1f, 60f);
-        //        }
-        //        Cheats.TickRate = 1f/val;
-        //        Debug.Log($"Server network tickrate set to {val} FPS");
-        //    }
-        //}
-
 #region Items&Stats
         [ConCommand(commandName = "list_items", flags = ConVarFlags.None, helpText = "List all item names and their IDs")]
         private static void CCListItems(ConCommandArgs _)
