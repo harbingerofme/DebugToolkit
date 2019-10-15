@@ -1,7 +1,9 @@
 ﻿using MonoMod.Cil;
 using System;
 using UnityEngine;
-using Mono.Cecil.Cil;
+using RoR2;
+using R2API.Utils;
+using Console = RoR2.Console;
 
 namespace RoR2Cheats
 {
@@ -11,6 +13,7 @@ namespace RoR2Cheats
         public static void InitializeHooks()
         {
             ConCommandHooks();
+            UnlockConsole();
 
             SeedHooks();
 
@@ -24,12 +27,35 @@ namespace RoR2Cheats
             //IL.RoR2.Networking.GameNetworkManager.cctor += GameNetworkManager_cctor;
         }
 
+        private static void UnlockConsole()
+        {
+            IL.RoR2.Console.Awake += (ILContext il) =>
+            {
+                const ConVarFlags flags = ConVarFlags.None | ConVarFlags.Archive | ConVarFlags.Engine | ConVarFlags.ExecuteOnServer | ConVarFlags.SenderMustBeServer;
+                ILCursor c = new ILCursor(il);
+                c.GotoNext(
+                    MoveType.After,
+                    x => x.MatchCastclass(typeof(ConCommandAttribute))
+                    );
+                c.EmitDelegate<Func<ConCommandAttribute, ConCommandAttribute>>(
+                    (conAttr) =>
+                    {
+                        conAttr.flags &= flags;
+                        if (conAttr.commandName == "run_set_stages_cleared")
+                        {
+                            conAttr.helpText = MagicVars.RUNSETSTAGESCLEARED_HELP;
+                        }
+                        return conAttr;
+                    });
+            };
+        }
+
         private static void ConCommandHooks()
         {
             On.RoR2.Console.Awake += (orig, self) =>
             {
-                R2API.Utils.CommandHelper.RegisterCommands(self);
                 orig(self);
+                R2API.Utils.CommandHelper.RegisterCommands(self);
             };
         }
 
