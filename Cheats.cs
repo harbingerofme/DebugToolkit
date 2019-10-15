@@ -511,17 +511,11 @@ namespace RoR2Cheats
         [ConCommand(commandName = "kill_all", flags = ConVarFlags.ExecuteOnServer, helpText = "Kill all members of a team. Default is monster.")]
         private static void CCKillAll(ConCommandArgs args)
         {
-
             TeamIndex team;
-            if (args.Count == 0)
-            {
-                team = TeamIndex.Monster;
-            }
-            else
-            {
-                team = args.GetArgEnum<TeamIndex>(0);
-            }
+            if (args.Count == 0) team = TeamIndex.Monster;
+            else team = args.GetArgEnum<TeamIndex>(0);
             int count = 0;
+
             foreach (CharacterMaster cm in FindObjectsOfType<CharacterMaster>())
             {
                 if (cm.teamIndex == team)
@@ -537,7 +531,6 @@ namespace RoR2Cheats
                     }
 
                 }
-
             }
             Debug.Log("Killed " + count + " of team " + team + ".");
         }
@@ -553,9 +546,11 @@ namespace RoR2Cheats
                 {
                     master = player.master;
                 }
+                else Debug.Log(MagicVars.PLAYER_NOTFOUND);
             }
 
             master.TrueKill();
+            Debug.Log(master.name + "Killed by server.");
         }
 
         [ConCommand(commandName = "player_list", flags = ConVarFlags.ExecuteOnServer, helpText = "Shows list of players with their ID")]
