@@ -12,8 +12,8 @@ namespace RoR2Cheats
         
         public static void InitializeHooks()
         {
-            ConCommandHooks();
             UnlockConsole();
+            ConCommandHooks();
 
             SeedHooks();
 
