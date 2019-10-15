@@ -666,10 +666,15 @@ namespace RoR2Cheats
 
             if (args.Count>1 && Enum.TryParse<EliteIndex>(args[1], true, out EliteIndex eliteIndex))
             {
-                //CombatDirector.EliteTierDef[] teirdefs = typeof(CombatDirector).GetFieldValue<CombatDirector.EliteTierDef[]>("eliteTiers");
+                CombatDirector.EliteTierDef[] teirdefs = typeof(CombatDirector).GetFieldValue<CombatDirector.EliteTierDef[]>("eliteTiers");
                 if ((int)eliteIndex > (int)EliteIndex.None && (int)eliteIndex < (int)EliteIndex.Count)
                 {
+                    int teir = ((int)eliteIndex <= 2) ? 1 : 2;
+
                     master.inventory.SetEquipmentIndex(EliteCatalog.GetEliteDef(eliteIndex).eliteEquipmentIndex);
+                    Debug.Log(Mathf.RoundToInt(teirdefs[teir].healthBoostCoefficient));
+                    master.inventory.GiveItem(ItemIndex.BoostHp, Mathf.RoundToInt(teirdefs[teir].healthBoostCoefficient));
+                    master.inventory.GiveItem(ItemIndex.BoostDamage, Mathf.RoundToInt(teirdefs[teir].damageBoostCoefficient));
                 }
             }
 
