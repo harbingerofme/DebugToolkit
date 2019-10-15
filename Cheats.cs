@@ -16,7 +16,7 @@ using UnityEngine.SceneManagement;
 namespace RoR2Cheats
 {
     [BepInDependency("com.bepis.r2api")]
-    [BepInPlugin("com.harbingerofme.RoR2Cheats", "RoR2Cheats", "2.4.0")]
+    [BepInPlugin("com.harbingerofme.RoR2Cheats", "RoR2Cheats", "3.0.0")]
     public class Cheats : BaseUnityPlugin
     {
 
