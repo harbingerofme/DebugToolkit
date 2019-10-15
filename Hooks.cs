@@ -24,44 +24,6 @@ namespace RoR2Cheats
             //IL.RoR2.Networking.GameNetworkManager.cctor += GameNetworkManager_cctor;
         }
 
-        //private static void GameNetworkManager_cctor(ILContext il)
-        //{
-        //    ILCursor c = new ILCursor(il);
-        //    c.GotoNext(
-        //        x => x.MatchLdstr("sv_time_transmit_interval"),
-        //        x => x.MatchLdcI4(out _),
-        //        x => x.MatchLdcR4(out _)
-        //        );
-        //    c.Next.Next.Next.Operand = Cheats.TickIntervalMulti;
-
-        //}
-
-        //private static void GameNetworkManager_FixedUpdateServer(ILContext il)
-        //{
-        //    ILCursor c = new ILCursor(il);
-        //    //c.GotoNext(
-        //    //    x => x.MatchLdarg(0),
-        //    //    x => x.MatchLdfld("RoR2.Networking.GameNetworkManager", "timeTransmitTimer"),
-        //    //    x => x.MatchLdsfld("RoR2.Networking.GameNetworkManager", "svTimeTransmitInterval")
-        //    //    );
-        //    //c.Index += 4;
-        //    //c.Emit(OpCodes.Ldc_R4, Cheats.TickIntervalMulti);
-        //    //c.Emit(OpCodes.Mul);
-        //    c.GotoNext(
-        //        x => x.MatchLdarg(0),
-        //        x => x.MatchLdfld("RoR2.Networking.GameNetworkManager", "timeTransmitTimer"),
-        //        x => x.MatchLdsfld("RoR2.Networking.GameNetworkManager", "svTimeTransmitInterval")
-        //        );
-        //    //c.Index += 4;
-        //    //c.Emit(OpCodes.Ldc_R4, Cheats.TickIntervalMulti);
-        //    //c.Emit(OpCodes.Mul);
-        //    //c.Prev.OpCode = OpCodes.Nop;
-        //    c.Index += 2;
-        //    c.RemoveRange(2);
-        //    c.Emit(OpCodes.Ldc_R4, Cheats.TickRate);
-
-        //}
-
         private static void ConCommandHooks()
         {
             On.RoR2.Console.Awake += (orig, self) =>
@@ -191,6 +153,44 @@ namespace RoR2Cheats
                 }
             };
         }
+
+        //private static void GameNetworkManager_cctor(ILContext il)
+        //{
+        //    ILCursor c = new ILCursor(il);
+        //    c.GotoNext(
+        //        x => x.MatchLdstr("sv_time_transmit_interval"),
+        //        x => x.MatchLdcI4(out _),
+        //        x => x.MatchLdcR4(out _)
+        //        );
+        //    c.Next.Next.Next.Operand = Cheats.TickIntervalMulti;
+
+        //}
+
+        //private static void GameNetworkManager_FixedUpdateServer(ILContext il)
+        //{
+        //    ILCursor c = new ILCursor(il);
+        //    //c.GotoNext(
+        //    //    x => x.MatchLdarg(0),
+        //    //    x => x.MatchLdfld("RoR2.Networking.GameNetworkManager", "timeTransmitTimer"),
+        //    //    x => x.MatchLdsfld("RoR2.Networking.GameNetworkManager", "svTimeTransmitInterval")
+        //    //    );
+        //    //c.Index += 4;
+        //    //c.Emit(OpCodes.Ldc_R4, Cheats.TickIntervalMulti);
+        //    //c.Emit(OpCodes.Mul);
+        //    c.GotoNext(
+        //        x => x.MatchLdarg(0),
+        //        x => x.MatchLdfld("RoR2.Networking.GameNetworkManager", "timeTransmitTimer"),
+        //        x => x.MatchLdsfld("RoR2.Networking.GameNetworkManager", "svTimeTransmitInterval")
+        //        );
+        //    //c.Index += 4;
+        //    //c.Emit(OpCodes.Ldc_R4, Cheats.TickIntervalMulti);
+        //    //c.Emit(OpCodes.Mul);
+        //    //c.Prev.OpCode = OpCodes.Nop;
+        //    c.Index += 2;
+        //    c.RemoveRange(2);
+        //    c.Emit(OpCodes.Ldc_R4, Cheats.TickRate);
+
+        //}
 
     }
 }
