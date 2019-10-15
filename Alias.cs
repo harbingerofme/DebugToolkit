@@ -111,7 +111,10 @@ namespace RoR2Cheats
                 //langInvar = Language.GetString(body.name.ToUpper().Replace("BODY","_BODY_NAME"));
                 langInvar = Language.GetString(body.baseNameToken);
                 //Debug.Log(body.name + ":" + langInvar + ":" + name.ToUpper());
-                if (body.name.ToUpper().Contains(name.ToUpper()) || langInvar.ToUpper().Contains(name.ToUpper())) return body.name;
+                if (body.name.ToUpper().Contains(name.ToUpper()) || langInvar.ToUpper().Contains(name.ToUpper()))
+                {
+                    return body.name;
+                }
             }
             return null;
         }

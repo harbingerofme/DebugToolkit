@@ -224,19 +224,33 @@ namespace RoR2Cheats
                 return;
             }
             int iCount = 1;
-            if (args.Count >= 2) int.TryParse(args[1], out iCount);
+            if (args.Count >= 2)
+            {
+                int.TryParse(args[1], out iCount);
+            }
 
             Inventory inventory = args.sender.master.inventory;
             if (args.Count >= 3)
             {
                 NetworkUser player = GetNetUserFromString(args[2]);
-                if (player == null) Debug.Log(MagicVars.PLAYER_NOTFOUND);
+                if (player == null)
+                {
+                    Debug.Log(MagicVars.PLAYER_NOTFOUND);
+                }
+
                 inventory = (player == null) ? inventory : player.master.inventory;
             }
 
             var item = Alias.Instance.GetItemName(args[0]);
-            if (item != null) inventory.GiveItem((ItemIndex)Enum.Parse(typeof(ItemIndex), item, true), iCount);
-            else Debug.Log(MagicVars.OBJECT_NOTFOUND + args[0] + ":" + item);
+            if (item != null)
+            {
+                inventory.GiveItem((ItemIndex)Enum.Parse(typeof(ItemIndex), item, true), iCount);
+            }
+            else
+            {
+                Debug.Log(MagicVars.OBJECT_NOTFOUND + args[0] + ":" + item);
+            }
+
             Debug.Log(item);
         }
 
@@ -253,13 +267,24 @@ namespace RoR2Cheats
             if (args.Count >= 2)
             {
                 NetworkUser player = GetNetUserFromString(args[1]);
-                if (player == null) Debug.Log(MagicVars.PLAYER_NOTFOUND);
+                if (player == null)
+                {
+                    Debug.Log(MagicVars.PLAYER_NOTFOUND);
+                }
+
                 inventory = (player == null) ? inventory : player.master.inventory;
             }
 
             var equip = Alias.Instance.GetEquipName(args[0]);
-            if(equip != null) inventory.SetEquipmentIndex((EquipmentIndex)Enum.Parse(typeof(EquipmentIndex), equip, true));
-            else Debug.Log(MagicVars.OBJECT_NOTFOUND + args[0] + ":" + equip);
+            if(equip != null)
+            {
+                inventory.SetEquipmentIndex((EquipmentIndex)Enum.Parse(typeof(EquipmentIndex), equip, true));
+            }
+            else
+            {
+                Debug.Log(MagicVars.OBJECT_NOTFOUND + args[0] + ":" + equip);
+            }
+
             Debug.Log(equip);
         }
 
@@ -512,8 +537,15 @@ namespace RoR2Cheats
         private static void CCKillAll(ConCommandArgs args)
         {
             TeamIndex team;
-            if (args.Count == 0) team = TeamIndex.Monster;
-            else team = args.GetArgEnum<TeamIndex>(0);
+            if (args.Count == 0)
+            {
+                team = TeamIndex.Monster;
+            }
+            else
+            {
+                team = args.GetArgEnum<TeamIndex>(0);
+            }
+
             int count = 0;
 
             foreach (CharacterMaster cm in FindObjectsOfType<CharacterMaster>())
@@ -546,7 +578,10 @@ namespace RoR2Cheats
                 {
                     master = player.master;
                 }
-                else Debug.Log(MagicVars.PLAYER_NOTFOUND);
+                else
+                {
+                    Debug.Log(MagicVars.PLAYER_NOTFOUND);
+                }
             }
 
             master.TrueKill();
@@ -564,8 +599,8 @@ namespace RoR2Cheats
             }
         }
 
-        [ConCommand(commandName = "no_enemies", flags = ConVarFlags.ExecuteOnServer, helpText = "Stops enemies from spawning")]
-        private static void CCNoEnemies(ConCommandArgs args)
+        [ConCommand(commandName = "no_enemies", flags = ConVarFlags.ExecuteOnServer, helpText = "Toggles enemy spawns")]
+        private static void CCNoEnemies(ConCommandArgs _)
         {
             noEnemies = (noEnemies) ? false : true;
             Debug.Log("No_enemies set to " + noEnemies);
@@ -593,7 +628,10 @@ namespace RoR2Cheats
             if (args.Count > 1)
             {
                 NetworkUser player = GetNetUserFromString(args[1]);
-                if (player != null) master = player.master;
+                if (player != null)
+                {
+                    master = player.master;
+                }
                 else
                 {
                     Debug.Log(MagicVars.PLAYER_NOTFOUND);
@@ -661,12 +699,9 @@ namespace RoR2Cheats
                 }
             }
 
-            if (args.Count > 3 && bool.TryParse(args[3], out bool braindead))
+            if (args.Count > 3 && bool.TryParse(args[3], out bool braindead) && braindead)
             {
-                if (braindead)
-                {
-                    Destroy(master.GetComponent<BaseAI>());
-                }
+                Destroy(master.GetComponent<BaseAI>());
             }
             Debug.Log(MagicVars.SPAWN_ATTEMPT + character);
         }
