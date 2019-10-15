@@ -666,6 +666,7 @@ namespace RoR2Cheats
 
             if (args.Count>1 && Enum.TryParse<EliteIndex>(args[1], true, out EliteIndex eliteIndex))
             {
+                //CombatDirector.EliteTierDef[] teirdefs = typeof(CombatDirector).GetFieldValue<CombatDirector.EliteTierDef[]>("eliteTiers");
                 if ((int)eliteIndex > (int)EliteIndex.None && (int)eliteIndex < (int)EliteIndex.Count)
                 {
                     master.inventory.SetEquipmentIndex(EliteCatalog.GetEliteDef(eliteIndex).eliteEquipmentIndex);
@@ -723,10 +724,16 @@ namespace RoR2Cheats
                 {
                     master = player.master;
                 }
+                else
+                {
+                    Debug.Log(MagicVars.PLAYER_NOTFOUND);
+                    return;
+                }
             }
 
             Transform spawnPoint = Stage.instance.GetPlayerSpawnTransform();
             master.Respawn(spawnPoint.position, spawnPoint.rotation, false);
+            Debug.Log(MagicVars.SPAWN_ATTEMPT + master.name);
         }
 
         [ConCommand(commandName = "change_team", flags = ConVarFlags.ExecuteOnServer, helpText = "Change team to Neutral, Player or Monster (0, 1, 2)")]
