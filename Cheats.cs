@@ -165,11 +165,12 @@ namespace RoR2Cheats
         [ConCommand(commandName = "list_items", flags = ConVarFlags.None, helpText = "List all item names and their IDs")]
         private static void CCListItems(ConCommandArgs _)
         {
+            Debug.Log("WARNING: This method is scheduled for deprecation next update.");
             StringBuilder text = new StringBuilder();
             foreach (ItemIndex item in ItemCatalog.allItems)
             {
                 int index = (int)item;
-                string line = string.Format("{0} = {1}", index, item);
+                string line = string.Format("[{0}]{1}", index, item);
                 text.AppendLine(line);
             }
             Debug.Log(text.ToString());
@@ -178,14 +179,40 @@ namespace RoR2Cheats
         [ConCommand(commandName = "list_equips", flags = ConVarFlags.None, helpText = "List all equipment items and their IDs")]
         private static void CCListEquipments(ConCommandArgs _)
         {
+            Debug.Log("WARNING: This method is scheduled for deprecation next update.");
             StringBuilder text = new StringBuilder();
             foreach (EquipmentIndex item in EquipmentCatalog.allEquipment)
             {
                 int index = (int)item;
-                string line = string.Format("{0} = {1}", index, item);
+                string line = string.Format("[{0}]{1}", index, item);
                 text.AppendLine(line);
             }
             Debug.Log(text.ToString());
+        }
+
+        [ConCommand(commandName = "list_AI", flags = ConVarFlags.None, helpText = "List all Masters and their language invariants")]
+        private static void CCListAI(ConCommandArgs _)
+        {
+            string langInvar;
+            int i = 0;
+            foreach (var master in RoR2.MasterCatalog.allAiMasters)
+            {
+                langInvar = Language.GetString(master.bodyPrefab.GetComponent<CharacterBody>().baseNameToken);
+                i++;
+                Debug.Log($"[{i}]{master.name}={langInvar}");
+            }
+        }
+        [ConCommand(commandName = "list_Body", flags = ConVarFlags.None, helpText = "List all Bodies and their language invariants")]
+        private static void CCListBody(ConCommandArgs _)
+        {
+            string langInvar;
+            int i = 0;
+            foreach (var body in BodyCatalog.allBodyPrefabBodyBodyComponents)
+            {
+                langInvar = Language.GetString(body.baseNameToken);
+                i++;
+                Debug.Log($"[{i}]{body.name}={langInvar}");
+            }
         }
 
         [ConCommand(commandName = "give_item", flags = ConVarFlags.None, helpText = "Give item directly in the player's inventory. give_item <id> <amount> <playerid>")]
@@ -570,13 +597,14 @@ namespace RoR2Cheats
                 return;
             }
 
-
             string character = Alias.Instance.GetBodyName(args[0]);
             if (character == null)
             {
-                Debug.LogFormat(MagicVars.SPAWN_ERROR + character);
+                Debug.LogFormat(MagicVars.SPAWN_ERROR + args[0]);
+                Debug.Log("Please use _list to print CharacterBodies");
                 return;
             }
+            GameObject newBody = BodyCatalog.FindBodyPrefab(character);
 
             CharacterMaster master = args.sender.master;
             if (args.Count > 1)
@@ -596,21 +624,21 @@ namespace RoR2Cheats
                 return;
             }
 
-            GameObject newBody = BodyCatalog.FindBodyPrefab(character);
-            if (newBody == null)
-            {
-                List<string> array = new List<string>();
-                foreach (var item in BodyCatalog.allBodyPrefabs)
-                {
-                    array.Add(item.name);
-                }
-                string list = string.Join("\n", array);
-                Debug.LogFormat(MagicVars.SPAWN_ERROR + "   --- \n{1}", character, list);
-                return;
-            }
+            //GameObject newBody = BodyCatalog.FindBodyPrefab(character);
+            //if (newBody == null)
+            //{
+            //    List<string> array = new List<string>();
+            //    foreach (var item in BodyCatalog.allBodyPrefabs)
+            //    {
+            //        array.Add(item.name);
+            //    }
+            //    string list = string.Join("\n", array);
+            //    Debug.LogFormat(MagicVars.SPAWN_ERROR + "   --- \n{1}", character, list);
+            //    return;
+            //}
+
             master.bodyPrefab = newBody;
             Debug.Log(args.sender.userName + " is spawning as " + character);
-
             master.Respawn(master.GetBody().transform.position, master.GetBody().transform.rotation);
         }
 

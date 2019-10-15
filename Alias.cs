@@ -106,17 +106,17 @@ namespace RoR2Cheats
                 }
             }
             //if(BodyCatalog.allBodyPrefabs.Any<>)
-            foreach(var body in RoR2.BodyCatalog.allBodyPrefabs)
+            foreach(var body in RoR2.BodyCatalog.allBodyPrefabBodyBodyComponents)
             {
                 //langInvar = Language.GetString(body.name.ToUpper().Replace("BODY","_BODY_NAME"));
-                langInvar = Language.GetString(body.GetComponent<CharacterBody>().baseNameToken);
+                langInvar = Language.GetString(body.baseNameToken);
                 //Debug.Log(body.name + ":" + langInvar + ":" + name.ToUpper());
                 if (body.name.ToUpper().Contains(name.ToUpper()) || langInvar.Contains(name.ToUpper())) return body.name;
             }
             return null;
         }
 
-        internal string GetMasterName(string name)
+        public string GetMasterName(string name)
         {
             string langInvar;
             foreach (KeyValuePair<string, string[]> dictEnt in MasterAlias)
@@ -130,7 +130,7 @@ namespace RoR2Cheats
                 }
             }
             //if(BodyCatalog.allBodyPrefabs.Any<>)
-            foreach (var master in RoR2.MasterCatalog.allMasters)
+            foreach (var master in RoR2.MasterCatalog.allAiMasters)
             {
                 langInvar = Language.GetString(master.bodyPrefab.GetComponent<CharacterBody>().baseNameToken);
                 //Debug.Log(master.name + ":" + langInvar + ":" + name.ToUpper());

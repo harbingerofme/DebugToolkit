@@ -7,7 +7,7 @@ namespace RoR2Cheats
     public static class MagicVars
     {
         public static string SPAWN_ERROR = "Could not spawn: ",
-            SPAWN_ATTEMPT = "Attempting to spawn ",
+            SPAWN_ATTEMPT = "Attempting to spawn: ",
             PLAYER_NOTFOUND = "Specified player does not exist",
             PLAYER_DEADRESPAWN = "Player is dead and cannot respawn.",
             OBJECT_NOTFOUND = "The requested object could not be found: ",
