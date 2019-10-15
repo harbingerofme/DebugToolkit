@@ -7,6 +7,11 @@ namespace RoR2Cheats
     public static class MagicVars
     {
         public const string
+            CONFIG_SECTION_FOV = "FOV",
+            FOVBASE_DESCR = "Your base Field of vision",
+            FOVBASE_SHORTDESCR = "Base FOV",
+            FOVMULTI_DESCR = "What FOV gets multiplied by while sprinting",
+            FOVMULTI_SHORTDESCR = "sprint Fov Multiplier",
             GIVEEQUIP_ARGS = "Requires 1 argument: give_equip {localised_object_name} {playername}",
             GIVEITEM_ARGS = "Requires 1 argument: give_item {localised_object_name} {count} {playername}",
             INTEGER_EXPECTED = "Argument must be a whole number.",

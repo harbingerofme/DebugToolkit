@@ -43,23 +43,23 @@ namespace RoR2Cheats
         {
             Logger.LogMessage("Harb's and Paddy's Version. Original by Morris1927.");
 #if OLDBEPIN
-            SprintFovMultiplierConfig = Config.Wrap<float>("FOV", "sprint FOV multiplier", "What FOV gets multiplied by while sprinting", 1.3f);
-            FovConfig = Config.Wrap<float>("FOV","Base FOV","Your base Field of vision",60f);
+            SprintFovMultiplierConfig = Config.Wrap<float>(MagicVars.CONFIG_SECTION_FOV, MagicVars.FOVMULTI_SHORTDESCR,  MagicVars.FOVMULTI_DESCR, 1.3f);
+            FovConfig = Config.Wrap<float>(MagicVars.CONFIG_SECTION_FOV,MagicVars.FOVBASE_SHORTDESCR, MagicVars.FOVBASE_DESCR ,60f);
 #else
             SprintFovMultiplierConfig = Config.AddSetting(
-                "0 FOV",
-                "sprint Fov Multiplier",
+                MagicVars.CONFIG_SECTION_FOV,
+                 MagicVars.FOVMULTI_SHORTDESCR,
                 1.3f,
                 new ConfigDescription(
-                "What FOV gets multiplied by while sprinting",
+                MagicVars.FOVMULTI_DESCR,
                 new AcceptableValueRange<float>(1f, 2f)
                 )
             );
             FovConfig = Config.AddSetting(
-                "0 FOV",
-                "Base FOV",
+                MagicVars.CONFIG_SECTION_FOV,
+                MagicVars.FOVBASE_SHORTDESCR,
                 60f,
-                "Your base Field of vision"
+                MagicVars.FOVBASE_DESCR
             );
 #endif
 
