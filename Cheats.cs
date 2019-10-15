@@ -26,10 +26,7 @@ namespace RoR2Cheats
         private static ConfigEntry<float> SprintFovMultiplierConfig;
         private static ConfigEntry<float> FovConfig;
 #endif
-
-
         // private static ConfigEntry<float> fovConfig { get; set; }
-
         public static float SprintFoVMultiplier { get { return SprintFovMultiplierConfig.Value; } set { SprintFovMultiplierConfig.Value = value; } }
         public static float FieldOfVision { get { return FovConfig.Value; } set { FovConfig.Value = value; } }
 
@@ -41,7 +38,8 @@ namespace RoR2Cheats
 
         public void Awake()
         {
-            Logger.LogMessage("Harb's and Paddy's Version. Original by Morris1927.");
+            Logger.LogMessage("Harb's and 's Version. Original by Morris1927.");
+            #region Configs
 #if OLDBEPIN
             SprintFovMultiplierConfig = Config.Wrap<float>(MagicVars.CONFIG_SECTION_FOV, MagicVars.FOVMULTI_SHORTDESCR,  MagicVars.FOVMULTI_DESCR, 1.3f);
             FovConfig = Config.Wrap<float>(MagicVars.CONFIG_SECTION_FOV,MagicVars.FOVBASE_SHORTDESCR, MagicVars.FOVBASE_DESCR ,60f);
@@ -62,37 +60,43 @@ namespace RoR2Cheats
                 MagicVars.FOVBASE_DESCR
             );
 #endif
+            #endregion
 
             Hooks.InitializeHooks();
             NetworkHandler.RegisterNetworkHandlerAttributes();
         }
 
+        #region DEBUG
 #if DEBUG
-        [ConCommand(commandName = "getItemName", flags = ConVarFlags.None, helpText = "Match a body prefab")]
+        [ConCommand(commandName = "getItemName", flags = ConVarFlags.None, helpText = "Match a partial localised item name to an ItemIndex")]
         private static void CCGetItemName(ConCommandArgs args)
         {
             Alias.Instance.GetItemName(args[0]);
             Debug.Log(Alias.Instance.GetItemName(args[0]));
         }
-        [ConCommand(commandName = "getBodyName", flags = ConVarFlags.None, helpText = "Match a body prefab")]
+
+        [ConCommand(commandName = "getBodyName", flags = ConVarFlags.None, helpText = "Match a bpartial localised body name to a character body name")]
         private static void CCGetBodyName(ConCommandArgs args)
         {
             Alias.Instance.GetBodyName(args[0]);
             Debug.Log(Alias.Instance.GetBodyName(args[0]));
         }
-        [ConCommand(commandName = "getEquipName", flags = ConVarFlags.None, helpText = "Match a body prefab")]
+
+        [ConCommand(commandName = "getEquipName", flags = ConVarFlags.None, helpText = "Match a partial localised equip name to an EquipIndex")]
         private static void CCGetEquipName(ConCommandArgs args)
         {
             Alias.Instance.GetEquipName(args[0]);
             Debug.Log(Alias.Instance.GetEquipName(args[0]));
         }
-        [ConCommand(commandName = "getMasterName", flags = ConVarFlags.None, helpText = "Match a body prefab")]
+
+        [ConCommand(commandName = "getMasterName", flags = ConVarFlags.None, helpText = "Match a partial localised Master name to a CharacterMaster")]
         private static void CCGetMasterName(ConCommandArgs args)
         {
             Alias.Instance.GetMasterName(args[0]);
             Debug.Log(Alias.Instance.GetMasterName(args[0]));
         }
 #endif
+        #endregion
 
         [ConCommand(commandName = "fov_sprint_multiplier", flags = ConVarFlags.Engine, helpText = "Set your sprint FOV multiplier")]
         private static void CCSetSprintFOVMulti(ConCommandArgs args)
@@ -141,6 +145,7 @@ namespace RoR2Cheats
                 Debug.Log("Incorrect arguments. Try: fov 60");
             }
         }
+
 #region Items&Stats
         [ConCommand(commandName = "list_items", flags = ConVarFlags.None, helpText = "List all item names and their IDs")]
         private static void CCListItems(ConCommandArgs _)
@@ -455,7 +460,6 @@ namespace RoR2Cheats
             }
 
         }
-
 #endregion
 
 #region Entities
@@ -801,6 +805,5 @@ namespace RoR2Cheats
             return tierdefs[tier];
         }
 #endregion
-
     }
 }
