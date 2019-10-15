@@ -17,6 +17,7 @@ namespace RoR2Cheats
             INTEGER_EXPECTED = "Argument must be a whole number.",
             OBJECT_NOTFOUND = "The requested object could not be found: ",
             OBSOLETEWARNING = "This command has become obsolete and will be removed in the next version. ",
+            NEXTROUND_STAGE = "Invalid Stage. Please choose from the following: ",
             PLAYER_DEADRESPAWN = "Player is dead and cannot respawn.",
             PLAYER_NOTFOUND = "Specified player does not exist",
             PORTAL_NOTFOUND = "The specified portal could not be found: add_portal {blue|celestial|gold}",

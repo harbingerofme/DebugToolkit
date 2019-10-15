@@ -67,7 +67,7 @@ namespace RoR2Cheats
             NetworkHandler.RegisterNetworkHandlerAttributes();
         }
 
-
+#if DEBUG
         [ConCommand(commandName = "getItemName", flags = ConVarFlags.None, helpText = "Match a body prefab")]
         private static void CCGetItemName(ConCommandArgs args)
         {
@@ -92,6 +92,7 @@ namespace RoR2Cheats
             Alias.Instance.GetMasterName(args[0]);
             Debug.Log(Alias.Instance.GetMasterName(args[0]));
         }
+#endif
 
         [ConCommand(commandName = "fov_sprint_multiplier", flags = ConVarFlags.Engine, helpText = "Set your sprint FOV multiplier")]
         private static void CCSetSprintFOVMulti(ConCommandArgs args)
@@ -333,7 +334,6 @@ namespace RoR2Cheats
             }
 
             string stageString = args[0];
-
             List<string> array = new List<string>();
             for (int i = 0; i < SceneManager.sceneCountInBuildSettings; i++)
             {
@@ -347,7 +347,7 @@ namespace RoR2Cheats
             }
             else
             {
-                Debug.Log("Incorrect arguments. Try: next_round golemplains   --- Here is a list of available scenes");
+                Debug.Log(MagicVars.NEXTROUND_STAGE);
                 Debug.Log(string.Join("\n", array));
             }
         }
@@ -467,7 +467,6 @@ namespace RoR2Cheats
                 {
                     if (result < NetworkUser.readOnlyInstancesList.Count && result >= 0)
                     {
-
                         return NetworkUser.readOnlyInstancesList[result];
                     }
                     Debug.Log(MagicVars.PLAYER_NOTFOUND);
@@ -486,8 +485,18 @@ namespace RoR2Cheats
                     return null;
                 }
             }
-
             return null;
+        }
+
+        [ConCommand(commandName = "player_list", flags = ConVarFlags.ExecuteOnServer, helpText = "Shows list of players with their ID")]
+        private static void CCPlayerList(ConCommandArgs _)
+        {
+            NetworkUser n;
+            for (int i = 0; i < NetworkUser.readOnlyInstancesList.Count; i++)
+            {
+                n = NetworkUser.readOnlyInstancesList[i];
+                Debug.Log($"[{i}]{n.userName}");
+            }
         }
 
         private static void ResetEnemyTeamLevel()
@@ -564,17 +573,6 @@ namespace RoR2Cheats
 
             master.TrueKill();
             Debug.Log(master.name + "Killed by server.");
-        }
-
-        [ConCommand(commandName = "player_list", flags = ConVarFlags.ExecuteOnServer, helpText = "Shows list of players with their ID")]
-        private static void CCPlayerList(ConCommandArgs _)
-        {
-            NetworkUser n;
-            for (int i = 0; i < NetworkUser.readOnlyInstancesList.Count; i++)
-            {
-                n = NetworkUser.readOnlyInstancesList[i];
-                Debug.Log(i + ": " + n.userName);
-            }
         }
 
         [ConCommand(commandName = "no_enemies", flags = ConVarFlags.ExecuteOnServer, helpText = "Toggles enemy spawns")]
