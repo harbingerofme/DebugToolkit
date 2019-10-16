@@ -17,8 +17,6 @@ namespace RoR2Cheats
 
             SeedHooks();
 
-            SetupNoEnemyIL();
-
             //IL.RoR2.Networking.GameNetworkManager.FixedUpdateServer += GameNetworkManager_FixedUpdateServer;
             //IL.RoR2.Networking.GameNetworkManager.cctor += GameNetworkManager_cctor;
         }
@@ -89,55 +87,10 @@ namespace RoR2Cheats
             };
         }
 
-
-        private static void SetupNoEnemyIL()
+        public static void SceneDirector_onPrePopulateSceneServer(SceneDirector director)
         {
-            IL.RoR2.CombatDirector.FixedUpdate += il =>
-            {
-                var c = new ILCursor(il);
-                if (c.TryGotoNext(x => x.MatchStfld("RoR2.CombatDirector", "monsterCredit")))
-                {
-                    c.EmitDelegate<Func<float, float>>((f) =>
-                    {
-                        return Cheats.noEnemies ? 0f : f;
-                    });
-                }
-                else
-                {
-                    Debug.LogWarning("RoR2Cheats - Could not create IL hook IL.RoR2.CombatDirector.FixedUpdate");
-                }
-            };
-
-            IL.RoR2.TeleporterInteraction.OnStateChanged += il =>
-            {
-                var c = new ILCursor(il);
-                if (c.TryGotoNext(x => x.MatchStfld("RoR2.CombatDirector", "monsterCredit")))
-                {
-                    c.EmitDelegate<Func<float, float>>((f) =>
-                    {
-                        return Cheats.noEnemies ? 0f : f;
-                    });
-                }
-                else
-                {
-                    Debug.LogWarning("RoR2Cheats - Could not create IL hook IL.RoR2.TeleporterInteraction.OnStateChanged");
-                }
-            };
-            IL.RoR2.SceneDirector.Start += il =>
-            {
-                var c = new ILCursor(il);
-                if (c.TryGotoNext(x => x.MatchStfld("RoR2.SceneDirector", "monsterCredit")))
-                {
-                    c.EmitDelegate<Func<int, int>>((i) =>
-                    {
-                        return Cheats.noEnemies ? 0 : i;
-                    });
-                }
-                else
-                {
-                    Debug.LogWarning("RoR2Cheats - Could not create IL hook IL.RoR2.SceneDirector.Start");
-                }
-            };
+            //Note that this is not a hook, but an event subscription.
+            director.SetFieldValue("monsterCredit", 0);
         }
 
         //private static void GameNetworkManager_cctor(ILContext il)

@@ -515,8 +515,19 @@ namespace RoR2Cheats
         private static void CCNoEnemies(ConCommandArgs _)
         {
             noEnemies = (noEnemies) ? false : true;
+            typeof(CombatDirector).GetFieldValue<RoR2.ConVar.BoolConVar>("cvDirectorCombatDisable").SetBool(noEnemies);
+            if (noEnemies)
+            {
+                SceneDirector.onPrePopulateSceneServer += Hooks.SceneDirector_onPrePopulateSceneServer;
+            }
+            else
+            {
+                SceneDirector.onPrePopulateSceneServer -= Hooks.SceneDirector_onPrePopulateSceneServer;
+            }
             Debug.Log("No_enemies set to " + noEnemies);
         }
+
+
 
         [ConCommand(commandName = "spawn_as", flags = ConVarFlags.ExecuteOnServer, helpText = "Spawn as a new character. Type body_list for a full list of characters")]
         private static void CCSpawnAs(ConCommandArgs args)
