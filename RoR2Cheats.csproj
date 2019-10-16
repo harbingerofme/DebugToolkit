@@ -298,7 +298,7 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="copy /y $(TargetPath) $(ProjectDir)" />
+    <Exec Command="if $(Configuration) == Release (&#xD;&#xA;setlocal EnableDelayedExpansion&#xD;&#xA;powershell -ExecutionPolicy Unrestricted $(ProjectDir)getVer.ps1 -ProjectName $(ProjectName)  &gt; $(TargetDir)modver.txt&#xD;&#xA;set /p MODVER= &lt;$(TargetDir)modver.txt&#xD;&#xA;powershell -Command &quot;(gc $(ProjectDir)manifest.template) -replace '\[MODVER\]', '!MODVER!' | Out-File -encoding ASCII $(TargetDir)manifest.json&quot;)&#xD;&#xA;powershell Compress-Archive -Path '$(TargetDir)$(TargetFileName)', '$(ProjectDir)icon.png', '$(TargetDir)manifest.json', '$(ProjectDir)README.md' -DestinationPath '$(TargetDir)\$(ProjectName).zip' -Force&#xD;&#xA;)" />
   </Target>
 
 </Project>

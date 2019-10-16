@@ -1,0 +1,10 @@
+{
+    "name": "RoR2Cheats",
+    "version_number": "[MODVER]",
+    "website_url": "https://github.com/harbingerofme/RoR2Cheats",
+    "description": "Cheat Suite",
+    "dependencies": [
+	"bbepis-BepInExPack-2.0.0",
+	"tristanmcpherson-R2API-2.2.32"
+    ]
+}

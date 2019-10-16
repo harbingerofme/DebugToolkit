@@ -13,15 +13,16 @@ using UnityEngine.SceneManagement;
 namespace RoR2Cheats
 {
     [BepInDependency("com.bepis.r2api")]
-    [BepInPlugin("com.harbingerofme.RoR2Cheats", "RoR2Cheats", "3.0.0")]
-    public class Cheats : BaseUnityPlugin
+    [BepInPlugin("com.harbingerofme." + modname, modname, modver)]
+    public class RoR2Cheats : BaseUnityPlugin
     {
-
+        public const string modname = "RoR2Cheats", modver = "3.0.0";
         public static bool noEnemies = false;
         public static ulong seed =0;
         public static float TickIntervalMulti = 1f;
         public static float TickRate = 1f/60f;
-        public static readonly Cheats instance;
+        public static readonly RoR2Cheats instance;
+        
 
         public void Awake()
         {
@@ -735,5 +736,10 @@ namespace RoR2Cheats
             return tierdefs[tier];
         }
 #endregion
+
+        public static string GetModVer()
+        {
+            return modver;
+        }
     }
 }
