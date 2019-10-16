@@ -16,7 +16,7 @@ namespace RoR2Cheats
     [BepInPlugin("com.harbingerofme." + modname, modname, modver)]
     public class RoR2Cheats : BaseUnityPlugin
     {
-        public const string modname = "RoR2Cheats", modver = "3.0.0";
+        public const string modname = "RoR2Cheats", modver = "3.0.1";
         public static bool noEnemies = false;
         public static ulong seed =0;
         public static float TickIntervalMulti = 1f;
@@ -759,6 +759,10 @@ namespace RoR2Cheats
         }
 #endregion
 
+        /// <summary>
+        /// Required for automated manifest building.
+        /// </summary>
+        /// <returns></returns>
         public static string GetModVer()
         {
             return modver;
