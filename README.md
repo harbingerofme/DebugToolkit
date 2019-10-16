@@ -6,8 +6,8 @@ The console can be opened with `ctrl+alt+~`. Additionally `help {command}` may b
 [Harb's](https://thunderstore.io/package/Harb/) and ['s](https://thunderstore.io/package/paddywan/) reimplementation of [Morris1927's](https://thunderstore.io/package/Morris1927/) [RoR2Cheats](https://thunderstore.io/package/Morris1927/RoR2Cheats/). Derived with permission. 
 
 Mods recommended for combined use:
-    * [KeyBindForConsole](https://thunderstore.io/package/kristiansja/KeyBindForConsole/)
-    * [SimpleMacros](https://thunderstore.io/package/recursiveGecko/SimpleMacros/)
+* [KeyBindForConsole](https://thunderstore.io/package/kristiansja/KeyBindForConsole/)
+* [SimpleMacros](https://thunderstore.io/package/recursiveGecko/SimpleMacros/)
 
 ---
 
@@ -20,7 +20,7 @@ Verbiage: if an argument is encapsualted with brackets, it means it's either `(c
 * **kill_all** - Kills all members of a specified team. `kill_all [teamindex def 2]` Team indexes: 0=neutral,1=player,2=monster. 
 * **true_kill** - Truly kill a player, ignoring revival effects `true_kill [player def 0]`
 * **respawn** - Respawn a player at the map spawnpoint: `respawn [0-3 def 0]`
-* **time_scale** -  Sets the timescale of the game. 0.5 would mean everythings happens at half speed. `time_scale [time_scale]`. If no argument is supplied, gives the current timescale.
+* **time_scale** -  Sets the timescale of the game. 0.5 would mean everything happens at half speed. `time_scale [time_scale]`. If no argument is supplied, gives the current timescale.
 
 * **player_list** - Shows list of players with their ID
 * **list_body** - List all Bodies and their language invariant
