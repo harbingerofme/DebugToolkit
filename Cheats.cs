@@ -107,26 +107,29 @@ namespace RoR2Cheats
         [ConCommand(commandName = "list_AI", flags = ConVarFlags.None, helpText = "List all Masters and their language invariants")]
         private static void CCListAI(ConCommandArgs _)
         {
-            string langInvar;
+            string langInvar; string list="";
             int i = 0;
-            foreach (var master in RoR2.MasterCatalog.allAiMasters)
+            foreach (var master in MasterCatalog.allAiMasters)
             {
                 langInvar = Language.GetString(master.bodyPrefab.GetComponent<CharacterBody>().baseNameToken);
                 i++;
-                Debug.Log($"[{i}]{master.name}={langInvar}");
+               list += $"[{i}]{master.name}={langInvar}\n";
             }
+            Debug.Log(list.TrimEnd('\n'));
         }
         [ConCommand(commandName = "list_Body", flags = ConVarFlags.None, helpText = "List all Bodies and their language invariants")]
         private static void CCListBody(ConCommandArgs _)
         {
             string langInvar;
             int i = 0;
+            string list ="";
             foreach (var body in BodyCatalog.allBodyPrefabBodyBodyComponents)
             {
                 langInvar = Language.GetString(body.baseNameToken);
                 i++;
-                Debug.Log($"[{i}]{body.name}={langInvar}");
+                list+= $"[{i}]{body.name}={langInvar}\n";
             }
+            Debug.Log(list.TrimEnd('\n'));
         }
 
         [ConCommand(commandName = "give_item", flags = ConVarFlags.None, helpText = "Give item directly in the player's inventory. give_item <id> <amount> <playerid>")]
@@ -197,6 +200,7 @@ namespace RoR2Cheats
             else
             {
                 Debug.Log(MagicVars.OBJECT_NOTFOUND + args[0] + ":" + equip);
+                return;
             }
 
             Debug.Log(equip);
@@ -232,9 +236,10 @@ namespace RoR2Cheats
             {
                 TeamManager.instance.GiveTeamMoney(args.sender.master.teamIndex, result);
             }
+            Debug.Log("$$$");
         }
 
-        [ConCommand(commandName = "give_exp", flags = ConVarFlags.ExecuteOnServer, helpText = "Gives experience")]
+        [ConCommand(commandName = "give_exp", flags = ConVarFlags.ExecuteOnServer, helpText = "Gives experience. OBSOLETE")]
         private static void CCGiveExperience(ConCommandArgs args)
         {
             Debug.LogWarning(MagicVars.OBSOLETEWARNING +"Use team_set_level instead.");
@@ -257,6 +262,7 @@ namespace RoR2Cheats
         {
             NetworkReader reader = netMsg.reader;
             Time.timeScale = (float)reader.ReadDouble();
+            Debug.Log("Network request for timescale.");
         }
 
         [ConCommand(commandName = "next_stage", flags = ConVarFlags.ExecuteOnServer, helpText = "Start next round. Additional args for specific scene.")]
@@ -265,6 +271,7 @@ namespace RoR2Cheats
             if (args.Count == 0)
             {
                 Run.instance.AdvanceStage(Run.instance.nextStageScene);
+                Debug.Log("Stage advanced.");
                 return;
             }
 
@@ -278,6 +285,7 @@ namespace RoR2Cheats
             if (array.Contains(stageString))
             {
                 Run.instance.AdvanceStage(SceneCatalog.GetSceneDefFromSceneName(stageString));
+                Debug.Log($"Stage advanced to {stageString}.");
                 return;
             }
             else
@@ -315,6 +323,7 @@ namespace RoR2Cheats
                 PreGameController.instance.runSeed = (result == 0) ? RoR2Application.rng.nextUlong  : result ;
             }
             seed = result;
+            Debug.Log($"Seed set to {((seed == 0) ? "vanilla generation" : seed.ToString())}.");
         }
 
         [ConCommand(commandName = "fixed_time", flags = ConVarFlags.ExecuteOnServer, helpText = "Sets fixed time - Affects monster difficulty")]
@@ -367,7 +376,7 @@ namespace RoR2Cheats
             NetworkServer.SendWriterToReady(null, networkWriter, QosChannelIndex.time.intVal);
         }
 
-        [ConCommand(commandName = "stage_clear_count", flags = ConVarFlags.ExecuteOnServer, helpText = "Sets stage clear count - Affects monster difficulty")]
+        [ConCommand(commandName = "stage_clear_count", flags = ConVarFlags.ExecuteOnServer, helpText = "Sets stage clear count - Affects monster difficulty. OBSOLETE")]
         private static void CCSetClearCount(ConCommandArgs args)
         {
             Debug.LogWarning(MagicVars.OBSOLETEWARNING + "Use run_set_stages_cleared instead.");
@@ -425,12 +434,14 @@ namespace RoR2Cheats
         [ConCommand(commandName = "player_list", flags = ConVarFlags.ExecuteOnServer, helpText = "Shows list of players with their ID")]
         private static void CCPlayerList(ConCommandArgs _)
         {
-            NetworkUser n;
+            NetworkUser n; string list = "";
             for (int i = 0; i < NetworkUser.readOnlyInstancesList.Count; i++)
             {
                 n = NetworkUser.readOnlyInstancesList[i];
-                Debug.Log($"[{i}]{n.userName}");
+                list += $"[{i}]{n.userName}\n";
+
             }
+            Debug.Log(list.TrimEnd('\n'));
         }
 
         private static void ResetEnemyTeamLevel()
@@ -502,6 +513,7 @@ namespace RoR2Cheats
                 else
                 {
                     Debug.Log(MagicVars.PLAYER_NOTFOUND);
+                    return;
                 }
             }
 
@@ -691,9 +703,13 @@ namespace RoR2Cheats
                         master.GetBody().teamComponent.teamIndex = teamIndex;
                         master.teamIndex = teamIndex;
                         Debug.Log("Changed to team " + teamIndex);
+                        return;
                     }
                 }
             }
+            //Note the `return` on succesful evaluation.
+            Debug.Log("Invalid team. Please use 0,'neutral',1,'player',2, or 'monster'");
+
         }
 
         [ConCommand(commandName = "add_portal", flags = ConVarFlags.ExecuteOnServer, helpText = "Teleporter will attempt to spawn a blue, gold, or celestial portal")]
@@ -701,7 +717,7 @@ namespace RoR2Cheats
         {
             if (TeleporterInteraction.instance)
             {
-                switch (args[0])
+                switch (args[0].ToLower())
                 {
                     case "blue":
                         TeleporterInteraction.instance.Network_shouldAttemptToSpawnShopPortal = true;
@@ -712,10 +728,16 @@ namespace RoR2Cheats
                     case "celestial":
                         TeleporterInteraction.instance.Network_shouldAttemptToSpawnMSPortal = true;
                         break;
-                    default: Debug.Log(MagicVars.PORTAL_NOTFOUND);
-                        break;
-
+                    default:
+                        Debug.Log(MagicVars.PORTAL_NOTFOUND);
+                        return;
                 }
+                //Note the return on default.
+                Debug.Log($"A {args[0].ToLower()} orb spawns.");
+            }
+            else
+            {
+                Debug.LogWarning("No teleporter instance!");
             }
         }
 
