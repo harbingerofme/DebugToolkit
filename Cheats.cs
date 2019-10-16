@@ -106,26 +106,29 @@ namespace RoR2Cheats
         [ConCommand(commandName = "list_AI", flags = ConVarFlags.None, helpText = "List all Masters and their language invariants")]
         private static void CCListAI(ConCommandArgs _)
         {
-            string langInvar;
+            string langInvar; string list="";
             int i = 0;
-            foreach (var master in RoR2.MasterCatalog.allAiMasters)
+            foreach (var master in MasterCatalog.allAiMasters)
             {
                 langInvar = Language.GetString(master.bodyPrefab.GetComponent<CharacterBody>().baseNameToken);
                 i++;
-                Debug.Log($"[{i}]{master.name}={langInvar}");
+               list += $"[{i}]{master.name}={langInvar}\n";
             }
+            Debug.Log(list.TrimEnd('\n'));
         }
         [ConCommand(commandName = "list_Body", flags = ConVarFlags.None, helpText = "List all Bodies and their language invariants")]
         private static void CCListBody(ConCommandArgs _)
         {
             string langInvar;
             int i = 0;
+            string list ="";
             foreach (var body in BodyCatalog.allBodyPrefabBodyBodyComponents)
             {
                 langInvar = Language.GetString(body.baseNameToken);
                 i++;
-                Debug.Log($"[{i}]{body.name}={langInvar}");
+                list+= $"[{i}]{body.name}={langInvar}\n";
             }
+            Debug.Log(list.TrimEnd('\n'));
         }
 
         [ConCommand(commandName = "give_item", flags = ConVarFlags.None, helpText = "Give item directly in the player's inventory. give_item <id> <amount> <playerid>")]
@@ -233,7 +236,7 @@ namespace RoR2Cheats
             }
         }
 
-        [ConCommand(commandName = "give_exp", flags = ConVarFlags.ExecuteOnServer, helpText = "Gives experience")]
+        [ConCommand(commandName = "give_exp", flags = ConVarFlags.ExecuteOnServer, helpText = "Gives experience. OBSOLETE")]
         private static void CCGiveExperience(ConCommandArgs args)
         {
             Debug.LogWarning(MagicVars.OBSOLETEWARNING +"Use team_set_level instead.");
@@ -366,7 +369,7 @@ namespace RoR2Cheats
             NetworkServer.SendWriterToReady(null, networkWriter, QosChannelIndex.time.intVal);
         }
 
-        [ConCommand(commandName = "stage_clear_count", flags = ConVarFlags.ExecuteOnServer, helpText = "Sets stage clear count - Affects monster difficulty")]
+        [ConCommand(commandName = "stage_clear_count", flags = ConVarFlags.ExecuteOnServer, helpText = "Sets stage clear count - Affects monster difficulty. OBSOLETE")]
         private static void CCSetClearCount(ConCommandArgs args)
         {
             Debug.LogWarning(MagicVars.OBSOLETEWARNING + "Use run_set_stages_cleared instead.");
@@ -424,12 +427,14 @@ namespace RoR2Cheats
         [ConCommand(commandName = "player_list", flags = ConVarFlags.ExecuteOnServer, helpText = "Shows list of players with their ID")]
         private static void CCPlayerList(ConCommandArgs _)
         {
-            NetworkUser n;
+            NetworkUser n; string list = "";
             for (int i = 0; i < NetworkUser.readOnlyInstancesList.Count; i++)
             {
                 n = NetworkUser.readOnlyInstancesList[i];
-                Debug.Log($"[{i}]{n.userName}");
+                list += $"[{i}]{n.userName}\n";
+
             }
+            Debug.Log(list.TrimEnd('\n'));
         }
 
         private static void ResetEnemyTeamLevel()
