@@ -1,7 +1,4 @@
 ﻿using BepInEx;
-using BepInEx.Configuration;
-using EntityStates.Commando;
-using EntityStates.Huntress;
 using R2API.Utils;
 using RoR2;
 using RoR2.CharacterAI;
@@ -67,13 +64,13 @@ namespace RoR2Cheats
         #endregion
 
         [ConCommand(commandName = "fov_sprint_multiplier", flags = ConVarFlags.Engine, helpText = "Set your sprint FOV multiplier")]
-        private static void CCSetSprintFOVMulti(ConCommandArgs args)
+        private static void CCSetSprintFOVMulti(ConCommandArgs _)
         {
             Debug.LogWarning(MagicVars.OBSOLETEWARNING + "FOV is no longer part of RoR2Cheats.");
         }
 
         [ConCommand(commandName = "fov", flags = ConVarFlags.Engine, helpText = "Set your FOV")]
-        private static void CCSetFov(ConCommandArgs args)
+        private static void CCSetFov(ConCommandArgs _)
         {
             Debug.LogWarning(MagicVars.OBSOLETEWARNING + "FOV is no longer part of RoR2Cheats.");
         }
