@@ -199,6 +199,7 @@ namespace RoR2Cheats
             else
             {
                 Debug.Log(MagicVars.OBJECT_NOTFOUND + args[0] + ":" + equip);
+                return;
             }
 
             Debug.Log(equip);
@@ -234,6 +235,7 @@ namespace RoR2Cheats
             {
                 TeamManager.instance.GiveTeamMoney(args.sender.master.teamIndex, result);
             }
+            Debug.Log("$$$");
         }
 
         [ConCommand(commandName = "give_exp", flags = ConVarFlags.ExecuteOnServer, helpText = "Gives experience. OBSOLETE")]
@@ -259,6 +261,7 @@ namespace RoR2Cheats
         {
             NetworkReader reader = netMsg.reader;
             Time.timeScale = (float)reader.ReadDouble();
+            Debug.Log("Network request for timescale.");
         }
 
         [ConCommand(commandName = "next_stage", flags = ConVarFlags.ExecuteOnServer, helpText = "Start next round. Additional args for specific scene.")]
@@ -267,6 +270,7 @@ namespace RoR2Cheats
             if (args.Count == 0)
             {
                 Run.instance.AdvanceStage(Run.instance.nextStageScene);
+                Debug.Log("Stage advanced.");
                 return;
             }
 
@@ -280,6 +284,7 @@ namespace RoR2Cheats
             if (array.Contains(stageString))
             {
                 Run.instance.AdvanceStage(SceneCatalog.GetSceneDefFromSceneName(stageString));
+                Debug.Log($"Stage advanced to {stageString}.");
                 return;
             }
             else
@@ -317,6 +322,7 @@ namespace RoR2Cheats
                 PreGameController.instance.runSeed = (result == 0) ? RoR2Application.rng.nextUlong  : result ;
             }
             seed = result;
+            Debug.Log($"Seed set to {((seed == 0) ? "vanilla generation" : seed.ToString())}.");
         }
 
         [ConCommand(commandName = "fixed_time", flags = ConVarFlags.ExecuteOnServer, helpText = "Sets fixed time - Affects monster difficulty")]
@@ -506,6 +512,7 @@ namespace RoR2Cheats
                 else
                 {
                     Debug.Log(MagicVars.PLAYER_NOTFOUND);
+                    return;
                 }
             }
 
@@ -695,9 +702,13 @@ namespace RoR2Cheats
                         master.GetBody().teamComponent.teamIndex = teamIndex;
                         master.teamIndex = teamIndex;
                         Debug.Log("Changed to team " + teamIndex);
+                        return;
                     }
                 }
             }
+            //Note the `return` on succesful evaluation.
+            Debug.Log("Invalid team. Please use 0,'neutral',1,'player',2, or 'monster'");
+
         }
 
         [ConCommand(commandName = "add_portal", flags = ConVarFlags.ExecuteOnServer, helpText = "Teleporter will attempt to spawn a blue, gold, or celestial portal")]
@@ -705,7 +716,7 @@ namespace RoR2Cheats
         {
             if (TeleporterInteraction.instance)
             {
-                switch (args[0])
+                switch (args[0].ToLower())
                 {
                     case "blue":
                         TeleporterInteraction.instance.Network_shouldAttemptToSpawnShopPortal = true;
@@ -716,10 +727,16 @@ namespace RoR2Cheats
                     case "celestial":
                         TeleporterInteraction.instance.Network_shouldAttemptToSpawnMSPortal = true;
                         break;
-                    default: Debug.Log(MagicVars.PORTAL_NOTFOUND);
-                        break;
-
+                    default:
+                        Debug.Log(MagicVars.PORTAL_NOTFOUND);
+                        return;
                 }
+                //Note the return on default.
+                Debug.Log($"A {args[0].ToLower()} orb spawns.");
+            }
+            else
+            {
+                Debug.LogWarning("No teleporter instance!");
             }
         }
 
