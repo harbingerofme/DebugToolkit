@@ -61,6 +61,12 @@ namespace RoR2Cheats
             Alias.Instance.GetMasterName(args[0]);
             Debug.Log(Alias.Instance.GetMasterName(args[0]));
         }
+        [ConCommand(commandName = "getTeamIndexPartial", flags = ConVarFlags.None, helpText = "Match a partial TeamIndex")]
+        private static void CCGetTeamIndexPartial(ConCommandArgs args)
+        {
+            //Alias.Instance.GetMasterName(args[0]);
+            Debug.Log(Alias.GetEnumFromPartial<TeamIndex>(args[0]).ToString());
+        }
 #endif
         #endregion
 
@@ -475,7 +481,7 @@ namespace RoR2Cheats
             }
             else
             {
-                team = args.GetArgEnum<TeamIndex>(0);
+                team = Alias.GetEnumFromPartial<TeamIndex>(args[0]);
             }
 
             int count = 0;
@@ -608,14 +614,14 @@ namespace RoR2Cheats
             NetworkServer.Spawn(bodyGameObject);
             master.SpawnBody(body, args.sender.master.GetBody().transform.position, Quaternion.identity);
 
-            if (args.Count>1 && Enum.TryParse<EliteIndex>(args[1], true, out EliteIndex eliteIndex))
+            if (args.Count>1 && Enum.TryParse<EliteIndex>(Alias.GetEnumFromPartial<EliteIndex>(args[1]).ToString(), true, out EliteIndex eliteIndex))
             {
                 master.inventory.SetEquipmentIndex(EliteCatalog.GetEliteDef(eliteIndex).eliteEquipmentIndex);
                 master.inventory.GiveItem(ItemIndex.BoostHp, Mathf.RoundToInt((GetTierDef(eliteIndex).healthBoostCoefficient -1)*10));
                 master.inventory.GiveItem(ItemIndex.BoostDamage, Mathf.RoundToInt((GetTierDef(eliteIndex).damageBoostCoefficient -1)*10));
             }
 
-            if (args.Count > 2 && Enum.TryParse<TeamIndex>(args[2], true, out TeamIndex teamIndex))
+            if (args.Count > 2 && Enum.TryParse<TeamIndex>(Alias.GetEnumFromPartial<TeamIndex>(args[2]).ToString(), true, out TeamIndex teamIndex))
             {
                 if ((int)teamIndex >= (int)TeamIndex.None && (int)teamIndex < (int)TeamIndex.Count)
                 {
@@ -694,7 +700,7 @@ namespace RoR2Cheats
                 }
             }
 
-            if (Enum.TryParse(args[0], true, out TeamIndex teamIndex))
+            if (Enum.TryParse(Alias.GetEnumFromPartial<TeamIndex>(args[0]).ToString(), true, out TeamIndex teamIndex))
             {
                 if ((int)teamIndex >= (int)TeamIndex.None && (int)teamIndex < (int)TeamIndex.Count)
                 {

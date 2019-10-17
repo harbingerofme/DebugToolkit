@@ -2,6 +2,8 @@
 using UnityEngine;
 using RoR2;
 using System.Text.RegularExpressions;
+using System.Collections;
+using System;
 
 namespace RoR2Cheats
 {
@@ -150,6 +152,29 @@ namespace RoR2Cheats
                 }
             }
             return null;
+        }
+
+        public static string GetStringFromPartial<T>(string name)
+        {
+            foreach (string eVal in Enum.GetNames(typeof(T)))
+            {
+                if (eVal.ToUpper().Contains(name.ToUpper()))
+                {
+                    return eVal;
+                }
+            }
+            return null;
+        }
+        public static T GetEnumFromPartial<T>(string name)
+        {
+            foreach (T num in (T[])Enum.GetValues(typeof(T)))
+            {
+                if(Enum.GetName(typeof(T),num ).ToUpper().Contains(name.ToUpper()))
+                {
+                    return (T)num;
+                }
+            }
+            return default;
         }
     }
 }
