@@ -599,17 +599,16 @@ namespace RoR2Cheats
                 return;
             }
 
-            string character = Alias.Instance.GetBodyName(args[0]);
+            string character = Alias.Instance.GetMasterName(args[0]);
             if (character == null)
             {
                 Debug.LogFormat(MagicVars.SPAWN_ERROR, character);
                 return;
             }
-            var prefab = MasterCatalog.FindMasterPrefab(Alias.Instance.GetMasterName(args[0]));
-            var body = BodyCatalog.FindBodyPrefab(character);
+            var masterprefab = MasterCatalog.FindMasterPrefab(character);
+            var body = masterprefab.GetComponent<CharacterMaster>().bodyPrefab;
 
-
-            var bodyGameObject = Instantiate<GameObject>(prefab, args.sender.master.GetBody().transform.position, Quaternion.identity);
+            var bodyGameObject = Instantiate<GameObject>(masterprefab, args.sender.master.GetBody().transform.position, Quaternion.identity);
             CharacterMaster master = bodyGameObject.GetComponent<CharacterMaster>();
             NetworkServer.Spawn(bodyGameObject);
             master.SpawnBody(body, args.sender.master.GetBody().transform.position, Quaternion.identity);
