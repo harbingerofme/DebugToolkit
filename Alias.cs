@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using RoR2;
+using System.Text.RegularExpressions;
 
 namespace RoR2Cheats
 {
@@ -54,10 +55,12 @@ namespace RoR2Cheats
                     }
                 }
             }
-            //if(BodyCatalog.allBodyPrefabs.Any<>)
             foreach (var equip in RoR2.EquipmentCatalog.allEquipment)
             {
-                langInvar = Language.GetString("EQUIPMENT_" + equip.ToString().ToUpper() + "_NAME");
+                langInvar = Regex.Replace(Language.GetString("EQUIPMENT_" + equip.ToString().ToUpper() + "_NAME") .Replace(" ", string.Empty), @"[ '-]", string.Empty);
+#if DEBUG
+                Debug.Log(equip.ToString() + ":" + langInvar + ":" + name.ToUpper());
+#endif
                 if (equip.ToString().ToUpper().Contains(name.ToUpper()) || langInvar.ToUpper().Contains(name.ToUpper()))
                 {
                     return equip.ToString();
@@ -80,10 +83,12 @@ namespace RoR2Cheats
                     }
                 }
             }
-            //if(BodyCatalog.allBodyPrefabs.Any<>)
             foreach (var item in RoR2.ItemCatalog.allItems)
             {
-                langInvar = Language.GetString("ITEM_" + item.ToString().ToUpper() + "_NAME");
+                langInvar = Regex.Replace(Language.GetString("ITEM_" + item.ToString().ToUpper() + "_NAME").Replace(" ", string.Empty), @"[ '-]", string.Empty);
+#if DEBUG
+                Debug.Log(item.ToString() + ":" + langInvar + ":" + name.ToUpper());
+#endif
                 if (item.ToString().ToUpper().Contains(name.ToUpper()) || langInvar.ToUpper().Contains(name.ToUpper()))
                 {
                     return item.ToString();
@@ -105,12 +110,12 @@ namespace RoR2Cheats
                     }
                 }
             }
-            //if(BodyCatalog.allBodyPrefabs.Any<>)
             foreach(var body in RoR2.BodyCatalog.allBodyPrefabBodyBodyComponents)
             {
-                //langInvar = Language.GetString(body.name.ToUpper().Replace("BODY","_BODY_NAME"));
-                langInvar = Language.GetString(body.baseNameToken);
-                //Debug.Log(body.name + ":" + langInvar + ":" + name.ToUpper());
+                langInvar = Regex.Replace(Language.GetString(body.baseNameToken).Replace(" ", string.Empty), @"[ '-]", string.Empty);
+#if DEBUG
+                Debug.Log(body.name + ":" + langInvar + ":" + name.ToUpper());
+#endif
                 if (body.name.ToUpper().Contains(name.ToUpper()) || langInvar.ToUpper().Contains(name.ToUpper()))
                 {
                     return body.name;
@@ -132,11 +137,13 @@ namespace RoR2Cheats
                     }
                 }
             }
-            //if(BodyCatalog.allBodyPrefabs.Any<>)
             foreach (var master in RoR2.MasterCatalog.allAiMasters)
             {
-                langInvar = Language.GetString(master.bodyPrefab.GetComponent<CharacterBody>().baseNameToken);
+
+                langInvar = Regex.Replace(Language.GetString(master.bodyPrefab.GetComponent<CharacterBody>().baseNameToken), @"[ '-]", string.Empty); 
+#if DEBUG
                 Debug.Log(master.name + ":" + langInvar + ":" + name.ToUpper());
+#endif
                 if (master.name.ToUpper().Contains(name.ToUpper()) || langInvar.ToUpper().Contains(name.ToUpper()))
                 {
                     return master.name;
