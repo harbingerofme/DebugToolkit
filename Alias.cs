@@ -141,6 +141,13 @@ namespace RoR2Cheats
             }
             foreach (var master in RoR2.MasterCatalog.allAiMasters)
             {
+                if (master.name.ToUpper().Equals(name.ToUpper()))
+                {
+                    return master.name;
+                }
+            }
+            foreach (var master in RoR2.MasterCatalog.allAiMasters)
+            {
 
                 langInvar = Regex.Replace(Language.GetString(master.bodyPrefab.GetComponent<CharacterBody>().baseNameToken), @"[ '-]", string.Empty); 
 #if DEBUG

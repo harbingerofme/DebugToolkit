@@ -17,6 +17,7 @@ namespace RoR2Cheats
 
             SeedHooks();
 
+
             //IL.RoR2.Networking.GameNetworkManager.FixedUpdateServer += GameNetworkManager_FixedUpdateServer;
             //IL.RoR2.Networking.GameNetworkManager.cctor += GameNetworkManager_cctor;
         }
@@ -73,6 +74,39 @@ namespace RoR2Cheats
                 orig(self);
                 R2API.Utils.CommandHelper.RegisterCommands(self);
             };
+            //On.RoR2.TeleporterInteraction.OnStateChanged += TeleporterInteraction_OnStateChanged;
+            On.RoR2.CombatDirector.SetNextSpawnAsBoss += CombatDirector_SetNextSpawnAsBoss;
+        }
+
+        private static void CombatDirector_SetNextSpawnAsBoss(On.RoR2.CombatDirector.orig_SetNextSpawnAsBoss orig, CombatDirector self)
+        {
+            orig(self);
+            if(RoR2Cheats.nextBoss)
+            {
+                //WeightedSelection<DirectorCard> weightedSelection = new WeightedSelection<DirectorCard>(1);
+                //weightedSelection.AddChoice(ClassicStageInfo.instance.monsterSelection.GetChoice(1));
+                var selection = ClassicStageInfo.instance.monsterSelection;
+                DirectorCard selected = selection.GetChoice(0).value;
+                
+                for (int i = 0; i < ClassicStageInfo.instance.monsterSelection.Count; i++)
+                {
+                    Debug.Log(selection.GetChoice(i).value.spawnCard.name.ToUpper());
+                    if (selection.GetChoice(i).value.spawnCard.name.ToUpper().Contains(RoR2Cheats.nextBossName.ToUpper()))
+                    {
+                        selected = selection.GetChoice(i).value;
+                        Debug.Log("Matched: " + selected.spawnCard.name);
+                        self.OverrideCurrentMonsterCard(selected);
+                    }
+                }
+                self.OverrideCurrentMonsterCard(selected);
+            }
+            //throw new NotImplementedException();
+        }
+
+        private static void TeleporterInteraction_OnStateChanged(On.RoR2.TeleporterInteraction.orig_OnStateChanged orig, TeleporterInteraction self, int oldActivationState, int newActivationState)
+        {
+            orig(self, oldActivationState, newActivationState);
+            //throw new NotImplementedException();
         }
 
         private static void SeedHooks()

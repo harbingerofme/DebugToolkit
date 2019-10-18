@@ -22,7 +22,9 @@ namespace RoR2Cheats
         public static float TickIntervalMulti = 1f;
         public static float TickRate = 1f/60f;
         public static readonly RoR2Cheats instance;
-        
+        public static bool nextBoss = false;
+        public static string nextBossName;
+
 
         public void Awake()
         {
@@ -333,6 +335,39 @@ namespace RoR2Cheats
             NetworkReader reader = netMsg.reader;
             Time.timeScale = (float)reader.ReadDouble();
             Debug.Log("Network request for timescale.");
+        }
+
+        [ConCommand(commandName = "next_boss", flags = ConVarFlags.ExecuteOnServer, helpText = "Sets the next boss to a specific type.")]
+        private static void CCNextBoss(ConCommandArgs args)
+        {
+            //TeleporterInteraction.instance.bossDirector.SetNextSpawnAsBoss();
+            RoR2Cheats.nextBoss = true;
+            RoR2Cheats.nextBossName = args[0];
+            //if (args.Count == 0)
+            //{
+            //    Run.instance.AdvanceStage(Run.instance.nextStageScene);
+            //    Debug.Log("Stage advanced.");
+            //    return;
+            //}
+
+            //string stageString = args[0];
+            //List<string> array = new List<string>();
+            //for (int i = 0; i < SceneManager.sceneCountInBuildSettings; i++)
+            //{
+            //    array.Add(SceneUtility.GetScenePathByBuildIndex(i).Replace("Assets/RoR2/Scenes/", "").Replace(".unity", ""));
+            //}
+
+            //if (array.Contains(stageString))
+            //{
+            //    Run.instance.AdvanceStage(SceneCatalog.GetSceneDefFromSceneName(stageString));
+            //    Debug.Log($"Stage advanced to {stageString}.");
+            //    return;
+            //}
+            //else
+            //{
+            //    Debug.Log(MagicVars.NEXTROUND_STAGE);
+            //    Debug.Log(string.Join("\n", array));
+            //}
         }
 
         [ConCommand(commandName = "next_stage", flags = ConVarFlags.ExecuteOnServer, helpText = "Start next round. Additional args for specific scene.")]
