@@ -11,83 +11,63 @@ namespace RoR2Cheats
         private const ConVarFlags AllFlagsNoCheat = ConVarFlags.None | ConVarFlags.Archive | ConVarFlags.Engine | ConVarFlags.ExecuteOnServer | ConVarFlags.SenderMustBeServer;
         public static void InitializeHooks()
         {
-            UnlockConsole();
-            ConCommandHooks();
-            FreeTheConvars();
+            IL.RoR2.Console.Awake += UnlockConsole;
+            On.RoR2.Console.InitConVars += InitCommandsAndFreeConvars;
 
-            SeedHooks();
+            On.RoR2.PreGameController.Awake += SeedHook;
 
             //IL.RoR2.Networking.GameNetworkManager.FixedUpdateServer += GameNetworkManager_FixedUpdateServer;
             //IL.RoR2.Networking.GameNetworkManager.cctor += GameNetworkManager_cctor;
         }
 
-        private static void FreeTheConvars()
+        private static void InitCommandsAndFreeConvars(On.RoR2.Console.orig_InitConVars orig, RoR2.Console self)
         {
             void removeCheatFlag (RoR2.ConVar.BaseConVar cv)
             {
                 cv.flags &= AllFlagsNoCheat;
             }
-
-            On.RoR2.Console.InitConVars += (orig, self) =>
-            {
-                orig(self);
-                removeCheatFlag(self.FindConVar("sv_time_transmit_interval"));
-                removeCheatFlag(self.FindConVar("run_scene_override"));
-                removeCheatFlag(self.FindConVar("stage1_pod"));
-                self.FindConVar("timescale").helpText += " Use time_scale instead!";
-                self.FindConVar("director_combat_disable").helpText += " Use no_enemies instead!";
-                self.FindConVar("timestep").helpText += " Let the ror2cheats team know if you need this convar.";
-                self.FindConVar("cmotor_safe_collision_step_threshold").helpText += " Let the ror2cheats team know if you need this convar.";
-                self.FindConVar("cheats").helpText += " But you already have the RoR2Cheats mod installed...";
-            };
-
-            
+            orig(self);
+            CommandHelper.RegisterCommands(self);
+            removeCheatFlag(self.FindConVar("sv_time_transmit_interval"));
+            removeCheatFlag(self.FindConVar("run_scene_override"));
+            removeCheatFlag(self.FindConVar("stage1_pod"));
+            self.FindConVar("timescale").helpText += " Use time_scale instead!";
+            self.FindConVar("director_combat_disable").helpText += " Use no_enemies instead!";
+            self.FindConVar("timestep").helpText += " Let the ror2cheats team know if you need this convar.";
+            self.FindConVar("cmotor_safe_collision_step_threshold").helpText += " Let the ror2cheats team know if you need this convar.";
+            self.FindConVar("cheats").helpText += " But you already have the RoR2Cheats mod installed...";
         }
 
-        private static void UnlockConsole()
+        private static void UnlockConsole(ILContext il)
         {
-            IL.RoR2.Console.Awake += (ILContext il) =>
-            {
-                ILCursor c = new ILCursor(il);
-                c.GotoNext(
-                    MoveType.After,
-                    x => x.MatchCastclass(typeof(ConCommandAttribute))
-                    );
-                c.EmitDelegate<Func<ConCommandAttribute, ConCommandAttribute>>(
-                    (conAttr) =>
-                    {
-                        conAttr.flags &= AllFlagsNoCheat;
-                        if (conAttr.commandName == "run_set_stages_cleared")
-                        {
-                            conAttr.helpText = MagicVars.RUNSETSTAGESCLEARED_HELP;
-                        }
-                        return conAttr;
-                    });
-            };
-        }
-
-        private static void ConCommandHooks()
-        {
-            On.RoR2.Console.Awake += (orig, self) =>
-            {
-                orig(self);
-                R2API.Utils.CommandHelper.RegisterCommands(self);
-            };
-        }
-
-        private static void SeedHooks()
-        {
-            On.RoR2.PreGameController.Awake += (orig,self)=> 
-            {
-                orig(self);
-                if (RoR2Cheats.seed != 0)
+            ILCursor c = new ILCursor(il);
+            c.GotoNext(
+                MoveType.After,
+                x => x.MatchCastclass(typeof(ConCommandAttribute))
+                );
+            c.EmitDelegate<Func<ConCommandAttribute, ConCommandAttribute>>(
+                (conAttr) =>
                 {
-                    self.runSeed = RoR2Cheats.seed;
-                }
-            };
+                    conAttr.flags &= AllFlagsNoCheat;
+                    if (conAttr.commandName == "run_set_stages_cleared")
+                    {
+                        conAttr.helpText = MagicVars.RUNSETSTAGESCLEARED_HELP;
+                    }
+                    return conAttr;
+                });
         }
 
-        public static void SceneDirector_onPrePopulateSceneServer(SceneDirector director)
+
+        private static void SeedHook(On.RoR2.PreGameController.orig_Awake orig, PreGameController self)
+        {
+            orig(self);
+            if (RoR2Cheats.seed != 0)
+            {
+                self.runSeed = RoR2Cheats.seed;
+            }
+        }
+
+        public static void onPrePopulateSetMonsterCreditZero(SceneDirector director)
         {
             //Note that this is not a hook, but an event subscription.
             director.SetFieldValue("monsterCredit", 0);

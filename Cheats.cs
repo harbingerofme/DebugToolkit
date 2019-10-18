@@ -598,11 +598,11 @@ namespace RoR2Cheats
             typeof(CombatDirector).GetFieldValue<RoR2.ConVar.BoolConVar>("cvDirectorCombatDisable").SetBool(noEnemies);
             if (noEnemies)
             {
-                SceneDirector.onPrePopulateSceneServer += Hooks.SceneDirector_onPrePopulateSceneServer;
+                SceneDirector.onPrePopulateSceneServer += Hooks.onPrePopulateSetMonsterCreditZero;
             }
             else
             {
-                SceneDirector.onPrePopulateSceneServer -= Hooks.SceneDirector_onPrePopulateSceneServer;
+                SceneDirector.onPrePopulateSceneServer -= Hooks.onPrePopulateSetMonsterCreditZero;
             }
             Debug.Log("No_enemies set to " + noEnemies);
         }
