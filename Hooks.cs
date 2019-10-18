@@ -86,19 +86,22 @@ namespace RoR2Cheats
                 //WeightedSelection<DirectorCard> weightedSelection = new WeightedSelection<DirectorCard>(1);
                 //weightedSelection.AddChoice(ClassicStageInfo.instance.monsterSelection.GetChoice(1));
                 var selection = ClassicStageInfo.instance.monsterSelection;
-                DirectorCard selected = selection.GetChoice(0).value;
+                //DirectorCard selected = selection.GetChoice(0).value;
                 
                 for (int i = 0; i < ClassicStageInfo.instance.monsterSelection.Count; i++)
                 {
                     Debug.Log(selection.GetChoice(i).value.spawnCard.name.ToUpper());
                     if (selection.GetChoice(i).value.spawnCard.name.ToUpper().Contains(RoR2Cheats.nextBossName.ToUpper()))
                     {
-                        selected = selection.GetChoice(i).value;
+                        var selected = selection.GetChoice(i).value;
                         Debug.Log("Matched: " + selected.spawnCard.name);
+                        //self.OverrideCurrentMonsterCard(selected);
                         self.OverrideCurrentMonsterCard(selected);
                     }
                 }
-                self.OverrideCurrentMonsterCard(selected);
+                //self.OverrideCurrentMonsterCard(selected);
+                //ClassicStageInfo.instance.monsterSelection.
+                //self.OverrideCurrentMonsterCard(selection.GetChoice(0).value);
             }
             //throw new NotImplementedException();
         }
