@@ -16,10 +16,6 @@ namespace RoR2Cheats
             FreeTheConvars();
 
             SeedHooks();
-
-
-            //IL.RoR2.Networking.GameNetworkManager.FixedUpdateServer += GameNetworkManager_FixedUpdateServer;
-            //IL.RoR2.Networking.GameNetworkManager.cctor += GameNetworkManager_cctor;
         }
 
         private static void FreeTheConvars()
@@ -74,7 +70,6 @@ namespace RoR2Cheats
                 orig(self);
                 R2API.Utils.CommandHelper.RegisterCommands(self);
             };
-            //On.RoR2.TeleporterInteraction.OnStateChanged += TeleporterInteraction_OnStateChanged;
             On.RoR2.CombatDirector.SetNextSpawnAsBoss += CombatDirector_SetNextSpawnAsBoss;
         }
 
@@ -83,33 +78,23 @@ namespace RoR2Cheats
             orig(self);
             if(RoR2Cheats.nextBoss)
             {
-                //WeightedSelection<DirectorCard> weightedSelection = new WeightedSelection<DirectorCard>(1);
-                //weightedSelection.AddChoice(ClassicStageInfo.instance.monsterSelection.GetChoice(1));
                 var selection = ClassicStageInfo.instance.monsterSelection;
-                //DirectorCard selected = selection.GetChoice(0).value;
+                DirectorCard selected = selection.GetChoice(0).value;
                 
                 for (int i = 0; i < ClassicStageInfo.instance.monsterSelection.Count; i++)
                 {
                     Debug.Log(selection.GetChoice(i).value.spawnCard.name.ToUpper());
-                    if (selection.GetChoice(i).value.spawnCard.name.ToUpper().Contains(RoR2Cheats.nextBossName.ToUpper()))
+                    if (selection.GetChoice(i).value.spawnCard.prefab.GetComponent<CharacterMaster>().bodyPrefab.GetComponent<CharacterBody>().isChampion == true)
                     {
-                        var selected = selection.GetChoice(i).value;
-                        Debug.Log("Matched: " + selected.spawnCard.name);
-                        //self.OverrideCurrentMonsterCard(selected);
-                        self.OverrideCurrentMonsterCard(selected);
+                        if (selection.GetChoice(i).value.spawnCard.name.ToUpper().Contains(RoR2Cheats.nextBossName.ToUpper()))
+                        {
+                            selected = selection.GetChoice(i).value;
+                            Debug.Log("Matched: " + selected.spawnCard.name + " with :" + RoR2Cheats.nextBossName);
+                        }
                     }
                 }
-                //self.OverrideCurrentMonsterCard(selected);
-                //ClassicStageInfo.instance.monsterSelection.
-                //self.OverrideCurrentMonsterCard(selection.GetChoice(0).value);
+                self.OverrideCurrentMonsterCard(selected);
             }
-            //throw new NotImplementedException();
-        }
-
-        private static void TeleporterInteraction_OnStateChanged(On.RoR2.TeleporterInteraction.orig_OnStateChanged orig, TeleporterInteraction self, int oldActivationState, int newActivationState)
-        {
-            orig(self, oldActivationState, newActivationState);
-            //throw new NotImplementedException();
         }
 
         private static void SeedHooks()
@@ -129,44 +114,5 @@ namespace RoR2Cheats
             //Note that this is not a hook, but an event subscription.
             director.SetFieldValue("monsterCredit", 0);
         }
-
-        //private static void GameNetworkManager_cctor(ILContext il)
-        //{
-        //    ILCursor c = new ILCursor(il);
-        //    c.GotoNext(
-        //        x => x.MatchLdstr("sv_time_transmit_interval"),
-        //        x => x.MatchLdcI4(out _),
-        //        x => x.MatchLdcR4(out _)
-        //        );
-        //    c.Next.Next.Next.Operand = Cheats.TickIntervalMulti;
-
-        //}
-
-        //private static void GameNetworkManager_FixedUpdateServer(ILContext il)
-        //{
-        //    ILCursor c = new ILCursor(il);
-        //    //c.GotoNext(
-        //    //    x => x.MatchLdarg(0),
-        //    //    x => x.MatchLdfld("RoR2.Networking.GameNetworkManager", "timeTransmitTimer"),
-        //    //    x => x.MatchLdsfld("RoR2.Networking.GameNetworkManager", "svTimeTransmitInterval")
-        //    //    );
-        //    //c.Index += 4;
-        //    //c.Emit(OpCodes.Ldc_R4, Cheats.TickIntervalMulti);
-        //    //c.Emit(OpCodes.Mul);
-        //    c.GotoNext(
-        //        x => x.MatchLdarg(0),
-        //        x => x.MatchLdfld("RoR2.Networking.GameNetworkManager", "timeTransmitTimer"),
-        //        x => x.MatchLdsfld("RoR2.Networking.GameNetworkManager", "svTimeTransmitInterval")
-        //        );
-        //    //c.Index += 4;
-        //    //c.Emit(OpCodes.Ldc_R4, Cheats.TickIntervalMulti);
-        //    //c.Emit(OpCodes.Mul);
-        //    //c.Prev.OpCode = OpCodes.Nop;
-        //    c.Index += 2;
-        //    c.RemoveRange(2);
-        //    c.Emit(OpCodes.Ldc_R4, Cheats.TickRate);
-
-        //}
-
     }
 }
