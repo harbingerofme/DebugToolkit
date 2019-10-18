@@ -212,6 +212,53 @@ namespace RoR2Cheats
             Debug.Log(equip);
         }
 
+        [ConCommand(commandName = "remove_item", flags = ConVarFlags.None, helpText = MagicVars.REMOVEITEM_ARGS)]
+        private static void CCRemoveItem(ConCommandArgs args)
+        {
+            if (args.Count == 0)
+            {
+                Debug.Log(MagicVars.REMOVEITEM_ARGS);
+                return;
+            }
+            int iCount = 1;
+            if (args.Count >= 2)
+            {
+                int.TryParse(args[1], out iCount);
+            }
+
+            Inventory inventory = args.sender.master.inventory;
+            if (args.Count >= 3)
+            {
+                NetworkUser player = GetNetUserFromString(args[2]);
+                if (player == null)
+                {
+                    Debug.Log(MagicVars.PLAYER_NOTFOUND);
+                }
+
+                inventory = (player == null) ? inventory : player.master.inventory;
+            }
+
+            if (args[0].ToUpper() == MagicVars.ALL)
+            {
+                Debug.Log("Removing inventory");
+                inventory.CopyItemsFrom(new GameObject().AddComponent<Inventory>());
+                return;
+            }
+            var item = Alias.Instance.GetItemName(args[0]);
+            if (item != null)
+            {
+                var idex = (ItemIndex)Enum.Parse(typeof(ItemIndex), item, true);
+                if (args[1].ToUpper() == MagicVars.ALL) iCount = inventory.GetItemCount(idex);
+                inventory.RemoveItem(idex, iCount);
+            }
+            else
+            {
+                Debug.Log(MagicVars.OBJECT_NOTFOUND + args[0] + ":" + item);
+            }
+
+            Debug.Log(item);
+        }
+
         [ConCommand(commandName = "give_money", flags = ConVarFlags.ExecuteOnServer, helpText = "Gives money")]
         private static void CCGiveMoney(ConCommandArgs args)
         {
