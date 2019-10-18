@@ -75,3 +75,11 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
 
 ### < 3.0.0
 See [the old package](https://thunderstore.io/package/Morris1927/)
+
+---
+
+## RC1 Compat
+
+This mod ILhooks the following methods:
+
+* `IL.RoR2.Console.Awake`
