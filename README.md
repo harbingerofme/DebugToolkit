@@ -59,12 +59,18 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
 
 ## Changelog
 
+### 3.1.0
+* **New Commands**
+	* a 
+* **Fixes**
+	* a
+
 ### 3.0.0
 * "Initial Release"
 * **General**
     * Reworked almost every command to be more maintainable. This should have no impact on current users.
     *  FOV is now outside the scope of this project and has thus been removed
-* **NEW FEATURES**
+* **New Features**
     * Object & Character names can now be queried using partial language invariants. For example: `give_item uku` will give one ukulele under "en".
     * Several vanilla cheats have now been unlocked.
 * **Fixes**
