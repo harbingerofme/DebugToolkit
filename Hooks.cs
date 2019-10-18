@@ -16,6 +16,8 @@ namespace RoR2Cheats
 
             On.RoR2.PreGameController.Awake += SeedHook;
 
+            On.RoR2.CombatDirector.SetNextSpawnAsBoss += CombatDirector_SetNextSpawnAsBoss;
+
             //IL.RoR2.Networking.GameNetworkManager.FixedUpdateServer += GameNetworkManager_FixedUpdateServer;
             //IL.RoR2.Networking.GameNetworkManager.cctor += GameNetworkManager_cctor;
         }
@@ -57,6 +59,41 @@ namespace RoR2Cheats
                 });
         }
 
+
+
+        private static void CombatDirector_SetNextSpawnAsBoss(On.RoR2.CombatDirector.orig_SetNextSpawnAsBoss orig, CombatDirector self)
+        {
+            orig(self);
+            if(RoR2Cheats.nextBoss)
+            {
+                //WeightedSelection<DirectorCard> weightedSelection = new WeightedSelection<DirectorCard>(1);
+                //weightedSelection.AddChoice(ClassicStageInfo.instance.monsterSelection.GetChoice(1));
+                var selection = ClassicStageInfo.instance.monsterSelection;
+                //DirectorCard selected = selection.GetChoice(0).value;
+                
+                for (int i = 0; i < ClassicStageInfo.instance.monsterSelection.Count; i++)
+                {
+                    Debug.Log(selection.GetChoice(i).value.spawnCard.name.ToUpper());
+                    if (selection.GetChoice(i).value.spawnCard.name.ToUpper().Contains(RoR2Cheats.nextBossName.ToUpper()))
+                    {
+                        var selected = selection.GetChoice(i).value;
+                        Debug.Log("Matched: " + selected.spawnCard.name);
+                        //self.OverrideCurrentMonsterCard(selected);
+                        self.OverrideCurrentMonsterCard(selected);
+                    }
+                }
+                //self.OverrideCurrentMonsterCard(selected);
+                //ClassicStageInfo.instance.monsterSelection.
+                //self.OverrideCurrentMonsterCard(selection.GetChoice(0).value);
+            }
+            //throw new NotImplementedException();
+        }
+
+        private static void TeleporterInteraction_OnStateChanged(On.RoR2.TeleporterInteraction.orig_OnStateChanged orig, TeleporterInteraction self, int oldActivationState, int newActivationState)
+        {
+            orig(self, oldActivationState, newActivationState);
+            //throw new NotImplementedException();
+        }
 
         private static void SeedHook(On.RoR2.PreGameController.orig_Awake orig, PreGameController self)
         {
