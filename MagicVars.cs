@@ -22,6 +22,7 @@ namespace RoR2Cheats
             PLAYER_NOTFOUND = "Specified player does not exist",
             PORTAL_NOTFOUND = "The specified portal could not be found: add_portal {blue,celestial,gold}",
             REMOVEITEM_ARGS = "Requires 1 argument: remove_item {localised_object_name} <count|[ALL]> <playername>",
+            REMOVEEQUIP_ARGS = "Requires 0 arguements: remove_equip {playername}",
             RUNSETSTAGESCLEARED_HELP = "Sets the amount of stages cleared. This does not change the current stage.",
             SPAWN_ATTEMPT = "Attempting to spawn: ",
             SPAWN_ERROR = "Could not spawn: ",

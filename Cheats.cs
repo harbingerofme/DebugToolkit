@@ -259,6 +259,23 @@ namespace RoR2Cheats
             Debug.Log(item);
         }
 
+        [ConCommand(commandName = "remove_equip", flags = ConVarFlags.ExecuteOnServer, helpText = MagicVars.REMOVEEQUIP_ARGS)]
+        private static void CCRemoveEquipment(ConCommandArgs args)
+        {
+            Inventory inventory = args.sender.master.inventory;
+            if (args.Count >= 1)
+            {
+                NetworkUser player = GetNetUserFromString(args[0]);
+                if (player == null)
+                {
+                    Debug.Log(MagicVars.PLAYER_NOTFOUND);
+                    return;
+                }
+                inventory = (player == null) ? inventory : player.master.inventory;
+            }
+            inventory.SetEquipmentIndex(EquipmentIndex.None);
+        }
+
         [ConCommand(commandName = "give_money", flags = ConVarFlags.ExecuteOnServer, helpText = "Gives money")]
         private static void CCGiveMoney(ConCommandArgs args)
         {
