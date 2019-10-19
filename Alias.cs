@@ -31,10 +31,10 @@ namespace RoR2Cheats
         private Alias()
         {
             BodyAlias.Add("ToolbotBody", new string[] { "MULT", "MUL-T", "ShoppingTrolly" });
-            BodyAlias.Add("MercBody", new string[] { "Mercenary","Ninja",  });
-            BodyAlias.Add("MageBody", new string[] { "Artificer" });
-            BodyAlias.Add("HANDBody", new string[] { "HAN-D" });
-            BodyAlias.Add("TreebotBody", new string[] { "Treebot", "REX", "PlantBot", "Shrub", "" });
+            BodyAlias.Add("MercBody", new string[] { "Mercenary","Ninja"});
+            BodyAlias.Add("MageBody", new string[] { "Artificer"});
+            BodyAlias.Add("HANDBody", new string[] { "HAN-D"});
+            BodyAlias.Add("TreebotBody", new string[] { "Treebot", "REX", "PlantBot", "Shrub"});
 
             MasterAlias.Add("DroneBackupMaster", new string[] { "DroneBackup", "BackupDrone" });
             MasterAlias.Add("DroneMissileMaster", new string[] { "DroneMissile", "MissileDrone" });
@@ -212,12 +212,11 @@ namespace RoR2Cheats
             var array = (T[])Enum.GetValues(typeof(T));
             if (int.TryParse(name, out int index))
             {
-                return array[index];
+                return (index < array.Length) ? array[index] : default;
             }
 
             foreach (T num in array)
             {
-                
                 if (Enum.GetName(typeof(T),num ).ToUpper().Contains(name.ToUpper()))
                 {
                     return (T)num;
