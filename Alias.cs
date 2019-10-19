@@ -59,6 +59,13 @@ namespace RoR2Cheats
             }
             foreach (var equip in RoR2.EquipmentCatalog.allEquipment)
             {
+                if (equip.ToString().ToUpper().Equals(name.ToUpper()))
+                {
+                    return equip.ToString();
+                }
+            }
+            foreach (var equip in RoR2.EquipmentCatalog.allEquipment)
+            {
                 langInvar = Regex.Replace(Language.GetString("EQUIPMENT_" + equip.ToString().ToUpper() + "_NAME") .Replace(" ", string.Empty), @"[ '-]", string.Empty);
 #if DEBUG
                 Debug.Log(equip.ToString() + ":" + langInvar + ":" + name.ToUpper());
@@ -83,6 +90,13 @@ namespace RoR2Cheats
                         name = dictEnt.Key.ToString();
                         
                     }
+                }
+            }
+            foreach(var item in RoR2.ItemCatalog.allItems)
+            {
+                if (item.ToString().ToUpper().Equals(name.ToUpper()))
+                {
+                    return item.ToString();
                 }
             }
             foreach (var item in RoR2.ItemCatalog.allItems)
@@ -110,6 +124,13 @@ namespace RoR2Cheats
                     {
                         name = dictEnt.Key.ToString();
                     }
+                }
+            }
+            foreach(var body in RoR2.BodyCatalog.allBodyPrefabBodyBodyComponents)
+            {
+                if (body.name.ToUpper().Equals(name.ToUpper()))
+                {
+                    return body.name;
                 }
             }
             foreach(var body in RoR2.BodyCatalog.allBodyPrefabBodyBodyComponents)
