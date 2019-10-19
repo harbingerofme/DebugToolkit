@@ -39,28 +39,24 @@ namespace RoR2Cheats
         [ConCommand(commandName = "getItemName", flags = ConVarFlags.None, helpText = "Match a partial localised item name to an ItemIndex")]
         private static void CCGetItemName(ConCommandArgs args)
         {
-            Alias.Instance.GetItemName(args[0]);
             Debug.Log(Alias.Instance.GetItemName(args[0]));
         }
 
         [ConCommand(commandName = "getBodyName", flags = ConVarFlags.None, helpText = "Match a bpartial localised body name to a character body name")]
         private static void CCGetBodyName(ConCommandArgs args)
         {
-            Alias.Instance.GetBodyName(args[0]);
             Debug.Log(Alias.Instance.GetBodyName(args[0]));
         }
 
         [ConCommand(commandName = "getEquipName", flags = ConVarFlags.None, helpText = "Match a partial localised equip name to an EquipIndex")]
         private static void CCGetEquipName(ConCommandArgs args)
         {
-            Alias.Instance.GetEquipName(args[0]);
             Debug.Log(Alias.Instance.GetEquipName(args[0]));
         }
 
         [ConCommand(commandName = "getMasterName", flags = ConVarFlags.None, helpText = "Match a partial localised Master name to a CharacterMaster")]
         private static void CCGetMasterName(ConCommandArgs args)
         {
-            Alias.Instance.GetMasterName(args[0]);
             Debug.Log(Alias.Instance.GetMasterName(args[0]));
         }
         [ConCommand(commandName = "getTeamIndexPartial", flags = ConVarFlags.None, helpText = "Match a partial TeamIndex")]
@@ -93,7 +89,8 @@ namespace RoR2Cheats
             foreach (ItemIndex item in ItemCatalog.allItems)
             {
                 int index = (int)item;
-                string line = string.Format("[{0}]{1}", index, item);
+                string invar = Alias.GetLangInvar("ITEM_" + item.ToString().ToUpper() + "_NAME");
+                string line = string.Format("[{0}]{1}={2}", index, item,invar);
                 text.AppendLine(line);
             }
             Debug.Log(text.ToString());
@@ -103,10 +100,11 @@ namespace RoR2Cheats
         {
             Debug.Log(MagicVars.OBSOLETEWARNING);
             StringBuilder text = new StringBuilder();
-            foreach (EquipmentIndex item in EquipmentCatalog.allEquipment)
+            foreach (EquipmentIndex equip in EquipmentCatalog.allEquipment)
             {
-                int index = (int)item;
-                string line = string.Format("[{0}]{1}", index, item);
+                int index = (int)equip;
+                string invar = Alias.GetLangInvar("EQUIPMENT_" + equip.ToString().ToUpper() + "_NAME");
+                string line = string.Format("[{0}]{1}={2}", index, equip, invar);
                 text.AppendLine(line);
             }
             Debug.Log(text.ToString());
@@ -119,7 +117,7 @@ namespace RoR2Cheats
             int i = 0;
             foreach (var master in MasterCatalog.allAiMasters)
             {
-                langInvar = Language.GetString(master.bodyPrefab.GetComponent<CharacterBody>().baseNameToken);
+                langInvar = Alias.GetLangInvar(master.bodyPrefab.GetComponent<CharacterBody>().baseNameToken);
                 list += $"[{i}]{master.name}={langInvar}\n";
                 i++;
             }
@@ -133,7 +131,7 @@ namespace RoR2Cheats
             string list ="";
             foreach (var body in BodyCatalog.allBodyPrefabBodyBodyComponents)
             {
-                langInvar = Language.GetString(body.baseNameToken);
+                langInvar = Alias.GetLangInvar(body.baseNameToken);
                 list+= $"[{i}]{body.name}={langInvar}\n";
                 i++;
             }

@@ -30,11 +30,11 @@ namespace RoR2Cheats
 
         private Alias()
         {
-            BodyAlias.Add("ToolbotBody", new string[] { "MULT", "MUL-T" });
-            BodyAlias.Add("MercBody", new string[] { "Mercenary" });
+            BodyAlias.Add("ToolbotBody", new string[] { "MULT", "MUL-T", "ShoppingTrolly" });
+            BodyAlias.Add("MercBody", new string[] { "Mercenary","Ninja",  });
             BodyAlias.Add("MageBody", new string[] { "Artificer" });
             BodyAlias.Add("HANDBody", new string[] { "HAN-D" });
-            BodyAlias.Add("TreebotBody", new string[] { "Treebot", "REX" });
+            BodyAlias.Add("TreebotBody", new string[] { "Treebot", "REX", "PlantBot", "Shrub", "" });
 
             MasterAlias.Add("DroneBackupMaster", new string[] { "DroneBackup", "BackupDrone" });
             MasterAlias.Add("DroneMissileMaster", new string[] { "DroneMissile", "MissileDrone" });
@@ -66,7 +66,7 @@ namespace RoR2Cheats
             }
             foreach (var equip in RoR2.EquipmentCatalog.allEquipment)
             {
-                langInvar = Regex.Replace(Language.GetString("EQUIPMENT_" + equip.ToString().ToUpper() + "_NAME") .Replace(" ", string.Empty), @"[ '-]", string.Empty);
+                langInvar = GetLangInvar("EQUIPMENT_" + equip.ToString().ToUpper() + "_NAME");
 #if DEBUG
                 Debug.Log(equip.ToString() + ":" + langInvar + ":" + name.ToUpper());
 #endif
@@ -101,7 +101,7 @@ namespace RoR2Cheats
             }
             foreach (var item in RoR2.ItemCatalog.allItems)
             {
-                langInvar = Regex.Replace(Language.GetString("ITEM_" + item.ToString().ToUpper() + "_NAME").Replace(" ", string.Empty), @"[ '-]", string.Empty);
+                langInvar = GetLangInvar("ITEM_" + item.ToString().ToUpper() + "_NAME");
 #if DEBUG
                 Debug.Log(item.ToString() + ":" + langInvar + ":" + name.ToUpper());
 #endif
@@ -129,15 +129,18 @@ namespace RoR2Cheats
             int i = 0;
             foreach(var body in RoR2.BodyCatalog.allBodyPrefabBodyBodyComponents)
             {
-                if (i==int.Parse(name) || body.name.ToUpper().Equals(name.ToUpper()))
+                if ((int.TryParse(name, out int iName) && i == iName) || body.name.ToUpper().Equals(name.ToUpper()))
                 {
+#if DEBUG
+                    Debug.Log("MATCHED EXACT!");
+#endif
                     return body.name;
                 }
                 i++;
             }
             foreach(var body in RoR2.BodyCatalog.allBodyPrefabBodyBodyComponents)
             {
-                langInvar = Regex.Replace(Language.GetString(body.baseNameToken).Replace(" ", string.Empty), @"[ '-]", string.Empty);
+                langInvar = GetLangInvar(body.baseNameToken);
 #if DEBUG
                 Debug.Log(body.name + ":" + langInvar + ":" + name.ToUpper());
 #endif
@@ -165,7 +168,7 @@ namespace RoR2Cheats
             int i = 0;
             foreach (var master in RoR2.MasterCatalog.allAiMasters)
             {
-                if (i == int.Parse(name) || master.name.ToUpper().Equals(name.ToUpper()))
+                if ((int.TryParse(name, out int iName) && i==iName) || master.name.ToUpper().Equals(name.ToUpper()))
                 {
 # if DEBUG
                     Debug.Log("MATCHED EXACT!");
@@ -177,7 +180,7 @@ namespace RoR2Cheats
             foreach (var master in RoR2.MasterCatalog.allAiMasters)
             {
 
-                langInvar = Regex.Replace(Language.GetString(master.bodyPrefab.GetComponent<CharacterBody>().baseNameToken), @"[ '-]", string.Empty); 
+                langInvar = GetLangInvar(master.bodyPrefab.GetComponent<CharacterBody>().baseNameToken); 
 #if DEBUG
                 Debug.Log(master.name + ":" + langInvar + ":" + name.ToUpper());
 #endif
@@ -189,6 +192,10 @@ namespace RoR2Cheats
             return null;
         }
 
+        public static string GetLangInvar(string baseToken)
+        {
+            return Regex.Replace(Language.GetString(baseToken), @"[ '-]", string.Empty);
+        }
         public static string GetStringFromPartial<T>(string name)
         {
             foreach (string eVal in Enum.GetNames(typeof(T)))
