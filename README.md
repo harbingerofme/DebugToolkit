@@ -6,6 +6,7 @@ The console can be opened with `ctrl+alt+~`. Additionally `help {command}` may b
 [Harb's](https://thunderstore.io/package/Harb/) and ['s](https://thunderstore.io/package/paddywan/) reimplementation of [Morris1927's](https://thunderstore.io/package/Morris1927/) [RoR2Cheats](https://thunderstore.io/package/Morris1927/RoR2Cheats/). Derived with permission. 
 
 Mods recommended for combined use:
+
 * [KeyBindForConsole](https://thunderstore.io/package/kristiansja/KeyBindForConsole/)
 * [SimpleMacros](https://thunderstore.io/package/recursiveGecko/SimpleMacros/)
 
