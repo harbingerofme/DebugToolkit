@@ -120,8 +120,8 @@ namespace RoR2Cheats
             foreach (var master in MasterCatalog.allAiMasters)
             {
                 langInvar = Language.GetString(master.bodyPrefab.GetComponent<CharacterBody>().baseNameToken);
+                list += $"[{i}]{master.name}={langInvar}\n";
                 i++;
-               list += $"[{i}]{master.name}={langInvar}\n";
             }
             Debug.Log(list.TrimEnd('\n'));
         }
@@ -134,8 +134,8 @@ namespace RoR2Cheats
             foreach (var body in BodyCatalog.allBodyPrefabBodyBodyComponents)
             {
                 langInvar = Language.GetString(body.baseNameToken);
-                i++;
                 list+= $"[{i}]{body.name}={langInvar}\n";
+                i++;
             }
             Debug.Log(list.TrimEnd('\n'));
         }
@@ -340,34 +340,9 @@ namespace RoR2Cheats
         [ConCommand(commandName = "next_boss", flags = ConVarFlags.ExecuteOnServer, helpText = "Sets the next boss to a specific type.")]
         private static void CCNextBoss(ConCommandArgs args)
         {
-            //TeleporterInteraction.instance.bossDirector.SetNextSpawnAsBoss();
+            Debug.Log("WARNING: PARTIAL IMPLEMENTATION. WIP.");
             RoR2Cheats.nextBoss = true;
             RoR2Cheats.nextBossName = args[0];
-            //if (args.Count == 0)
-            //{
-            //    Run.instance.AdvanceStage(Run.instance.nextStageScene);
-            //    Debug.Log("Stage advanced.");
-            //    return;
-            //}
-
-            //string stageString = args[0];
-            //List<string> array = new List<string>();
-            //for (int i = 0; i < SceneManager.sceneCountInBuildSettings; i++)
-            //{
-            //    array.Add(SceneUtility.GetScenePathByBuildIndex(i).Replace("Assets/RoR2/Scenes/", "").Replace(".unity", ""));
-            //}
-
-            //if (array.Contains(stageString))
-            //{
-            //    Run.instance.AdvanceStage(SceneCatalog.GetSceneDefFromSceneName(stageString));
-            //    Debug.Log($"Stage advanced to {stageString}.");
-            //    return;
-            //}
-            //else
-            //{
-            //    Debug.Log(MagicVars.NEXTROUND_STAGE);
-            //    Debug.Log(string.Join("\n", array));
-            //}
         }
 
         [ConCommand(commandName = "next_stage", flags = ConVarFlags.ExecuteOnServer, helpText = "Start next round. Additional args for specific scene.")]
@@ -641,8 +616,6 @@ namespace RoR2Cheats
             }
             Debug.Log("No_enemies set to " + noEnemies);
         }
-
-
 
         [ConCommand(commandName = "spawn_as", flags = ConVarFlags.ExecuteOnServer, helpText = "Spawn as a new character. Type body_list for a full list of characters")]
         private static void CCSpawnAs(ConCommandArgs args)

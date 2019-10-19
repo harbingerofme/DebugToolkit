@@ -57,12 +57,12 @@ namespace RoR2Cheats
                     }
                 }
             }
-            foreach (var equip in RoR2.EquipmentCatalog.allEquipment)
+            if(Enum.TryParse(name, true, out EquipmentIndex foundEquip))
             {
-                if (equip.ToString().ToUpper().Equals(name.ToUpper()))
-                {
-                    return equip.ToString();
-                }
+#if DEBUG
+                Debug.Log("RETURNED EXACT MATCH!");
+#endif
+                return foundEquip.ToString();
             }
             foreach (var equip in RoR2.EquipmentCatalog.allEquipment)
             {
@@ -92,12 +92,12 @@ namespace RoR2Cheats
                     }
                 }
             }
-            foreach(var item in RoR2.ItemCatalog.allItems)
+            if (Enum.TryParse(name, true, out EquipmentIndex foundItem))
             {
-                if (item.ToString().ToUpper().Equals(name.ToUpper()))
-                {
-                    return item.ToString();
-                }
+#if DEBUG
+                Debug.Log("RETURNED EXACT MATCH!");
+#endif
+                return foundItem.ToString();
             }
             foreach (var item in RoR2.ItemCatalog.allItems)
             {
@@ -126,12 +126,14 @@ namespace RoR2Cheats
                     }
                 }
             }
+            int i = 0;
             foreach(var body in RoR2.BodyCatalog.allBodyPrefabBodyBodyComponents)
             {
-                if (body.name.ToUpper().Equals(name.ToUpper()))
+                if (i==int.Parse(name) || body.name.ToUpper().Equals(name.ToUpper()))
                 {
                     return body.name;
                 }
+                i++;
             }
             foreach(var body in RoR2.BodyCatalog.allBodyPrefabBodyBodyComponents)
             {
@@ -160,12 +162,17 @@ namespace RoR2Cheats
                     }
                 }
             }
+            int i = 0;
             foreach (var master in RoR2.MasterCatalog.allAiMasters)
             {
-                if (master.name.ToUpper().Equals(name.ToUpper()))
+                if (i == int.Parse(name) || master.name.ToUpper().Equals(name.ToUpper()))
                 {
+# if DEBUG
+                    Debug.Log("MATCHED EXACT!");
+#endif
                     return master.name;
                 }
+                i++;
             }
             foreach (var master in RoR2.MasterCatalog.allAiMasters)
             {
