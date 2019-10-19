@@ -95,6 +95,7 @@ namespace RoR2Cheats
             }
             Debug.Log(text.ToString());
         }
+
         [ConCommand(commandName = "list_equips", flags = ConVarFlags.None, helpText = "List all equipment items and their IDs")]
         private static void CCListEquipments(ConCommandArgs _)
         {
@@ -123,6 +124,7 @@ namespace RoR2Cheats
             }
             Debug.Log(list.TrimEnd('\n'));
         }
+
         [ConCommand(commandName = "list_Body", flags = ConVarFlags.None, helpText = "List all Bodies and their language invariants")]
         private static void CCListBody(ConCommandArgs _)
         {
@@ -683,8 +685,9 @@ namespace RoR2Cheats
             NetworkServer.Spawn(bodyGameObject);
             master.SpawnBody(body, args.sender.master.GetBody().transform.position, Quaternion.identity);
 
-            if (args.Count>1 && Enum.TryParse<EliteIndex>(Alias.GetEnumFromPartial<EliteIndex>(args[1]).ToString(), true, out EliteIndex eliteIndex))
+            if (args.Count>1)
             {
+                var eliteIndex = Alias.GetEnumFromPartial<EliteIndex>(args[1]);
                 master.inventory.SetEquipmentIndex(EliteCatalog.GetEliteDef(eliteIndex).eliteEquipmentIndex);
                 master.inventory.GiveItem(ItemIndex.BoostHp, Mathf.RoundToInt((GetTierDef(eliteIndex).healthBoostCoefficient -1)*10));
                 master.inventory.GiveItem(ItemIndex.BoostDamage, Mathf.RoundToInt((GetTierDef(eliteIndex).damageBoostCoefficient -1)*10));

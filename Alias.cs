@@ -51,7 +51,7 @@ namespace RoR2Cheats
             {
                 foreach (string alias in dictEnt.Value)
                 {
-                    if (alias.ToUpper().Contains(name.ToUpper()))
+                    if (alias.ToUpper().Equals(name.ToUpper()))
                     {
                         name = dictEnt.Key.ToString();
                     }
@@ -85,7 +85,7 @@ namespace RoR2Cheats
             {
                 foreach (string alias in dictEnt.Value)
                 {
-                    if (alias.ToUpper().Contains(name.ToUpper()))
+                    if (alias.ToUpper().Equals(name.ToUpper()))
                     {
                         name = dictEnt.Key.ToString();
                         
@@ -120,7 +120,7 @@ namespace RoR2Cheats
             {
                 foreach(string alias in dictEnt.Value)
                 {
-                    if (alias.ToUpper().Contains(name.ToUpper()))
+                    if (alias.ToUpper().Equals(name.ToUpper()))
                     {
                         name = dictEnt.Key.ToString();
                     }
@@ -129,7 +129,7 @@ namespace RoR2Cheats
             int i = 0;
             foreach(var body in RoR2.BodyCatalog.allBodyPrefabBodyBodyComponents)
             {
-                if ((int.TryParse(name, out int iName) && i == iName) || body.name.ToUpper().Equals(name.ToUpper()))
+                if ((int.TryParse(name, out int iName) && i == iName) || body.name.ToUpper().Equals(name.ToUpper()) || body.name.ToUpper().Replace("BODY", string.Empty).Equals(name.ToUpper()))
                 {
 #if DEBUG
                     Debug.Log("MATCHED EXACT!");
@@ -159,7 +159,7 @@ namespace RoR2Cheats
             {
                 foreach (string alias in dictEnt.Value)
                 {
-                    if (alias.ToUpper().Contains(name.ToUpper()))
+                    if (alias.ToUpper().Equals(name.ToUpper()))
                     {
                         name = dictEnt.Key.ToString();
                     }
@@ -168,7 +168,7 @@ namespace RoR2Cheats
             int i = 0;
             foreach (var master in RoR2.MasterCatalog.allAiMasters)
             {
-                if ((int.TryParse(name, out int iName) && i==iName) || master.name.ToUpper().Equals(name.ToUpper()))
+                if ((int.TryParse(name, out int iName) && i==iName) || master.name.ToUpper().Equals(name.ToUpper()) || master.name.ToUpper().Replace("MASTER", string.Empty).Equals(name.ToUpper()))
                 {
 # if DEBUG
                     Debug.Log("MATCHED EXACT!");
@@ -196,22 +196,29 @@ namespace RoR2Cheats
         {
             return Regex.Replace(Language.GetString(baseToken), @"[ '-]", string.Empty);
         }
-        public static string GetStringFromPartial<T>(string name)
-        {
-            foreach (string eVal in Enum.GetNames(typeof(T)))
-            {
-                if (eVal.ToUpper().Contains(name.ToUpper()))
-                {
-                    return eVal;
-                }
-            }
-            return null;
-        }
+        //public static string GetStringFromPartial<T>(string name)
+        //{
+        //    foreach (string eVal in Enum.GetNames(typeof(T)))
+        //    {
+        //        if (eVal.ToUpper().Contains(name.ToUpper()))
+        //        {
+        //            return eVal;
+        //        }
+        //    }
+        //    return null;
+        //}
         public static T GetEnumFromPartial<T>(string name)
         {
-            foreach (T num in (T[])Enum.GetValues(typeof(T)))
+            var array = (T[])Enum.GetValues(typeof(T));
+            if (int.TryParse(name, out int index))
             {
-                if(Enum.GetName(typeof(T),num ).ToUpper().Contains(name.ToUpper()))
+                return array[index];
+            }
+
+            foreach (T num in array)
+            {
+                
+                if (Enum.GetName(typeof(T),num ).ToUpper().Contains(name.ToUpper()))
                 {
                     return (T)num;
                 }
