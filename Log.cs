@@ -13,6 +13,8 @@ namespace RoR2Cheats
 
         private static ManualLogSource logger;
 
+        /** <summary>Unless added to the game and modified by the user, this convar is equivalent to #if DEBUG</summary>
+         */
         public static BoolConVar DebugConvar = new BoolConVar
             (
             "ror2cheats_debug",
@@ -23,7 +25,6 @@ namespace RoR2Cheats
             "0",
 #endif
             "Ror2cheats extensive debugging");
-        /*This convar is only added if you call the RegisterConvars part of r2api (or register it yourself).*/
 
         public Log(ManualLogSource bepLogger)
         {
