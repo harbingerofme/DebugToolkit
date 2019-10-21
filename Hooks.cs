@@ -105,7 +105,7 @@ namespace RoR2Cheats
             }
         }
 
-        public static void onPrePopulateSetMonsterCreditZero(SceneDirector director)
+        public static void OnPrePopulateSetMonsterCreditZero(SceneDirector director)
         {
             //Note that this is not a hook, but an event subscription.
             director.SetFieldValue("monsterCredit", 0);

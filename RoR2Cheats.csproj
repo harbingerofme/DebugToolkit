@@ -2,12 +2,12 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Version>3.0.1</Version>
+    <Version>3.1.0</Version>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <Authors>Harbingerofme; Paddywan</Authors>
     <Description>Bepinex plugin for Risk of Rain 2.</Description>
     <RepositoryUrl>https://github.com/harbingerofme/RoR2Cheats</RepositoryUrl>
-    <Configurations>Debug;Release;OLDBEPIN</Configurations>
+    <Configurations>Debug;Release</Configurations>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -15,10 +15,6 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <LangVersion>7.1</LangVersion>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='OLDBEPIN|AnyCPU'">
     <LangVersion>7.1</LangVersion>
   </PropertyGroup>
 
