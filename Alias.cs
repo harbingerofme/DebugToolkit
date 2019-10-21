@@ -4,6 +4,7 @@ using RoR2;
 using System.Text.RegularExpressions;
 using System.Collections;
 using System;
+using System.Text;
 
 namespace RoR2Cheats
 {
@@ -60,22 +61,22 @@ namespace RoR2Cheats
             if(Enum.TryParse(name, true, out EquipmentIndex foundEquip) && EquipmentCatalog.IsIndexValid(foundEquip))
             {
                 //catalogmod
-#if DEBUG
-                Debug.Log("RETURNED EXACT MATCH!");
-#endif
+                Log.MessageInfo("RETURNED EXACT MATCH!");
                 return foundEquip.ToString();
             }
+
+            StringBuilder s = new StringBuilder();
             foreach (var equip in RoR2.EquipmentCatalog.allEquipment)
             {
                 langInvar = GetLangInvar("EQUIPMENT_" + equip.ToString().ToUpper() + "_NAME");
-#if DEBUG
-                Debug.Log(equip.ToString() + ":" + langInvar + ":" + name.ToUpper());
-#endif
+                s.AppendLine(equip.ToString() + ":" + langInvar + ":" + name.ToUpper());
                 if (equip.ToString().ToUpper().Contains(name.ToUpper()) || langInvar.ToUpper().Contains(name.ToUpper()))
                 {
+                    Log.MessageInfo(s);
                     return equip.ToString();
                 }
             }
+            Log.MessageInfo(s);
             return null;
         }
 
@@ -95,22 +96,22 @@ namespace RoR2Cheats
             }
             if (Enum.TryParse(name, true, out ItemIndex foundItem) && ItemCatalog.IsIndexValid(foundItem))
             {
-#if DEBUG
-                Debug.Log("RETURNED EXACT MATCH!");
-#endif
+                Log.MessageInfo("RETURNED EXACT MATCH!");
                 return foundItem.ToString();
             }
+
+            StringBuilder s = new StringBuilder();
             foreach (var item in RoR2.ItemCatalog.allItems)
             {
                 langInvar = GetLangInvar("ITEM_" + item.ToString().ToUpper() + "_NAME");
-#if DEBUG
-                Debug.Log(item.ToString() + ":" + langInvar + ":" + name.ToUpper());
-#endif
+                s.AppendLine(item.ToString() + ":" + langInvar + ":" + name.ToUpper());
                 if (item.ToString().ToUpper().Contains(name.ToUpper()) || langInvar.ToUpper().Contains(name.ToUpper()))
                 {
+                    Log.MessageInfo(s);
                     return item.ToString();
                 }
             }
+            Log.MessageInfo(s);
             return null;
         }
 
@@ -132,24 +133,23 @@ namespace RoR2Cheats
             {
                 if ((int.TryParse(name, out int iName) && i == iName) || body.name.ToUpper().Equals(name.ToUpper()) || body.name.ToUpper().Replace("BODY", string.Empty).Equals(name.ToUpper()))
                 {
-#if DEBUG
-                    Debug.Log("MATCHED EXACT!");
-#endif
+                    Log.MessageInfo("MATCHED EXACT!");
                     return body.name;
                 }
                 i++;
             }
-            foreach(var body in RoR2.BodyCatalog.allBodyPrefabBodyBodyComponents)
+            StringBuilder s = new StringBuilder();
+            foreach (var body in RoR2.BodyCatalog.allBodyPrefabBodyBodyComponents)
             {
                 langInvar = GetLangInvar(body.baseNameToken);
-#if DEBUG
-                Debug.Log(body.name + ":" + langInvar + ":" + name.ToUpper());
-#endif
+                s.AppendLine(body.name + ":" + langInvar + ":" + name.ToUpper());
                 if (body.name.ToUpper().Contains(name.ToUpper()) || langInvar.ToUpper().Contains(name.ToUpper()))
                 {
+                    Log.MessageInfo(s);
                     return body.name;
                 }
             }
+            Log.MessageInfo(s);
             return null;
         }
 
@@ -171,25 +171,24 @@ namespace RoR2Cheats
             {
                 if ((int.TryParse(name, out int iName) && i==iName) || master.name.ToUpper().Equals(name.ToUpper()) || master.name.ToUpper().Replace("MASTER", string.Empty).Equals(name.ToUpper()))
                 {
-# if DEBUG
-                    Debug.Log("MATCHED EXACT!");
-#endif
+                    Log.MessageInfo("MATCHED EXACT!");
                     return master.name;
                 }
                 i++;
             }
+            StringBuilder s = new StringBuilder();
             foreach (var master in RoR2.MasterCatalog.allAiMasters)
             {
 
                 langInvar = GetLangInvar(master.bodyPrefab.GetComponent<CharacterBody>().baseNameToken); 
-#if DEBUG
-                Debug.Log(master.name + ":" + langInvar + ":" + name.ToUpper());
-#endif
+                s.AppendLine(master.name + ":" + langInvar + ":" + name.ToUpper());
                 if (master.name.ToUpper().Contains(name.ToUpper()) || langInvar.ToUpper().Contains(name.ToUpper()))
                 {
+                    Log.MessageInfo(s);
                     return master.name;
                 }
             }
+            Log.MessageInfo(s);
             return null;
         }
 

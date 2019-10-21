@@ -13,7 +13,7 @@ namespace RoR2Cheats
 
         private static ManualLogSource logger;
 
-        private static BoolConVar DebugConvar = new BoolConVar
+        public static BoolConVar DebugConvar = new BoolConVar
             (
             "ror2cheats_debug",
             RoR2.ConVarFlags.None,
@@ -23,12 +23,18 @@ namespace RoR2Cheats
             "0",
 #endif
             "Ror2cheats extensive debugging");
+        /*This convar is only added if you call the RegisterConvars part of r2api (or register it yourself).*/
 
         public Log(ManualLogSource bepLogger)
         {
             logger = bepLogger;
         }
 
+        /** <summary>Sends a message to a console.</summary>
+         * <param name="input">The message to display</param>
+         * <param name="level">The level of the message, note that info may always be displayed in some cases</param>
+         * <param name="target">Target console, note that everything to ror2 is also passed to bepinex.</param>
+         */
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Message(object input, LogLevel level = LogLevel.Message, Target target = Target.Ror2)
         {
@@ -44,6 +50,18 @@ namespace RoR2Cheats
                     Debug.Log(input);
                     break;
             }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void MessageWarning(object input, Target target = Target.Ror2)
+        {
+            Message(input, LogLevel.Warning, target);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void MessageInfo(object input, Target target = Target.Ror2)
+        {
+            Message(input, LogLevel.Info, target);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
