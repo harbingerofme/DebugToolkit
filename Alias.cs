@@ -57,8 +57,9 @@ namespace RoR2Cheats
                     }
                 }
             }
-            if(Enum.TryParse(name, true, out EquipmentIndex foundEquip))
+            if(Enum.TryParse(name, true, out EquipmentIndex foundEquip) && EquipmentCatalog.IsIndexValid(foundEquip))
             {
+                //catalogmod
 #if DEBUG
                 Debug.Log("RETURNED EXACT MATCH!");
 #endif
@@ -92,7 +93,7 @@ namespace RoR2Cheats
                     }
                 }
             }
-            if (Enum.TryParse(name, true, out EquipmentIndex foundItem))
+            if (Enum.TryParse(name, true, out ItemIndex foundItem) && ItemCatalog.IsIndexValid(foundItem))
             {
 #if DEBUG
                 Debug.Log("RETURNED EXACT MATCH!");

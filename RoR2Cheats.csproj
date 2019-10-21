@@ -22,11 +22,6 @@
     <LangVersion>7.1</LangVersion>
   </PropertyGroup>
 
-
-  <ItemGroup>
-    <Folder Include="libs\" />
-  </ItemGroup>
-
   <ItemGroup>
     <Reference Include="0Harmony">
       <HintPath>libs\0Harmony.dll</HintPath>
