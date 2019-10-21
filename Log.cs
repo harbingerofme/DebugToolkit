@@ -1,5 +1,6 @@
 ﻿using BepInEx.Logging;
 using RoR2.ConVar;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
@@ -99,6 +100,10 @@ namespace RoR2Cheats
         [MethodImpl(MethodImplOptions.NoInlining)]
         private static void BepinexLog(object input, LogLevel level)
         {
+            if(logger == null)
+            {
+                throw new System.NullReferenceException("Log Class in " + Assembly.GetExecutingAssembly().GetName().Name + " not initialized prior to message call!");
+            }
             switch (level)
             {
                 case LogLevel.Info:
