@@ -39,28 +39,24 @@ namespace RoR2Cheats
         [ConCommand(commandName = "getItemName", flags = ConVarFlags.None, helpText = "Match a partial localised item name to an ItemIndex")]
         private static void CCGetItemName(ConCommandArgs args)
         {
-            Alias.Instance.GetItemName(args[0]);
             Debug.Log(Alias.Instance.GetItemName(args[0]));
         }
 
         [ConCommand(commandName = "getBodyName", flags = ConVarFlags.None, helpText = "Match a bpartial localised body name to a character body name")]
         private static void CCGetBodyName(ConCommandArgs args)
         {
-            Alias.Instance.GetBodyName(args[0]);
             Debug.Log(Alias.Instance.GetBodyName(args[0]));
         }
 
         [ConCommand(commandName = "getEquipName", flags = ConVarFlags.None, helpText = "Match a partial localised equip name to an EquipIndex")]
         private static void CCGetEquipName(ConCommandArgs args)
         {
-            Alias.Instance.GetEquipName(args[0]);
             Debug.Log(Alias.Instance.GetEquipName(args[0]));
         }
 
         [ConCommand(commandName = "getMasterName", flags = ConVarFlags.None, helpText = "Match a partial localised Master name to a CharacterMaster")]
         private static void CCGetMasterName(ConCommandArgs args)
         {
-            Alias.Instance.GetMasterName(args[0]);
             Debug.Log(Alias.Instance.GetMasterName(args[0]));
         }
         [ConCommand(commandName = "getTeamIndexPartial", flags = ConVarFlags.None, helpText = "Match a partial TeamIndex")]
@@ -93,20 +89,23 @@ namespace RoR2Cheats
             foreach (ItemIndex item in ItemCatalog.allItems)
             {
                 int index = (int)item;
-                string line = string.Format("[{0}]{1}", index, item);
+                string invar = Alias.GetLangInvar("ITEM_" + item.ToString().ToUpper() + "_NAME");
+                string line = string.Format("[{0}]{1}={2}", index, item,invar);
                 text.AppendLine(line);
             }
             Debug.Log(text.ToString());
         }
+
         [ConCommand(commandName = "list_equips", flags = ConVarFlags.None, helpText = "List all equipment items and their IDs")]
         private static void CCListEquipments(ConCommandArgs _)
         {
             Debug.Log(MagicVars.OBSOLETEWARNING);
             StringBuilder text = new StringBuilder();
-            foreach (EquipmentIndex item in EquipmentCatalog.allEquipment)
+            foreach (EquipmentIndex equip in EquipmentCatalog.allEquipment)
             {
-                int index = (int)item;
-                string line = string.Format("[{0}]{1}", index, item);
+                int index = (int)equip;
+                string invar = Alias.GetLangInvar("EQUIPMENT_" + equip.ToString().ToUpper() + "_NAME");
+                string line = string.Format("[{0}]{1}={2}", index, equip, invar);
                 text.AppendLine(line);
             }
             Debug.Log(text.ToString());
@@ -119,12 +118,13 @@ namespace RoR2Cheats
             int i = 0;
             foreach (var master in MasterCatalog.allAiMasters)
             {
-                langInvar = Language.GetString(master.bodyPrefab.GetComponent<CharacterBody>().baseNameToken);
+                langInvar = Alias.GetLangInvar(master.bodyPrefab.GetComponent<CharacterBody>().baseNameToken);
+                list += $"[{i}]{master.name}={langInvar}\n";
                 i++;
-               list += $"[{i}]{master.name}={langInvar}\n";
             }
             Debug.Log(list.TrimEnd('\n'));
         }
+
         [ConCommand(commandName = "list_Body", flags = ConVarFlags.None, helpText = "List all Bodies and their language invariants")]
         private static void CCListBody(ConCommandArgs _)
         {
@@ -133,9 +133,9 @@ namespace RoR2Cheats
             string list ="";
             foreach (var body in BodyCatalog.allBodyPrefabBodyBodyComponents)
             {
-                langInvar = Language.GetString(body.baseNameToken);
-                i++;
+                langInvar = Alias.GetLangInvar(body.baseNameToken);
                 list+= $"[{i}]{body.name}={langInvar}\n";
+                i++;
             }
             Debug.Log(list.TrimEnd('\n'));
         }
@@ -340,34 +340,9 @@ namespace RoR2Cheats
         [ConCommand(commandName = "next_boss", flags = ConVarFlags.ExecuteOnServer, helpText = "Sets the next boss to a specific type.")]
         private static void CCNextBoss(ConCommandArgs args)
         {
-            //TeleporterInteraction.instance.bossDirector.SetNextSpawnAsBoss();
+            Debug.Log("WARNING: PARTIAL IMPLEMENTATION. WIP.");
             RoR2Cheats.nextBoss = true;
             RoR2Cheats.nextBossName = args[0];
-            //if (args.Count == 0)
-            //{
-            //    Run.instance.AdvanceStage(Run.instance.nextStageScene);
-            //    Debug.Log("Stage advanced.");
-            //    return;
-            //}
-
-            //string stageString = args[0];
-            //List<string> array = new List<string>();
-            //for (int i = 0; i < SceneManager.sceneCountInBuildSettings; i++)
-            //{
-            //    array.Add(SceneUtility.GetScenePathByBuildIndex(i).Replace("Assets/RoR2/Scenes/", "").Replace(".unity", ""));
-            //}
-
-            //if (array.Contains(stageString))
-            //{
-            //    Run.instance.AdvanceStage(SceneCatalog.GetSceneDefFromSceneName(stageString));
-            //    Debug.Log($"Stage advanced to {stageString}.");
-            //    return;
-            //}
-            //else
-            //{
-            //    Debug.Log(MagicVars.NEXTROUND_STAGE);
-            //    Debug.Log(string.Join("\n", array));
-            //}
         }
 
         [ConCommand(commandName = "next_stage", flags = ConVarFlags.ExecuteOnServer, helpText = "Start next round. Additional args for specific scene.")]
@@ -642,8 +617,6 @@ namespace RoR2Cheats
             Debug.Log("No_enemies set to " + noEnemies);
         }
 
-
-
         [ConCommand(commandName = "spawn_as", flags = ConVarFlags.ExecuteOnServer, helpText = "Spawn as a new character. Type body_list for a full list of characters")]
         private static void CCSpawnAs(ConCommandArgs args)
         {
@@ -712,8 +685,9 @@ namespace RoR2Cheats
             NetworkServer.Spawn(bodyGameObject);
             master.SpawnBody(body, args.sender.master.GetBody().transform.position, Quaternion.identity);
 
-            if (args.Count>1 && Enum.TryParse<EliteIndex>(Alias.GetEnumFromPartial<EliteIndex>(args[1]).ToString(), true, out EliteIndex eliteIndex))
+            if (args.Count>1)
             {
+                var eliteIndex = Alias.GetEnumFromPartial<EliteIndex>(args[1]);
                 master.inventory.SetEquipmentIndex(EliteCatalog.GetEliteDef(eliteIndex).eliteEquipmentIndex);
                 master.inventory.GiveItem(ItemIndex.BoostHp, Mathf.RoundToInt((GetTierDef(eliteIndex).healthBoostCoefficient -1)*10));
                 master.inventory.GiveItem(ItemIndex.BoostDamage, Mathf.RoundToInt((GetTierDef(eliteIndex).damageBoostCoefficient -1)*10));
