@@ -28,7 +28,8 @@ namespace RoR2Cheats
 
         public void Awake()
         {
-            Logger.LogMessage("Harb's and 's Version. Original by Morris1927.");/*Check github for the other contributor, lmao*/
+            new Log(Logger);
+            Log.Message("Harb's and 's Version. Original by Morris1927.",Log.LogLevel.Info,Log.Target.Bepinex);/*Check github for the other contributor, lmao*/
             
             Hooks.InitializeHooks();
             NetworkHandler.RegisterNetworkHandlerAttributes();
