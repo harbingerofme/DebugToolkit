@@ -52,12 +52,20 @@ namespace RoR2Cheats
             }
         }
 
+        /** <summary>Sends a warning to a console.</summary>
+         * <param name="input">The message to display</param>
+         * <param name="target">Target console, note that everything to ror2 is also passed to bepinex.</param>
+         */
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void MessageWarning(object input, Target target = Target.Ror2)
         {
             Message(input, LogLevel.Warning, target);
         }
 
+        /** <summary>Sends info to a console, note that it may be surpressed in certain targets under certain conditions.</summary>
+         * <param name="input">The message to display</param>
+         * <param name="target">Target console, note that everything to ror2 is also passed to bepinex.</param>
+         */
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void MessageInfo(object input, Target target = Target.Ror2)
         {
