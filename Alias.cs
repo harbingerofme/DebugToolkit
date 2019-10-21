@@ -66,7 +66,7 @@ namespace RoR2Cheats
             }
 
             StringBuilder s = new StringBuilder();
-            foreach (var equip in RoR2.EquipmentCatalog.allEquipment)
+            foreach (var equip in EquipmentCatalog.allEquipment)
             {
                 langInvar = GetLangInvar("EQUIPMENT_" + equip.ToString().ToUpper() + "_NAME");
                 s.AppendLine(equip.ToString() + ":" + langInvar + ":" + name.ToUpper());
@@ -101,7 +101,7 @@ namespace RoR2Cheats
             }
 
             StringBuilder s = new StringBuilder();
-            foreach (var item in RoR2.ItemCatalog.allItems)
+            foreach (var item in ItemCatalog.allItems)
             {
                 langInvar = GetLangInvar("ITEM_" + item.ToString().ToUpper() + "_NAME");
                 s.AppendLine(item.ToString() + ":" + langInvar + ":" + name.ToUpper());
@@ -129,7 +129,7 @@ namespace RoR2Cheats
                 }
             }
             int i = 0;
-            foreach(var body in RoR2.BodyCatalog.allBodyPrefabBodyBodyComponents)
+            foreach(var body in BodyCatalog.allBodyPrefabBodyBodyComponents)
             {
                 if ((int.TryParse(name, out int iName) && i == iName) || body.name.ToUpper().Equals(name.ToUpper()) || body.name.ToUpper().Replace("BODY", string.Empty).Equals(name.ToUpper()))
                 {
@@ -139,7 +139,7 @@ namespace RoR2Cheats
                 i++;
             }
             StringBuilder s = new StringBuilder();
-            foreach (var body in RoR2.BodyCatalog.allBodyPrefabBodyBodyComponents)
+            foreach (var body in BodyCatalog.allBodyPrefabBodyBodyComponents)
             {
                 langInvar = GetLangInvar(body.baseNameToken);
                 s.AppendLine(body.name + ":" + langInvar + ":" + name.ToUpper());
@@ -167,7 +167,7 @@ namespace RoR2Cheats
                 }
             }
             int i = 0;
-            foreach (var master in RoR2.MasterCatalog.allAiMasters)
+            foreach (var master in MasterCatalog.allAiMasters)
             {
                 if ((int.TryParse(name, out int iName) && i==iName) || master.name.ToUpper().Equals(name.ToUpper()) || master.name.ToUpper().Replace("MASTER", string.Empty).Equals(name.ToUpper()))
                 {
@@ -177,7 +177,7 @@ namespace RoR2Cheats
                 i++;
             }
             StringBuilder s = new StringBuilder();
-            foreach (var master in RoR2.MasterCatalog.allAiMasters)
+            foreach (var master in MasterCatalog.allAiMasters)
             {
 
                 langInvar = GetLangInvar(master.bodyPrefab.GetComponent<CharacterBody>().baseNameToken); 
