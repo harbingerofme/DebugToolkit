@@ -208,6 +208,29 @@ namespace RoR2Cheats
         private static void CCGiveLunar(ConCommandArgs args)
         {
             int amount = 1;
+            if (args.Count > 0)
+            {
+                amount = args.GetArgInt(0);
+            }
+            if (amount == 0)
+            {
+                Log.Message("Nothing happened. Big suprise.");
+                return;
+            }
+            NetworkUser target = Util.LookUpBodyNetworkUser(args.senderBody);
+            if (amount > 0)
+            {
+                target.AwardLunarCoins((uint) amount);
+            }
+            if (amount < 0)
+            {
+                amount *= -1;
+                target.DeductLunarCoins((uint)(amount));
+            }
+            Log.Message(string.Format(MagicVars.GIVELUNAR_2, (amount > 0) ? "Gave" : "Deducted", amount);
+        }
+
+
         [ConCommand(commandName = MagicVars.CREATEPICKUP_NAME,flags =ConVarFlags.ExecuteOnServer, helpText = MagicVars.CREATEPICKUP_ARGS)]
         private static void CCCreatePickup(ConCommandArgs args)
         {
@@ -222,7 +245,7 @@ namespace RoR2Cheats
                 item = Alias.Instance.GetItemName(args[0]);
                 if (item != null && equipment != null)
                 {
-                    Log.Message(string.Format(MagicVars.CREATEPICKUP_AMBIGIOUS_s,item,equipment));
+                    Log.Message(string.Format(MagicVars.CREATEPICKUP_AMBIGIOUS_2,item,equipment));
                     return;
                 }
 
@@ -271,7 +294,7 @@ namespace RoR2Cheats
                     final = PickupCatalog.FindPickupIndex((EquipmentIndex)Enum.Parse(typeof(EquipmentIndex), equipName, true));
                 }
             }
-            Log.Message(string.Format(MagicVars.CREATEPICKUP_SUCCES_s, final));
+            Log.Message(string.Format(MagicVars.CREATEPICKUP_SUCCES_1, final));
             PickupDropletController.CreatePickupDroplet(final, transform.position, transform.forward * 40f);
             }
 
