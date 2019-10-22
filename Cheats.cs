@@ -227,7 +227,7 @@ namespace RoR2Cheats
                 amount *= -1;
                 target.DeductLunarCoins((uint)(amount));
             }
-            Log.Message(string.Format(MagicVars.GIVELUNAR_2, (amount > 0) ? "Gave" : "Deducted", amount);
+            Log.Message(string.Format(MagicVars.GIVELUNAR_2, (amount > 0) ? "Gave" : "Deducted", amount));
         }
 
 
