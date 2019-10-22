@@ -205,6 +205,7 @@ namespace RoR2Cheats
         }
 
         [ConCommand(commandName = "create_pickup",flags =ConVarFlags.ExecuteOnServer, helpText = "")]
+        [ConCommand(commandName = MagicVars.CREATEPICKUP_NAME,flags =ConVarFlags.ExecuteOnServer, helpText = MagicVars.CREATEPICKUP_ARGS)]
         private static void CCCreatePickup(ConCommandArgs args)
         {
             args.CheckArgumentCount(1);
