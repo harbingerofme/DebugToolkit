@@ -209,7 +209,7 @@ namespace RoR2Cheats
         {
             args.CheckArgumentCount(1);
 
-            Transform transform = args.senderMaster.gameObject.transform;
+            Transform transform = args.senderBody.gameObject.transform;
             PickupIndex final = PickupIndex.none;
             if (args.Count == 1)
             {
@@ -248,7 +248,7 @@ namespace RoR2Cheats
             {
                 if (args[0].Equals("item", StringComparison.OrdinalIgnoreCase))
                 {
-                    string itemName = Alias.Instance.GetItemName(args[0]);
+                    string itemName = Alias.Instance.GetItemName(args[1]);
                     if (itemName == null)
                     {
                         Log.Message("NOT FOUND, REPLACE");
@@ -267,7 +267,7 @@ namespace RoR2Cheats
                     final = PickupCatalog.FindPickupIndex((EquipmentIndex)Enum.Parse(typeof(EquipmentIndex), equipName, true));
                 }
             }
-            Log.Message(final, Log.LogLevel.Error);
+            Log.Message(final.GetPickupNameToken(), Log.LogLevel.Error);
             PickupDropletController.CreatePickupDroplet(final, transform.position, transform.forward * 40f);
             }
 
