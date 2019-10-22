@@ -7,11 +7,11 @@ namespace RoR2Cheats
     public static class MagicVars
     {
         public const string
-            CONFIG_SECTION_FOV = "FOV",
-            FOVBASE_DESCR = "Your base Field of vision",
-            FOVBASE_SHORTDESCR = "Base FOV",
-            FOVMULTI_DESCR = "What FOV gets multiplied by while sprinting",
-            FOVMULTI_SHORTDESCR = "sprint Fov Multiplier",
+            CREATEPICKUP_AMBIGIOUS_s = "Could not choose between {0} and {1}, please be more precise. Consider using 'equip' or 'item' as the first argument.",
+            CREATEPICKUP_ARGS = "Requires 1 or 2 arguments: "+ CREATEPICKUP_NAME + "{item|equipment|coin|localised_object_name} [localised_object_name]",
+            CREATEPICKUP_NAME = "create_pickup",
+            CREATEPICKUP_NOTFOUND = "Could not find any item nor equipment with that name. It's not a coin either.",
+            CREATEPICKUP_SUCCES_s = "Succesfully created the pickup {0}.",
             GIVEEQUIP_ARGS = "Requires 1 argument: give_equip {localised_object_name} {playername}",
             GIVEITEM_ARGS = "Requires 1 argument: give_item {localised_object_name} {count} {playername}",
             INTEGER_EXPECTED = "Argument must be a whole number.",
@@ -22,7 +22,7 @@ namespace RoR2Cheats
             PLAYER_NOTFOUND = "Specified player does not exist",
             PORTAL_NOTFOUND = "The specified portal could not be found: add_portal {blue,celestial,gold}",
             REMOVEITEM_ARGS = "Requires 1 argument: remove_item {localised_object_name} <count|[ALL]> <playername>",
-            REMOVEEQUIP_ARGS = "Requires 0 arguements: remove_equip {playername}",
+            REMOVEEQUIP_ARGS = "Requires 0 arguments: remove_equip {playername}",
             RUNSETSTAGESCLEARED_HELP = "Sets the amount of stages cleared. This does not change the current stage.",
             SPAWN_ATTEMPT = "Attempting to spawn: ",
             SPAWN_ERROR = "Could not spawn: ",

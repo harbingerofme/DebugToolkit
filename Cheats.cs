@@ -218,7 +218,7 @@ namespace RoR2Cheats
                 item = Alias.Instance.GetItemName(args[0]);
                 if (item != null && equipment != null)
                 {
-                    Log.Message("AMBIGIOUS, REPPLACE");
+                    Log.Message(string.Format(MagicVars.CREATEPICKUP_AMBIGIOUS_s,item,equipment));
                     return;
                 }
 
@@ -239,7 +239,7 @@ namespace RoR2Cheats
                     }
                     else
                     {
-                        Log.Message("NOT FOUND, REPLACE");
+                        Log.Message(MagicVars.CREATEPICKUP_NOTFOUND);
                         return;
                     }
                 }
@@ -251,7 +251,7 @@ namespace RoR2Cheats
                     string itemName = Alias.Instance.GetItemName(args[1]);
                     if (itemName == null)
                     {
-                        Log.Message("NOT FOUND, REPLACE");
+                        Log.Message(MagicVars.CREATEPICKUP_NOTFOUND);
                         return;
                     }
                     final = PickupCatalog.FindPickupIndex((ItemIndex)Enum.Parse(typeof(ItemIndex), itemName, true));
@@ -261,13 +261,13 @@ namespace RoR2Cheats
                     string equipName = Alias.Instance.GetEquipName(args[0]);
                     if (equipName == null)
                     {
-                        Log.Message("NOT FOUND, REPLACE");
+                        Log.Message(MagicVars.CREATEPICKUP_NOTFOUND);
                         return;
                     }
                     final = PickupCatalog.FindPickupIndex((EquipmentIndex)Enum.Parse(typeof(EquipmentIndex), equipName, true));
                 }
             }
-            Log.Message(final.GetPickupNameToken(), Log.LogLevel.Error);
+            Log.Message(string.Format(MagicVars.CREATEPICKUP_SUCCES_s, final));
             PickupDropletController.CreatePickupDroplet(final, transform.position, transform.forward * 40f);
             }
 
@@ -686,7 +686,7 @@ namespace RoR2Cheats
             string character = Alias.Instance.GetBodyName(args[0]);
             if (character == null)
             {
-                Log.Message(string.Format(MagicVars.SPAWN_ERROR,args[0]));
+                Log.Message(MagicVars.SPAWN_ERROR + args[0]);
                 Log.Message("Please use list_body to print CharacterBodies");
                 return;
             }
@@ -731,7 +731,7 @@ namespace RoR2Cheats
             string character = Alias.Instance.GetMasterName(args[0]);
             if (character == null)
             {
-                Log.Message(string.Format(MagicVars.SPAWN_ERROR,character));
+                Log.Message(MagicVars.SPAWN_ERROR + character);
                 return;
             }
             var masterprefab = MasterCatalog.FindMasterPrefab(character);
