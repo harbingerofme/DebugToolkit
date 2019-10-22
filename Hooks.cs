@@ -13,6 +13,7 @@ namespace RoR2Cheats
         {
             IL.RoR2.Console.Awake += UnlockConsole;
             On.RoR2.Console.InitConVars += InitCommandsAndFreeConvars;
+            CommandHelper.AddToConsoleWhenReady();
 
             On.RoR2.PreGameController.Awake += SeedHook;
 
@@ -29,8 +30,6 @@ namespace RoR2Cheats
                 cv.flags &= AllFlagsNoCheat;
             }
             orig(self);
-            CommandHelper.RegisterCommands(self);
-            CommandHelper.RegisterConVars(self);
             removeCheatFlag(self.FindConVar("sv_time_transmit_interval"));
             removeCheatFlag(self.FindConVar("run_scene_override"));
             removeCheatFlag(self.FindConVar("stage1_pod"));
