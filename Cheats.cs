@@ -204,7 +204,10 @@ namespace RoR2Cheats
             Log.Message(equip);
         }
 
-        [ConCommand(commandName = "create_pickup",flags =ConVarFlags.ExecuteOnServer, helpText = "")]
+        [ConCommand(commandName = "give_lunar",flags = ConVarFlags.ExecuteOnServer, helpText = "Gives you the specified amount of lunar coins, value may be negative. Default 1.")]
+        private static void CCGiveLunar(ConCommandArgs args)
+        {
+            int amount = 1;
         [ConCommand(commandName = MagicVars.CREATEPICKUP_NAME,flags =ConVarFlags.ExecuteOnServer, helpText = MagicVars.CREATEPICKUP_ARGS)]
         private static void CCCreatePickup(ConCommandArgs args)
         {

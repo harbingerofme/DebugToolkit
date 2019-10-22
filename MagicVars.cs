@@ -7,13 +7,14 @@ namespace RoR2Cheats
     public static class MagicVars
     {
         public const string
-            CREATEPICKUP_AMBIGIOUS_s = "Could not choose between {0} and {1}, please be more precise. Consider using 'equip' or 'item' as the first argument.",
+            CREATEPICKUP_AMBIGIOUS_2 = "Could not choose between {0} and {1}, please be more precise. Consider using 'equip' or 'item' as the first argument.",
             CREATEPICKUP_ARGS = "Requires 1 or 2 arguments: "+ CREATEPICKUP_NAME + "{item|equipment|coin|localised_object_name} [localised_object_name]",
             CREATEPICKUP_NAME = "create_pickup",
             CREATEPICKUP_NOTFOUND = "Could not find any item nor equipment with that name. It's not a coin either.",
-            CREATEPICKUP_SUCCES_s = "Succesfully created the pickup {0}.",
+            CREATEPICKUP_SUCCES_1 = "Succesfully created the pickup {0}.",
             GIVEEQUIP_ARGS = "Requires 1 argument: give_equip {localised_object_name} {playername}",
             GIVEITEM_ARGS = "Requires 1 argument: give_item {localised_object_name} {count} {playername}",
+            GIVELUNAR_2 = "{0} {1} lunar coins.",
             INTEGER_EXPECTED = "Argument must be a whole number.",
             OBJECT_NOTFOUND = "The requested object could not be found: ",
             OBSOLETEWARNING = "This command has become obsolete and will be removed in the next version. ",
