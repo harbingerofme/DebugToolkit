@@ -92,7 +92,7 @@ namespace RoR2Cheats
                     Debug.LogWarning(input);
                     break;
                 case LogLevel.Error:
-                    Debug.LogWarning(input);
+                    Debug.LogError(input);
                     break;
             }
         }
@@ -119,7 +119,7 @@ namespace RoR2Cheats
                     logger.LogWarning(input);
                     break;
                 case LogLevel.Error:
-                    logger.LogWarning(input);
+                    logger.LogError(input);
                     break;
             }
         }
