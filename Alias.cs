@@ -197,17 +197,7 @@ namespace RoR2Cheats
         {
             return Regex.Replace(Language.GetString(baseToken), @"[ '-]", string.Empty);
         }
-        //public static string GetStringFromPartial<T>(string name)
-        //{
-        //    foreach (string eVal in Enum.GetNames(typeof(T)))
-        //    {
-        //        if (eVal.ToUpper().Contains(name.ToUpper()))
-        //        {
-        //            return eVal;
-        //        }
-        //    }
-        //    return null;
-        //}
+
         public static T GetEnumFromPartial<T>(string name)
         {
             var array = (T[])Enum.GetValues(typeof(T));
