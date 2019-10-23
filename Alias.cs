@@ -14,6 +14,7 @@ namespace RoR2Cheats
         private static readonly Dictionary<string, string[]> ItemAlias = new Dictionary<string, string[]>();
         private static readonly Dictionary<string, string[]> EquipAlias = new Dictionary<string, string[]>();
         private static Alias instance;
+        private static List<DirectorCard> spawnCards = new List<DirectorCard>();
 
         public static Alias Instance
         {
@@ -42,6 +43,28 @@ namespace RoR2Cheats
             MasterAlias.Add("LemurianBruiserMasterIce", new string[] { "LemurianBruiserIce" });
             MasterAlias.Add("LemurianBruiserMasterPoison", new string[] { "LemurianBruiserPoison", "LemurianBruiserBlight", "LemurianBruisermalechite" });
             MasterAlias.Add("MercMonsterMaster", new string[] { "MercMonster" });
+
+            Debug.Log($"CardCount: {Resources.LoadAll<CharacterSpawnCard>("SpawnCards/CharacterSpawnCards").Length}");
+
+            foreach (CharacterSpawnCard csc in Resources.LoadAll<CharacterSpawnCard>("SpawnCards/CharacterSpawnCards"))
+            {
+                var dCard = new DirectorCard
+                {
+                    spawnCard = csc,
+                    cost = 600,
+                    allowAmbushSpawn = true,
+                    forbiddenUnlockable = "",
+                    minimumStageCompletions = 0,
+                    preventOverhead = true,
+                    spawnDistance = DirectorCore.MonsterSpawnDistance.Standard,
+                };
+                spawnCards.Add(dCard);
+            }
+        }
+
+        public List<DirectorCard> GetDirectorCards()
+        {
+            return spawnCards;
         }
 
         public string GetEquipName(string name)

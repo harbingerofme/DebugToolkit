@@ -24,7 +24,10 @@ namespace RoR2Cheats
         public static readonly RoR2Cheats instance;
         public static bool nextBoss = false;
         public static string nextBossName;
-        public static float FAMCHANCE = 1f;
+        public static int nextBossCount = 1;
+        public static EliteIndex nextBossElite = EliteIndex.None;
+        public static float FAMCHANCE = 0.02f;
+        
 
 
         public void Awake()
@@ -338,19 +341,33 @@ namespace RoR2Cheats
             Debug.Log("Network request for timescale.");
         }
 
-        [ConCommand(commandName = "family_event", flags = ConVarFlags.ExecuteOnServer, helpText = "Calls a family event in the next instance.")]
+        [ConCommand(commandName = "list_family", flags = ConVarFlags.ExecuteOnServer, helpText = "Calls a family event in the next instance.")]
+        private static void CCListFamily(ConCommandArgs args)
+        {
+            foreach (ClassicStageInfo.MonsterFamily family in ClassicStageInfo.instance.possibleMonsterFamilies)
+            {
+                Debug.Log(family.familySelectionChatString);
+            }
+        }
+
+        [ConCommand(commandName = "family_event", flags = ConVarFlags.ExecuteOnServer, helpText = "Calls a family event in the next stage.")]
         private static void CCFamilyEvent(ConCommandArgs args)
         {
             Debug.Log("WARNING: PARTIAL IMPLEMENTATION. WIP.");
-            RoR2Cheats.FAMCHANCE = float.Parse(args[0]);
+            RoR2Cheats.FAMCHANCE = 1.0f;
         }
 
         [ConCommand(commandName = "next_boss", flags = ConVarFlags.ExecuteOnServer, helpText = "Sets the next boss to a specific type.")]
         private static void CCNextBoss(ConCommandArgs args)
         {
             Debug.Log("WARNING: PARTIAL IMPLEMENTATION. WIP.");
+            TeleporterInteraction.instance.AddShrineStack();
+            TeleporterInteraction.instance.AddShrineStack();
+            TeleporterInteraction.instance.AddShrineStack();
             RoR2Cheats.nextBoss = true;
             RoR2Cheats.nextBossName = args[0];
+            RoR2Cheats.nextBossCount = int.Parse(args[1]);
+            RoR2Cheats.nextBossElite = EliteIndex.Poison;
         }
 
         [ConCommand(commandName = "next_stage", flags = ConVarFlags.ExecuteOnServer, helpText = "Start next round. Additional args for specific scene.")]
@@ -827,7 +844,7 @@ namespace RoR2Cheats
             }
         }
 
-        private static CombatDirector.EliteTierDef GetTierDef(EliteIndex index)
+        public static CombatDirector.EliteTierDef GetTierDef(EliteIndex index)
         {
             int tier = 0;
             CombatDirector.EliteTierDef[] tierdefs = typeof(CombatDirector).GetFieldValue<CombatDirector.EliteTierDef[]>("eliteTiers");

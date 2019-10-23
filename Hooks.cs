@@ -96,7 +96,7 @@ namespace RoR2Cheats
         private static void TeleporterInteraction_OnChargingFinished(On.RoR2.TeleporterInteraction.orig_OnChargingFinished orig, TeleporterInteraction self)
         {
             orig(self);
-            //RoR2Cheats.FAMCHANCE = 0.02f;
+            RoR2Cheats.FAMCHANCE = 0.02f;
         }
 
         private static void ClassicStageInfo_Awake(ILContext il)
@@ -126,35 +126,27 @@ namespace RoR2Cheats
         private static void CombatDirector_SetNextSpawnAsBoss(On.RoR2.CombatDirector.orig_SetNextSpawnAsBoss orig, CombatDirector self)
         {
             orig(self);
+            self.monsterCredit *= 10;
             if (RoR2Cheats.nextBoss)
             {
-                var cats = RoR2.ClassicStageInfo.instance.GetFieldValue<DirectorCardCategorySelection>("monsterCategories");
-                var mons = cats.categories[0].cards;
-                DirectorCard selected;
-                //var selection = ClassicStageInfo.instance.monsterSelection;
-                //DirectorCard selected = selection.GetChoice(0).value;
+                var mons = Alias.Instance.GetDirectorCards();
+                DirectorCard selected = mons[0];
 
-                for (int i = 0; i < mons.Length; i++)
+                for (int i = 0; i < mons.Count; i++)
                 {
                     Debug.Log(mons[i].spawnCard.name.ToUpper());
 
                     if (mons[i].spawnCard.name.ToUpper().Contains(RoR2Cheats.nextBossName.ToUpper()))
                     {
                         selected = mons[i];
-                        Debug.Log("Matched: " + selected.spawnCard.name + " with :" + RoR2Cheats.nextBossName);
+                        selected.cost = (int)((self.monsterCredit / RoR2Cheats.nextBossCount)/RoR2Cheats.GetTierDef(RoR2Cheats.nextBossElite).costMultiplier);
                         self.OverrideCurrentMonsterCard(selected);
+                        self.SetFieldValue<CombatDirector.EliteTierDef>("currentActiveEliteTier", RoR2Cheats.GetTierDef(RoR2Cheats.nextBossElite));
+                        self.SetFieldValue<EliteIndex>("currentActiveEliteIndex", RoR2Cheats.nextBossElite);
+                        Debug.Log($"{selected.spawnCard.name} cost has been set to {selected.cost} for {RoR2Cheats.nextBossCount} {RoR2Cheats.nextBossElite.ToString()} bosses");
+                        return;
                     }
-                    //Debug.Log(selection.GetChoice(i).value.spawnCard.name.ToUpper());
-                    //if (selection.GetChoice(i).value.spawnCard.prefab.GetComponent<CharacterMaster>().bodyPrefab.GetComponent<CharacterBody>().isChampion == true)
-                    //{
-                    //    if (selection.GetChoice(i).value.spawnCard.name.ToUpper().Contains(RoR2Cheats.nextBossName.ToUpper()))
-                    //    {
-                    //        selected = selection.GetChoice(i).value;
-                    //        Debug.Log("Matched: " + selected.spawnCard.name + " with :" + RoR2Cheats.nextBossName);
-                    //    }
-                    //}
                 }
-                //self.OverrideCurrentMonsterCard(selected);
             }
         }
 
