@@ -37,6 +37,18 @@ namespace RoR2Cheats
 
         #region DEBUG
 #if DEBUG
+        [ConCommand(commandName = "network_echo",flags=ConVarFlags.ExecuteOnServer,helpText = "Sends a message to the target network user.")]
+        private static void CCNetworkEcho(ConCommandArgs args)
+        {
+            args.CheckArgumentCount(2);
+            Log.Target target = (Log.Target)args.GetArgInt(0) + 1;
+            StringBuilder s = new StringBuilder();
+            args.userArgs.RemoveAt(0);
+            args.userArgs.ForEach((string temp) => { s.Append(temp + " "); });
+            string str = s.ToString().TrimEnd(' ');
+            Log.Message(str, Log.LogLevel.Message, target);
+        }
+
         [ConCommand(commandName = "getItemName", flags = ConVarFlags.None, helpText = "Match a partial localised item name to an ItemIndex")]
         private static void CCGetItemName(ConCommandArgs args)
         {

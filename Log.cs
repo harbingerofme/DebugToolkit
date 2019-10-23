@@ -1,8 +1,10 @@
 ﻿using BepInEx.Logging;
 using RoR2.ConVar;
+using RoR2.Networking;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using UnityEngine;
+using UnityEngine.Networking;
 
 namespace RoR2Cheats
 {
@@ -49,7 +51,16 @@ namespace RoR2Cheats
                     BepinexLog(input, level);
                     break;
                 default:
-                    Debug.Log(input);
+                    if (input.GetType() == typeof (string))
+                    {
+                        var msg = new LogNetworkMessageClass()
+                        {
+                            level = (int)level,
+                            message = (string) input
+                        };
+                        MessageInfo($"Send {msg.level}:{msg.message} to {target - 1}");
+                        NetworkServer.SendToClient(((int) target) - 1, 102, msg);
+                    }
                     break;
             }
         }
@@ -124,6 +135,13 @@ namespace RoR2Cheats
             }
         }
 
+        [NetworkMessageHandler(msgType = 102, client = true, server = false)]
+        private static void HandleNetworkMessage(NetworkMessage networkMessage)
+        {
+            var msg = networkMessage.ReadMessage<LogNetworkMessageClass>();
+            Message(msg.message, (LogLevel) msg.level);
+        }
+
         public enum LogLevel
         {
             Info    = -1,
@@ -134,8 +152,14 @@ namespace RoR2Cheats
 
         public enum Target
         {
-            Ror2 = 0,
-            Bepinex = 1
+            Bepinex = -1,
+            Ror2 = 0
+        }
+
+        public class LogNetworkMessageClass : MessageBase
+        {
+            public int level;
+            public string message;
         }
     }
 }
