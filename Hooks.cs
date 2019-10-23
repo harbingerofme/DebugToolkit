@@ -78,22 +78,33 @@ namespace RoR2Cheats
             orig(self);
             if(RoR2Cheats.nextBoss)
             {
-                var selection = ClassicStageInfo.instance.monsterSelection;
-                DirectorCard selected = selection.GetChoice(0).value;
+                var cats = ClassicStageInfo.instance.GetFieldValue<DirectorCardCategorySelection>("monsterCategories");
+                var mons = cats.categories[0].cards;
+                DirectorCard selected;
+                //var selection = ClassicStageInfo.instance.monsterSelection;
+                //DirectorCard selected = selection.GetChoice(0).value;
                 
-                for (int i = 0; i < ClassicStageInfo.instance.monsterSelection.Count; i++)
+                for (int i = 0; i < mons.Length; i++)
                 {
-                    Debug.Log(selection.GetChoice(i).value.spawnCard.name.ToUpper());
-                    if (selection.GetChoice(i).value.spawnCard.prefab.GetComponent<CharacterMaster>().bodyPrefab.GetComponent<CharacterBody>().isChampion == true)
+                    Debug.Log(mons[i].spawnCard.name.ToUpper());
+
+                    if (mons[i].spawnCard.name.ToUpper().Contains(RoR2Cheats.nextBossName.ToUpper()))
                     {
-                        if (selection.GetChoice(i).value.spawnCard.name.ToUpper().Contains(RoR2Cheats.nextBossName.ToUpper()))
-                        {
-                            selected = selection.GetChoice(i).value;
-                            Debug.Log("Matched: " + selected.spawnCard.name + " with :" + RoR2Cheats.nextBossName);
-                        }
+                        selected = mons[i];
+                        Debug.Log("Matched: " + selected.spawnCard.name + " with :" + RoR2Cheats.nextBossName);
+                        self.OverrideCurrentMonsterCard(selected);
                     }
+                    //Debug.Log(selection.GetChoice(i).value.spawnCard.name.ToUpper());
+                    //if (selection.GetChoice(i).value.spawnCard.prefab.GetComponent<CharacterMaster>().bodyPrefab.GetComponent<CharacterBody>().isChampion == true)
+                    //{
+                    //    if (selection.GetChoice(i).value.spawnCard.name.ToUpper().Contains(RoR2Cheats.nextBossName.ToUpper()))
+                    //    {
+                    //        selected = selection.GetChoice(i).value;
+                    //        Debug.Log("Matched: " + selected.spawnCard.name + " with :" + RoR2Cheats.nextBossName);
+                    //    }
+                    //}
                 }
-                self.OverrideCurrentMonsterCard(selected);
+                //self.OverrideCurrentMonsterCard(selected);
             }
         }
 
