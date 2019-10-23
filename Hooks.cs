@@ -3,6 +3,7 @@ using System;
 using UnityEngine;
 using RoR2;
 using R2API.Utils;
+using Mono.Cecil.Cil;
 
 namespace RoR2Cheats
 {
@@ -14,7 +15,7 @@ namespace RoR2Cheats
             UnlockConsole();
             ConCommandHooks();
             FreeTheConvars();
-
+            ClassicStageInfoHooks();
             SeedHooks();
         }
 
@@ -70,20 +71,69 @@ namespace RoR2Cheats
                 orig(self);
                 R2API.Utils.CommandHelper.RegisterCommands(self);
             };
+        }
+
+
+        private static void SeedHooks()
+        {
+            On.RoR2.PreGameController.Awake += (orig,self)=> 
+            {
+                orig(self);
+                if (RoR2Cheats.seed != 0)
+                {
+                    self.runSeed = RoR2Cheats.seed;
+                }
+            };
+        }
+
+        private static void ClassicStageInfoHooks()
+        {
             On.RoR2.CombatDirector.SetNextSpawnAsBoss += CombatDirector_SetNextSpawnAsBoss;
+            IL.RoR2.ClassicStageInfo.Awake += ClassicStageInfo_Awake;
+            On.RoR2.TeleporterInteraction.OnChargingFinished += TeleporterInteraction_OnChargingFinished;
+        }
+
+        private static void TeleporterInteraction_OnChargingFinished(On.RoR2.TeleporterInteraction.orig_OnChargingFinished orig, TeleporterInteraction self)
+        {
+            orig(self);
+            //RoR2Cheats.FAMCHANCE = 0.02f;
+        }
+
+        private static void ClassicStageInfo_Awake(ILContext il)
+        {
+            ILCursor c = new ILCursor(il);
+            c.GotoNext(
+                x => x.MatchCallOrCallvirt<Xoroshiro128Plus>("get_nextNormalizedFloat"),
+                x => x.MatchLdcR4(0.02f),
+                x => x.MatchBgtUn(out _)
+                );
+            c.Next.Next.OpCode = OpCodes.Nop;
+            c.Index++;
+            c.EmitDelegate<Func<float>>(() =>
+            {
+                return RoR2Cheats.FAMCHANCE;
+            });
+            //c.Index++;
+
+        }
+
+        public static void SceneDirector_onPrePopulateSceneServer(SceneDirector director)
+        {
+            //Note that this is not a hook, but an event subscription.
+            director.SetFieldValue("monsterCredit", 0);
         }
 
         private static void CombatDirector_SetNextSpawnAsBoss(On.RoR2.CombatDirector.orig_SetNextSpawnAsBoss orig, CombatDirector self)
         {
             orig(self);
-            if(RoR2Cheats.nextBoss)
+            if (RoR2Cheats.nextBoss)
             {
-                var cats = ClassicStageInfo.instance.GetFieldValue<DirectorCardCategorySelection>("monsterCategories");
+                var cats = RoR2.ClassicStageInfo.instance.GetFieldValue<DirectorCardCategorySelection>("monsterCategories");
                 var mons = cats.categories[0].cards;
                 DirectorCard selected;
                 //var selection = ClassicStageInfo.instance.monsterSelection;
                 //DirectorCard selected = selection.GetChoice(0).value;
-                
+
                 for (int i = 0; i < mons.Length; i++)
                 {
                     Debug.Log(mons[i].spawnCard.name.ToUpper());
@@ -108,22 +158,5 @@ namespace RoR2Cheats
             }
         }
 
-        private static void SeedHooks()
-        {
-            On.RoR2.PreGameController.Awake += (orig,self)=> 
-            {
-                orig(self);
-                if (RoR2Cheats.seed != 0)
-                {
-                    self.runSeed = RoR2Cheats.seed;
-                }
-            };
-        }
-
-        public static void SceneDirector_onPrePopulateSceneServer(SceneDirector director)
-        {
-            //Note that this is not a hook, but an event subscription.
-            director.SetFieldValue("monsterCredit", 0);
-        }
     }
 }

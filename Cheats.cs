@@ -24,6 +24,7 @@ namespace RoR2Cheats
         public static readonly RoR2Cheats instance;
         public static bool nextBoss = false;
         public static string nextBossName;
+        public static float FAMCHANCE = 1f;
 
 
         public void Awake()
@@ -335,6 +336,13 @@ namespace RoR2Cheats
             NetworkReader reader = netMsg.reader;
             Time.timeScale = (float)reader.ReadDouble();
             Debug.Log("Network request for timescale.");
+        }
+
+        [ConCommand(commandName = "family_event", flags = ConVarFlags.ExecuteOnServer, helpText = "Calls a family event in the next instance.")]
+        private static void CCFamilyEvent(ConCommandArgs args)
+        {
+            Debug.Log("WARNING: PARTIAL IMPLEMENTATION. WIP.");
+            RoR2Cheats.FAMCHANCE = float.Parse(args[0]);
         }
 
         [ConCommand(commandName = "next_boss", flags = ConVarFlags.ExecuteOnServer, helpText = "Sets the next boss to a specific type.")]
