@@ -3,6 +3,7 @@ using System;
 using UnityEngine;
 using RoR2;
 using R2API.Utils;
+using Mono.Cecil.Cil;
 
 namespace RoR2Cheats
 {
@@ -59,28 +60,46 @@ namespace RoR2Cheats
                 });
         }
 
+        private static void ClassicStageInfo_Awake(ILContext il)
+        {
+            ILCursor c = new ILCursor(il);
+            c.GotoNext(
+                x => x.MatchCallOrCallvirt<Xoroshiro128Plus>("get_nextNormalizedFloat"),
+                x => x.MatchLdcR4(0.02f),
+                x => x.MatchBgtUn(out _)
+                );
+            c.Next.Next.OpCode = OpCodes.Nop;
+            c.Index++;
+            c.EmitDelegate<Func<float>>(() =>
+            {
+                return RoR2Cheats.FAMCHANCE;
+            });
+        }
 
         private static void CombatDirector_SetNextSpawnAsBoss(On.RoR2.CombatDirector.orig_SetNextSpawnAsBoss orig, CombatDirector self)
         {
             orig(self);
-            if(RoR2Cheats.nextBoss)
+            self.monsterCredit *= 100; //remove round issues from card cost
+            if (RoR2Cheats.nextBoss)
             {
-                var selection = ClassicStageInfo.instance.monsterSelection;
-                DirectorCard selected = selection.GetChoice(0).value;
-                
-                for (int i = 0; i < ClassicStageInfo.instance.monsterSelection.Count; i++)
+                var mons = Alias.Instance.GetDirectorCards();
+                DirectorCard selected = mons[0];
+
+                for (int i = 0; i < mons.Count; i++)
                 {
-                    Debug.Log(selection.GetChoice(i).value.spawnCard.name.ToUpper());
-                    if (selection.GetChoice(i).value.spawnCard.prefab.GetComponent<CharacterMaster>().bodyPrefab.GetComponent<CharacterBody>().isChampion == true)
+                    Debug.Log(mons[i].spawnCard.name.ToUpper());
+
+                    if (mons[i].spawnCard.name.ToUpper().Contains(RoR2Cheats.nextBossName.ToUpper()))
                     {
-                        if (selection.GetChoice(i).value.spawnCard.name.ToUpper().Contains(RoR2Cheats.nextBossName.ToUpper()))
-                        {
-                            selected = selection.GetChoice(i).value;
-                            Debug.Log("Matched: " + selected.spawnCard.name + " with :" + RoR2Cheats.nextBossName);
-                        }
+                        selected = mons[i];
+                        selected.cost = (int)((self.monsterCredit / RoR2Cheats.nextBossCount) / RoR2Cheats.GetTierDef(RoR2Cheats.nextBossElite).costMultiplier);
+                        self.OverrideCurrentMonsterCard(selected);
+                        self.SetFieldValue<CombatDirector.EliteTierDef>("currentActiveEliteTier", RoR2Cheats.GetTierDef(RoR2Cheats.nextBossElite));
+                        self.SetFieldValue<EliteIndex>("currentActiveEliteIndex", RoR2Cheats.nextBossElite);
+                        Debug.Log($"{selected.spawnCard.name} cost has been set to {selected.cost} for {RoR2Cheats.nextBossCount} {RoR2Cheats.nextBossElite.ToString()} bosses");
+                        return;
                     }
                 }
-                self.OverrideCurrentMonsterCard(selected);
             }
         }
 
