@@ -126,7 +126,7 @@ namespace RoR2Cheats
         private static void CombatDirector_SetNextSpawnAsBoss(On.RoR2.CombatDirector.orig_SetNextSpawnAsBoss orig, CombatDirector self)
         {
             orig(self);
-            self.monsterCredit *= 10;
+            self.monsterCredit *= 100; //remove round issues from card cost
             if (RoR2Cheats.nextBoss)
             {
                 var mons = Alias.Instance.GetDirectorCards();

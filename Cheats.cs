@@ -361,9 +361,6 @@ namespace RoR2Cheats
         private static void CCNextBoss(ConCommandArgs args)
         {
             Debug.Log("WARNING: PARTIAL IMPLEMENTATION. WIP.");
-            TeleporterInteraction.instance.AddShrineStack();
-            TeleporterInteraction.instance.AddShrineStack();
-            TeleporterInteraction.instance.AddShrineStack();
             RoR2Cheats.nextBoss = true;
             RoR2Cheats.nextBossName = args[0];
             RoR2Cheats.nextBossCount = int.Parse(args[1]);
