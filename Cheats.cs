@@ -424,7 +424,7 @@ namespace RoR2Cheats
         }
 #endregion
 
-#region Run.instance
+        #region Run.instance
         [NetworkMessageHandler(msgType = 101, client = true, server = false)]
         private static void HandleTimeScale(NetworkMessage netMsg)
         {
@@ -445,8 +445,8 @@ namespace RoR2Cheats
         [ConCommand(commandName = "family_event", flags = ConVarFlags.ExecuteOnServer, helpText = "Calls a family event in the next stage.")]
         private static void CCFamilyEvent(ConCommandArgs args)
         {
-            Debug.Log(MagicVars.PARTIAL_IMPLEMENTATION);
             RoR2Cheats.FAMCHANCE = 1.0f;
+            Log.Message("The next stage will contain a family event!");
         }
 
         [ConCommand(commandName = "next_boss", flags = ConVarFlags.ExecuteOnServer, helpText = MagicVars.NEXTBOSS_ARGS)]
@@ -627,7 +627,7 @@ namespace RoR2Cheats
         }
 #endregion
 
-#region Entities
+        #region Entities
         private static NetworkUser GetNetUserFromString(string playerString)
         {
             if (playerString != "")
@@ -993,7 +993,7 @@ namespace RoR2Cheats
         /// <summary>
         /// Required for automated manifest building.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Returns the TS manifest Version</returns>
         public static string GetModVer()
         {
             return modver;

@@ -19,9 +19,17 @@ namespace RoR2Cheats
             On.RoR2.PreGameController.Awake += SeedHook;
 
             On.RoR2.CombatDirector.SetNextSpawnAsBoss += CombatDirector_SetNextSpawnAsBoss;
+            IL.RoR2.ClassicStageInfo.Awake += ClassicStageInfo_Awake;
+            On.RoR2.Stage.Start += Stage_Start;
 
             //IL.RoR2.Networking.GameNetworkManager.FixedUpdateServer += GameNetworkManager_FixedUpdateServer;
             //IL.RoR2.Networking.GameNetworkManager.cctor += GameNetworkManager_cctor;
+        }
+
+        private static void Stage_Start(On.RoR2.Stage.orig_Start orig, Stage self)
+        {
+            orig(self);
+            if (RoR2Cheats.FAMCHANCE == 1f) RoR2Cheats.FAMCHANCE = 0.02f;
         }
 
         private static void InitCommandsAndFreeConvars(On.RoR2.Console.orig_InitConVars orig, RoR2.Console self)
@@ -72,6 +80,7 @@ namespace RoR2Cheats
             c.Index++;
             c.EmitDelegate<Func<float>>(() =>
             {
+                Log.Message($"Emitted new family event chance:{RoR2Cheats.FAMCHANCE}");
                 return RoR2Cheats.FAMCHANCE;
             });
         }
@@ -82,30 +91,17 @@ namespace RoR2Cheats
             
             if (RoR2Cheats.nextBossSet)
             {
-                self.monsterCredit *= 100; //remove round issues from card cost
-                                           //var mons = Alias.Instance.GetDirectorCards();
-                                           //DirectorCard selected = mons[0];
-
-                //for (int i = 0; i < mons.Count; i++)
-                //{
-                //    Debug.Log(mons[i].spawnCard.name.ToUpper());
-
-                //    if (mons[i].spawnCard.name.ToUpper().Contains(RoR2Cheats.nextBossName.ToUpper()))
-                //    {
-                //        selected = mons[i];
-                        var selected = RoR2Cheats.nextBoss;
-                        selected.cost = (int)((self.monsterCredit / RoR2Cheats.nextBossCount) / RoR2Cheats.GetTierDef(RoR2Cheats.nextBossElite).costMultiplier);
-                        self.OverrideCurrentMonsterCard(selected);
-                        self.SetFieldValue<CombatDirector.EliteTierDef>("currentActiveEliteTier", RoR2Cheats.GetTierDef(RoR2Cheats.nextBossElite));
-                        self.SetFieldValue<EliteIndex>("currentActiveEliteIndex", RoR2Cheats.nextBossElite);
-                        Log.Message($"{selected.spawnCard.name} cost has been set to {selected.cost} for {RoR2Cheats.nextBossCount} {RoR2Cheats.nextBossElite.ToString()} bosses with available credit: {self.monsterCredit}");
-                        RoR2Cheats.resetNextBoss();
-                        return;
-                //    }
-                //}
+                self.monsterCredit *= 100; 
+                var selected = RoR2Cheats.nextBoss;
+                selected.cost = (int)((self.monsterCredit / RoR2Cheats.nextBossCount) / RoR2Cheats.GetTierDef(RoR2Cheats.nextBossElite).costMultiplier);
+                self.OverrideCurrentMonsterCard(selected);
+                self.SetFieldValue<CombatDirector.EliteTierDef>("currentActiveEliteTier", RoR2Cheats.GetTierDef(RoR2Cheats.nextBossElite));
+                self.SetFieldValue<EliteIndex>("currentActiveEliteIndex", RoR2Cheats.nextBossElite);
+                Log.Message($"{selected.spawnCard.name} cost has been set to {selected.cost} for {RoR2Cheats.nextBossCount} {RoR2Cheats.nextBossElite.ToString()} bosses with available credit: {self.monsterCredit}");
+                RoR2Cheats.resetNextBoss();
+                return;
             }
         }
-
 
         private static void SeedHook(On.RoR2.PreGameController.orig_Awake orig, PreGameController self)
         {

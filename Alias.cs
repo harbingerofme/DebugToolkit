@@ -181,8 +181,8 @@ namespace RoR2Cheats
         /// <summary>
         /// This is probably horrible and going to break.
         /// </summary>
-        /// <param name="name"></param>
-        /// <returns></returns>
+        /// <param name="name">The partial name to query, priority given to exact csc match, fails over to GetMasterName</param>
+        /// <returns>The matched DirectorCard or throws exception.</returns>
         public DirectorCard GetDirectorCardFromPartial(string name)
         {
 
