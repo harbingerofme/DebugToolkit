@@ -4,9 +4,9 @@ using System.Text;
 
 namespace RoR2Cheats
 {
-    public static class MagicVars
+    internal static class MagicVars
     {
-        public const string
+        internal const string
             CREATEPICKUP_AMBIGIOUS_2 = "Could not choose between {0} and {1}, please be more precise. Consider using 'equip' or 'item' as the first argument.",
             CREATEPICKUP_ARGS = "Requires 1 or 2 arguments: "+ CREATEPICKUP_NAME + "{item|equipment|coin|localised_object_name} [localised_object_name]",
             CREATEPICKUP_NAME = "create_pickup",

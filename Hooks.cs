@@ -16,16 +16,16 @@ namespace RoR2Cheats
             IL.RoR2.Console.Awake += UnlockConsole;
             On.RoR2.Console.InitConVars += InitCommandsAndFreeConvars;
             CommandHelper.AddToConsoleWhenReady();
-            On.RoR2.Console.RunCmd += Console_RunCmd;
+            On.RoR2.Console.RunCmd += LogNetworkCommands;
 
             On.RoR2.PreGameController.Awake += SeedHook;
 
             On.RoR2.CombatDirector.SetNextSpawnAsBoss += CombatDirector_SetNextSpawnAsBoss;
-            IL.RoR2.ClassicStageInfo.Awake += ClassicStageInfo_Awake;
-            On.RoR2.Stage.Start += Stage_Start;
+
+            On.RoR2.Stage.Start += RemoveFamilyEvent;
         }
 
-        private static void Console_RunCmd(On.RoR2.Console.orig_RunCmd orig, RoR2.Console self, NetworkUser sender, string concommandName, System.Collections.Generic.List<string> userArgs)
+        private static void LogNetworkCommands(On.RoR2.Console.orig_RunCmd orig, RoR2.Console self, NetworkUser sender, string concommandName, System.Collections.Generic.List<string> userArgs)
         {
             if (sender!= null && sender.isLocalPlayer == false)
             {
@@ -86,7 +86,7 @@ namespace RoR2Cheats
                 });
         }
 
-        private static void ClassicStageInfo_Awake(ILContext il)
+        internal static void ForceFamilyEvent(ILContext il)
         {
             ILCursor c = new ILCursor(il);
             c.GotoNext(
@@ -98,7 +98,7 @@ namespace RoR2Cheats
             c.Index++;
             c.EmitDelegate<Func<float>>(() =>
             {
-                return RoR2Cheats.FAMCHANCE;
+                return 1.0f;
             });
         }
 
@@ -129,7 +129,7 @@ namespace RoR2Cheats
             }
         }
 
-        public static void OnPrePopulateSetMonsterCreditZero(SceneDirector director)
+        internal static void OnPrePopulateSetMonsterCreditZero(SceneDirector director)
         {
             //Note that this is not a hook, but an event subscription.
             director.SetFieldValue("monsterCredit", 0);

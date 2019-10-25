@@ -22,21 +22,23 @@ namespace RoR2Cheats
     {
         public const string modname = "RoR2Cheats", modver = "3.1.0";
         public const string GUID = "com.harbingerofme." + modname;
-        public static bool noEnemies = false;
-        public static ulong seed = 0;
-        public static float TickIntervalMulti = 1f;
-        public static float TickRate = 1f / 60f;
-        public static readonly RoR2Cheats instance;
-        public static bool nextBossSet = false;
-        public static string nextBossName;
-        public static DirectorCard nextBoss;
-        public static int nextBossCount = 1;
-        public static EliteIndex nextBossElite = EliteIndex.None;
-        public static float FAMCHANCE = 0.02f;
+
+
+        internal static bool noEnemies = false;
+
+        internal static ulong seed = 0;
+
+        internal static bool nextBossSet = false;
+        internal static string nextBossName;
+        internal static DirectorCard nextBoss;
+        internal static int nextBossCount = 1;
+        internal static EliteIndex nextBossElite = EliteIndex.None;
+
+        internal static bool ForceFamily = false;
 
         private static MiniRpcLib.Action.IRpcAction<float> TimeScaleNetwork;
 
-        public void Awake()
+        private void Awake()
         {
             var miniRpc = MiniRpc.CreateInstance(GUID);
             new Log(Logger, miniRpc);
@@ -469,7 +471,8 @@ namespace RoR2Cheats
         [ConCommand(commandName = "family_event", flags = ConVarFlags.ExecuteOnServer, helpText = "Calls a family event in the next stage.")]
         private static void CCFamilyEvent(ConCommandArgs args)
         {
-            FAMCHANCE = 1.0f;
+            ForceFamily = true;
+            IL.RoR2.ClassicStageInfo.Awake += Hooks.ForceFamilyEvent;
             Log.Message("The next stage will contain a family event!", args);
         }
 
@@ -995,7 +998,7 @@ namespace RoR2Cheats
             }
         }
 
-        public static CombatDirector.EliteTierDef GetTierDef(EliteIndex index)
+        internal static CombatDirector.EliteTierDef GetTierDef(EliteIndex index)
         {
             int tier = 0;
             CombatDirector.EliteTierDef[] tierdefs = typeof(CombatDirector).GetFieldValue<CombatDirector.EliteTierDef[]>("eliteTiers");
@@ -1012,7 +1015,7 @@ namespace RoR2Cheats
             return tierdefs[tier];
         }
 
-        public static void ResetNextBoss()
+        internal static void ResetNextBoss()
         {
             nextBossSet = false;
             nextBossCount = 1;
