@@ -28,8 +28,6 @@ namespace RoR2Cheats
         public static int nextBossCount = 1;
         public static EliteIndex nextBossElite = EliteIndex.None;
         public static float FAMCHANCE = 0.02f;
-        
-
 
         public void Awake()
         {

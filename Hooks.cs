@@ -26,6 +26,11 @@ namespace RoR2Cheats
             //IL.RoR2.Networking.GameNetworkManager.cctor += GameNetworkManager_cctor;
         }
 
+        /// <summary>
+        /// Resets the chance for a family even at the beginning of ever stage, if it was previously set.
+        /// </summary>
+        /// <param name="orig"></param>
+        /// <param name="self"></param>
         private static void Stage_Start(On.RoR2.Stage.orig_Start orig, Stage self)
         {
             orig(self);
@@ -83,7 +88,6 @@ namespace RoR2Cheats
             c.Index++;
             c.EmitDelegate<Func<float>>(() =>
             {
-                Log.Message($"Emitted new family event chance:{RoR2Cheats.FAMCHANCE}");
                 return RoR2Cheats.FAMCHANCE;
             });
         }

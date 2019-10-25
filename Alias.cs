@@ -30,6 +30,9 @@ namespace RoR2Cheats
             }
         }
 
+        /// <summary>
+        /// Initialises the various alias lists and creates the DirectorCard cache
+        /// </summary>
         private Alias()
         {
             BodyAlias.Add("ToolbotBody", new string[] { "MULT", "MUL-T", "ShoppingTrolly" });
@@ -63,9 +66,15 @@ namespace RoR2Cheats
             }
         }
 
-        public List<DirectorCard> GetDirectorCards()
+        /// <summary>
+        /// Returns a prepared list of available DirectorCards.
+        /// </summary>
+        public List<DirectorCard> DirectorCards
         {
-            return spawnCards;
+            get
+            {
+                return spawnCards;
+            }
         }
 
         //public TEnum GetIndexFromPartial<TEnum>(string name)
@@ -107,6 +116,11 @@ namespace RoR2Cheats
         //    return default;
         //}
 
+        /// <summary>
+        /// Returns an EquipmentIndex when provided with a partial/invariant.
+        /// </summary>
+        /// <param name="name">Matches in order: (int)Index, Exact Alias, Exact Index, Partial Index, Partial Invariant</param>
+        /// <returns>Returns the EquiptmentIndex if a match is found, or returns EquiptmentIndex.None</returns>
         public EquipmentIndex GetEquipFromPartial(string name)
         {
             string langInvar;
@@ -143,6 +157,11 @@ namespace RoR2Cheats
             return EquipmentIndex.None;
         }
 
+        /// <summary>
+        /// Returns an ItemIndex when provided with a partial/invariant.
+        /// </summary>
+        /// <param name="name">Matches in order: (int)Index, Exact Alias, Exact Index, Partial Index, Partial Invariant</param>
+        /// <returns>Returns the ItemIndex if a match is found, or returns ItemIndex.None</returns>
         public ItemIndex GetItemFromPartial(string name)
         {
             string langInvar;
@@ -204,6 +223,11 @@ namespace RoR2Cheats
             throw new Exception($"Card {name} not found");
         }
 
+        /// <summary>
+        /// Returns BodyName when provided with a partial/invariant.
+        /// </summary>
+        /// <param name="name">Matches in order: (int)Index, Exact Alias, Exact name_BODY, Exact name, Partial name, Partial Invariant</param>
+        /// <returns>Returns the matched body name string or returns null.</returns>
         public string GetBodyName(string name)
         {
             string langInvar;
@@ -242,6 +266,11 @@ namespace RoR2Cheats
             return null;
         }
 
+        /// <summary>
+        /// Returns MasterName when provided with a partial/invariant.
+        /// </summary>
+        /// <param name="name">Matches in order: (int)Index, Exact Alias, Exact name_MASTER, Exact name, Partial name, Partial Invariant</param>
+        /// <returns>Returns the matched Master name string or returns null.</returns>
         public string GetMasterName(string name)
         {
             string langInvar;
@@ -281,24 +310,35 @@ namespace RoR2Cheats
             return null;
         }
 
+        /// <summary>
+        /// Returns a special char stripped language invariant when provided with a BaseNameToke.
+        /// </summary>
+        /// <param name="baseToken">The BaseNameToken to query for a Language Invariant.</param>
+        /// <returns>Returns the LanguageInvariant for the BaseNameToken.</returns>
         public static string GetLangInvar(string baseToken)
         {
             return Regex.Replace(Language.GetString(baseToken), @"[ '-]", string.Empty);
         }
 
-        public static T GetEnumFromPartial<T>(string name)
+        /// <summary>
+        /// Will match an (int)TEnum, or a TEnum.ToString partial with a specific TEnum
+        /// </summary>
+        /// <typeparam name="TEnum">The Enum type desired to match against</typeparam>
+        /// <param name="name">The (int)TEnum, or a TEnum.ToString partial</param>
+        /// <returns>Returns the match TEnum.</returns>
+        public static TEnum GetEnumFromPartial<TEnum>(string name)
         {
-            var array = (T[])Enum.GetValues(typeof(T));
+            var array = (TEnum[])Enum.GetValues(typeof(TEnum));
             if (int.TryParse(name, out int index))
             {
                 return (index < array.Length) ? array[index] : default;
             }
 
-            foreach (T num in array)
+            foreach (TEnum num in array)
             {
-                if (Enum.GetName(typeof(T),num ).ToUpper().Contains(name.ToUpper()))
+                if (Enum.GetName(typeof(TEnum),num ).ToUpper().Contains(name.ToUpper()))
                 {
-                    return (T)num;
+                    return (TEnum)num;
                 }
             }
             return default;
