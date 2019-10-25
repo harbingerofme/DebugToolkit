@@ -29,7 +29,10 @@ namespace RoR2Cheats
         private static void Stage_Start(On.RoR2.Stage.orig_Start orig, Stage self)
         {
             orig(self);
-            if (RoR2Cheats.FAMCHANCE == 1f) RoR2Cheats.FAMCHANCE = 0.02f;
+            if (RoR2Cheats.FAMCHANCE == 1f)
+            {
+                RoR2Cheats.FAMCHANCE = 0.02f;
+            }
         }
 
         private static void InitCommandsAndFreeConvars(On.RoR2.Console.orig_InitConVars orig, RoR2.Console self)
@@ -98,7 +101,7 @@ namespace RoR2Cheats
                 self.SetFieldValue<CombatDirector.EliteTierDef>("currentActiveEliteTier", RoR2Cheats.GetTierDef(RoR2Cheats.nextBossElite));
                 self.SetFieldValue<EliteIndex>("currentActiveEliteIndex", RoR2Cheats.nextBossElite);
                 Log.Message($"{selected.spawnCard.name} cost has been set to {selected.cost} for {RoR2Cheats.nextBossCount} {RoR2Cheats.nextBossElite.ToString()} bosses with available credit: {self.monsterCredit}");
-                RoR2Cheats.resetNextBoss();
+                RoR2Cheats.ResetNextBoss();
                 return;
             }
         }

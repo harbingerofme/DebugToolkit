@@ -346,7 +346,10 @@ namespace RoR2Cheats
             var item = Alias.Instance.GetItemFromPartial(args[0]);
             if (item != ItemIndex.None)
             {
-                if (args[1].ToUpper() == MagicVars.ALL) iCount = inventory.GetItemCount(item);
+                if (args[1].ToUpper() == MagicVars.ALL)
+                {
+                    iCount = inventory.GetItemCount(item);
+                }
                 inventory.RemoveItem(item, iCount);
             }
             else
@@ -472,8 +475,14 @@ namespace RoR2Cheats
                         }
                         else
                         {
-                            if (nextBossCount > 6) nextBossCount = 6;
-                            else if (nextBossCount <= 0) nextBossCount = 1;
+                            if (nextBossCount > 6)
+                            {
+                                nextBossCount = 6;
+                            }
+                            else if (nextBossCount <= 0)
+                            {
+                                nextBossCount = 1;
+                            }
                             Log.Message("Count: " + nextBossCount);
                             if (args.Count >= 3)
                             {
@@ -487,6 +496,7 @@ namespace RoR2Cheats
                 catch (Exception ex)
                 {
                     Log.Message(MagicVars.OBJECT_NOTFOUND + args[0]);
+                    Log.Message(ex);
                 }
             }
         }
@@ -982,7 +992,7 @@ namespace RoR2Cheats
             return tierdefs[tier];
         }
 
-        public static void resetNextBoss()
+        public static void ResetNextBoss()
         {
             RoR2Cheats.nextBossSet = false;
             RoR2Cheats.nextBossCount = 1;
