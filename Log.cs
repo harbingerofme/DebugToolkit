@@ -20,14 +20,14 @@ namespace RoR2Cheats
          */
         public static BoolConVar DebugConvar = new BoolConVar
             (
-            "ror2cheats_debug",
+            $"{RoR2Cheats.modname.ToLower()}_debug",
             RoR2.ConVarFlags.None,
 #if DEBUG
             "1",
 #else
             "0",
 #endif
-            "Ror2cheats extensive debugging");
+            $"{RoR2Cheats.modname} extensive debugging");
 
         public Log(ManualLogSource bepLogger)
         {
