@@ -4,6 +4,7 @@ using UnityEngine;
 using RoR2;
 using R2API.Utils;
 using Mono.Cecil.Cil;
+using System.Text;
 
 namespace RoR2Cheats
 {
@@ -15,15 +16,24 @@ namespace RoR2Cheats
             IL.RoR2.Console.Awake += UnlockConsole;
             On.RoR2.Console.InitConVars += InitCommandsAndFreeConvars;
             CommandHelper.AddToConsoleWhenReady();
+            On.RoR2.Console.RunCmd += Console_RunCmd;
 
             On.RoR2.PreGameController.Awake += SeedHook;
 
             On.RoR2.CombatDirector.SetNextSpawnAsBoss += CombatDirector_SetNextSpawnAsBoss;
             IL.RoR2.ClassicStageInfo.Awake += ClassicStageInfo_Awake;
             On.RoR2.Stage.Start += Stage_Start;
+        }
 
-            //IL.RoR2.Networking.GameNetworkManager.FixedUpdateServer += GameNetworkManager_FixedUpdateServer;
-            //IL.RoR2.Networking.GameNetworkManager.cctor += GameNetworkManager_cctor;
+        private static void Console_RunCmd(On.RoR2.Console.orig_RunCmd orig, RoR2.Console self, NetworkUser sender, string concommandName, System.Collections.Generic.List<string> userArgs)
+        {
+            if (sender!= null && sender.isLocalPlayer == false)
+            {
+                StringBuilder s = new StringBuilder();
+                userArgs.ForEach((str) => s.AppendLine(str));
+                Log.Message(string.Format(MagicVars.NETWORKING_OTHERPLAYER_4, sender.userName, sender.id.value, concommandName, s.ToString()));
+            }
+            orig(self,sender,concommandName,userArgs);
         }
 
         /// <summary>
