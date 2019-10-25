@@ -42,7 +42,6 @@ namespace RoR2Cheats
          * <param name="level">The level of the message, note that info may always be displayed in some cases</param>
          * <param name="target">Target console, note that everything to ror2 is also passed to bepinex.</param>
          */
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Message(object input, LogLevel level = LogLevel.Message, Target target = Target.Ror2)
         {
             switch (target)
@@ -99,7 +98,6 @@ namespace RoR2Cheats
          * <param name="input">The message to display</param>
          * <param name="target">Target console, note that everything to ror2 is also passed to bepinex.</param>
          */
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void MessageWarning(object input, Target target = Target.Ror2)
         {
             Message(input, LogLevel.Warning, target);
@@ -109,13 +107,11 @@ namespace RoR2Cheats
          * <param name="input">The message to display</param>
          * <param name="target">Target console, note that everything to ror2 is also passed to bepinex.</param>
          */
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void MessageInfo(object input, Target target = Target.Ror2)
         {
             Message(input, LogLevel.Info, target);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void Ror2Log(object input, LogLevel level)
         {
             switch (level)
@@ -138,7 +134,6 @@ namespace RoR2Cheats
             }
         }
 
-        [MethodImpl(MethodImplOptions.NoInlining)]
         private static void BepinexLog(object input, LogLevel level)
         {
             if(logger == null)
