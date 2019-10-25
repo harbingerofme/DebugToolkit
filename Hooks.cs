@@ -21,9 +21,6 @@ namespace RoR2Cheats
             On.RoR2.CombatDirector.SetNextSpawnAsBoss += CombatDirector_SetNextSpawnAsBoss;
             IL.RoR2.ClassicStageInfo.Awake += ClassicStageInfo_Awake;
             On.RoR2.Stage.Start += Stage_Start;
-
-            //IL.RoR2.Networking.GameNetworkManager.FixedUpdateServer += GameNetworkManager_FixedUpdateServer;
-            //IL.RoR2.Networking.GameNetworkManager.cctor += GameNetworkManager_cctor;
         }
 
         /// <summary>
