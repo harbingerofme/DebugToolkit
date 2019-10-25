@@ -19,6 +19,7 @@ namespace RoR2Cheats
             INTEGER_EXPECTED = "Argument must be a whole number.",
             OBJECT_NOTFOUND = "The requested object could not be found: ",
             OBSOLETEWARNING = "This command has become obsolete and will be removed in the next version. ",
+            NETWORKING_OTHERPLAYER_4 = "{0}({1}) issued: {2} {3}",
             NEXTROUND_STAGE = "Invalid Stage. Please choose from the following: ",
             NEXTBOSS_ARGS = "Requires 1 argument: next_boss {localised_object_name|DirectorCard} {Count} {EliteIndex}",
             NOMESSAGE = "Yell at the modmakers if you see this message!",
