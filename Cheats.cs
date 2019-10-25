@@ -22,8 +22,9 @@ namespace RoR2Cheats
         public static float TickIntervalMulti = 1f;
         public static float TickRate = 1f/60f;
         public static readonly RoR2Cheats instance;
-        public static bool nextBoss = false;
+        public static bool nextBossSet = false;
         public static string nextBossName;
+        public static DirectorCard nextBoss;
         public static int nextBossCount = 1;
         public static EliteIndex nextBossElite = EliteIndex.None;
         public static float FAMCHANCE = 0.02f;
@@ -64,17 +65,25 @@ namespace RoR2Cheats
         {
             Log.Message(Alias.Instance.GetMasterName(args[0]));
         }
+
         [ConCommand(commandName = "getTeamIndexPartial", flags = ConVarFlags.None, helpText = "Match a partial TeamIndex")]
         private static void CCGetTeamIndexPartial(ConCommandArgs args)
         {
             //Alias.Instance.GetMasterName(args[0]);
             Log.Message(Alias.GetEnumFromPartial<TeamIndex>(args[0]).ToString());
         }
+
+        [ConCommand(commandName = "getDirectorCardPartial", flags = ConVarFlags.None, helpText = "Match a partial DirectorCard")]
+        private static void CCGetDirectorCardPartial(ConCommandArgs args)
+        {
+            Log.Message(Alias.Instance.GetDirectorCardFromPartial(args[0]).spawnCard.prefab.name);
+        }
+
 #endif
         #endregion
 
 
-#region Items&Stats
+        #region Items&Stats
         [ConCommand(commandName = "list_items", flags = ConVarFlags.None, helpText = "List all item names and their IDs")]
         private static void CCListItems(ConCommandArgs _)
         {
@@ -233,7 +242,6 @@ namespace RoR2Cheats
             }
             Log.Message(string.Format(MagicVars.GIVELUNAR_2, (amount > 0) ? "Gave" : "Deducted", amount));
         }
-
 
         [ConCommand(commandName = MagicVars.CREATEPICKUP_NAME,flags =ConVarFlags.ExecuteOnServer, helpText = MagicVars.CREATEPICKUP_ARGS)]
         private static void CCCreatePickup(ConCommandArgs args)
@@ -437,18 +445,50 @@ namespace RoR2Cheats
         [ConCommand(commandName = "family_event", flags = ConVarFlags.ExecuteOnServer, helpText = "Calls a family event in the next stage.")]
         private static void CCFamilyEvent(ConCommandArgs args)
         {
-            Debug.Log("WARNING: PARTIAL IMPLEMENTATION. WIP.");
+            Debug.Log(MagicVars.PARTIAL_IMPLEMENTATION);
             RoR2Cheats.FAMCHANCE = 1.0f;
         }
 
-        [ConCommand(commandName = "next_boss", flags = ConVarFlags.ExecuteOnServer, helpText = "Sets the next boss to a specific type.")]
+        [ConCommand(commandName = "next_boss", flags = ConVarFlags.ExecuteOnServer, helpText = MagicVars.NEXTBOSS_ARGS)]
         private static void CCNextBoss(ConCommandArgs args)
         {
-            Log.Message("WARNING: PARTIAL IMPLEMENTATION. WIP.");
-            RoR2Cheats.nextBoss = true;
-            RoR2Cheats.nextBossName = args[0];
-            RoR2Cheats.nextBossCount = int.Parse(args[1]);
-            RoR2Cheats.nextBossElite = EliteIndex.Poison;
+            Log.Message(MagicVars.PARTIAL_IMPLEMENTATION);
+            if(args.Count == 0)
+            {
+                Log.Message(MagicVars.NEXTBOSS_ARGS);
+            }
+            if (args.Count >= 1)
+            {
+                try
+                {
+                    RoR2Cheats.nextBoss = Alias.Instance.GetDirectorCardFromPartial(args[0]);
+                    Log.Message($"Next boss is: {RoR2Cheats.nextBoss.spawnCard.name}");
+                    if (args.Count >= 2)
+                    {
+                        if (!int.TryParse(args[1], out nextBossCount))
+                        {
+                            Log.Message(MagicVars.COUNTISNUMERIC);
+                            return;
+                        }
+                        else
+                        {
+                            if (nextBossCount > 6) nextBossCount = 6;
+                            else if (nextBossCount <= 0) nextBossCount = 1;
+                            Log.Message("Count: " + nextBossCount);
+                            if (args.Count >= 3)
+                            {
+                                nextBossElite = Alias.GetEnumFromPartial<EliteIndex>(args[2]);
+                                Log.Message("Elite: " + nextBossElite.ToString());
+                            }
+                        }
+                    }
+                    nextBossSet = true;
+                }
+                catch (Exception ex)
+                {
+                    Log.Message(MagicVars.OBJECT_NOTFOUND + args[0]);
+                }
+            }
         }
 
         [ConCommand(commandName = "next_stage", flags = ConVarFlags.ExecuteOnServer, helpText = "Start next round. Additional args for specific scene.")]
@@ -941,7 +981,14 @@ namespace RoR2Cheats
             }
             return tierdefs[tier];
         }
-#endregion
+
+        public static void resetNextBoss()
+        {
+            RoR2Cheats.nextBossSet = false;
+            RoR2Cheats.nextBossCount = 1;
+            RoR2Cheats.nextBossElite = EliteIndex.None;
+        }
+        #endregion
 
         /// <summary>
         /// Required for automated manifest building.

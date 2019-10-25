@@ -178,6 +178,32 @@ namespace RoR2Cheats
             return ItemIndex.None;
         }
 
+        /// <summary>
+        /// This is probably horrible and going to break.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public DirectorCard GetDirectorCardFromPartial(string name)
+        {
+
+            foreach(DirectorCard dc in spawnCards)
+            {
+                if (/*dc.spawnCard.name.ToUpper().Equals(name.ToUpper()) || */dc.spawnCard.name.ToUpper().Replace("csc", String.Empty).Equals(name.ToUpper()))
+                {
+                    return dc;
+                }
+            }
+            name = GetMasterName(name);
+            foreach (DirectorCard dc in spawnCards)
+            {
+                if (dc.spawnCard.prefab.name.ToUpper().Equals(name.ToUpper()))
+                {
+                    return dc;
+                }
+            }
+            throw new Exception($"Card {name} not found");
+        }
+
         public string GetBodyName(string name)
         {
             string langInvar;
