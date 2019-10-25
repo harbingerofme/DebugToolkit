@@ -116,6 +116,13 @@ namespace RoR2Cheats
         //    return default;
         //}
 
+        //public bool TryParse<T>(string name, out T result, Predicate<T> isValid) where T : struct
+        //{
+        //    if (Enum.TryParse(name, out result) && isValid(result))
+        //        return true;
+        //    return false;
+        //}
+
         /// <summary>
         /// Returns an EquipmentIndex when provided with a partial/invariant.
         /// </summary>
