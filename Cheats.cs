@@ -44,7 +44,6 @@ namespace RoR2Cheats
             Log.Message("Harb's and 's Version. Original by Morris1927.", LogLevel.Info, Log.Target.Bepinex);/*Check github for the other contributor, lmao*/
 
             Hooks.InitializeHooks();
-            NetworkHandler.RegisterNetworkHandlerAttributes();
         }
 
         #region DEBUG
