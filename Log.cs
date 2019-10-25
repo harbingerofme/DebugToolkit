@@ -73,6 +73,21 @@ namespace RoR2Cheats
             }
         }
 
+        /** <summary>Sends a message back to the client that issued the command.</summary>
+         * <param name="input">A string for the input, since we sending it over the network, we can't use arbitrary types.</param>
+         * <param name="args">the commandargs</param>
+         * <param name="level">The level to send the message at.</param>
+         */
+        public static void Message(string input, ConCommandArgs args, LogLevel level = LogLevel.Message)
+        {
+            Message(input, level);
+            if (args.sender.isLocalPlayer == false)
+            {
+                Message(input, args.sender, level);
+            }
+        }
+            
+
         /** <summary></summary>
          *  <param name="input">The string to send</param>
          *  <param name="networkUser">The user to target, may not be null</param>
