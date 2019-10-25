@@ -3,6 +3,7 @@ using System;
 using UnityEngine;
 using RoR2;
 using R2API.Utils;
+using Mono.Cecil.Cil;
 
 namespace RoR2Cheats
 {
@@ -18,9 +19,25 @@ namespace RoR2Cheats
             On.RoR2.PreGameController.Awake += SeedHook;
 
             On.RoR2.CombatDirector.SetNextSpawnAsBoss += CombatDirector_SetNextSpawnAsBoss;
+            IL.RoR2.ClassicStageInfo.Awake += ClassicStageInfo_Awake;
+            On.RoR2.Stage.Start += Stage_Start;
 
             //IL.RoR2.Networking.GameNetworkManager.FixedUpdateServer += GameNetworkManager_FixedUpdateServer;
             //IL.RoR2.Networking.GameNetworkManager.cctor += GameNetworkManager_cctor;
+        }
+
+        /// <summary>
+        /// Resets the chance for a family even at the beginning of ever stage, if it was previously set.
+        /// </summary>
+        /// <param name="orig"></param>
+        /// <param name="self"></param>
+        private static void Stage_Start(On.RoR2.Stage.orig_Start orig, Stage self)
+        {
+            orig(self);
+            if (RoR2Cheats.FAMCHANCE == 1f)
+            {
+                RoR2Cheats.FAMCHANCE = 0.02f;
+            }
         }
 
         private static void InitCommandsAndFreeConvars(On.RoR2.Console.orig_InitConVars orig, RoR2.Console self)
@@ -59,28 +76,37 @@ namespace RoR2Cheats
                 });
         }
 
+        private static void ClassicStageInfo_Awake(ILContext il)
+        {
+            ILCursor c = new ILCursor(il);
+            c.GotoNext(
+                x => x.MatchCallOrCallvirt<Xoroshiro128Plus>("get_nextNormalizedFloat"),
+                x => x.MatchLdcR4(0.02f),
+                x => x.MatchBgtUn(out _)
+                );
+            c.Next.Next.OpCode = OpCodes.Nop;
+            c.Index++;
+            c.EmitDelegate<Func<float>>(() =>
+            {
+                return RoR2Cheats.FAMCHANCE;
+            });
+        }
 
         private static void CombatDirector_SetNextSpawnAsBoss(On.RoR2.CombatDirector.orig_SetNextSpawnAsBoss orig, CombatDirector self)
         {
             orig(self);
-            if(RoR2Cheats.nextBoss)
+            
+            if (RoR2Cheats.nextBossSet)
             {
-                var selection = ClassicStageInfo.instance.monsterSelection;
-                DirectorCard selected = selection.GetChoice(0).value;
-                
-                for (int i = 0; i < ClassicStageInfo.instance.monsterSelection.Count; i++)
-                {
-                    Debug.Log(selection.GetChoice(i).value.spawnCard.name.ToUpper());
-                    if (selection.GetChoice(i).value.spawnCard.prefab.GetComponent<CharacterMaster>().bodyPrefab.GetComponent<CharacterBody>().isChampion == true)
-                    {
-                        if (selection.GetChoice(i).value.spawnCard.name.ToUpper().Contains(RoR2Cheats.nextBossName.ToUpper()))
-                        {
-                            selected = selection.GetChoice(i).value;
-                            Debug.Log("Matched: " + selected.spawnCard.name + " with :" + RoR2Cheats.nextBossName);
-                        }
-                    }
-                }
+                self.monsterCredit *= 100; 
+                var selected = RoR2Cheats.nextBoss;
+                selected.cost = (int)((self.monsterCredit / RoR2Cheats.nextBossCount) / RoR2Cheats.GetTierDef(RoR2Cheats.nextBossElite).costMultiplier);
                 self.OverrideCurrentMonsterCard(selected);
+                self.SetFieldValue<CombatDirector.EliteTierDef>("currentActiveEliteTier", RoR2Cheats.GetTierDef(RoR2Cheats.nextBossElite));
+                self.SetFieldValue<EliteIndex>("currentActiveEliteIndex", RoR2Cheats.nextBossElite);
+                Log.Message($"{selected.spawnCard.name} cost has been set to {selected.cost} for {RoR2Cheats.nextBossCount} {RoR2Cheats.nextBossElite.ToString()} bosses with available credit: {self.monsterCredit}");
+                RoR2Cheats.ResetNextBoss();
+                return;
             }
         }
 

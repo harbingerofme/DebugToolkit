@@ -15,6 +15,7 @@ namespace RoR2Cheats
         private static readonly Dictionary<string, string[]> ItemAlias = new Dictionary<string, string[]>();
         private static readonly Dictionary<string, string[]> EquipAlias = new Dictionary<string, string[]>();
         private static Alias instance;
+        private static List<DirectorCard> spawnCards = new List<DirectorCard>();
 
         public static Alias Instance
         {
@@ -29,6 +30,9 @@ namespace RoR2Cheats
             }
         }
 
+        /// <summary>
+        /// Initialises the various alias lists and creates the DirectorCard cache
+        /// </summary>
         private Alias()
         {
             BodyAlias.Add("ToolbotBody", new string[] { "MULT", "MUL-T", "ShoppingTrolly" });
@@ -43,9 +47,81 @@ namespace RoR2Cheats
             MasterAlias.Add("LemurianBruiserMasterIce", new string[] { "LemurianBruiserIce" });
             MasterAlias.Add("LemurianBruiserMasterPoison", new string[] { "LemurianBruiserPoison", "LemurianBruiserBlight", "LemurianBruisermalechite" });
             MasterAlias.Add("MercMonsterMaster", new string[] { "MercMonster" });
+
+            Debug.Log($"CardCount: {Resources.LoadAll<CharacterSpawnCard>("SpawnCards/CharacterSpawnCards").Length}");
+
+            foreach (CharacterSpawnCard csc in Resources.LoadAll<CharacterSpawnCard>("SpawnCards/CharacterSpawnCards"))
+            {
+                var dCard = new DirectorCard
+                {
+                    spawnCard = csc,
+                    cost = 600,
+                    allowAmbushSpawn = true,
+                    forbiddenUnlockable = "",
+                    minimumStageCompletions = 0,
+                    preventOverhead = true,
+                    spawnDistance = DirectorCore.MonsterSpawnDistance.Standard,
+                };
+                spawnCards.Add(dCard);
+            }
         }
 
-        public string GetEquipName(string name)
+        /// <summary>
+        /// Returns a prepared list of available DirectorCards.
+        /// </summary>
+        public List<DirectorCard> DirectorCards
+        {
+            get
+            {
+                return spawnCards;
+            }
+        }
+
+        //public TEnum GetIndexFromPartial<TEnum>(string name)
+        //{
+        //    string langInvar;
+        //    Dictionary<string, string[]> aliasList;
+        //    object catalog;
+        //    if (typeof(TEnum) == typeof(ItemIndex))
+        //    {
+        //        aliasList = ItemAlias;
+        //    }
+        //    else if (typeof(TEnum) == typeof(EquipmentIndex))
+        //    {
+        //        aliasList = EquipAlias;
+        //    }
+        //    else
+        //    {
+        //        Log.Message("Invalid type");
+        //        throw new Exception("Invalid Type");
+        //    }
+
+        //    foreach (KeyValuePair<string, string[]> dictEnt in aliasList)
+        //    {
+        //        foreach (string alias in dictEnt.Value)
+        //        {
+        //            if (alias.ToUpper().Equals(name.ToUpper()))
+        //            {
+        //                name = dictEnt.Key.ToString();
+        //            }
+        //        }
+        //    }
+        //    TEnum foundObject;
+        //    if (Enum.TryParse(name, true, out foundObject) && EquipmentCatalog.IsIndexValid(foundObject))
+        //    {
+        //        //catalogmod
+        //        Log.MessageInfo("RETURNED EXACT MATCH!");
+        //        return foundObject;
+        //    }
+        //    return default;
+        //}
+
+        /// <summary>
+        /// Returns an EquipmentIndex when provided with a partial/invariant.
+        /// </summary>
+        /// <param name="name">Matches in order: (int)Index, Exact Alias, Exact Index, Partial Index, Partial Invariant</param>
+        /// <returns>Returns the EquiptmentIndex if a match is found, or returns EquiptmentIndex.None</returns>
+        public EquipmentIndex GetEquipFromPartial(string name)
         {
             string langInvar;
             foreach (KeyValuePair<string, string[]> dictEnt in EquipAlias)
@@ -58,11 +134,12 @@ namespace RoR2Cheats
                     }
                 }
             }
-            if(Enum.TryParse(name, true, out EquipmentIndex foundEquip) && EquipmentCatalog.IsIndexValid(foundEquip))
+
+            if (Enum.TryParse(name, true, out EquipmentIndex foundEquip) && EquipmentCatalog.IsIndexValid(foundEquip))
             {
                 //catalogmod
                 Log.MessageInfo("RETURNED EXACT MATCH!");
-                return foundEquip.ToString();
+                return foundEquip;
             }
 
             StringBuilder s = new StringBuilder();
@@ -73,14 +150,19 @@ namespace RoR2Cheats
                 if (equip.ToString().ToUpper().Contains(name.ToUpper()) || langInvar.ToUpper().Contains(name.ToUpper()))
                 {
                     Log.MessageInfo(s);
-                    return equip.ToString();
+                    return equip;
                 }
             }
             Log.MessageInfo(s);
-            return null;
+            return EquipmentIndex.None;
         }
 
-        public string GetItemName(string name)
+        /// <summary>
+        /// Returns an ItemIndex when provided with a partial/invariant.
+        /// </summary>
+        /// <param name="name">Matches in order: (int)Index, Exact Alias, Exact Index, Partial Index, Partial Invariant</param>
+        /// <returns>Returns the ItemIndex if a match is found, or returns ItemIndex.None</returns>
+        public ItemIndex GetItemFromPartial(string name)
         {
             string langInvar;
             foreach (KeyValuePair<string, string[]> dictEnt in ItemAlias)
@@ -90,14 +172,14 @@ namespace RoR2Cheats
                     if (alias.ToUpper().Equals(name.ToUpper()))
                     {
                         name = dictEnt.Key.ToString();
-                        
+
                     }
                 }
             }
             if (Enum.TryParse(name, true, out ItemIndex foundItem) && ItemCatalog.IsIndexValid(foundItem))
             {
                 Log.MessageInfo("RETURNED EXACT MATCH!");
-                return foundItem.ToString();
+                return foundItem;
             }
 
             StringBuilder s = new StringBuilder();
@@ -108,13 +190,44 @@ namespace RoR2Cheats
                 if (item.ToString().ToUpper().Contains(name.ToUpper()) || langInvar.ToUpper().Contains(name.ToUpper()))
                 {
                     Log.MessageInfo(s);
-                    return item.ToString();
+                    return item;
                 }
             }
             Log.MessageInfo(s);
-            return null;
+            return ItemIndex.None;
         }
 
+        /// <summary>
+        /// This is probably horrible and going to break.
+        /// </summary>
+        /// <param name="name">The partial name to query, priority given to exact csc match, fails over to GetMasterName</param>
+        /// <returns>The matched DirectorCard or throws exception.</returns>
+        public DirectorCard GetDirectorCardFromPartial(string name)
+        {
+
+            foreach(DirectorCard dc in spawnCards)
+            {
+                if (/*dc.spawnCard.name.ToUpper().Equals(name.ToUpper()) || */dc.spawnCard.name.ToUpper().Replace("csc", String.Empty).Equals(name.ToUpper()))
+                {
+                    return dc;
+                }
+            }
+            name = GetMasterName(name);
+            foreach (DirectorCard dc in spawnCards)
+            {
+                if (dc.spawnCard.prefab.name.ToUpper().Equals(name.ToUpper()))
+                {
+                    return dc;
+                }
+            }
+            throw new Exception($"Card {name} not found");
+        }
+
+        /// <summary>
+        /// Returns BodyName when provided with a partial/invariant.
+        /// </summary>
+        /// <param name="name">Matches in order: (int)Index, Exact Alias, Exact name_BODY, Exact name, Partial name, Partial Invariant</param>
+        /// <returns>Returns the matched body name string or returns null.</returns>
         public string GetBodyName(string name)
         {
             string langInvar;
@@ -153,6 +266,11 @@ namespace RoR2Cheats
             return null;
         }
 
+        /// <summary>
+        /// Returns MasterName when provided with a partial/invariant.
+        /// </summary>
+        /// <param name="name">Matches in order: (int)Index, Exact Alias, Exact name_MASTER, Exact name, Partial name, Partial Invariant</param>
+        /// <returns>Returns the matched Master name string or returns null.</returns>
         public string GetMasterName(string name)
         {
             string langInvar;
@@ -192,34 +310,35 @@ namespace RoR2Cheats
             return null;
         }
 
+        /// <summary>
+        /// Returns a special char stripped language invariant when provided with a BaseNameToke.
+        /// </summary>
+        /// <param name="baseToken">The BaseNameToken to query for a Language Invariant.</param>
+        /// <returns>Returns the LanguageInvariant for the BaseNameToken.</returns>
         public static string GetLangInvar(string baseToken)
         {
             return Regex.Replace(Language.GetString(baseToken), @"[ '-]", string.Empty);
         }
-        //public static string GetStringFromPartial<T>(string name)
-        //{
-        //    foreach (string eVal in Enum.GetNames(typeof(T)))
-        //    {
-        //        if (eVal.ToUpper().Contains(name.ToUpper()))
-        //        {
-        //            return eVal;
-        //        }
-        //    }
-        //    return null;
-        //}
-        public static T GetEnumFromPartial<T>(string name)
+
+        /// <summary>
+        /// Will match an (int)TEnum, or a TEnum.ToString partial with a specific TEnum
+        /// </summary>
+        /// <typeparam name="TEnum">The Enum type desired to match against</typeparam>
+        /// <param name="name">The (int)TEnum, or a TEnum.ToString partial</param>
+        /// <returns>Returns the match TEnum.</returns>
+        public static TEnum GetEnumFromPartial<TEnum>(string name)
         {
-            var array = (T[])Enum.GetValues(typeof(T));
+            var array = (TEnum[])Enum.GetValues(typeof(TEnum));
             if (int.TryParse(name, out int index))
             {
                 return (index < array.Length) ? array[index] : default;
             }
 
-            foreach (T num in array)
+            foreach (TEnum num in array)
             {
-                if (Enum.GetName(typeof(T),num ).ToUpper().Contains(name.ToUpper()))
+                if (Enum.GetName(typeof(TEnum),num ).ToUpper().Contains(name.ToUpper()))
                 {
-                    return (T)num;
+                    return (TEnum)num;
                 }
             }
             return default;

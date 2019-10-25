@@ -22,9 +22,12 @@ namespace RoR2Cheats
         public static float TickIntervalMulti = 1f;
         public static float TickRate = 1f/60f;
         public static readonly RoR2Cheats instance;
-        public static bool nextBoss = false;
+        public static bool nextBossSet = false;
         public static string nextBossName;
-
+        public static DirectorCard nextBoss;
+        public static int nextBossCount = 1;
+        public static EliteIndex nextBossElite = EliteIndex.None;
+        public static float FAMCHANCE = 0.02f;
 
         public void Awake()
         {
@@ -52,7 +55,7 @@ namespace RoR2Cheats
         [ConCommand(commandName = "getItemName", flags = ConVarFlags.None, helpText = "Match a partial localised item name to an ItemIndex")]
         private static void CCGetItemName(ConCommandArgs args)
         {
-            Log.Message(Alias.Instance.GetItemName(args[0]));
+            Log.Message(Alias.Instance.GetItemFromPartial(args[0]).ToString());
         }
 
         [ConCommand(commandName = "getBodyName", flags = ConVarFlags.None, helpText = "Match a bpartial localised body name to a character body name")]
@@ -64,7 +67,7 @@ namespace RoR2Cheats
         [ConCommand(commandName = "getEquipName", flags = ConVarFlags.None, helpText = "Match a partial localised equip name to an EquipIndex")]
         private static void CCGetEquipName(ConCommandArgs args)
         {
-            Log.Message(Alias.Instance.GetEquipName(args[0]));
+            Log.Message(Alias.Instance.GetEquipFromPartial(args[0]).ToString());
         }
 
         [ConCommand(commandName = "getMasterName", flags = ConVarFlags.None, helpText = "Match a partial localised Master name to a CharacterMaster")]
@@ -72,17 +75,25 @@ namespace RoR2Cheats
         {
             Log.Message(Alias.Instance.GetMasterName(args[0]));
         }
+
         [ConCommand(commandName = "getTeamIndexPartial", flags = ConVarFlags.None, helpText = "Match a partial TeamIndex")]
         private static void CCGetTeamIndexPartial(ConCommandArgs args)
         {
             //Alias.Instance.GetMasterName(args[0]);
             Log.Message(Alias.GetEnumFromPartial<TeamIndex>(args[0]).ToString());
         }
+
+        [ConCommand(commandName = "getDirectorCardPartial", flags = ConVarFlags.None, helpText = "Match a partial DirectorCard")]
+        private static void CCGetDirectorCardPartial(ConCommandArgs args)
+        {
+            Log.Message(Alias.Instance.GetDirectorCardFromPartial(args[0]).spawnCard.prefab.name);
+        }
+
 #endif
         #endregion
 
 
-#region Items&Stats
+        #region Items&Stats
         [ConCommand(commandName = "list_items", flags = ConVarFlags.None, helpText = "List all item names and their IDs")]
         private static void CCListItems(ConCommandArgs _)
         {
@@ -168,10 +179,10 @@ namespace RoR2Cheats
                 inventory = (player == null) ? inventory : player.master.inventory;
             }
 
-            var item = Alias.Instance.GetItemName(args[0]);
-            if (item != null)
+            var item = Alias.Instance.GetItemFromPartial(args[0]);
+            if (item != ItemIndex.None)
             {
-                inventory.GiveItem((ItemIndex)Enum.Parse(typeof(ItemIndex), item, true), iCount);
+                inventory.GiveItem(item, iCount);
             }
             else
             {
@@ -202,10 +213,10 @@ namespace RoR2Cheats
                 inventory = (player == null) ? inventory : player.master.inventory;
             }
 
-            var equip = Alias.Instance.GetEquipName(args[0]);
-            if(equip != null)
+            var equip = Alias.Instance.GetEquipFromPartial(args[0]);
+            if(equip != EquipmentIndex.None)
             {
-                inventory.SetEquipmentIndex((EquipmentIndex)Enum.Parse(typeof(EquipmentIndex), equip, true));
+                inventory.SetEquipmentIndex(equip);
             }
             else
             {
@@ -242,7 +253,6 @@ namespace RoR2Cheats
             Log.Message(string.Format(MagicVars.GIVELUNAR_2, (amount > 0) ? "Gave" : "Deducted", amount));
         }
 
-
         [ConCommand(commandName = MagicVars.CREATEPICKUP_NAME,flags =ConVarFlags.ExecuteOnServer, helpText = MagicVars.CREATEPICKUP_ARGS)]
         private static void CCCreatePickup(ConCommandArgs args)
         {
@@ -252,25 +262,26 @@ namespace RoR2Cheats
             PickupIndex final = PickupIndex.none;
             if (args.Count == 1)
             {
-                string equipment, item;
-                equipment = Alias.Instance.GetEquipName(args[0]);
-                item = Alias.Instance.GetItemName(args[0]);
-                if (item != null && equipment != null)
+                ItemIndex item;
+                EquipmentIndex equipment;
+                equipment = Alias.Instance.GetEquipFromPartial(args[0]);
+                item = Alias.Instance.GetItemFromPartial(args[0]);
+                if (item != ItemIndex.None && equipment != EquipmentIndex.None)
                 {
                     Log.Message(string.Format(MagicVars.CREATEPICKUP_AMBIGIOUS_2,item,equipment));
                     return;
                 }
 
-                if (equipment == null && item != null)
+                if (equipment == EquipmentIndex.None && item != ItemIndex.None)
                 {
-                    final = PickupCatalog.FindPickupIndex((ItemIndex)Enum.Parse(typeof(ItemIndex), item, true));
+                    final = PickupCatalog.FindPickupIndex(item);
                 }
-                if (item == null && equipment != null)
+                if (item == ItemIndex.None && equipment != EquipmentIndex.None)
                 {
-                    final = PickupCatalog.FindPickupIndex((EquipmentIndex)Enum.Parse(typeof(EquipmentIndex), equipment, true));
+                    final = PickupCatalog.FindPickupIndex(equipment);
                 }
 
-                if (item == null && equipment == null)
+                if (item == ItemIndex.None && equipment == EquipmentIndex.None)
                 {
                     if (args[0].ToUpper().Contains("COIN"))
                     {
@@ -287,23 +298,23 @@ namespace RoR2Cheats
             {
                 if (args[0].Equals("item", StringComparison.OrdinalIgnoreCase))
                 {
-                    string itemName = Alias.Instance.GetItemName(args[1]);
-                    if (itemName == null)
+                    ItemIndex itemName = Alias.Instance.GetItemFromPartial(args[1]);
+                    if (itemName == ItemIndex.None)
                     {
                         Log.Message(MagicVars.CREATEPICKUP_NOTFOUND);
                         return;
                     }
-                    final = PickupCatalog.FindPickupIndex((ItemIndex)Enum.Parse(typeof(ItemIndex), itemName, true));
+                    final = PickupCatalog.FindPickupIndex(itemName);
                 }
                 if (args[0].ToUpper().StartsWith("EQUIP"))
                 {
-                    string equipName = Alias.Instance.GetEquipName(args[0]);
-                    if (equipName == null)
+                    EquipmentIndex equipName = Alias.Instance.GetEquipFromPartial(args[0]);
+                    if (equipName == EquipmentIndex.None)
                     {
                         Log.Message(MagicVars.CREATEPICKUP_NOTFOUND);
                         return;
                     }
-                    final = PickupCatalog.FindPickupIndex((EquipmentIndex)Enum.Parse(typeof(EquipmentIndex), equipName, true));
+                    final = PickupCatalog.FindPickupIndex(equipName);
                 }
             }
             Log.Message(string.Format(MagicVars.CREATEPICKUP_SUCCES_1, final));
@@ -342,12 +353,14 @@ namespace RoR2Cheats
                 inventory.CopyItemsFrom(new GameObject().AddComponent<Inventory>());
                 return;
             }
-            var item = Alias.Instance.GetItemName(args[0]);
-            if (item != null)
+            var item = Alias.Instance.GetItemFromPartial(args[0]);
+            if (item != ItemIndex.None)
             {
-                var idex = (ItemIndex)Enum.Parse(typeof(ItemIndex), item, true);
-                if (args[1].ToUpper() == MagicVars.ALL) iCount = inventory.GetItemCount(idex);
-                inventory.RemoveItem(idex, iCount);
+                if (args[1].ToUpper() == MagicVars.ALL)
+                {
+                    iCount = inventory.GetItemCount(item);
+                }
+                inventory.RemoveItem(item, iCount);
             }
             else
             {
@@ -424,7 +437,7 @@ namespace RoR2Cheats
         }
 #endregion
 
-#region Run.instance
+        #region Run.instance
         [NetworkMessageHandler(msgType = 101, client = true, server = false)]
         private static void HandleTimeScale(NetworkMessage netMsg)
         {
@@ -433,12 +446,69 @@ namespace RoR2Cheats
             Log.Message("Network request for timescale.");
         }
 
-        [ConCommand(commandName = "next_boss", flags = ConVarFlags.ExecuteOnServer, helpText = "Sets the next boss to a specific type.")]
+        [ConCommand(commandName = "list_family", flags = ConVarFlags.ExecuteOnServer, helpText = "Calls a family event in the next instance.")]
+        private static void CCListFamily(ConCommandArgs args)
+        {
+            foreach (ClassicStageInfo.MonsterFamily family in ClassicStageInfo.instance.possibleMonsterFamilies)
+            {
+                Debug.Log(family.familySelectionChatString);
+            }
+        }
+
+        [ConCommand(commandName = "family_event", flags = ConVarFlags.ExecuteOnServer, helpText = "Calls a family event in the next stage.")]
+        private static void CCFamilyEvent(ConCommandArgs args)
+        {
+            RoR2Cheats.FAMCHANCE = 1.0f;
+            Log.Message("The next stage will contain a family event!");
+        }
+
+        [ConCommand(commandName = "next_boss", flags = ConVarFlags.ExecuteOnServer, helpText = MagicVars.NEXTBOSS_ARGS)]
         private static void CCNextBoss(ConCommandArgs args)
         {
-            Log.Message("WARNING: PARTIAL IMPLEMENTATION. WIP.");
-            RoR2Cheats.nextBoss = true;
-            RoR2Cheats.nextBossName = args[0];
+            Log.Message(MagicVars.PARTIAL_IMPLEMENTATION);
+            if(args.Count == 0)
+            {
+                Log.Message(MagicVars.NEXTBOSS_ARGS);
+            }
+            if (args.Count >= 1)
+            {
+                try
+                {
+                    RoR2Cheats.nextBoss = Alias.Instance.GetDirectorCardFromPartial(args[0]);
+                    Log.Message($"Next boss is: {RoR2Cheats.nextBoss.spawnCard.name}");
+                    if (args.Count >= 2)
+                    {
+                        if (!int.TryParse(args[1], out nextBossCount))
+                        {
+                            Log.Message(MagicVars.COUNTISNUMERIC);
+                            return;
+                        }
+                        else
+                        {
+                            if (nextBossCount > 6)
+                            {
+                                nextBossCount = 6;
+                            }
+                            else if (nextBossCount <= 0)
+                            {
+                                nextBossCount = 1;
+                            }
+                            Log.Message("Count: " + nextBossCount);
+                            if (args.Count >= 3)
+                            {
+                                nextBossElite = Alias.GetEnumFromPartial<EliteIndex>(args[2]);
+                                Log.Message("Elite: " + nextBossElite.ToString());
+                            }
+                        }
+                    }
+                    nextBossSet = true;
+                }
+                catch (Exception ex)
+                {
+                    Log.Message(MagicVars.OBJECT_NOTFOUND + args[0]);
+                    Log.Message(ex);
+                }
+            }
         }
 
         [ConCommand(commandName = "next_stage", flags = ConVarFlags.ExecuteOnServer, helpText = "Start next round. Additional args for specific scene.")]
@@ -577,7 +647,7 @@ namespace RoR2Cheats
         }
 #endregion
 
-#region Entities
+        #region Entities
         private static NetworkUser GetNetUserFromString(string playerString)
         {
             if (playerString != "")
@@ -915,7 +985,7 @@ namespace RoR2Cheats
             }
         }
 
-        private static CombatDirector.EliteTierDef GetTierDef(EliteIndex index)
+        public static CombatDirector.EliteTierDef GetTierDef(EliteIndex index)
         {
             int tier = 0;
             CombatDirector.EliteTierDef[] tierdefs = typeof(CombatDirector).GetFieldValue<CombatDirector.EliteTierDef[]>("eliteTiers");
@@ -931,12 +1001,19 @@ namespace RoR2Cheats
             }
             return tierdefs[tier];
         }
-#endregion
+
+        public static void ResetNextBoss()
+        {
+            RoR2Cheats.nextBossSet = false;
+            RoR2Cheats.nextBossCount = 1;
+            RoR2Cheats.nextBossElite = EliteIndex.None;
+        }
+        #endregion
 
         /// <summary>
         /// Required for automated manifest building.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Returns the TS manifest Version</returns>
         public static string GetModVer()
         {
             return modver;
