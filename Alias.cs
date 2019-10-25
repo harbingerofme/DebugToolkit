@@ -68,7 +68,46 @@ namespace RoR2Cheats
             return spawnCards;
         }
 
-        public string GetEquipName(string name)
+        //public TEnum GetIndexFromPartial<TEnum>(string name)
+        //{
+        //    string langInvar;
+        //    Dictionary<string, string[]> aliasList;
+        //    object catalog;
+        //    if (typeof(TEnum) == typeof(ItemIndex))
+        //    {
+        //        aliasList = ItemAlias;
+        //    }
+        //    else if (typeof(TEnum) == typeof(EquipmentIndex))
+        //    {
+        //        aliasList = EquipAlias;
+        //    }
+        //    else
+        //    {
+        //        Log.Message("Invalid type");
+        //        throw new Exception("Invalid Type");
+        //    }
+
+        //    foreach (KeyValuePair<string, string[]> dictEnt in aliasList)
+        //    {
+        //        foreach (string alias in dictEnt.Value)
+        //        {
+        //            if (alias.ToUpper().Equals(name.ToUpper()))
+        //            {
+        //                name = dictEnt.Key.ToString();
+        //            }
+        //        }
+        //    }
+        //    TEnum foundObject;
+        //    if (Enum.TryParse(name, true, out foundObject) && EquipmentCatalog.IsIndexValid(foundObject))
+        //    {
+        //        //catalogmod
+        //        Log.MessageInfo("RETURNED EXACT MATCH!");
+        //        return foundObject;
+        //    }
+        //    return default;
+        //}
+
+        public EquipmentIndex GetEquipFromPartial(string name)
         {
             string langInvar;
             foreach (KeyValuePair<string, string[]> dictEnt in EquipAlias)
@@ -81,11 +120,12 @@ namespace RoR2Cheats
                     }
                 }
             }
-            if(Enum.TryParse(name, true, out EquipmentIndex foundEquip) && EquipmentCatalog.IsIndexValid(foundEquip))
+
+            if (Enum.TryParse(name, true, out EquipmentIndex foundEquip) && EquipmentCatalog.IsIndexValid(foundEquip))
             {
                 //catalogmod
                 Log.MessageInfo("RETURNED EXACT MATCH!");
-                return foundEquip.ToString();
+                return foundEquip;
             }
 
             StringBuilder s = new StringBuilder();
@@ -96,14 +136,14 @@ namespace RoR2Cheats
                 if (equip.ToString().ToUpper().Contains(name.ToUpper()) || langInvar.ToUpper().Contains(name.ToUpper()))
                 {
                     Log.MessageInfo(s);
-                    return equip.ToString();
+                    return equip;
                 }
             }
             Log.MessageInfo(s);
-            return null;
+            return EquipmentIndex.None;
         }
 
-        public string GetItemName(string name)
+        public ItemIndex GetItemFromPartial(string name)
         {
             string langInvar;
             foreach (KeyValuePair<string, string[]> dictEnt in ItemAlias)
@@ -113,14 +153,14 @@ namespace RoR2Cheats
                     if (alias.ToUpper().Equals(name.ToUpper()))
                     {
                         name = dictEnt.Key.ToString();
-                        
+
                     }
                 }
             }
             if (Enum.TryParse(name, true, out ItemIndex foundItem) && ItemCatalog.IsIndexValid(foundItem))
             {
                 Log.MessageInfo("RETURNED EXACT MATCH!");
-                return foundItem.ToString();
+                return foundItem;
             }
 
             StringBuilder s = new StringBuilder();
@@ -131,11 +171,11 @@ namespace RoR2Cheats
                 if (item.ToString().ToUpper().Contains(name.ToUpper()) || langInvar.ToUpper().Contains(name.ToUpper()))
                 {
                     Log.MessageInfo(s);
-                    return item.ToString();
+                    return item;
                 }
             }
             Log.MessageInfo(s);
-            return null;
+            return ItemIndex.None;
         }
 
         public string GetBodyName(string name)

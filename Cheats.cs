@@ -44,7 +44,7 @@ namespace RoR2Cheats
         [ConCommand(commandName = "getItemName", flags = ConVarFlags.None, helpText = "Match a partial localised item name to an ItemIndex")]
         private static void CCGetItemName(ConCommandArgs args)
         {
-            Log.Message(Alias.Instance.GetItemName(args[0]));
+            Log.Message(Alias.Instance.GetItemFromPartial(args[0]).ToString());
         }
 
         [ConCommand(commandName = "getBodyName", flags = ConVarFlags.None, helpText = "Match a bpartial localised body name to a character body name")]
@@ -56,7 +56,7 @@ namespace RoR2Cheats
         [ConCommand(commandName = "getEquipName", flags = ConVarFlags.None, helpText = "Match a partial localised equip name to an EquipIndex")]
         private static void CCGetEquipName(ConCommandArgs args)
         {
-            Log.Message(Alias.Instance.GetEquipName(args[0]));
+            Log.Message(Alias.Instance.GetEquipFromPartial(args[0]).ToString());
         }
 
         [ConCommand(commandName = "getMasterName", flags = ConVarFlags.None, helpText = "Match a partial localised Master name to a CharacterMaster")]
@@ -160,10 +160,10 @@ namespace RoR2Cheats
                 inventory = (player == null) ? inventory : player.master.inventory;
             }
 
-            var item = Alias.Instance.GetItemName(args[0]);
-            if (item != null)
+            var item = Alias.Instance.GetItemFromPartial(args[0]);
+            if (item != ItemIndex.None)
             {
-                inventory.GiveItem((ItemIndex)Enum.Parse(typeof(ItemIndex), item, true), iCount);
+                inventory.GiveItem(item, iCount);
             }
             else
             {
@@ -194,10 +194,10 @@ namespace RoR2Cheats
                 inventory = (player == null) ? inventory : player.master.inventory;
             }
 
-            var equip = Alias.Instance.GetEquipName(args[0]);
-            if(equip != null)
+            var equip = Alias.Instance.GetEquipFromPartial(args[0]);
+            if(equip != EquipmentIndex.None)
             {
-                inventory.SetEquipmentIndex((EquipmentIndex)Enum.Parse(typeof(EquipmentIndex), equip, true));
+                inventory.SetEquipmentIndex(equip);
             }
             else
             {
@@ -244,25 +244,26 @@ namespace RoR2Cheats
             PickupIndex final = PickupIndex.none;
             if (args.Count == 1)
             {
-                string equipment, item;
-                equipment = Alias.Instance.GetEquipName(args[0]);
-                item = Alias.Instance.GetItemName(args[0]);
-                if (item != null && equipment != null)
+                ItemIndex item;
+                EquipmentIndex equipment;
+                equipment = Alias.Instance.GetEquipFromPartial(args[0]);
+                item = Alias.Instance.GetItemFromPartial(args[0]);
+                if (item != ItemIndex.None && equipment != EquipmentIndex.None)
                 {
                     Log.Message(string.Format(MagicVars.CREATEPICKUP_AMBIGIOUS_2,item,equipment));
                     return;
                 }
 
-                if (equipment == null && item != null)
+                if (equipment == EquipmentIndex.None && item != ItemIndex.None)
                 {
-                    final = PickupCatalog.FindPickupIndex((ItemIndex)Enum.Parse(typeof(ItemIndex), item, true));
+                    final = PickupCatalog.FindPickupIndex(item);
                 }
-                if (item == null && equipment != null)
+                if (item == ItemIndex.None && equipment != EquipmentIndex.None)
                 {
-                    final = PickupCatalog.FindPickupIndex((EquipmentIndex)Enum.Parse(typeof(EquipmentIndex), equipment, true));
+                    final = PickupCatalog.FindPickupIndex(equipment);
                 }
 
-                if (item == null && equipment == null)
+                if (item == ItemIndex.None && equipment == EquipmentIndex.None)
                 {
                     if (args[0].ToUpper().Contains("COIN"))
                     {
@@ -279,23 +280,23 @@ namespace RoR2Cheats
             {
                 if (args[0].Equals("item", StringComparison.OrdinalIgnoreCase))
                 {
-                    string itemName = Alias.Instance.GetItemName(args[1]);
-                    if (itemName == null)
+                    ItemIndex itemName = Alias.Instance.GetItemFromPartial(args[1]);
+                    if (itemName == ItemIndex.None)
                     {
                         Log.Message(MagicVars.CREATEPICKUP_NOTFOUND);
                         return;
                     }
-                    final = PickupCatalog.FindPickupIndex((ItemIndex)Enum.Parse(typeof(ItemIndex), itemName, true));
+                    final = PickupCatalog.FindPickupIndex(itemName);
                 }
                 if (args[0].ToUpper().StartsWith("EQUIP"))
                 {
-                    string equipName = Alias.Instance.GetEquipName(args[0]);
-                    if (equipName == null)
+                    EquipmentIndex equipName = Alias.Instance.GetEquipFromPartial(args[0]);
+                    if (equipName == EquipmentIndex.None)
                     {
                         Log.Message(MagicVars.CREATEPICKUP_NOTFOUND);
                         return;
                     }
-                    final = PickupCatalog.FindPickupIndex((EquipmentIndex)Enum.Parse(typeof(EquipmentIndex), equipName, true));
+                    final = PickupCatalog.FindPickupIndex(equipName);
                 }
             }
             Log.Message(string.Format(MagicVars.CREATEPICKUP_SUCCES_1, final));
@@ -334,12 +335,11 @@ namespace RoR2Cheats
                 inventory.CopyItemsFrom(new GameObject().AddComponent<Inventory>());
                 return;
             }
-            var item = Alias.Instance.GetItemName(args[0]);
-            if (item != null)
+            var item = Alias.Instance.GetItemFromPartial(args[0]);
+            if (item != ItemIndex.None)
             {
-                var idex = (ItemIndex)Enum.Parse(typeof(ItemIndex), item, true);
-                if (args[1].ToUpper() == MagicVars.ALL) iCount = inventory.GetItemCount(idex);
-                inventory.RemoveItem(idex, iCount);
+                if (args[1].ToUpper() == MagicVars.ALL) iCount = inventory.GetItemCount(item);
+                inventory.RemoveItem(item, iCount);
             }
             else
             {
