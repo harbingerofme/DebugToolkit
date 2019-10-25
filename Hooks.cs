@@ -31,7 +31,7 @@ namespace RoR2Cheats
             {
                 StringBuilder s = new StringBuilder();
                 userArgs.ForEach((str) => s.AppendLine(str));
-                Log.Message(string.Format(MagicVars.NETWORKING_OTHERPLAYER_4, sender.userName, sender.id, concommandName, s.ToString()));
+                Log.Message(string.Format(MagicVars.NETWORKING_OTHERPLAYER_4, sender.userName, sender.id.value, concommandName, s.ToString()));
             }
             orig(self,sender,concommandName,userArgs);
         }
