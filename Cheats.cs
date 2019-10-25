@@ -2,7 +2,6 @@
 using R2API.Utils;
 using RoR2;
 using RoR2.CharacterAI;
-using RoR2.Networking;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -12,6 +11,7 @@ using UnityEngine.SceneManagement;
 using MiniRpcLib;
 
 using LogLevel = RoR2Cheats.Log.LogLevel;
+
 
 namespace RoR2Cheats
 {
@@ -837,7 +837,11 @@ namespace RoR2Cheats
 
             master.bodyPrefab = newBody;
             Log.Message(args.sender.userName + " is spawning as " + character, args);
+            RoR2.ConVar.BoolConVar stage1pod = ((RoR2.ConVar.BoolConVar)(typeof(Stage)).GetFieldCached("stage1PodConVar").GetValue(null));
+            bool oldVal = stage1pod.value;
+            stage1pod.SetBool(false);
             master.Respawn(master.GetBody().transform.position, master.GetBody().transform.rotation);
+            stage1pod.SetBool(oldVal);
         }
 
         [ConCommand(commandName = "spawn_ai", flags = ConVarFlags.ExecuteOnServer, helpText = "Spawn an AI")]
