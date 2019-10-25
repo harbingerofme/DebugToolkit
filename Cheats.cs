@@ -34,10 +34,13 @@ namespace RoR2Cheats
         public static EliteIndex nextBossElite = EliteIndex.None;
         public static float FAMCHANCE = 0.02f;
 
+        private static MiniRpcLib.Action.IRpcAction<float> TimeScaleNetwork;
+
         public void Awake()
         {
             var miniRpc = MiniRpc.CreateInstance(GUID);
             new Log(Logger, miniRpc);
+            TimeScaleNetwork = miniRpc.RegisterAction(Target.Client, (NetworkUser _, float f) => { HandleTimeScale(f); });
             Log.Message("Harb's and 's Version. Original by Morris1927.", LogLevel.Info, Log.Target.Bepinex);/*Check github for the other contributor, lmao*/
 
             Hooks.InitializeHooks();
@@ -447,11 +450,9 @@ namespace RoR2Cheats
         #endregion
 
         #region Run.instance
-        [NetworkMessageHandler(msgType = 101, client = true, server = false)] //TODO: minirpc
-        private static void HandleTimeScale(NetworkMessage netMsg)
+        private static void HandleTimeScale(float newTimeScale)
         {
-            NetworkReader reader = netMsg.reader;
-            Time.timeScale = (float)reader.ReadDouble();
+            Time.timeScale = newTimeScale;
             Log.Message("Network request for timescale.");
         }
 
@@ -623,18 +624,12 @@ namespace RoR2Cheats
             {
                 Time.timeScale = scale;
                 Log.Message("Time scale set to " + scale, args);
+                TimeScaleNetwork.Invoke(scale);
             }
             else
             {
                 Log.Message("Incorrect arguments. Try: time_scale 0.5", LogLevel.MessageClientOnly);
             }
-
-            NetworkWriter networkWriter = new NetworkWriter(); //TODO: Minirpc
-            networkWriter.StartMessage(101);
-            networkWriter.Write((double)Time.timeScale);
-
-            networkWriter.FinishMessage();
-            NetworkServer.SendWriterToReady(null, networkWriter, QosChannelIndex.time.intVal);
         }
 
         [ConCommand(commandName = "stage_clear_count", flags = ConVarFlags.ExecuteOnServer, helpText = "Sets stage clear count - Affects monster difficulty. OBSOLETE")]
