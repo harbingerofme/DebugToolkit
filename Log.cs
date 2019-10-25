@@ -183,6 +183,18 @@ namespace RoR2Cheats
         {
             public int level;
             public string message;
+
+            public override void Serialize(NetworkWriter writer)
+            {
+                writer.Write(level);
+                writer.Write(message);
+            }
+
+            public override void Deserialize(NetworkReader reader)
+            {
+                level = reader.ReadInt32();
+                message = reader.ReadString();
+            }
         }
     }
 }
