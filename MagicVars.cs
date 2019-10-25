@@ -21,6 +21,7 @@ namespace RoR2Cheats
             OBSOLETEWARNING = "This command has become obsolete and will be removed in the next version. ",
             NEXTROUND_STAGE = "Invalid Stage. Please choose from the following: ",
             NEXTBOSS_ARGS = "Requires 1 argument: next_boss {localised_object_name|DirectorCard} {Count} {EliteIndex}",
+            NOMESSAGE = "Yell at the modmakers if you see this message!",
             PARTIAL_IMPLEMENTATION = "WARNING: PARTIAL IMPLEMENTATION. WIP.",
             PLAYER_DEADRESPAWN = "Player is dead and cannot respawn.",
             PLAYER_NOTFOUND = "Specified player does not exist",

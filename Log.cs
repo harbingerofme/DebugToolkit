@@ -14,6 +14,7 @@ namespace RoR2Cheats
     internal class Log
     {
         private const bool BepinexInfoAlwaysLogs = true;
+        private const int NetworkEnum = 69;
 
         private static ManualLogSource logger;
         private static MiniRpcLib.Action.IRpcAction<LogNetworkMessageClass> networkMessageClientRPC;
@@ -80,7 +81,10 @@ namespace RoR2Cheats
          */
         public static void Message(string input, ConCommandArgs args, LogLevel level = LogLevel.Message)
         {
-            Message(input, level);
+            if ((int) level < NetworkEnum || args.sender.isLocalPlayer == true)
+            {
+                Message(input, level);
+            }
             if (args.sender.isLocalPlayer == false)
             {
                 Message(input, args.sender, level);
@@ -105,7 +109,6 @@ namespace RoR2Cheats
                 level = (int)level,
                 message = input
             };
-            MessageInfo($"Send {msg.level}:{msg.message} to {networkUser}");
             networkMessageClientRPC.Invoke(msg, networkUser);
         }
 
@@ -132,18 +135,22 @@ namespace RoR2Cheats
             switch (level)
             {
                 case LogLevel.Info:
+                case LogLevel.InfoClientOnly:
                     if (DebugConvar.value)
                     {
                         Debug.Log(input);
                     }
                     break;
                 case LogLevel.Message:
+                case LogLevel.MessageClientOnly:
                     Debug.Log(input);
                     break;
                 case LogLevel.Warning:
+                case LogLevel.WarningClientOnly:
                     Debug.LogWarning(input);
                     break;
                 case LogLevel.Error:
+                case LogLevel.ErrorClientOnly:
                     Debug.LogError(input);
                     break;
             }
@@ -158,20 +165,26 @@ namespace RoR2Cheats
             switch (level)
             {
                 case LogLevel.Info:
+                case LogLevel.InfoClientOnly:
                     if (BepinexInfoAlwaysLogs || DebugConvar.value)
                     {
                         logger.LogInfo(input);
                     }
                     break;
                 case LogLevel.Message:
+                case LogLevel.MessageClientOnly:
                     logger.LogMessage(input);
                     break;
                 case LogLevel.Warning:
+                case LogLevel.WarningClientOnly:
                     logger.LogWarning(input);
                     break;
                 case LogLevel.Error:
+                case LogLevel.ErrorClientOnly:
                     logger.LogError(input);
                     break;
+                
+
             }
         }
 
@@ -182,10 +195,14 @@ namespace RoR2Cheats
 
         public enum LogLevel
         {
-            Info    = -1,
-            Message = 0,
-            Warning = 1,
-            Error   = 2
+            Info    = 0,
+            Message = 1,
+            Warning = 2,
+            Error   = 3,
+            InfoClientOnly = NetworkEnum+Info,
+            MessageClientOnly = NetworkEnum+Message,
+            WarningClientOnly = NetworkEnum+Warning,
+            ErrorClientOnly = NetworkEnum+Error
         }
 
         public enum Target
