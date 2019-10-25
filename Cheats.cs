@@ -448,7 +448,7 @@ namespace RoR2Cheats
         }
 
         [ConCommand(commandName = "list_family", flags = ConVarFlags.ExecuteOnServer, helpText = "Calls a family event in the next instance.")]
-        private static void CCListFamily(ConCommandArgs args)
+        private static void CCListFamily(ConCommandArgs _)
         {
             foreach (ClassicStageInfo.MonsterFamily family in ClassicStageInfo.instance.possibleMonsterFamilies)
             {
@@ -457,7 +457,7 @@ namespace RoR2Cheats
         }
 
         [ConCommand(commandName = "family_event", flags = ConVarFlags.ExecuteOnServer, helpText = "Calls a family event in the next stage.")]
-        private static void CCFamilyEvent(ConCommandArgs args)
+        private static void CCFamilyEvent(ConCommandArgs _)
         {
             RoR2Cheats.FAMCHANCE = 1.0f;
             Log.Message("The next stage will contain a family event!");
