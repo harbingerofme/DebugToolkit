@@ -55,7 +55,7 @@ namespace RoR2Cheats
                     break;
                 default:
                     int targetNr = (int)target;
-                    if (NetworkUser.readOnlyInstancesList.Count>= targetNr && targetNr>=0)
+                    if (NetworkUser.readOnlyInstancesList.Count-1>= targetNr && targetNr>=0)
                     {
                         if(input.GetType() != typeof(string))
                         {
