@@ -36,20 +36,6 @@ namespace RoR2Cheats
             orig(self,sender,concommandName,userArgs);
         }
 
-        /// <summary>
-        /// Resets the chance for a family even at the beginning of ever stage, if it was previously set.
-        /// </summary>
-        /// <param name="orig"></param>
-        /// <param name="self"></param>
-        private static void Stage_Start(On.RoR2.Stage.orig_Start orig, Stage self)
-        {
-            orig(self);
-            if (RoR2Cheats.FAMCHANCE == 1f)
-            {
-                RoR2Cheats.FAMCHANCE = 0.02f;
-            }
-        }
-
         private static void InitCommandsAndFreeConvars(On.RoR2.Console.orig_InitConVars orig, RoR2.Console self)
         {
             void removeCheatFlag (RoR2.ConVar.BaseConVar cv)
@@ -101,6 +87,22 @@ namespace RoR2Cheats
                 return 1.0f;
             });
         }
+
+        /// <summary>
+        /// Resets the chance for a family even at the beginning of ever stage, if it was previously set.
+        /// </summary>
+        /// <param name="orig"></param>
+        /// <param name="self"></param>
+        private static void RemoveFamilyEvent(On.RoR2.Stage.orig_Start orig, Stage self)
+        {
+            orig(self);
+            if (RoR2Cheats.ForceFamily)
+            {
+                IL.RoR2.ClassicStageInfo.Awake -= ForceFamilyEvent;
+                RoR2Cheats.ForceFamily = false;
+            }
+        }
+
 
         private static void CombatDirector_SetNextSpawnAsBoss(On.RoR2.CombatDirector.orig_SetNextSpawnAsBoss orig, CombatDirector self)
         {
