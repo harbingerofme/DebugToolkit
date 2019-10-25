@@ -452,7 +452,7 @@ namespace RoR2Cheats
         private static void HandleTimeScale(float newTimeScale)
         {
             Time.timeScale = newTimeScale;
-            Log.Message("Network request for timescale.");
+            Log.Message("Timescale set to: "+newTimeScale+". This message may appear twice if you are the host.");
         }
 
         [ConCommand(commandName = "list_family", flags = ConVarFlags.ExecuteOnServer, helpText = "Calls a family event in the next instance.")]
@@ -615,7 +615,7 @@ namespace RoR2Cheats
         {
             if (args.Count == 0)
             {
-                Log.Message(Time.timeScale, LogLevel.MessageClientOnly);
+                Log.Message(Time.timeScale.ToString(), args, LogLevel.MessageClientOnly);
                 return;
             }
 
