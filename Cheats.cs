@@ -9,6 +9,7 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
+using MiniRpcLib;
 
 namespace RoR2Cheats
 {
@@ -32,7 +33,8 @@ namespace RoR2Cheats
 
         public void Awake()
         {
-            new Log(Logger);
+            var miniRpc = MiniRpc.CreateInstance(GUID);
+            new Log(Logger, miniRpc);
             Log.Message("Harb's and 's Version. Original by Morris1927.",Log.LogLevel.Info,Log.Target.Bepinex);/*Check github for the other contributor, lmao*/
             
             Hooks.InitializeHooks();
@@ -45,11 +47,15 @@ namespace RoR2Cheats
         private static void CCNetworkEcho(ConCommandArgs args)
         {
             args.CheckArgumentCount(2);
-            Log.Target target = (Log.Target)args.GetArgInt(0) + 1;
+            Log.Target target = (Log.Target)args.GetArgInt(0);
+
+            //Some fancyspancy thing that concatenates all remaining arguments as a single string.
             StringBuilder s = new StringBuilder();
             args.userArgs.RemoveAt(0);
             args.userArgs.ForEach((string temp) => { s.Append(temp + " "); });
             string str = s.ToString().TrimEnd(' ');
+
+
             Log.Message(str, Log.LogLevel.Message, target);
         }
 

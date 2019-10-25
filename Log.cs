@@ -1,20 +1,22 @@
 ﻿using BepInEx.Logging;
 using RoR2.ConVar;
-using RoR2.Networking;
+using RoR2;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.Networking;
+using MiniRpcLib;
 
 namespace RoR2Cheats
 {
     /* This class may be re-used and modified without attribution, as long as this notice remains.*/
 
-    class Log
+    internal class Log
     {
         private const bool BepinexInfoAlwaysLogs = true;
 
         private static ManualLogSource logger;
+        private static MiniRpcLib.Action.IRpcAction<LogNetworkMessageClass> networkMessageClientRPC;
 
         /** <summary>Unless added to the game and modified by the user, this convar is equivalent to #if DEBUG</summary>
          */
@@ -29,9 +31,10 @@ namespace RoR2Cheats
 #endif
             $"{RoR2Cheats.modname} extensive debugging");
 
-        public Log(ManualLogSource bepLogger)
+        public Log(ManualLogSource bepLogger, MiniRpcInstance miniRpc)
         {
             logger = bepLogger;
+            networkMessageClientRPC = miniRpc.RegisterAction(MiniRpcLib.Target.Client, (NetworkUser _, LogNetworkMessageClass message) => { HandleNetworkMessage(message); });
         }
 
         /** <summary>Sends a message to a console.</summary>
@@ -51,18 +54,45 @@ namespace RoR2Cheats
                     BepinexLog(input, level);
                     break;
                 default:
-                    if (input.GetType() == typeof (string))
+                    int targetNr = (int)target;
+                    if (NetworkUser.readOnlyInstancesList.Count>= targetNr && targetNr>=0)
                     {
-                        var msg = new LogNetworkMessageClass()
+                        if(input.GetType() != typeof(string))
                         {
-                            level = (int)level,
-                            message = (string) input
-                        };
-                        MessageInfo($"Send {msg.level}:{msg.message} to {target - 1}");
-                        NetworkServer.SendToClient(((int) target) - 1, 102, msg);
+                            Message($"Couldn't send network message because the message was not a string: {input}.", LogLevel.Error, Target.Bepinex);
+                            return;
+                        }
+                        NetworkUser user = NetworkUser.readOnlyInstancesList[targetNr];
+                        MessageInfo($"Send a network message to {targetNr}, length={((string) input).Length}");
+                        Message((string) input, user, level);
+                    }
+                    else
+                    {
+                        Message($"Couldn't find target {targetNr} for message: {input}", LogLevel.Error, Target.Bepinex);
                     }
                     break;
             }
+        }
+
+        /** <summary></summary>
+         *  <param name="input">The string to send</param>
+         *  <param name="networkUser">The user to target, may not be null</param>
+         *  <param name="level">The level, defaults to LogLevel.Message</param>
+         *  */ 
+        public static void Message(string input, NetworkUser networkUser, LogLevel level = LogLevel.Message)
+        {
+            if (networkUser == null)
+            {
+                return;
+            }
+
+            var msg = new LogNetworkMessageClass()
+            {
+                level = (int)level,
+                message = input
+            };
+            MessageInfo($"Send {msg.level}:{msg.message} to {networkUser}");
+            networkMessageClientRPC.Invoke(msg, networkUser);
         }
 
         /** <summary>Sends a warning to a console.</summary>
@@ -135,10 +165,8 @@ namespace RoR2Cheats
             }
         }
 
-        [NetworkMessageHandler(msgType = 102, client = true, server = false)]
-        private static void HandleNetworkMessage(NetworkMessage networkMessage)
+        private static void HandleNetworkMessage(LogNetworkMessageClass msg)
         {
-            var msg = networkMessage.ReadMessage<LogNetworkMessageClass>();
             Message(msg.message, (LogLevel) msg.level);
         }
 
@@ -152,8 +180,8 @@ namespace RoR2Cheats
 
         public enum Target
         {
-            Bepinex = -1,
-            Ror2 = 0
+            Bepinex = -2,
+            Ror2 = -1
         }
 
         public class LogNetworkMessageClass : MessageBase
