@@ -45,6 +45,9 @@
     <Reference Include="KdTreeLib">
       <HintPath>libs\KdTreeLib.dll</HintPath>
     </Reference>
+    <Reference Include="MiniRpcLib">
+      <HintPath>libs\MiniRpcLib.dll</HintPath>
+    </Reference>
     <Reference Include="MMHOOK_Assembly-CSharp">
       <HintPath>libs\MMHOOK_Assembly-CSharp.dll</HintPath>
     </Reference>

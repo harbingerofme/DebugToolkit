@@ -4,6 +4,7 @@ using UnityEngine;
 using RoR2;
 using R2API.Utils;
 using Mono.Cecil.Cil;
+using System.Text;
 
 namespace RoR2Cheats
 {
@@ -15,29 +16,24 @@ namespace RoR2Cheats
             IL.RoR2.Console.Awake += UnlockConsole;
             On.RoR2.Console.InitConVars += InitCommandsAndFreeConvars;
             CommandHelper.AddToConsoleWhenReady();
+            On.RoR2.Console.RunCmd += LogNetworkCommands;
 
             On.RoR2.PreGameController.Awake += SeedHook;
 
             On.RoR2.CombatDirector.SetNextSpawnAsBoss += CombatDirector_SetNextSpawnAsBoss;
-            IL.RoR2.ClassicStageInfo.Awake += ClassicStageInfo_Awake;
-            On.RoR2.Stage.Start += Stage_Start;
 
-            //IL.RoR2.Networking.GameNetworkManager.FixedUpdateServer += GameNetworkManager_FixedUpdateServer;
-            //IL.RoR2.Networking.GameNetworkManager.cctor += GameNetworkManager_cctor;
+            On.RoR2.Stage.Start += RemoveFamilyEvent;
         }
 
-        /// <summary>
-        /// Resets the chance for a family even at the beginning of ever stage, if it was previously set.
-        /// </summary>
-        /// <param name="orig"></param>
-        /// <param name="self"></param>
-        private static void Stage_Start(On.RoR2.Stage.orig_Start orig, Stage self)
+        private static void LogNetworkCommands(On.RoR2.Console.orig_RunCmd orig, RoR2.Console self, NetworkUser sender, string concommandName, System.Collections.Generic.List<string> userArgs)
         {
-            orig(self);
-            if (RoR2Cheats.FAMCHANCE == 1f)
+            if (sender!= null && sender.isLocalPlayer == false)
             {
-                RoR2Cheats.FAMCHANCE = 0.02f;
+                StringBuilder s = new StringBuilder();
+                userArgs.ForEach((str) => s.AppendLine(str));
+                Log.Message(string.Format(MagicVars.NETWORKING_OTHERPLAYER_4, sender.userName, sender.id.value, concommandName, s.ToString()));
             }
+            orig(self,sender,concommandName,userArgs);
         }
 
         private static void InitCommandsAndFreeConvars(On.RoR2.Console.orig_InitConVars orig, RoR2.Console self)
@@ -76,7 +72,7 @@ namespace RoR2Cheats
                 });
         }
 
-        private static void ClassicStageInfo_Awake(ILContext il)
+        internal static void ForceFamilyEvent(ILContext il)
         {
             ILCursor c = new ILCursor(il);
             c.GotoNext(
@@ -88,9 +84,25 @@ namespace RoR2Cheats
             c.Index++;
             c.EmitDelegate<Func<float>>(() =>
             {
-                return RoR2Cheats.FAMCHANCE;
+                return 1.0f;
             });
         }
+
+        /// <summary>
+        /// Resets the chance for a family even at the beginning of ever stage, if it was previously set.
+        /// </summary>
+        /// <param name="orig"></param>
+        /// <param name="self"></param>
+        private static void RemoveFamilyEvent(On.RoR2.Stage.orig_Start orig, Stage self)
+        {
+            orig(self);
+            if (RoR2Cheats.ForceFamily)
+            {
+                IL.RoR2.ClassicStageInfo.Awake -= ForceFamilyEvent;
+                RoR2Cheats.ForceFamily = false;
+            }
+        }
+
 
         private static void CombatDirector_SetNextSpawnAsBoss(On.RoR2.CombatDirector.orig_SetNextSpawnAsBoss orig, CombatDirector self)
         {
@@ -119,7 +131,7 @@ namespace RoR2Cheats
             }
         }
 
-        public static void OnPrePopulateSetMonsterCreditZero(SceneDirector director)
+        internal static void OnPrePopulateSetMonsterCreditZero(SceneDirector director)
         {
             //Note that this is not a hook, but an event subscription.
             director.SetFieldValue("monsterCredit", 0);

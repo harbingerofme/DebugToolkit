@@ -4,9 +4,9 @@ using System.Text;
 
 namespace RoR2Cheats
 {
-    public static class MagicVars
+    internal static class MagicVars
     {
-        public const string
+        internal const string
             CREATEPICKUP_AMBIGIOUS_2 = "Could not choose between {0} and {1}, please be more precise. Consider using 'equip' or 'item' as the first argument.",
             CREATEPICKUP_ARGS = "Requires 1 or 2 arguments: "+ CREATEPICKUP_NAME + "{item|equipment|coin|localised_object_name} [localised_object_name]",
             CREATEPICKUP_NAME = "create_pickup",
@@ -19,8 +19,10 @@ namespace RoR2Cheats
             INTEGER_EXPECTED = "Argument must be a whole number.",
             OBJECT_NOTFOUND = "The requested object could not be found: ",
             OBSOLETEWARNING = "This command has become obsolete and will be removed in the next version. ",
+            NETWORKING_OTHERPLAYER_4 = "{0}({1}) issued: {2} {3}",
             NEXTROUND_STAGE = "Invalid Stage. Please choose from the following: ",
             NEXTBOSS_ARGS = "Requires 1 argument: next_boss {localised_object_name|DirectorCard} {Count} {EliteIndex}",
+            NOMESSAGE = "Yell at the modmakers if you see this message!",
             PARTIAL_IMPLEMENTATION = "WARNING: PARTIAL IMPLEMENTATION. WIP.",
             PLAYER_DEADRESPAWN = "Player is dead and cannot respawn.",
             PLAYER_NOTFOUND = "Specified player does not exist",

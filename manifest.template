@@ -4,7 +4,8 @@
     "website_url": "https://github.com/harbingerofme/RoR2Cheats",
     "description": "Various console commands for 'debugging'.",
     "dependencies": [
-	"bbepis-BepInExPack-2.0.0",
-	"tristanmcpherson-R2API-2.2.32"
+	"bbepis-BepInExPack-3.0.0",
+	"tristanmcpherson-R2API-2.2.42"
+	"wildbook-MiniRpcLib-0.0.1"
     ]
 }
