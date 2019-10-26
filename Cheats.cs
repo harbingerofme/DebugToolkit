@@ -22,14 +22,9 @@ namespace RoR2Cheats
     {
         public const string modname = "RoR2Cheats", modver = "3.1.0";
         public const string GUID = "com.harbingerofme." + modname;
-
-
         internal static bool noEnemies = false;
-
         internal static ulong seed = 0;
-
         internal static bool nextBossSet = false;
-        internal static string nextBossName;
         internal static DirectorCard nextBoss;
         internal static int nextBossCount = 1;
         internal static EliteIndex nextBossElite = EliteIndex.None;
@@ -630,7 +625,7 @@ namespace RoR2Cheats
             }
             else
             {
-                Log.Message(MagicVars.TEAM_ARGS, LogLevel.MessageClientOnly);
+                Log.Message(MagicVars.TIMESCALE_ARGS, LogLevel.MessageClientOnly);
             }
         }
 
