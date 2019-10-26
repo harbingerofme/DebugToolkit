@@ -1,0 +1,35 @@
+\documentclass{article}
+\usepackage{amsmath}
+
+\title{Formal definition of RoR2Cheats console commands}
+\author{Guido "Harbingerofme"}
+
+\begin{document}
+\maketitle
+\section*{Preface}
+If you ever wanted a more boring definition of all the commands in ror2cheats, I got you covered.
+ This file should hopefully be completely pointless as we strive to be clear in our descriptions.
+ Nonetheless, here it is.
+\section{Syntax}
+\begin{align*}
+    command ::= &\quad name \quad/\quad name\text{ }argument\\
+    name ::= &\quad \textbf{uncapitalised freeform text}\\
+    argument ::= &\quad requiredArgument\text{ }argument \quad/\quad optionalArgument\text{ }optionalArgument\\
+    /&\quad optionalArgument \quad/\quad requiredArgument\\
+    requiredArgument ::= &\quad \{argumentInside\} \quad/\quad \{name=argumentInside\}\\
+    optionalArgument ::= &\quad [argumentInside] \quad/\quad [name=argumentInside]\\
+    argumentInside ::= &\quad choice \quad/\quad type \quad/\quad evaluated\\
+    argumentOrValue ::= &\quad requiredArgument \quad/\quad optionalArgument \quad/\quad value\\
+    value ::= &\quad number \quad/\quad freeform \\
+    choice ::=  &\quad (insidechoice) \quad/\quad value(insidechoice)\\
+    insidechoice ::= &\quad argumentOrValue \quad/\quad insidechoice\text{ }\mid\text{ }insidechoice\\
+    type ::=  &\quad \textbf{Capitalised freeform text} \quad/\quad \textbf{Capitalised freeform text}:value\\
+    evaluated ::= &\quad *\textbf{uncapitalised descriptive freeform text}\\
+    /&\quad *\textbf{uncapitalised descriptive freeform text}:value\\
+    number ::= &\quad \texttt{literally a number}\\
+    freeform ::= &\quad "\textbf{text}"
+\end{align*}
+While ideally, I'd walk though each line and explain, I hope the dictionary provides the meaning it can.
+\section{Dictionary}
+
+\end{document}

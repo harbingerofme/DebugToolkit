@@ -350,3 +350,7 @@ healthchecksdb
 # Backup folder for Package Reference Convert tool in Visual Studio 2017
 MigrationBackup/
 ror2cheats.zip
+ror2cheats language spec.aux
+ror2cheats language spec.fdb_latexmk
+ror2cheats language spec.fls
+ror2cheats language spec.synctex.gz
