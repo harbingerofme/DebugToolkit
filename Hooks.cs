@@ -31,7 +31,7 @@ namespace RoR2Cheats
             {
                 StringBuilder s = new StringBuilder();
                 userArgs.ForEach((str) => s.AppendLine(str));
-                Log.Message(string.Format(MagicVars.NETWORKING_OTHERPLAYER_4, sender.userName, sender.id.value, concommandName, s.ToString()));
+                Log.Message(string.Format(Lang.NETWORKING_OTHERPLAYER_4, sender.userName, sender.id.value, concommandName, s.ToString()));
             }
             orig(self,sender,concommandName,userArgs);
         }
@@ -66,7 +66,7 @@ namespace RoR2Cheats
                     conAttr.flags &= AllFlagsNoCheat;
                     if (conAttr.commandName == "run_set_stages_cleared")
                     {
-                        conAttr.helpText = MagicVars.RUNSETSTAGESCLEARED_HELP;
+                        conAttr.helpText = Lang.RUNSETSTAGESCLEARED_HELP;
                     }
                     return conAttr;
                 });

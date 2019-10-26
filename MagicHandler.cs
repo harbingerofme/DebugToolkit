@@ -4,7 +4,7 @@ using System.Text;
 
 namespace RoR2Cheats
 {
-    internal static class MagicVars
+    internal static class Lang
     {
         //() denotes a list of specifc choices. : denotes a default. [] denotes a collection, and {} denotes freeform
         internal const string
@@ -62,5 +62,9 @@ namespace RoR2Cheats
             SPAWN_ERROR = "Could not spawn: ",
             ALL = "ALL"
             ;
+    }
+    internal static class Number
+    {
+
     }
 }

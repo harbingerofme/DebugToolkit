@@ -112,10 +112,10 @@ namespace RoR2Cheats
 
 
         #region Items&Stats
-        [ConCommand(commandName = "list_items", flags = ConVarFlags.None, helpText = MagicVars.LISTITEM_ARGS)]
+        [ConCommand(commandName = "list_items", flags = ConVarFlags.None, helpText = Lang.LISTITEM_ARGS)]
         private static void CCListItems(ConCommandArgs _)
         {
-            Log.Message(MagicVars.OBSOLETEWARNING, LogLevel.Warning);
+            Log.Message(Lang.OBSOLETEWARNING, LogLevel.Warning);
             StringBuilder text = new StringBuilder();
             foreach (ItemIndex item in ItemCatalog.allItems)
             {
@@ -127,10 +127,10 @@ namespace RoR2Cheats
             Log.Message(text.ToString());
         }
 
-        [ConCommand(commandName = "list_equips", flags = ConVarFlags.None, helpText = MagicVars.LISTEQUIP_ARGS)]
+        [ConCommand(commandName = "list_equips", flags = ConVarFlags.None, helpText = Lang.LISTEQUIP_ARGS)]
         private static void CCListEquipments(ConCommandArgs _)
         {
-            Log.Message(MagicVars.OBSOLETEWARNING, LogLevel.Warning);
+            Log.Message(Lang.OBSOLETEWARNING, LogLevel.Warning);
             StringBuilder text = new StringBuilder();
             foreach (EquipmentIndex equip in EquipmentCatalog.allEquipment)
             {
@@ -142,7 +142,7 @@ namespace RoR2Cheats
             Log.Message(text.ToString());
         }
 
-        [ConCommand(commandName = "list_AI", flags = ConVarFlags.None, helpText = MagicVars.LISTAI_ARGS)]
+        [ConCommand(commandName = "list_AI", flags = ConVarFlags.None, helpText = Lang.LISTAI_ARGS)]
         private static void CCListAI(ConCommandArgs _)
         {
             string langInvar; string list = "";
@@ -156,7 +156,7 @@ namespace RoR2Cheats
             Log.Message(list.TrimEnd('\n'));
         }
 
-        [ConCommand(commandName = "list_Body", flags = ConVarFlags.None, helpText = MagicVars.LISTBODY_ARGS)]
+        [ConCommand(commandName = "list_Body", flags = ConVarFlags.None, helpText = Lang.LISTBODY_ARGS)]
         private static void CCListBody(ConCommandArgs _)
         {
             string langInvar;
@@ -171,12 +171,12 @@ namespace RoR2Cheats
             Log.Message(list.TrimEnd('\n'));
         }
 
-        [ConCommand(commandName = "give_item", flags = ConVarFlags.ExecuteOnServer, helpText = MagicVars.GIVEITEM_ARGS)]
+        [ConCommand(commandName = "give_item", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.GIVEITEM_ARGS)]
         private static void CCGiveItem(ConCommandArgs args)
         {
             if (args.Count == 0)
             {
-                Log.Message(MagicVars.GIVEITEM_ARGS, args, LogLevel.MessageClientOnly);
+                Log.Message(Lang.GIVEITEM_ARGS, args, LogLevel.MessageClientOnly);
                 return;
             }
             int iCount = 1;
@@ -191,7 +191,7 @@ namespace RoR2Cheats
                 NetworkUser player = GetNetUserFromString(args[2]);
                 if (player == null)
                 {
-                    Log.Message(MagicVars.PLAYER_NOTFOUND, LogLevel.MessageClientOnly);
+                    Log.Message(Lang.PLAYER_NOTFOUND, LogLevel.MessageClientOnly);
                 }
 
                 inventory = (player == null) ? inventory : player.master.inventory;
@@ -204,18 +204,18 @@ namespace RoR2Cheats
             }
             else
             {
-                Log.Message(MagicVars.OBJECT_NOTFOUND + args[0] + ":" + item, args, LogLevel.MessageClientOnly);
+                Log.Message(Lang.OBJECT_NOTFOUND + args[0] + ":" + item, args, LogLevel.MessageClientOnly);
             }
 
-            Log.Message(MagicVars.NOMESSAGE, args);
+            Log.Message(Lang.NOMESSAGE, args);
         }
 
-        [ConCommand(commandName = "give_equip", flags = ConVarFlags.ExecuteOnServer, helpText = MagicVars.GIVEEQUIP_ARGS)]
+        [ConCommand(commandName = "give_equip", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.GIVEEQUIP_ARGS)]
         private static void CCGiveEquipment(ConCommandArgs args)
         {
             if (args.Count == 0)
             {
-                Log.Message(MagicVars.GIVEEQUIP_ARGS, args, LogLevel.MessageClientOnly);
+                Log.Message(Lang.GIVEEQUIP_ARGS, args, LogLevel.MessageClientOnly);
                 return;
             }
 
@@ -225,7 +225,7 @@ namespace RoR2Cheats
                 NetworkUser player = GetNetUserFromString(args[1]);
                 if (player == null)
                 {
-                    Log.Message(MagicVars.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
+                    Log.Message(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
                 }
 
                 inventory = (player == null) ? inventory : player.master.inventory;
@@ -238,14 +238,14 @@ namespace RoR2Cheats
             }
             else
             {
-                Log.Message(MagicVars.OBJECT_NOTFOUND + args[0] + ":" + equip, args, LogLevel.MessageClientOnly);
+                Log.Message(Lang.OBJECT_NOTFOUND + args[0] + ":" + equip, args, LogLevel.MessageClientOnly);
                 return;
             }
 
-            Log.Message(MagicVars.NOMESSAGE, args);
+            Log.Message(Lang.NOMESSAGE, args);
         }
 
-        [ConCommand(commandName = "give_lunar", flags = ConVarFlags.ExecuteOnServer, helpText = MagicVars.GIVELUNAR_ARGS)]
+        [ConCommand(commandName = "give_lunar", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.GIVELUNAR_ARGS)]
         private static void CCGiveLunar(ConCommandArgs args)
         {
             int amount = 1;
@@ -258,18 +258,18 @@ namespace RoR2Cheats
             if (amount > 0)
             {
                 target.AwardLunarCoins((uint)amount);
-                str = string.Format(MagicVars.GIVELUNAR_2, "Gave", amount);
+                str = string.Format(Lang.GIVELUNAR_2, "Gave", amount);
             }
             if (amount < 0)
             {
                 amount *= -1;
                 target.DeductLunarCoins((uint)(amount));
-                str = string.Format(MagicVars.GIVELUNAR_2, "Removed", amount);
+                str = string.Format(Lang.GIVELUNAR_2, "Removed", amount);
             }
             Log.Message(str, args);
         }
 
-        [ConCommand(commandName = MagicVars.CREATEPICKUP_NAME, flags = ConVarFlags.ExecuteOnServer, helpText = MagicVars.CREATEPICKUP_ARGS)]
+        [ConCommand(commandName = Lang.CREATEPICKUP_NAME, flags = ConVarFlags.ExecuteOnServer, helpText = Lang.CREATEPICKUP_ARGS)]
         private static void CCCreatePickup(ConCommandArgs args)
         {
             args.CheckArgumentCount(1);
@@ -284,7 +284,7 @@ namespace RoR2Cheats
                 item = Alias.Instance.GetItemFromPartial(args[0]);
                 if (item != ItemIndex.None && equipment != EquipmentIndex.None)
                 {
-                    Log.Message(string.Format(MagicVars.CREATEPICKUP_AMBIGIOUS_2, item, equipment), args, LogLevel.MessageClientOnly);
+                    Log.Message(string.Format(Lang.CREATEPICKUP_AMBIGIOUS_2, item, equipment), args, LogLevel.MessageClientOnly);
                     return;
                 }
 
@@ -305,7 +305,7 @@ namespace RoR2Cheats
                     }
                     else
                     {
-                        Log.Message(MagicVars.CREATEPICKUP_NOTFOUND, args, LogLevel.MessageClientOnly);
+                        Log.Message(Lang.CREATEPICKUP_NOTFOUND, args, LogLevel.MessageClientOnly);
                         return;
                     }
                 }
@@ -317,7 +317,7 @@ namespace RoR2Cheats
                     ItemIndex itemName = Alias.Instance.GetItemFromPartial(args[1]);
                     if (itemName == ItemIndex.None)
                     {
-                        Log.Message(MagicVars.CREATEPICKUP_NOTFOUND, args, LogLevel.MessageClientOnly);
+                        Log.Message(Lang.CREATEPICKUP_NOTFOUND, args, LogLevel.MessageClientOnly);
                         return;
                     }
                     final = PickupCatalog.FindPickupIndex(itemName);
@@ -327,22 +327,22 @@ namespace RoR2Cheats
                     EquipmentIndex equipName = Alias.Instance.GetEquipFromPartial(args[0]);
                     if (equipName == EquipmentIndex.None)
                     {
-                        Log.Message(MagicVars.CREATEPICKUP_NOTFOUND, args, LogLevel.MessageClientOnly);
+                        Log.Message(Lang.CREATEPICKUP_NOTFOUND, args, LogLevel.MessageClientOnly);
                         return;
                     }
                     final = PickupCatalog.FindPickupIndex(equipName);
                 }
             }
-            Log.Message(string.Format(MagicVars.CREATEPICKUP_SUCCES_1, final), args);
+            Log.Message(string.Format(Lang.CREATEPICKUP_SUCCES_1, final), args);
             PickupDropletController.CreatePickupDroplet(final, transform.position, transform.forward * 40f);
         }
 
-        [ConCommand(commandName = "remove_item", flags = ConVarFlags.ExecuteOnServer, helpText = MagicVars.REMOVEITEM_ARGS)]
+        [ConCommand(commandName = "remove_item", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.REMOVEITEM_ARGS)]
         private static void CCRemoveItem(ConCommandArgs args)
         {
             if (args.Count == 0)
             {
-                Log.Message(MagicVars.REMOVEITEM_ARGS, args, LogLevel.MessageClientOnly);
+                Log.Message(Lang.REMOVEITEM_ARGS, args, LogLevel.MessageClientOnly);
                 return;
             }
             int iCount = 1;
@@ -357,13 +357,13 @@ namespace RoR2Cheats
                 NetworkUser player = GetNetUserFromString(args[2]);
                 if (player == null)
                 {
-                    Log.Message(MagicVars.PLAYER_NOTFOUND, LogLevel.MessageClientOnly);
+                    Log.Message(Lang.PLAYER_NOTFOUND, LogLevel.MessageClientOnly);
                 }
 
                 inventory = (player == null) ? inventory : player.master.inventory;
             }
 
-            if (args[0].ToUpper() == MagicVars.ALL)
+            if (args[0].ToUpper() == Lang.ALL)
             {
                 Log.Message("Removing inventory", args);
                 inventory.CopyItemsFrom(new GameObject().AddComponent<Inventory>());
@@ -372,7 +372,7 @@ namespace RoR2Cheats
             var item = Alias.Instance.GetItemFromPartial(args[0]);
             if (item != ItemIndex.None)
             {
-                if (args[1].ToUpper() == MagicVars.ALL)
+                if (args[1].ToUpper() == Lang.ALL)
                 {
                     iCount = inventory.GetItemCount(item);
                 }
@@ -380,13 +380,13 @@ namespace RoR2Cheats
             }
             else
             {
-                Log.Message(MagicVars.OBJECT_NOTFOUND + args[0] + ":" + item, args, LogLevel.MessageClientOnly);
+                Log.Message(Lang.OBJECT_NOTFOUND + args[0] + ":" + item, args, LogLevel.MessageClientOnly);
             }
 
-            Log.Message(MagicVars.NOMESSAGE, args);
+            Log.Message(Lang.NOMESSAGE, args);
         }
 
-        [ConCommand(commandName = "remove_equip", flags = ConVarFlags.ExecuteOnServer, helpText = MagicVars.REMOVEEQUIP_ARGS)]
+        [ConCommand(commandName = "remove_equip", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.REMOVEEQUIP_ARGS)]
         private static void CCRemoveEquipment(ConCommandArgs args)
         {
             Inventory inventory = args.sender.master.inventory;
@@ -395,22 +395,22 @@ namespace RoR2Cheats
                 NetworkUser player = GetNetUserFromString(args[0]);
                 if (player == null)
                 {
-                    Log.Message(MagicVars.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
+                    Log.Message(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
                     return;
                 }
                 inventory = (player == null) ? inventory : player.master.inventory;
             }
             inventory.SetEquipmentIndex(EquipmentIndex.None);
 
-            Log.Message(MagicVars.NOMESSAGE, args);
+            Log.Message(Lang.NOMESSAGE, args);
         }
 
-        [ConCommand(commandName = "give_money", flags = ConVarFlags.ExecuteOnServer, helpText = MagicVars.GIVEMONEY_ARGS)]
+        [ConCommand(commandName = "give_money", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.GIVEMONEY_ARGS)]
         private static void CCGiveMoney(ConCommandArgs args)
         {
             if (args.Count == 0)
             {
-                Log.Message(MagicVars.GIVEMONEY_ARGS, args, LogLevel.WarningClientOnly);
+                Log.Message(Lang.GIVEMONEY_ARGS, args, LogLevel.WarningClientOnly);
                 return;
             }
 
@@ -442,7 +442,7 @@ namespace RoR2Cheats
         [ConCommand(commandName = "give_exp", flags = ConVarFlags.ExecuteOnServer, helpText = "Gives experience. OBSOLETE")]
         private static void CCGiveExperience(ConCommandArgs args)
         {
-            Log.Message(MagicVars.OBSOLETEWARNING + "Use team_set_level instead.", args, LogLevel.WarningClientOnly);
+            Log.Message(Lang.OBSOLETEWARNING + "Use team_set_level instead.", args, LogLevel.WarningClientOnly);
 
             if (args.Count == 0)
             {
@@ -463,7 +463,7 @@ namespace RoR2Cheats
             Log.Message("Timescale set to: "+newTimeScale+". This message may appear twice if you are the host.");
         }
 
-        [ConCommand(commandName = "family_event", flags = ConVarFlags.ExecuteOnServer, helpText = MagicVars.FAMILYEVENT_ARGS)]
+        [ConCommand(commandName = "family_event", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.FAMILYEVENT_ARGS)]
         private static void CCFamilyEvent(ConCommandArgs args)
         {
             ForceFamily = true;
@@ -471,13 +471,13 @@ namespace RoR2Cheats
             Log.Message("The next stage will contain a family event!", args);
         }
 
-        [ConCommand(commandName = "next_boss", flags = ConVarFlags.ExecuteOnServer, helpText = MagicVars.NEXTBOSS_ARGS)]
+        [ConCommand(commandName = "next_boss", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.NEXTBOSS_ARGS)]
         private static void CCNextBoss(ConCommandArgs args)
         {
-            Log.Message(MagicVars.PARTIAL_IMPLEMENTATION, args, LogLevel.MessageClientOnly);
+            Log.Message(Lang.PARTIAL_IMPLEMENTATION, args, LogLevel.MessageClientOnly);
             if (args.Count == 0)
             {
-                Log.Message(MagicVars.NEXTBOSS_ARGS, args);
+                Log.Message(Lang.NEXTBOSS_ARGS, args);
             }
             StringBuilder s = new StringBuilder();
             if (args.Count >= 1)
@@ -490,7 +490,7 @@ namespace RoR2Cheats
                     {
                         if (!int.TryParse(args[1], out nextBossCount))
                         {
-                            Log.Message(MagicVars.COUNTISNUMERIC, args, LogLevel.MessageClientOnly);
+                            Log.Message(Lang.COUNTISNUMERIC, args, LogLevel.MessageClientOnly);
                             nextBossCount = 1;
                         }
                         else
@@ -516,13 +516,13 @@ namespace RoR2Cheats
                 }
                 catch (Exception ex)
                 {
-                    Log.Message(MagicVars.OBJECT_NOTFOUND + args[0], args, LogLevel.ErrorClientOnly);
+                    Log.Message(Lang.OBJECT_NOTFOUND + args[0], args, LogLevel.ErrorClientOnly);
                     Log.Message(ex.ToString(), args, LogLevel.ErrorClientOnly);
                 }
             }
         }
 
-        [ConCommand(commandName = "next_stage", flags = ConVarFlags.ExecuteOnServer, helpText = MagicVars.NEXTSTAGE_ARGS)]
+        [ConCommand(commandName = "next_stage", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.NEXTSTAGE_ARGS)]
         private static void CCNextStage(ConCommandArgs args)
         {
             if (args.Count == 0)
@@ -548,7 +548,7 @@ namespace RoR2Cheats
             else
             {
                 StringBuilder s = new StringBuilder();
-                s.AppendLine(MagicVars.NEXTROUND_STAGE);
+                s.AppendLine(Lang.NEXTROUND_STAGE);
                 array.ForEach((string str) => { s.AppendLine(str); });
                 Log.Message(s.ToString(), args);
             }
@@ -585,7 +585,7 @@ namespace RoR2Cheats
             Log.Message($"Seed set to {((seed == 0) ? "vanilla generation" : seed.ToString())}.", args);
         }
 
-        [ConCommand(commandName = "fixed_time", flags = ConVarFlags.ExecuteOnServer, helpText = MagicVars.FIXEDTIME_ARGS)]
+        [ConCommand(commandName = "fixed_time", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.FIXEDTIME_ARGS)]
         private static void CCSetTime(ConCommandArgs args)
         {
 
@@ -603,12 +603,12 @@ namespace RoR2Cheats
             }
             else
             {
-                Log.Message(MagicVars.FIXEDTIME_ARGS, args, LogLevel.MessageClientOnly);
+                Log.Message(Lang.FIXEDTIME_ARGS, args, LogLevel.MessageClientOnly);
             }
 
         }
 
-        [ConCommand(commandName = "time_scale", flags = ConVarFlags.Engine | ConVarFlags.ExecuteOnServer, helpText = MagicVars.TIMESCALE_ARGS)]
+        [ConCommand(commandName = "time_scale", flags = ConVarFlags.Engine | ConVarFlags.ExecuteOnServer, helpText = Lang.TIMESCALE_ARGS)]
         private static void CCTimeScale(ConCommandArgs args)
         {
             if (args.Count == 0)
@@ -625,14 +625,14 @@ namespace RoR2Cheats
             }
             else
             {
-                Log.Message(MagicVars.TIMESCALE_ARGS, LogLevel.MessageClientOnly);
+                Log.Message(Lang.TIMESCALE_ARGS, LogLevel.MessageClientOnly);
             }
         }
 
         [ConCommand(commandName = "stage_clear_count", flags = ConVarFlags.ExecuteOnServer, helpText = "Sets stage clear count - Affects monster difficulty. OBSOLETE")]
         private static void CCSetClearCount(ConCommandArgs args)
         {
-            Log.Message(MagicVars.OBSOLETEWARNING + "Use run_set_stages_cleared instead.", args, LogLevel.WarningClientOnly);
+            Log.Message(Lang.OBSOLETEWARNING + "Use run_set_stages_cleared instead.", args, LogLevel.WarningClientOnly);
 
             if (args.Count == 0)
             {
@@ -670,7 +670,7 @@ namespace RoR2Cheats
                     {
                         return NetworkUser.readOnlyInstancesList[result];
                     }
-                    Log.Message(MagicVars.PLAYER_NOTFOUND);
+                    Log.Message(Lang.PLAYER_NOTFOUND);
                     return null;
                 }
                 else
@@ -682,14 +682,14 @@ namespace RoR2Cheats
                             return n;
                         }
                     }
-                    Log.Message(MagicVars.PLAYER_NOTFOUND);
+                    Log.Message(Lang.PLAYER_NOTFOUND);
                     return null;
                 }
             }
             return null;
         }
 
-        [ConCommand(commandName = "list_player", flags = ConVarFlags.ExecuteOnServer, helpText = MagicVars.LISTPLAYER_ARGS)]
+        [ConCommand(commandName = "list_player", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.LISTPLAYER_ARGS)]
         private static void CCListPlayer(ConCommandArgs args)
         {
             NetworkUser n;
@@ -708,7 +708,7 @@ namespace RoR2Cheats
             TeamManager.instance.SetTeamLevel(TeamIndex.Monster, 1);
         }
 
-        [ConCommand(commandName = "god", flags = ConVarFlags.ExecuteOnServer, helpText = MagicVars.GOD_ARGS)]
+        [ConCommand(commandName = "god", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.GOD_ARGS)]
         private static void CCGodModeToggle(ConCommandArgs args)
         {
             var godToggleMethod = typeof(CharacterMaster).GetMethodCached("ToggleGod");
@@ -724,7 +724,7 @@ namespace RoR2Cheats
             }
         }
 
-        [ConCommand(commandName = "kill_all", flags = ConVarFlags.ExecuteOnServer, helpText = MagicVars.KILLALL_ARGS)]
+        [ConCommand(commandName = "kill_all", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.KILLALL_ARGS)]
         private static void CCKillAll(ConCommandArgs args)
         {
             TeamIndex team;
@@ -758,7 +758,7 @@ namespace RoR2Cheats
             Log.Message("Killed " + count + " of team " + team + ".", args);
         }
 
-        [ConCommand(commandName = "true_kill", flags = ConVarFlags.ExecuteOnServer, helpText = MagicVars.TRUEKILL_ARGS)]
+        [ConCommand(commandName = "true_kill", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.TRUEKILL_ARGS)]
         private static void CCTrueKill(ConCommandArgs args)
         {
             CharacterMaster master = args.sender.master;
@@ -771,7 +771,7 @@ namespace RoR2Cheats
                 }
                 else
                 {
-                    Log.Message(MagicVars.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
+                    Log.Message(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
                     return;
                 }
             }
@@ -780,7 +780,7 @@ namespace RoR2Cheats
             Log.Message(master.name + " was killed by server.", args);
         }
 
-        [ConCommand(commandName = "no_enemies", flags = ConVarFlags.ExecuteOnServer, helpText = MagicVars.NOENEMIES_ARGS)]
+        [ConCommand(commandName = "no_enemies", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.NOENEMIES_ARGS)]
         private static void CCNoEnemies(ConCommandArgs args)
         {
             noEnemies = (noEnemies) ? false : true;
@@ -796,19 +796,19 @@ namespace RoR2Cheats
             Log.Message("No_enemies set to " + noEnemies, args);
         }
 
-        [ConCommand(commandName = "spawn_as", flags = ConVarFlags.ExecuteOnServer, helpText = MagicVars.SPAWNAS_ARGS)]
+        [ConCommand(commandName = "spawn_as", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SPAWNAS_ARGS)]
         private static void CCSpawnAs(ConCommandArgs args)
         {
             if (args.Count == 0)
             {
-                Log.Message(MagicVars.SPAWNAS_ARGS, args, LogLevel.MessageClientOnly);
+                Log.Message(Lang.SPAWNAS_ARGS, args, LogLevel.MessageClientOnly);
                 return;
             }
 
             string character = Alias.Instance.GetBodyName(args[0]);
             if (character == null)
             {
-                Log.Message(MagicVars.SPAWN_ERROR + args[0], args, LogLevel.MessageClientOnly);
+                Log.Message(Lang.SPAWN_ERROR + args[0], args, LogLevel.MessageClientOnly);
                 Log.Message("Please use list_body to print CharacterBodies", args, LogLevel.MessageClientOnly);
                 return;
             }
@@ -824,14 +824,14 @@ namespace RoR2Cheats
                 }
                 else
                 {
-                    Log.Message(MagicVars.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
+                    Log.Message(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
                     return;
                 }
             }
 
             if (!master.alive)
             {
-                Log.Message(MagicVars.PLAYER_DEADRESPAWN, args, LogLevel.MessageClientOnly);
+                Log.Message(Lang.PLAYER_DEADRESPAWN, args, LogLevel.MessageClientOnly);
                 return;
             }
 
@@ -844,20 +844,20 @@ namespace RoR2Cheats
             stage1pod.SetBool(oldVal);
         }
 
-        [ConCommand(commandName = "spawn_ai", flags = ConVarFlags.ExecuteOnServer, helpText = MagicVars.SPAWNAI_ARGS)]
+        [ConCommand(commandName = "spawn_ai", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SPAWNAI_ARGS)]
         private static void CCSpawnAI(ConCommandArgs args)
         {
 
             if (args.Count == 0)
             {
-                Log.Message(MagicVars.SPAWNAI_ARGS, args, LogLevel.MessageClientOnly);
+                Log.Message(Lang.SPAWNAI_ARGS, args, LogLevel.MessageClientOnly);
                 return;
             }
 
             string character = Alias.Instance.GetMasterName(args[0]);
             if (character == null)
             {
-                Log.Message(MagicVars.SPAWN_ERROR + character, args, LogLevel.MessageClientOnly);
+                Log.Message(Lang.SPAWN_ERROR + character, args, LogLevel.MessageClientOnly);
                 return;
             }
             var masterprefab = MasterCatalog.FindMasterPrefab(character);
@@ -888,32 +888,32 @@ namespace RoR2Cheats
             {
                 Destroy(master.GetComponent<BaseAI>());
             }
-            Log.Message(MagicVars.SPAWN_ATTEMPT + character, args);
+            Log.Message(Lang.SPAWN_ATTEMPT + character, args);
         }
 
-        [ConCommand(commandName = "spawn_body", flags = ConVarFlags.ExecuteOnServer, helpText = MagicVars.SPAWNBODY_ARGS)]
+        [ConCommand(commandName = "spawn_body", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SPAWNBODY_ARGS)]
         private static void CCSpawnBody(ConCommandArgs args)
         {
             if (args.Count == 0)
             {
-                Log.Message(MagicVars.SPAWNBODY_ARGS, args, LogLevel.MessageClientOnly);
+                Log.Message(Lang.SPAWNBODY_ARGS, args, LogLevel.MessageClientOnly);
                 return;
             }
 
             string character = Alias.Instance.GetBodyName(args[0]);
             if (character == null)
             {
-                Log.Message(string.Format(MagicVars.SPAWN_ERROR, args[0]), args, LogLevel.MessageClientOnly);
+                Log.Message(string.Format(Lang.SPAWN_ERROR, args[0]), args, LogLevel.MessageClientOnly);
                 return;
             }
 
             GameObject body = BodyCatalog.FindBodyPrefab(character);
             GameObject gameObject = Instantiate<GameObject>(body, args.sender.master.GetBody().transform.position, Quaternion.identity);
             NetworkServer.Spawn(gameObject);
-            Log.Message(MagicVars.SPAWN_ATTEMPT + character, args);
+            Log.Message(Lang.SPAWN_ATTEMPT + character, args);
         }
 
-        [ConCommand(commandName = "respawn", flags = ConVarFlags.ExecuteOnServer, helpText = MagicVars.RESPAWN_ARGS)]
+        [ConCommand(commandName = "respawn", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.RESPAWN_ARGS)]
         private static void RespawnPlayer(ConCommandArgs args)
         {
             CharacterMaster master = args.sender.master;
@@ -926,22 +926,22 @@ namespace RoR2Cheats
                 }
                 else
                 {
-                    Log.Message(MagicVars.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
+                    Log.Message(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
                     return;
                 }
             }
 
             Transform spawnPoint = Stage.instance.GetPlayerSpawnTransform();
             master.Respawn(spawnPoint.position, spawnPoint.rotation, false);
-            Log.Message(MagicVars.SPAWN_ATTEMPT + master.name, args);
+            Log.Message(Lang.SPAWN_ATTEMPT + master.name, args);
         }
 
-        [ConCommand(commandName = "change_team", flags = ConVarFlags.ExecuteOnServer, helpText = MagicVars.CHANGETEAM_ARGS)]
+        [ConCommand(commandName = "change_team", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.CHANGETEAM_ARGS)]
         private static void CCChangeTeam(ConCommandArgs args)
         {
             if (args.Count == 0)
             {
-                Log.Message(MagicVars.CHANGETEAM_ARGS, args, LogLevel.MessageClientOnly);
+                Log.Message(Lang.CHANGETEAM_ARGS, args, LogLevel.MessageClientOnly);
                 return;
             }
 
@@ -973,7 +973,7 @@ namespace RoR2Cheats
 
         }
 
-        [ConCommand(commandName = "add_portal", flags = ConVarFlags.ExecuteOnServer, helpText = MagicVars.ADDPORTAL_ARGS)]
+        [ConCommand(commandName = "add_portal", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.ADDPORTAL_ARGS)]
         private static void CCAddPortal(ConCommandArgs args)
         {
             if (TeleporterInteraction.instance)
@@ -990,7 +990,7 @@ namespace RoR2Cheats
                         TeleporterInteraction.instance.Network_shouldAttemptToSpawnMSPortal = true;
                         break;
                     default:
-                        Log.Message(MagicVars.PORTAL_NOTFOUND, args, LogLevel.MessageClientOnly);
+                        Log.Message(Lang.PORTAL_NOTFOUND, args, LogLevel.MessageClientOnly);
                         return;
                 }
                 //Note the return on default.
