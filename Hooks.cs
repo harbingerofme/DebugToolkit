@@ -17,8 +17,6 @@ namespace RoR2Cheats
             On.RoR2.Console.InitConVars += InitCommandsAndFreeConvars;
             CommandHelper.AddToConsoleWhenReady();
             On.RoR2.Console.RunCmd += LogNetworkCommands;
-
-            On.RoR2.Stage.Start += RemoveFamilyEvent;
         }
 
         private static void LogNetworkCommands(On.RoR2.Console.orig_RunCmd orig, RoR2.Console self, NetworkUser sender, string concommandName, System.Collections.Generic.List<string> userArgs)
@@ -84,19 +82,11 @@ namespace RoR2Cheats
             });
         }
 
-        /// <summary>
-        /// Resets the chance for a family even at the beginning of ever stage, if it was previously set.
-        /// </summary>
-        /// <param name="orig"></param>
-        /// <param name="self"></param>
-        private static void RemoveFamilyEvent(On.RoR2.Stage.orig_Start orig, Stage self)
+        internal static void RemoveFamilyEvent(On.RoR2.Stage.orig_Start orig, Stage self)
         {
             orig(self);
-            if (RoR2Cheats.ForceFamily)
-            {
-                IL.RoR2.ClassicStageInfo.Awake -= ForceFamilyEvent;
-                RoR2Cheats.ForceFamily = false;
-            }
+            IL.RoR2.ClassicStageInfo.Awake -= ForceFamilyEvent;
+            On.RoR2.Stage.Start -= RemoveFamilyEvent;
         }
 
 

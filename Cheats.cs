@@ -28,8 +28,6 @@ namespace RoR2Cheats
         internal static int nextBossCount = 1;
         internal static EliteIndex nextBossElite = EliteIndex.None;
 
-        internal static bool ForceFamily = false;
-
         private static MiniRpcLib.Action.IRpcAction<float> TimeScaleNetwork;
 
         private void Awake()
@@ -385,8 +383,8 @@ namespace RoR2Cheats
         [ConCommand(commandName = "family_event", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.FAMILYEVENT_ARGS)]
         private static void CCFamilyEvent(ConCommandArgs args)
         {
-            ForceFamily = true;
             IL.RoR2.ClassicStageInfo.Awake += Hooks.ForceFamilyEvent;
+            On.RoR2.Stage.Start += Hooks.RemoveFamilyEvent;
             Log.Message("The next stage will contain a family event!", args);
         }
 
