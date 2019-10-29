@@ -39,7 +39,7 @@ namespace RoR2Cheats
             new Log(Logger, miniRpc);
             TimeScaleNetwork = miniRpc.RegisterAction(Target.Client, (NetworkUser _, float f) => { HandleTimeScale(f); });
             Log.Message("Harb's and 's Version. Original by Morris1927.", LogLevel.Info, Log.Target.Bepinex);/*Check github for the other contributor, lmao*/
-
+            RoR2Application.rng.RangeInt(1,101);
             Hooks.InitializeHooks();
         }
 
@@ -109,7 +109,6 @@ namespace RoR2Cheats
 
 #endif
         #endregion
-
 
         #region Items&Stats
         [ConCommand(commandName = "list_items", flags = ConVarFlags.None, helpText = Lang.LISTITEM_ARGS)]
