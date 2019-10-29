@@ -41,7 +41,7 @@ namespace RoR2Cheats
         }
 
         #region Items&Stats
-        [ConCommand(commandName = "list_items", flags = ConVarFlags.None, helpText = Lang.LISTITEM_ARGS)]
+        [ConCommand(commandName = "list_items", flags = ConVarFlags.None, helpText = "Lists all ItemIndexes. " + Lang.LISTITEM_ARGS)]
         private static void CCListItems(ConCommandArgs _)
         {
             Log.Message(Lang.OBSOLETEWARNING, LogLevel.Warning);
@@ -56,7 +56,7 @@ namespace RoR2Cheats
             Log.Message(text.ToString());
         }
 
-        [ConCommand(commandName = "list_equips", flags = ConVarFlags.None, helpText = Lang.LISTEQUIP_ARGS)]
+        [ConCommand(commandName = "list_equips", flags = ConVarFlags.None, helpText = "Lists all EquipmentIndexes. "+Lang.LISTEQUIP_ARGS)]
         private static void CCListEquipments(ConCommandArgs _)
         {
             Log.Message(Lang.OBSOLETEWARNING, LogLevel.Warning);
@@ -71,7 +71,7 @@ namespace RoR2Cheats
             Log.Message(text.ToString());
         }
 
-        [ConCommand(commandName = "list_AI", flags = ConVarFlags.None, helpText = Lang.LISTAI_ARGS)]
+        [ConCommand(commandName = "list_AI", flags = ConVarFlags.None, helpText = "Lists the available CharacterMaster prefabs. " + Lang.LISTAI_ARGS)]
         private static void CCListAI(ConCommandArgs _)
         {
             string langInvar;
@@ -86,7 +86,7 @@ namespace RoR2Cheats
             Log.Message(sb);
         }
 
-        [ConCommand(commandName = "list_Body", flags = ConVarFlags.None, helpText = Lang.LISTBODY_ARGS)]
+        [ConCommand(commandName = "list_Body", flags = ConVarFlags.None, helpText = "Lists the available CharacterBody prefabs. " + Lang.LISTBODY_ARGS)]
         private static void CCListBody(ConCommandArgs _)
         {
             string langInvar;
@@ -101,7 +101,7 @@ namespace RoR2Cheats
             Log.Message(sb);
         }
 
-        [ConCommand(commandName = "give_item", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.GIVEITEM_ARGS)]
+        [ConCommand(commandName = "give_item", flags = ConVarFlags.ExecuteOnServer, helpText = "Gives the specified item to the player in the specified quantity. " + Lang.GIVEITEM_ARGS)]
         private static void CCGiveItem(ConCommandArgs args)
         {
             if (args.Count == 0)
@@ -140,7 +140,7 @@ namespace RoR2Cheats
             Log.Message(Lang.NOMESSAGE, args);
         }
 
-        [ConCommand(commandName = "give_equip", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.GIVEEQUIP_ARGS)]
+        [ConCommand(commandName = "give_equip", flags = ConVarFlags.ExecuteOnServer, helpText = "Gives the specified item to the player. " + Lang.GIVEEQUIP_ARGS)]
         private static void CCGiveEquipment(ConCommandArgs args)
         {
             if (args.Count == 0)
@@ -175,7 +175,7 @@ namespace RoR2Cheats
             Log.Message(Lang.NOMESSAGE, args);
         }
 
-        [ConCommand(commandName = "give_lunar", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.GIVELUNAR_ARGS)]
+        [ConCommand(commandName = "give_lunar", flags = ConVarFlags.ExecuteOnServer, helpText = "Gives a lunar coin to the specified player. " + Lang.GIVELUNAR_ARGS)]
         private static void CCGiveLunar(ConCommandArgs args)
         {
             int amount = 1;
@@ -199,7 +199,7 @@ namespace RoR2Cheats
             Log.Message(str, args);
         }
 
-        [ConCommand(commandName = Lang.CREATEPICKUP_NAME, flags = ConVarFlags.ExecuteOnServer, helpText = Lang.CREATEPICKUP_ARGS)]
+        [ConCommand(commandName = Lang.CREATEPICKUP_NAME, flags = ConVarFlags.ExecuteOnServer, helpText = "Creates a PickupDroplet infront of the players position. " +Lang.CREATEPICKUP_ARGS)]
         private static void CCCreatePickup(ConCommandArgs args)
         {
             args.CheckArgumentCount(1);
@@ -254,7 +254,7 @@ namespace RoR2Cheats
             PickupDropletController.CreatePickupDroplet(final, transform.position, transform.forward * 40f);
         }
 
-        [ConCommand(commandName = "remove_item", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.REMOVEITEM_ARGS)]
+        [ConCommand(commandName = "remove_item", flags = ConVarFlags.ExecuteOnServer, helpText = "Removes the specified quantities of an item from a player. " + Lang.REMOVEITEM_ARGS)]
         private static void CCRemoveItem(ConCommandArgs args)
         {
             if (args.Count == 0)
@@ -303,7 +303,7 @@ namespace RoR2Cheats
             Log.Message(Lang.NOMESSAGE, args);
         }
 
-        [ConCommand(commandName = "remove_equip", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.REMOVEEQUIP_ARGS)]
+        [ConCommand(commandName = "remove_equip", flags = ConVarFlags.ExecuteOnServer, helpText = "Removes the equipment from the specified player. " + Lang.REMOVEEQUIP_ARGS)]
         private static void CCRemoveEquipment(ConCommandArgs args)
         {
             Inventory inventory = args.sender.master.inventory;
@@ -322,7 +322,7 @@ namespace RoR2Cheats
             Log.Message(Lang.NOMESSAGE, args);
         }
 
-        [ConCommand(commandName = "give_money", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.GIVEMONEY_ARGS)]
+        [ConCommand(commandName = "give_money", flags = ConVarFlags.ExecuteOnServer, helpText = "Gives the specified amount of money to the specified player. " + Lang.GIVEMONEY_ARGS)]
         private static void CCGiveMoney(ConCommandArgs args)
         {
             if (args.Count == 0)
@@ -380,7 +380,7 @@ namespace RoR2Cheats
             Log.Message("Timescale set to: "+newTimeScale+". This message may appear twice if you are the host.");
         }
 
-        [ConCommand(commandName = "family_event", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.FAMILYEVENT_ARGS)]
+        [ConCommand(commandName = "family_event", flags = ConVarFlags.ExecuteOnServer, helpText = "Forces a family event to occur during the next stage. "+Lang.FAMILYEVENT_ARGS)]
         private static void CCFamilyEvent(ConCommandArgs args)
         {
             IL.RoR2.ClassicStageInfo.Awake += Hooks.ForceFamilyEvent;
@@ -388,7 +388,7 @@ namespace RoR2Cheats
             Log.Message("The next stage will contain a family event!", args);
         }
 
-        [ConCommand(commandName = "next_boss", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.NEXTBOSS_ARGS)]
+        [ConCommand(commandName = "next_boss", flags = ConVarFlags.ExecuteOnServer, helpText = "Sets the next teleporter instance to the specified boss. "+Lang.NEXTBOSS_ARGS)]
         private static void CCNextBoss(ConCommandArgs args)
         {
             Log.Message(Lang.PARTIALIMPLEMENTATION_WARNING, args, LogLevel.MessageClientOnly);
@@ -439,7 +439,7 @@ namespace RoR2Cheats
             }
         }
 
-        [ConCommand(commandName = "next_stage", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.NEXTSTAGE_ARGS)]
+        [ConCommand(commandName = "next_stage", flags = ConVarFlags.ExecuteOnServer, helpText = "Forces a stage change to the specified stage. "+Lang.NEXTSTAGE_ARGS)]
         private static void CCNextStage(ConCommandArgs args)
         {
             if (args.Count == 0)
@@ -513,7 +513,7 @@ namespace RoR2Cheats
             Log.Message($"Seed set to {((seed == 0) ? "vanilla generation" : seed.ToString())}.", args);
         }
 
-        [ConCommand(commandName = "fixed_time", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.FIXEDTIME_ARGS)]
+        [ConCommand(commandName = "fixed_time", flags = ConVarFlags.ExecuteOnServer, helpText = "Sets the FixedTime to the specified value. "+Lang.FIXEDTIME_ARGS)]
         private static void CCSetTime(ConCommandArgs args)
         {
 
@@ -536,7 +536,7 @@ namespace RoR2Cheats
 
         }
 
-        [ConCommand(commandName = "time_scale", flags = ConVarFlags.Engine | ConVarFlags.ExecuteOnServer, helpText = Lang.TIMESCALE_ARGS)]
+        [ConCommand(commandName = "time_scale", flags = ConVarFlags.Engine | ConVarFlags.ExecuteOnServer, helpText = "Sets the Time Delta. "+Lang.TIMESCALE_ARGS)]
         private static void CCTimeScale(ConCommandArgs args)
         {
             if (args.Count == 0)
@@ -617,7 +617,7 @@ namespace RoR2Cheats
             return null;
         }
 
-        [ConCommand(commandName = "list_player", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.LISTPLAYER_ARGS)]
+        [ConCommand(commandName = "list_player", flags = ConVarFlags.ExecuteOnServer, helpText = "List all players in the session. "+Lang.LISTPLAYER_ARGS)]
         private static void CCListPlayer(ConCommandArgs args)
         {
             NetworkUser n;
@@ -636,7 +636,7 @@ namespace RoR2Cheats
             TeamManager.instance.SetTeamLevel(TeamIndex.Monster, 1);
         }
 
-        [ConCommand(commandName = "god", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.GOD_ARGS)]
+        [ConCommand(commandName = "god", flags = ConVarFlags.ExecuteOnServer, helpText = "Become invincible"+Lang.GOD_ARGS)]
         private static void CCGodModeToggle(ConCommandArgs args)
         {
             var godToggleMethod = typeof(CharacterMaster).GetMethodCached("ToggleGod");
@@ -652,7 +652,7 @@ namespace RoR2Cheats
             }
         }
 
-        [ConCommand(commandName = "kill_all", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.KILLALL_ARGS)]
+        [ConCommand(commandName = "kill_all", flags = ConVarFlags.ExecuteOnServer, helpText = "Kill all entities on the specified team. "+Lang.KILLALL_ARGS)]
         private static void CCKillAll(ConCommandArgs args)
         {
             TeamIndex team;
@@ -686,7 +686,7 @@ namespace RoR2Cheats
             Log.Message("Killed " + count + " of team " + team + ".", args);
         }
 
-        [ConCommand(commandName = "true_kill", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.TRUEKILL_ARGS)]
+        [ConCommand(commandName = "true_kill", flags = ConVarFlags.ExecuteOnServer, helpText = "Ignore Dio's and kill the entity. "+Lang.TRUEKILL_ARGS)]
         private static void CCTrueKill(ConCommandArgs args)
         {
             CharacterMaster master = args.sender.master;
@@ -708,7 +708,7 @@ namespace RoR2Cheats
             Log.Message(master.name + " was killed by server.", args);
         }
 
-        [ConCommand(commandName = "no_enemies", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.NOENEMIES_ARGS)]
+        [ConCommand(commandName = "no_enemies", flags = ConVarFlags.ExecuteOnServer, helpText = "Toggle Monster spawning. "+Lang.NOENEMIES_ARGS)]
         private static void CCNoEnemies(ConCommandArgs args)
         {
             noEnemies = (noEnemies) ? false : true;
@@ -724,7 +724,7 @@ namespace RoR2Cheats
             Log.Message("No_enemies set to " + noEnemies, args);
         }
 
-        [ConCommand(commandName = "spawn_as", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SPAWNAS_ARGS)]
+        [ConCommand(commandName = "spawn_as", flags = ConVarFlags.ExecuteOnServer, helpText = "Respawn the specified player using the specified body prefab. "+Lang.SPAWNAS_ARGS)]
         private static void CCSpawnAs(ConCommandArgs args)
         {
             if (args.Count == 0)
@@ -772,7 +772,7 @@ namespace RoR2Cheats
             stage1pod.SetBool(oldVal);
         }
 
-        [ConCommand(commandName = "spawn_ai", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SPAWNAI_ARGS)]
+        [ConCommand(commandName = "spawn_ai", flags = ConVarFlags.ExecuteOnServer, helpText = "Spawns the specified CharacterMaster. "+Lang.SPAWNAI_ARGS)]
         private static void CCSpawnAI(ConCommandArgs args)
         {
 
@@ -819,7 +819,7 @@ namespace RoR2Cheats
             Log.Message(Lang.SPAWN_ATTEMPT + character, args);
         }
 
-        [ConCommand(commandName = "spawn_body", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SPAWNBODY_ARGS)]
+        [ConCommand(commandName = "spawn_body", flags = ConVarFlags.ExecuteOnServer, helpText = "Spawns the specified dummy body. "+Lang.SPAWNBODY_ARGS)]
         private static void CCSpawnBody(ConCommandArgs args)
         {
             if (args.Count == 0)
@@ -841,7 +841,7 @@ namespace RoR2Cheats
             Log.Message(Lang.SPAWN_ATTEMPT + character, args);
         }
 
-        [ConCommand(commandName = "respawn", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.RESPAWN_ARGS)]
+        [ConCommand(commandName = "respawn", flags = ConVarFlags.ExecuteOnServer, helpText = "Respawns the specified player. "+Lang.RESPAWN_ARGS)]
         private static void RespawnPlayer(ConCommandArgs args)
         {
             CharacterMaster master = args.sender.master;
@@ -864,7 +864,7 @@ namespace RoR2Cheats
             Log.Message(Lang.SPAWN_ATTEMPT + master.name, args);
         }
 
-        [ConCommand(commandName = "change_team", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.CHANGETEAM_ARGS)]
+        [ConCommand(commandName = "change_team", flags = ConVarFlags.ExecuteOnServer, helpText = "Change the specified player to the specified team. "+Lang.CHANGETEAM_ARGS)]
         private static void CCChangeTeam(ConCommandArgs args)
         {
             if (args.Count == 0)
@@ -901,7 +901,7 @@ namespace RoR2Cheats
 
         }
 
-        [ConCommand(commandName = "add_portal", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.ADDPORTAL_ARGS)]
+        [ConCommand(commandName = "add_portal", flags = ConVarFlags.ExecuteOnServer, helpText = "Add a portal to the current Teleporter on completion. "+Lang.ADDPORTAL_ARGS)]
         private static void CCAddPortal(ConCommandArgs args)
         {
             if (TeleporterInteraction.instance)
