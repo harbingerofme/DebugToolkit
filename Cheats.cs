@@ -24,7 +24,6 @@ namespace RoR2Cheats
         public const string GUID = "com.harbingerofme." + modname;
         internal static bool noEnemies = false;
         internal static ulong seed = 0;
-        internal static bool nextBossSet = false;
         internal static DirectorCard nextBoss;
         internal static int nextBossCount = 1;
         internal static EliteIndex nextBossElite = EliteIndex.None;
@@ -431,7 +430,7 @@ namespace RoR2Cheats
                             }
                         }
                     }
-                    nextBossSet = true;
+                    On.RoR2.CombatDirector.SetNextSpawnAsBoss += Hooks.CombatDirector_SetNextSpawnAsBoss;
                     Log.Message(s.ToString(), args);
                 }
                 catch (Exception ex)
@@ -951,12 +950,6 @@ namespace RoR2Cheats
             return tierdefs[tier];
         }
 
-        internal static void ResetNextBoss()
-        {
-            nextBossSet = false;
-            nextBossCount = 1;
-            nextBossElite = EliteIndex.None;
-        }
         #endregion
 
 
