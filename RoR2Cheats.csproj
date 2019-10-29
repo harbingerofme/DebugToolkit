@@ -18,9 +18,20 @@
     <LangVersion>7.1</LangVersion>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="CommandDiscover\**" />
+    <EmbeddedResource Remove="CommandDiscover\**" />
+    <None Remove="CommandDiscover\**" />
+  </ItemGroup>
+
 
   <ItemGroup>
     <Folder Include="libs\" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <None Include="CommandDiscover.csproj" />
   </ItemGroup>
 
   <ItemGroup>
