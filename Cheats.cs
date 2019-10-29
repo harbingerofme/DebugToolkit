@@ -24,12 +24,9 @@ namespace RoR2Cheats
         public const string GUID = "com.harbingerofme." + modname;
         internal static bool noEnemies = false;
         internal static ulong seed = 0;
-        internal static bool nextBossSet = false;
         internal static DirectorCard nextBoss;
         internal static int nextBossCount = 1;
         internal static EliteIndex nextBossElite = EliteIndex.None;
-
-        internal static bool ForceFamily = false;
 
         private static MiniRpcLib.Action.IRpcAction<float> TimeScaleNetwork;
 
@@ -39,76 +36,9 @@ namespace RoR2Cheats
             new Log(Logger, miniRpc);
             TimeScaleNetwork = miniRpc.RegisterAction(Target.Client, (NetworkUser _, float f) => { HandleTimeScale(f); });
             Log.Message("Harb's and 's Version. Original by Morris1927.", LogLevel.Info, Log.Target.Bepinex);/*Check github for the other contributor, lmao*/
-            RoR2Application.rng.RangeInt(1,101);
+
             Hooks.InitializeHooks();
         }
-
-        #region DEBUG
-#if DEBUG
-        [ConCommand(commandName = "network_echo", flags = ConVarFlags.ExecuteOnServer, helpText = "Sends a message to the target network user.")]
-        private static void CCNetworkEcho(ConCommandArgs args)
-        {
-            args.CheckArgumentCount(2);
-            Log.Target target = (Log.Target)args.GetArgInt(0);
-
-            //Some fancyspancy thing that concatenates all remaining arguments as a single string.
-            StringBuilder s = new StringBuilder();
-            args.userArgs.RemoveAt(0);
-            args.userArgs.ForEach((string temp) => { s.Append(temp + " "); });
-            string str = s.ToString().TrimEnd(' ');
-
-            Log.Message(str, LogLevel.Message, target);
-        }
-
-        [ConCommand(commandName = "getItemName", flags = ConVarFlags.None, helpText = "Match a partial localised item name to an ItemIndex")]
-        private static void CCGetItemName(ConCommandArgs args)
-        {
-            Log.Message(Alias.Instance.GetItemFromPartial(args[0]).ToString());
-        }
-
-        [ConCommand(commandName = "getBodyName", flags = ConVarFlags.None, helpText = "Match a bpartial localised body name to a character body name")]
-        private static void CCGetBodyName(ConCommandArgs args)
-        {
-            Log.Message(Alias.Instance.GetBodyName(args[0]));
-        }
-
-        [ConCommand(commandName = "getEquipName", flags = ConVarFlags.None, helpText = "Match a partial localised equip name to an EquipIndex")]
-        private static void CCGetEquipName(ConCommandArgs args)
-        {
-            Log.Message(Alias.Instance.GetEquipFromPartial(args[0]).ToString());
-        }
-
-        [ConCommand(commandName = "getMasterName", flags = ConVarFlags.None, helpText = "Match a partial localised Master name to a CharacterMaster")]
-        private static void CCGetMasterName(ConCommandArgs args)
-        {
-            Log.Message(Alias.Instance.GetMasterName(args[0]));
-        }
-
-        [ConCommand(commandName = "getTeamIndexPartial", flags = ConVarFlags.None, helpText = "Match a partial TeamIndex")]
-        private static void CCGetTeamIndexPartial(ConCommandArgs args)
-        {
-            //Alias.Instance.GetMasterName(args[0]);
-            Log.Message(Alias.GetEnumFromPartial<TeamIndex>(args[0]).ToString());
-        }
-
-        [ConCommand(commandName = "getDirectorCardPartial", flags = ConVarFlags.None, helpText = "Match a partial DirectorCard")]
-        private static void CCGetDirectorCardPartial(ConCommandArgs args)
-        {
-            Log.Message(Alias.Instance.GetDirectorCardFromPartial(args[0]).spawnCard.prefab.name);
-        }
-        [ConCommand(commandName = "list_family", flags = ConVarFlags.None, helpText = "Lists all monster families")]
-        private static void CCListFamily(ConCommandArgs args)
-        {
-            StringBuilder s = new StringBuilder();
-            foreach (ClassicStageInfo.MonsterFamily family in ClassicStageInfo.instance.possibleMonsterFamilies)
-            {
-                s.AppendLine(family.familySelectionChatString);
-            }
-            Log.Message(s.ToString(), args, LogLevel.MessageClientOnly);
-        }
-
-#endif
-        #endregion
 
         #region Items&Stats
         [ConCommand(commandName = "list_items", flags = ConVarFlags.None, helpText = Lang.LISTITEM_ARGS)]
@@ -144,15 +74,16 @@ namespace RoR2Cheats
         [ConCommand(commandName = "list_AI", flags = ConVarFlags.None, helpText = Lang.LISTAI_ARGS)]
         private static void CCListAI(ConCommandArgs _)
         {
-            string langInvar; string list = "";
+            string langInvar;
             int i = 0;
+            StringBuilder sb = new StringBuilder();
             foreach (var master in MasterCatalog.allAiMasters)
             {
                 langInvar = Alias.GetLangInvar(master.bodyPrefab.GetComponent<CharacterBody>().baseNameToken);
-                list += $"[{i}]{master.name}={langInvar}\n";
+                sb.AppendLine($"[{i}]{master.name}={langInvar}");
                 i++;
             }
-            Log.Message(list.TrimEnd('\n'));
+            Log.Message(sb);
         }
 
         [ConCommand(commandName = "list_Body", flags = ConVarFlags.None, helpText = Lang.LISTBODY_ARGS)]
@@ -160,14 +91,14 @@ namespace RoR2Cheats
         {
             string langInvar;
             int i = 0;
-            string list = "";
+            StringBuilder sb = new StringBuilder();
             foreach (var body in BodyCatalog.allBodyPrefabBodyBodyComponents)
             {
                 langInvar = Alias.GetLangInvar(body.baseNameToken);
-                list += $"[{i}]{body.name}={langInvar}\n";
+                sb.AppendLine($"[{i}]{body.name}={langInvar}");
                 i++;
             }
-            Log.Message(list.TrimEnd('\n'));
+            Log.Message(sb);
         }
 
         [ConCommand(commandName = "give_item", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.GIVEITEM_ARGS)]
@@ -274,62 +205,49 @@ namespace RoR2Cheats
             args.CheckArgumentCount(1);
 
             Transform transform = args.senderBody.gameObject.transform;
-            PickupIndex final = PickupIndex.none;
-            if (args.Count == 1)
+
+            bool searchEquip = true, searchItem = true;
+            if (args.Count == 2)
             {
-                ItemIndex item;
-                EquipmentIndex equipment;
-                equipment = Alias.Instance.GetEquipFromPartial(args[0]);
-                item = Alias.Instance.GetItemFromPartial(args[0]);
-                if (item != ItemIndex.None && equipment != EquipmentIndex.None)
+                if (args[1].Equals("item", StringComparison.OrdinalIgnoreCase))
                 {
-                    Log.Message(string.Format(Lang.CREATEPICKUP_AMBIGIOUS_2, item, equipment), args, LogLevel.MessageClientOnly);
-                    return;
+                    searchEquip = false;
                 }
-
-                if (equipment == EquipmentIndex.None && item != ItemIndex.None)
+                if (args[1].ToUpper().StartsWith("EQUIP"))
                 {
-                    final = PickupCatalog.FindPickupIndex(item);
-                }
-                if (item == ItemIndex.None && equipment != EquipmentIndex.None)
-                {
-                    final = PickupCatalog.FindPickupIndex(equipment);
-                }
-
-                if (item == ItemIndex.None && equipment == EquipmentIndex.None)
-                {
-                    if (args[0].ToUpper().Contains("COIN"))
-                    {
-                        final = PickupCatalog.FindPickupIndex("LunarCoin.Coin0");
-                    }
-                    else
-                    {
-                        Log.Message(Lang.CREATEPICKUP_NOTFOUND, args, LogLevel.MessageClientOnly);
-                        return;
-                    }
+                    searchItem = false;
                 }
             }
-            else
+            PickupIndex final = PickupIndex.none;
+            EquipmentIndex equipment = EquipmentIndex.None; 
+            ItemIndex item = ItemIndex.None;
+
+            if (searchEquip)
             {
-                if (args[0].Equals("item", StringComparison.OrdinalIgnoreCase))
+                equipment = Alias.Instance.GetEquipFromPartial(args[0]);
+                final = PickupCatalog.FindPickupIndex(equipment);
+            }
+            if (searchItem)
+            {
+                item = Alias.Instance.GetItemFromPartial(args[0]);
+                final = PickupCatalog.FindPickupIndex(item);
+            }
+            if (item != ItemIndex.None && equipment != EquipmentIndex.None)
+            {
+                Log.Message(string.Format(Lang.CREATEPICKUP_AMBIGIOUS_2, item, equipment), args, LogLevel.MessageClientOnly);
+                return;
+            }
+
+            if (item == ItemIndex.None && equipment == EquipmentIndex.None)
+            {
+                if (args[0].ToUpper().Contains("COIN"))
                 {
-                    ItemIndex itemName = Alias.Instance.GetItemFromPartial(args[1]);
-                    if (itemName == ItemIndex.None)
-                    {
-                        Log.Message(Lang.CREATEPICKUP_NOTFOUND, args, LogLevel.MessageClientOnly);
-                        return;
-                    }
-                    final = PickupCatalog.FindPickupIndex(itemName);
+                    final = PickupCatalog.FindPickupIndex("LunarCoin.Coin0");
                 }
-                if (args[0].ToUpper().StartsWith("EQUIP"))
+                else
                 {
-                    EquipmentIndex equipName = Alias.Instance.GetEquipFromPartial(args[0]);
-                    if (equipName == EquipmentIndex.None)
-                    {
-                        Log.Message(Lang.CREATEPICKUP_NOTFOUND, args, LogLevel.MessageClientOnly);
-                        return;
-                    }
-                    final = PickupCatalog.FindPickupIndex(equipName);
+                    Log.Message(Lang.CREATEPICKUP_NOTFOUND, args, LogLevel.MessageClientOnly);
+                    return;
                 }
             }
             Log.Message(string.Format(Lang.CREATEPICKUP_SUCCES_1, final), args);
@@ -465,15 +383,15 @@ namespace RoR2Cheats
         [ConCommand(commandName = "family_event", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.FAMILYEVENT_ARGS)]
         private static void CCFamilyEvent(ConCommandArgs args)
         {
-            ForceFamily = true;
             IL.RoR2.ClassicStageInfo.Awake += Hooks.ForceFamilyEvent;
+            On.RoR2.Stage.Start += Hooks.RemoveFamilyEvent;
             Log.Message("The next stage will contain a family event!", args);
         }
 
         [ConCommand(commandName = "next_boss", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.NEXTBOSS_ARGS)]
         private static void CCNextBoss(ConCommandArgs args)
         {
-            Log.Message(Lang.PARTIAL_IMPLEMENTATION, args, LogLevel.MessageClientOnly);
+            Log.Message(Lang.PARTIALIMPLEMENTATION_WARNING, args, LogLevel.MessageClientOnly);
             if (args.Count == 0)
             {
                 Log.Message(Lang.NEXTBOSS_ARGS, args);
@@ -510,7 +428,7 @@ namespace RoR2Cheats
                             }
                         }
                     }
-                    nextBossSet = true;
+                    On.RoR2.CombatDirector.SetNextSpawnAsBoss += Hooks.CombatDirector_SetNextSpawnAsBoss;
                     Log.Message(s.ToString(), args);
                 }
                 catch (Exception ex)
@@ -553,7 +471,7 @@ namespace RoR2Cheats
             }
         }
 
-        [ConCommand(commandName = "seed", flags = ConVarFlags.ExecuteOnServer, helpText = "Gets/Sets seed.")]
+        [ConCommand(commandName = "seed", flags = ConVarFlags.ExecuteOnServer, helpText = "Gets/Sets the game seed until game close. Use 0 to reset to vanilla generation. "+Lang.SEED_ARGS)]
         private static void CCUseSeed(ConCommandArgs args)
         {
             if (args.Count == 0)
@@ -579,6 +497,17 @@ namespace RoR2Cheats
             if (PreGameController.instance)
             {
                 PreGameController.instance.runSeed = (result == 0) ? RoR2Application.rng.nextUlong : result;
+            }
+            if(seed == 0 && result != 0)
+            {
+                On.RoR2.PreGameController.Awake += Hooks.SeedHook;
+            }
+            else
+            {
+                if(seed != 0 && result == 0)
+                {
+                    On.RoR2.PreGameController.Awake -= Hooks.SeedHook;
+                }
             }
             seed = result;
             Log.Message($"Seed set to {((seed == 0) ? "vanilla generation" : seed.ToString())}.", args);
@@ -1019,13 +948,76 @@ namespace RoR2Cheats
             return tierdefs[tier];
         }
 
-        internal static void ResetNextBoss()
-        {
-            nextBossSet = false;
-            nextBossCount = 1;
-            nextBossElite = EliteIndex.None;
-        }
         #endregion
+
+
+        #region DEBUG
+#if DEBUG
+        [ConCommand(commandName = "network_echo", flags = ConVarFlags.ExecuteOnServer, helpText = "Sends a message to the target network user.")]
+        private static void CCNetworkEcho(ConCommandArgs args)
+        {
+            args.CheckArgumentCount(2);
+            Log.Target target = (Log.Target)args.GetArgInt(0);
+
+            //Some fancyspancy thing that concatenates all remaining arguments as a single string.
+            StringBuilder s = new StringBuilder();
+            args.userArgs.RemoveAt(0);
+            args.userArgs.ForEach((string temp) => { s.Append(temp + " "); });
+            string str = s.ToString().TrimEnd(' ');
+
+            Log.Message(str, LogLevel.Message, target);
+        }
+
+        [ConCommand(commandName = "getItemName", flags = ConVarFlags.None, helpText = "Match a partial localised item name to an ItemIndex")]
+        private static void CCGetItemName(ConCommandArgs args)
+        {
+            Log.Message(Alias.Instance.GetItemFromPartial(args[0]).ToString());
+        }
+
+        [ConCommand(commandName = "getBodyName", flags = ConVarFlags.None, helpText = "Match a bpartial localised body name to a character body name")]
+        private static void CCGetBodyName(ConCommandArgs args)
+        {
+            Log.Message(Alias.Instance.GetBodyName(args[0]));
+        }
+
+        [ConCommand(commandName = "getEquipName", flags = ConVarFlags.None, helpText = "Match a partial localised equip name to an EquipIndex")]
+        private static void CCGetEquipName(ConCommandArgs args)
+        {
+            Log.Message(Alias.Instance.GetEquipFromPartial(args[0]).ToString());
+        }
+
+        [ConCommand(commandName = "getMasterName", flags = ConVarFlags.None, helpText = "Match a partial localised Master name to a CharacterMaster")]
+        private static void CCGetMasterName(ConCommandArgs args)
+        {
+            Log.Message(Alias.Instance.GetMasterName(args[0]));
+        }
+
+        [ConCommand(commandName = "getTeamIndexPartial", flags = ConVarFlags.None, helpText = "Match a partial TeamIndex")]
+        private static void CCGetTeamIndexPartial(ConCommandArgs args)
+        {
+            //Alias.Instance.GetMasterName(args[0]);
+            Log.Message(Alias.GetEnumFromPartial<TeamIndex>(args[0]).ToString());
+        }
+
+        [ConCommand(commandName = "getDirectorCardPartial", flags = ConVarFlags.None, helpText = "Match a partial DirectorCard")]
+        private static void CCGetDirectorCardPartial(ConCommandArgs args)
+        {
+            Log.Message(Alias.Instance.GetDirectorCardFromPartial(args[0]).spawnCard.prefab.name);
+        }
+        [ConCommand(commandName = "list_family", flags = ConVarFlags.None, helpText = "Lists all monster families")]
+        private static void CCListFamily(ConCommandArgs args)
+        {
+            StringBuilder s = new StringBuilder();
+            foreach (ClassicStageInfo.MonsterFamily family in ClassicStageInfo.instance.possibleMonsterFamilies)
+            {
+                s.AppendLine(family.familySelectionChatString);
+            }
+            Log.Message(s.ToString(), args, LogLevel.MessageClientOnly);
+        }
+
+#endif
+        #endregion
+
 
         /// <summary>
         /// Required for automated manifest building.

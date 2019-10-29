@@ -8,7 +8,7 @@ using System.Text;
 
 namespace RoR2Cheats
 {
-    public class Hooks
+    internal sealed class Hooks
     {
         private const ConVarFlags AllFlagsNoCheat = ConVarFlags.None | ConVarFlags.Archive | ConVarFlags.Engine | ConVarFlags.ExecuteOnServer | ConVarFlags.SenderMustBeServer;
         public static void InitializeHooks()
@@ -17,12 +17,6 @@ namespace RoR2Cheats
             On.RoR2.Console.InitConVars += InitCommandsAndFreeConvars;
             CommandHelper.AddToConsoleWhenReady();
             On.RoR2.Console.RunCmd += LogNetworkCommands;
-
-            On.RoR2.PreGameController.Awake += SeedHook;
-
-            On.RoR2.CombatDirector.SetNextSpawnAsBoss += CombatDirector_SetNextSpawnAsBoss;
-
-            On.RoR2.Stage.Start += RemoveFamilyEvent;
         }
 
         private static void LogNetworkCommands(On.RoR2.Console.orig_RunCmd orig, RoR2.Console self, NetworkUser sender, string concommandName, System.Collections.Generic.List<string> userArgs)
@@ -88,41 +82,30 @@ namespace RoR2Cheats
             });
         }
 
-        /// <summary>
-        /// Resets the chance for a family even at the beginning of ever stage, if it was previously set.
-        /// </summary>
-        /// <param name="orig"></param>
-        /// <param name="self"></param>
-        private static void RemoveFamilyEvent(On.RoR2.Stage.orig_Start orig, Stage self)
+        internal static void RemoveFamilyEvent(On.RoR2.Stage.orig_Start orig, Stage self)
         {
             orig(self);
-            if (RoR2Cheats.ForceFamily)
-            {
-                IL.RoR2.ClassicStageInfo.Awake -= ForceFamilyEvent;
-                RoR2Cheats.ForceFamily = false;
-            }
+            IL.RoR2.ClassicStageInfo.Awake -= ForceFamilyEvent;
+            On.RoR2.Stage.Start -= RemoveFamilyEvent;
         }
 
 
-        private static void CombatDirector_SetNextSpawnAsBoss(On.RoR2.CombatDirector.orig_SetNextSpawnAsBoss orig, CombatDirector self)
+        internal static void CombatDirector_SetNextSpawnAsBoss(On.RoR2.CombatDirector.orig_SetNextSpawnAsBoss orig, CombatDirector self)
         {
             orig(self);
-            
-            if (RoR2Cheats.nextBossSet)
-            {
-                self.monsterCredit *= 100; 
-                var selected = RoR2Cheats.nextBoss;
-                selected.cost = (int)((self.monsterCredit / RoR2Cheats.nextBossCount) / RoR2Cheats.GetTierDef(RoR2Cheats.nextBossElite).costMultiplier);
-                self.OverrideCurrentMonsterCard(selected);
-                self.SetFieldValue<CombatDirector.EliteTierDef>("currentActiveEliteTier", RoR2Cheats.GetTierDef(RoR2Cheats.nextBossElite));
-                self.SetFieldValue<EliteIndex>("currentActiveEliteIndex", RoR2Cheats.nextBossElite);
-                Log.Message($"{selected.spawnCard.name} cost has been set to {selected.cost} for {RoR2Cheats.nextBossCount} {RoR2Cheats.nextBossElite.ToString()} bosses with available credit: {self.monsterCredit}",Log.LogLevel.Info);
-                RoR2Cheats.ResetNextBoss();
-                return;
-            }
+            self.monsterCredit *= 100; 
+            var selected = RoR2Cheats.nextBoss;
+            selected.cost = (int)((self.monsterCredit / RoR2Cheats.nextBossCount) / RoR2Cheats.GetTierDef(RoR2Cheats.nextBossElite).costMultiplier);
+            self.OverrideCurrentMonsterCard(selected);
+            self.SetFieldValue<CombatDirector.EliteTierDef>("currentActiveEliteTier", RoR2Cheats.GetTierDef(RoR2Cheats.nextBossElite));
+            self.SetFieldValue<EliteIndex>("currentActiveEliteIndex", RoR2Cheats.nextBossElite);
+            Log.Message($"{selected.spawnCard.name} cost has been set to {selected.cost} for {RoR2Cheats.nextBossCount} {RoR2Cheats.nextBossElite.ToString()} bosses with available credit: {self.monsterCredit}",Log.LogLevel.Info);
+            RoR2Cheats.nextBossCount = 1;
+            RoR2Cheats.nextBossElite = EliteIndex.None;
+            On.RoR2.CombatDirector.SetNextSpawnAsBoss -= CombatDirector_SetNextSpawnAsBoss;
         }
 
-        private static void SeedHook(On.RoR2.PreGameController.orig_Awake orig, PreGameController self)
+        internal static void SeedHook(On.RoR2.PreGameController.orig_Awake orig, PreGameController self)
         {
             orig(self);
             if (RoR2Cheats.seed != 0)
