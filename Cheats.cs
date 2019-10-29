@@ -501,6 +501,17 @@ namespace RoR2Cheats
             {
                 PreGameController.instance.runSeed = (result == 0) ? RoR2Application.rng.nextUlong : result;
             }
+            if(seed == 0 && result != 0)
+            {
+                On.RoR2.PreGameController.Awake += Hooks.SeedHook;
+            }
+            else
+            {
+                if(seed != 0 && result == 0)
+                {
+                    On.RoR2.PreGameController.Awake -= Hooks.SeedHook;
+                }
+            }
             seed = result;
             Log.Message($"Seed set to {((seed == 0) ? "vanilla generation" : seed.ToString())}.", args);
         }
