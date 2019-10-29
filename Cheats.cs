@@ -276,62 +276,49 @@ namespace RoR2Cheats
             args.CheckArgumentCount(1);
 
             Transform transform = args.senderBody.gameObject.transform;
-            PickupIndex final = PickupIndex.none;
-            if (args.Count == 1)
+
+            bool searchEquip = true, searchItem = true;
+            if (args.Count == 2)
             {
-                ItemIndex item;
-                EquipmentIndex equipment;
-                equipment = Alias.Instance.GetEquipFromPartial(args[0]);
-                item = Alias.Instance.GetItemFromPartial(args[0]);
-                if (item != ItemIndex.None && equipment != EquipmentIndex.None)
+                if (args[1].Equals("item", StringComparison.OrdinalIgnoreCase))
                 {
-                    Log.Message(string.Format(Lang.CREATEPICKUP_AMBIGIOUS_2, item, equipment), args, LogLevel.MessageClientOnly);
-                    return;
+                    searchEquip = false;
                 }
-
-                if (equipment == EquipmentIndex.None && item != ItemIndex.None)
+                if (args[1].ToUpper().StartsWith("EQUIP"))
                 {
-                    final = PickupCatalog.FindPickupIndex(item);
-                }
-                if (item == ItemIndex.None && equipment != EquipmentIndex.None)
-                {
-                    final = PickupCatalog.FindPickupIndex(equipment);
-                }
-
-                if (item == ItemIndex.None && equipment == EquipmentIndex.None)
-                {
-                    if (args[0].ToUpper().Contains("COIN"))
-                    {
-                        final = PickupCatalog.FindPickupIndex("LunarCoin.Coin0");
-                    }
-                    else
-                    {
-                        Log.Message(Lang.CREATEPICKUP_NOTFOUND, args, LogLevel.MessageClientOnly);
-                        return;
-                    }
+                    searchItem = false;
                 }
             }
-            else
+            PickupIndex final = PickupIndex.none;
+            EquipmentIndex equipment = EquipmentIndex.None; 
+            ItemIndex item = ItemIndex.None;
+
+            if (searchEquip)
             {
-                if (args[0].Equals("item", StringComparison.OrdinalIgnoreCase))
+                equipment = Alias.Instance.GetEquipFromPartial(args[0]);
+                final = PickupCatalog.FindPickupIndex(equipment);
+            }
+            if (searchItem)
+            {
+                item = Alias.Instance.GetItemFromPartial(args[0]);
+                final = PickupCatalog.FindPickupIndex(item);
+            }
+            if (item != ItemIndex.None && equipment != EquipmentIndex.None)
+            {
+                Log.Message(string.Format(Lang.CREATEPICKUP_AMBIGIOUS_2, item, equipment), args, LogLevel.MessageClientOnly);
+                return;
+            }
+
+            if (item == ItemIndex.None && equipment == EquipmentIndex.None)
+            {
+                if (args[0].ToUpper().Contains("COIN"))
                 {
-                    ItemIndex itemName = Alias.Instance.GetItemFromPartial(args[1]);
-                    if (itemName == ItemIndex.None)
-                    {
-                        Log.Message(Lang.CREATEPICKUP_NOTFOUND, args, LogLevel.MessageClientOnly);
-                        return;
-                    }
-                    final = PickupCatalog.FindPickupIndex(itemName);
+                    final = PickupCatalog.FindPickupIndex("LunarCoin.Coin0");
                 }
-                if (args[0].ToUpper().StartsWith("EQUIP"))
+                else
                 {
-                    EquipmentIndex equipName = Alias.Instance.GetEquipFromPartial(args[0]);
-                    if (equipName == EquipmentIndex.None)
-                    {
-                        Log.Message(Lang.CREATEPICKUP_NOTFOUND, args, LogLevel.MessageClientOnly);
-                        return;
-                    }
-                    final = PickupCatalog.FindPickupIndex(equipName);
+                    Log.Message(Lang.CREATEPICKUP_NOTFOUND, args, LogLevel.MessageClientOnly);
+                    return;
                 }
             }
             Log.Message(string.Format(Lang.CREATEPICKUP_SUCCES_1, final), args);
