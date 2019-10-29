@@ -2,7 +2,7 @@
 
 With the recent release of Lodington's RoRCheats, ambiguity exists between the mods. We are renaming to [DebugToolkit](https://thunderstore.io/package/Harb/DebugToolkit/) from version `3.2` onwards.
 We decided that the flexibility of our mod is more aimed towards developers who want to test extreme secnarios quickly, while Lodington's lends itself better to cheating.
-** his package will become deprecated once we release 3.2**. [This link will take you to that modpage once it releases.](https://thunderstore.io/package/Harb/DebugToolkit/)
+**This package will become deprecated once we release 3.2**. [This link will take you to that modpage once it releases.](https://thunderstore.io/package/Harb/DebugToolkit/)
 
 # RoR2Cheats
 
