@@ -8,7 +8,7 @@ using System.Text;
 
 namespace RoR2Cheats
 {
-    public class Hooks
+    internal sealed class Hooks
     {
         private const ConVarFlags AllFlagsNoCheat = ConVarFlags.None | ConVarFlags.Archive | ConVarFlags.Engine | ConVarFlags.ExecuteOnServer | ConVarFlags.SenderMustBeServer;
         public static void InitializeHooks()
