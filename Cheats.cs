@@ -199,7 +199,7 @@ namespace RoR2Cheats
             }
 
             var item = Alias.Instance.GetItemFromPartial(args[0]);
-            if (item != ItemIndex.None
+            if (item != ItemIndex.None)
             {
                 inventory.GiveItem(item, iCount);
             }
