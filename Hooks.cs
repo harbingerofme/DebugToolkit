@@ -17,9 +17,6 @@ namespace RoR2Cheats
             On.RoR2.Console.InitConVars += InitCommandsAndFreeConvars;
             CommandHelper.AddToConsoleWhenReady();
             On.RoR2.Console.RunCmd += LogNetworkCommands;
-
-            On.RoR2.PreGameController.Awake += SeedHook;
-
             On.RoR2.CombatDirector.SetNextSpawnAsBoss += CombatDirector_SetNextSpawnAsBoss;
 
             On.RoR2.Stage.Start += RemoveFamilyEvent;
@@ -122,7 +119,7 @@ namespace RoR2Cheats
             }
         }
 
-        private static void SeedHook(On.RoR2.PreGameController.orig_Awake orig, PreGameController self)
+        internal static void SeedHook(On.RoR2.PreGameController.orig_Awake orig, PreGameController self)
         {
             orig(self);
             if (RoR2Cheats.seed != 0)
