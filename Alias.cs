@@ -47,6 +47,8 @@ namespace RoR2Cheats
             MasterAlias.Add("LemurianBruiserMasterIce", new string[] { "LemurianBruiserIce" });
             MasterAlias.Add("LemurianBruiserMasterPoison", new string[] { "LemurianBruiserPoison", "LemurianBruiserBlight", "LemurianBruisermalechite" });
             MasterAlias.Add("MercMonsterMaster", new string[] { "MercMonster" });
+            MasterAlias.Add("RoboBallBossMaster", new string[] { "SCU", "roboboss" });
+            MasterAlias.Add("SuperRoboBallBossMaster", new string[] { "AWU"});
 
             Debug.Log($"CardCount: {Resources.LoadAll<CharacterSpawnCard>("SpawnCards/CharacterSpawnCards").Length}");
 
