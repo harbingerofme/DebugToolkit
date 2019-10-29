@@ -40,7 +40,7 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
 * **give_item** - Give item directly to the player's inventory: `give_item {localised_object_name} [count def 1] [player def *you]`
 * **give_equip** - Give equipment directly to a player's inventory: `give_equip {localised_object_name} [player def *you]`
 * **give_money** - Gives the desired player/team money `give_money {amount} [(all | [player]) def all]`
-* **give_lunar** - Gives the specified amount of lunar coins to the issuing player. A negative count may be specified to remove that many. `give_lunar {amount}`
+* **give_lunar** - Gives the specified amount of lunar coins to the issuing player. A negative count may be specified to remove that many. `give_lunar {amount def 1}`
 * **remove_item** - Removes an item from a player's inventory. `remove_item (localised_object_name | 'all') [(player | 'all') def *you]`
 * **remove_equip** - Sets the equipment of a player to 'None'. `remove_equip {localised_object_name} [player def *you]`
 * **create_pickup** - Creates a pickup in front of the issuing player. Pickups are items, equipment and lunar coins. Additionally 'item' or 'equip' may be specified to only search that list. `create_pickup (localized_object_name| "coin") [('item'|'equip') def *both]`

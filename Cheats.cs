@@ -198,7 +198,7 @@ namespace RoR2Cheats
             }
 
             var item = Alias.Instance.GetItemFromPartial(args[0]);
-            if (item != ItemIndex.None)
+            if (item != ItemIndex.None
             {
                 inventory.GiveItem(item, iCount);
             }
@@ -474,7 +474,7 @@ namespace RoR2Cheats
         [ConCommand(commandName = "next_boss", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.NEXTBOSS_ARGS)]
         private static void CCNextBoss(ConCommandArgs args)
         {
-            Log.Message(Lang.PARTIAL_IMPLEMENTATION, args, LogLevel.MessageClientOnly);
+            Log.Message(Lang.PARTIALIMPLEMENTATION_WARNING, args, LogLevel.MessageClientOnly);
             if (args.Count == 0)
             {
                 Log.Message(Lang.NEXTBOSS_ARGS, args);
@@ -554,7 +554,7 @@ namespace RoR2Cheats
             }
         }
 
-        [ConCommand(commandName = "seed", flags = ConVarFlags.ExecuteOnServer, helpText = "Gets/Sets seed.")]
+        [ConCommand(commandName = "seed", flags = ConVarFlags.ExecuteOnServer, helpText = "Gets/Sets the game seed until game close. Use 0 to reset to vanilla generation. "+Lang.SEED_ARGS)]
         private static void CCUseSeed(ConCommandArgs args)
         {
             if (args.Count == 0)
