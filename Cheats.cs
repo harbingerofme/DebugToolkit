@@ -145,15 +145,16 @@ namespace RoR2Cheats
         [ConCommand(commandName = "list_AI", flags = ConVarFlags.None, helpText = Lang.LISTAI_ARGS)]
         private static void CCListAI(ConCommandArgs _)
         {
-            string langInvar; string list = "";
+            string langInvar;
             int i = 0;
+            StringBuilder sb = new StringBuilder();
             foreach (var master in MasterCatalog.allAiMasters)
             {
                 langInvar = Alias.GetLangInvar(master.bodyPrefab.GetComponent<CharacterBody>().baseNameToken);
-                list += $"[{i}]{master.name}={langInvar}\n";
+                sb.AppendLine($"[{i}]{master.name}={langInvar}");
                 i++;
             }
-            Log.Message(list.TrimEnd('\n'));
+            Log.Message(sb);
         }
 
         [ConCommand(commandName = "list_Body", flags = ConVarFlags.None, helpText = Lang.LISTBODY_ARGS)]
@@ -161,14 +162,14 @@ namespace RoR2Cheats
         {
             string langInvar;
             int i = 0;
-            string list = "";
+            StringBuilder sb = new StringBuilder();
             foreach (var body in BodyCatalog.allBodyPrefabBodyBodyComponents)
             {
                 langInvar = Alias.GetLangInvar(body.baseNameToken);
-                list += $"[{i}]{body.name}={langInvar}\n";
+                sb.AppendLine($"[{i}]{body.name}={langInvar}");
                 i++;
             }
-            Log.Message(list.TrimEnd('\n'));
+            Log.Message(sb);
         }
 
         [ConCommand(commandName = "give_item", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.GIVEITEM_ARGS)]
