@@ -8,7 +8,7 @@ namespace RoR2Cheats
     {
         //() denotes a list of specifc choices. : denotes a default. [] denotes a collection, and {} denotes freeform
         internal const string
-            ADDPORTAL_ARGS = ": add_portal (blue|celestial|gold)",
+            ADDPORTAL_ARGS = "Requires 1 argument: add_portal (blue|celestial|gold)",
             CHANGETEAM_ARGS = "Requires 1 argument: change_team {TeamIndex:0/Neutral} ({PlayerID:self}|{Playername})",
             CREATEPICKUP_ARGS = "Requires 1 argument: " + CREATEPICKUP_NAME + "(\"coin\"|{localised_object_name}) (\"item\"|\"equip\")",
             FAMILYEVENT_ARGS = "Requires 0 arguments: family_event",
@@ -46,7 +46,7 @@ namespace RoR2Cheats
             CREATEPICKUP_NOTFOUND = "Could not find any item nor equipment with that name. It's not a coin either.",
             CREATEPICKUP_SUCCES_1 = "Succesfully created the pickup {0}.",
             COUNTISNUMERIC = "Count must be numeric!",
-            GIVELUNAR_2 = "{0} {1} lunar coins.",
+            GIVELUNAR_2 = "{0} {1} lunar coin(s).",
             INTEGER_EXPECTED = "Argument must be a whole number.",
             OBJECT_NOTFOUND = "The requested object could not be found: ",
             OBSOLETEWARNING = "This command has become obsolete and will be removed in the next version. ",
