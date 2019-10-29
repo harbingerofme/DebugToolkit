@@ -6,9 +6,9 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("CommandDiscover")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Discovers all Concommands in an assembly and writes them to 3 files.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Harbingerofme")]
 [assembly: AssemblyProduct("CommandDiscover")]
 [assembly: AssemblyCopyright("Copyright ©  2019")]
 [assembly: AssemblyTrademark("")]
