@@ -2,7 +2,7 @@
 
 With the recent release of Lodington's RoRCheats, ambiguity exists between the mods. We are renaming to [DebugToolkit](https://thunderstore.io/package/Harb/DebugToolkit/) from version `3.2` onwards.
 We decided that the flexibility of our mod is more aimed towards developers who want to test extreme secnarios quickly, while Lodington's lends itself better to cheating.
-** This package will become deprecated once we release 3.2**. [This link will take you to that modpage once it releases.](https://thunderstore.io/package/Harb/DebugToolkit/)
+** his package will become deprecated once we release 3.2**. [This link will take you to that modpage once it releases.](https://thunderstore.io/package/Harb/DebugToolkit/)
 
 # RoR2Cheats
 
@@ -16,7 +16,8 @@ Mods recommended for combined use:
 * [KeyBindForConsole](https://thunderstore.io/package/kristiansja/KeyBindForConsole/)
 * [SimpleMacros](https://thunderstore.io/package/recursiveGecko/SimpleMacros/)
 
-You may contact us at any time through issues on GitHub, or through the risk of rain 2 modding Discord found at the top of the Thunderstore website.
+You may contact us at any time through issues on GitHub, or through the Risk of Rain 2 modding Discord found at the top of the Thunderstore website.
+
 ---
 
 ## **COMMANDS**
@@ -88,7 +89,7 @@ These commands will be removed once we hit **3.2**. Speak out now or be forever 
 	* `remove_item` While this functionality could already be achieved with *give_item* and a negative amount, this was not obvious.
 	* `remove_equip` While this functionality could already be achieved with `give_equip None, this was not obvious.
 	* `create_pickup` A lot of custom item mods also need to test their descriptions. Maybe you have an on pickup hook.
-	`* family_event` We initially tried it being able to do any family, but this proved to be hard. We force
+	* `family_event` We initially tried it being able to do any family, but this proved to be hard. So instead we force an event to happen next stage.
 * **Fixes**
 	* 
 	* `Spawn_as` now temporarily disables arriving in the pod to prevent not being able to get out of a pod.
