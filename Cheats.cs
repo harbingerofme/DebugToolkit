@@ -64,7 +64,7 @@ namespace RoR2Cheats
             Log.Message(s.ToString(), args, LogLevel.MessageClientOnly);
         }
 
-        [ConCommand(commandName = "list_player", flags = ConVarFlags.ExecuteOnServer, helpText = "List all players in the session. " + Lang.LISTPLAYER_ARGS)]
+        [ConCommand(commandName = "list_player", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.LISTPLAYER_ARGS)]
         private static void CCListPlayer(ConCommandArgs args)
         {
             NetworkUser n;
@@ -78,7 +78,7 @@ namespace RoR2Cheats
             Log.Message(list.ToString(), args, LogLevel.MessageClientOnly);
         }
 
-        [ConCommand(commandName = "list_items", flags = ConVarFlags.None, helpText = "Lists all ItemIndexes. " + Lang.LISTITEM_ARGS)]
+        [ConCommand(commandName = "list_items", flags = ConVarFlags.None, helpText =  Lang.LISTITEM_ARGS)]
         private static void CCListItems(ConCommandArgs _)
         {
             Log.Message(Lang.OBSOLETEWARNING, LogLevel.Warning);
@@ -93,7 +93,7 @@ namespace RoR2Cheats
             Log.Message(text.ToString());
         }
 
-        [ConCommand(commandName = "list_equips", flags = ConVarFlags.None, helpText = "Lists all EquipmentIndexes. "+Lang.LISTEQUIP_ARGS)]
+        [ConCommand(commandName = "list_equips", flags = ConVarFlags.None, helpText = Lang.LISTEQUIP_ARGS)]
         private static void CCListEquipments(ConCommandArgs _)
         {
             Log.Message(Lang.OBSOLETEWARNING, LogLevel.Warning);
@@ -108,7 +108,7 @@ namespace RoR2Cheats
             Log.Message(text.ToString());
         }
 
-        [ConCommand(commandName = "list_AI", flags = ConVarFlags.None, helpText = "Lists the available CharacterMaster prefabs. " + Lang.LISTAI_ARGS)]
+        [ConCommand(commandName = "list_AI", flags = ConVarFlags.None, helpText =  Lang.LISTAI_ARGS)]
         private static void CCListAI(ConCommandArgs _)
         {
             string langInvar;
@@ -123,7 +123,7 @@ namespace RoR2Cheats
             Log.Message(sb);
         }
 
-        [ConCommand(commandName = "list_Body", flags = ConVarFlags.None, helpText = "Lists the available CharacterBody prefabs. " + Lang.LISTBODY_ARGS)]
+        [ConCommand(commandName = "list_Body", flags = ConVarFlags.None, helpText = Lang.LISTBODY_ARGS)]
         private static void CCListBody(ConCommandArgs _)
         {
             string langInvar;
@@ -236,7 +236,7 @@ namespace RoR2Cheats
             Log.Message(str, args);
         }
 
-        [ConCommand(commandName = Lang.CREATEPICKUP_NAME, flags = ConVarFlags.ExecuteOnServer, helpText = "Creates a PickupDroplet infront of the players position. " +Lang.CREATEPICKUP_ARGS)]
+        [ConCommand(commandName = "create_pickup", flags = ConVarFlags.ExecuteOnServer, helpText = "Creates a PickupDroplet infront of the players position. " +Lang.CREATEPICKUP_ARGS)]
         private static void CCCreatePickup(ConCommandArgs args)
         {
             args.CheckArgumentCount(1);
@@ -460,7 +460,7 @@ namespace RoR2Cheats
             }
         }
 
-        [ConCommand(commandName = "family_event", flags = ConVarFlags.ExecuteOnServer, helpText = "Forces a family event to occur during the next stage. "+Lang.FAMILYEVENT_ARGS)]
+        [ConCommand(commandName = "force_family_event", flags = ConVarFlags.ExecuteOnServer, helpText = "Forces a family event to occur during the next stage. "+Lang.FAMILYEVENT_ARGS)]
         private static void CCFamilyEvent(ConCommandArgs args)
         {
             IL.RoR2.ClassicStageInfo.Awake += Hooks.ForceFamilyEvent;
@@ -732,7 +732,7 @@ namespace RoR2Cheats
             }
         }
 
-        [ConCommand(commandName = "god", flags = ConVarFlags.ExecuteOnServer, helpText = "Become invincible"+Lang.GOD_ARGS)]
+        [ConCommand(commandName = "god", flags = ConVarFlags.ExecuteOnServer, helpText = "Become invincible. "+Lang.GOD_ARGS)]
         private static void CCGodModeToggle(ConCommandArgs args)
         {
             var godToggleMethod = typeof(CharacterMaster).GetMethodCached("ToggleGod");
@@ -748,7 +748,7 @@ namespace RoR2Cheats
             }
         }
 
-        [ConCommand(commandName = "noclip", flags = ConVarFlags.ExecuteOnServer, helpText = "Allow flying and going through objects. Sprinting will double the speed."+Lang.NOCLIP_ARGS)]
+        [ConCommand(commandName = "noclip", flags = ConVarFlags.ExecuteOnServer, helpText = "Allow flying and going through objects. Sprinting will double the speed. "+Lang.NOCLIP_ARGS)]
         private static void CCNoclip(ConCommandArgs args)
         {
             if (Run.instance)

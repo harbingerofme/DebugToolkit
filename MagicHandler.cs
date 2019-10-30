@@ -11,7 +11,7 @@ namespace RoR2Cheats
             ADDPORTAL_ARGS = "Requires 1 argument: add_portal (blue|celestial|gold)",
             BAN_ARGS = "Requires 1 argument: ({PlayerID:self}|{Playername})",
             CHANGETEAM_ARGS = "Requires 1 argument: change_team {TeamIndex:0/Neutral} ({PlayerID:self}|{Playername})",
-            CREATEPICKUP_ARGS = "Requires 1 argument: " + CREATEPICKUP_NAME + "(\"coin\"|{localised_object_name}) (\"item\"|\"equip\")",
+            CREATEPICKUP_ARGS = "Requires 1 argument: create_pickup (\"coin\"|{localised_object_name}) (\"item\"|\"equip\")",
             FAMILYEVENT_ARGS = "Requires 0 arguments: family_event",
             FIXEDTIME_ARGS = "Requires 1 argument: fixed_time {NewTime}",
             GIVEEQUIP_ARGS = "Requires 1 argument: give_equip {localised_object_name} ({PlayerID:self}|{Playername})",
@@ -46,8 +46,7 @@ namespace RoR2Cheats
             ;
 
         internal const string
-            CREATEPICKUP_AMBIGIOUS_2 = "Could not choose between {0} and {1}, please be more precise. Consider using 'equip' or 'item' as the first argument.",
-            CREATEPICKUP_NAME = "create_pickup",
+            CREATEPICKUP_AMBIGIOUS_2 = "Could not choose between {0} and {1}, please be more precise. Consider using 'equip' or 'item' as the second argument.",
             CREATEPICKUP_NOTFOUND = "Could not find any item nor equipment with that name. It's not a coin either.",
             CREATEPICKUP_SUCCES_1 = "Succesfully created the pickup {0}.",
             COUNTISNUMERIC = "Count must be numeric!",
