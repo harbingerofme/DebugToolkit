@@ -46,6 +46,8 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
 * **remove_equip** - Sets the equipment of a player to 'None'. `remove_equip {localised_object_name} [player def *you]`
 * **create_pickup** - Creates a pickup in front of the issuing player. Pickups are items, equipment and lunar coins. Additionally 'item' or 'equip' may be specified to only search that list. `create_pickup (localized_object_name| "coin") [('item'|'equip') def *both]`
 
+* **spawn_interactible** - Spawns an interactible in front of the player. `spawn_interactable {InteractableSpawnCard}`
+
 * **spawn_ai** - Spawn an AI: `spawn_ai {localised_objectname} [eliteIndex def -1/None] [teamIndex def 0] [braindead def 1]`. Elite indexes: 0=Fire,1=Overloading,2=Ice,3=Malachite,4=Celestine. Team indexes: 0=neutral,1=player,2=monster. 
 * **spawn_as** - Spawn as a new character. Type body_list for a full list of characters: `spawn_as {localised_objectname} {playername}`
 * **spawn_body** - Spawns a CharacterBody: `spawn_body {localised_objectname}`
@@ -54,6 +56,9 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
 * **no_enemies** - Toggles enemy spawns.
 * **god** - Toggles HealthComponent.TakeDamage for all players. AKA: you can't take damage.
 * **noclip** - Toggles noclip. Allow you to fly and going through objects. Sprinting will double the speed.
+
+* **kick**  
+* **ban**
 
 
 ### Unlocked Vanilla Commands
@@ -92,6 +97,9 @@ These commands will be removed once we hit **3.2**. Speak out now or be forever 
 	* `create_pickup` A lot of custom item mods also need to test their descriptions. Maybe you have an on pickup hook.
 	* `force_family_event` We initially tried it being able to do any family, but this proved to be hard. So instead we force an event to happen next stage.
 	* `noclip` Thank you iDeathHD for creating this!
+	* `kick` Not much to say there are better ways to resolve your issues with players. 
+	* `ban`You can talk it out.
+	* `spawn_interactible` Implemented with full range of interactles, not limited to types. Accepts InteractableSpawnCard partial as parameter.
 * **Fixes**
 	* 
 	* `Spawn_as` now temporarily disables arriving in the pod to prevent not being able to get out of a pod.
