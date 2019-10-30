@@ -49,7 +49,6 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
 * **create_pickup** - Creates a pickup in front of the issuing player. Pickups are items, equipment and lunar coins. Additionally 'item' or 'equip' may be specified to only search that list. `create_pickup (localized_object_name| "coin") [('item'|'equip') def *both]`
 
 * **spawn_interactible** - Spawns an interactible in front of the player. `spawn_interactable {InteractableSpawnCard}`
-
 * **spawn_ai** - Spawn an AI: `spawn_ai {localised_objectname} [eliteIndex def -1/None] [teamIndex def 0] [braindead def 1]`. Elite indexes: 0=Fire,1=Overloading,2=Ice,3=Malachite,4=Celestine. Team indexes: 0=neutral,1=player,2=monster. 
 * **spawn_as** - Spawn as a new character. Type body_list for a full list of characters: `spawn_as {localised_objectname} {playername}`
 * **spawn_body** - Spawns a CharacterBody: `spawn_body {localised_objectname}`
@@ -59,8 +58,8 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
 * **god** - Toggles HealthComponent.TakeDamage for all players. AKA: you can't take damage.
 * **noclip** - Toggles noclip. Allow you to fly and going through objects. Sprinting will double the speed.
 
-* **kick**  
-* **ban**
+* **kick**  - Kicks the specified Player Name/ID from the game.
+* **ban**  - Session bans the specified Player Name/ID from the game.
 
 
 ### Unlocked Vanilla Commands
