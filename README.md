@@ -18,6 +18,8 @@ Mods recommended for combined use:
 
 You may contact us at any time through issues on GitHub, or through the Risk of Rain 2 modding Discord found at the top of the Thunderstore website.
 
+Additional credits: **iDeathHD** for *noclip*.
+
 ---
 
 ## **COMMANDS**
