@@ -24,7 +24,7 @@ You may contact us at any time through issues on GitHub, or through the Risk of 
 Verbiage: if an argument is encapsulated with brackets, it means it's either `(choose one)`, `{needed freeform}`, or `[optional freeform]`. The following may be used to indicate the default value: `def X`, a `*` denotes the default value cannot be entered.
 
 * **next_stage** - Advance to the next stage: `next_stage [specific stage]`. If no stage is entered, the next stage in progression is selected.
-* **family_event** - Forces a Family Event to happen in the next stage, take no arguments. `family_event`
+* **force_family_event** - Forces a Family Event to happen in the next stage, take no arguments. `family_event`
 * **next_boss** - Sets the teleporter boss to the specified boss. `({localised_object_name}|{DirectorCard}) [count def 1] [EliteIndex def -1/None]`
 * **fixed_time** - Sets the time that has progressed in the run. Affects difficulty. `fixed_time [time]`. If no time is supplied, prints the current time to console.
 * **add_portal** - Teleporter will attempt to spawn a blue, gold, or celestial portal: `add_portal (blue|gold|celestial)`
@@ -90,7 +90,7 @@ These commands will be removed once we hit **3.2**. Speak out now or be forever 
 	* `remove_item` While this functionality could already be achieved with *give_item* and a negative amount, this was not obvious.
 	* `remove_equip` While this functionality could already be achieved with `give_equip None, this was not obvious.
 	* `create_pickup` A lot of custom item mods also need to test their descriptions. Maybe you have an on pickup hook.
-	* `family_event` We initially tried it being able to do any family, but this proved to be hard. So instead we force an event to happen next stage.
+	* `force_family_event` We initially tried it being able to do any family, but this proved to be hard. So instead we force an event to happen next stage.
 * **Fixes**
 	* 
 	* `Spawn_as` now temporarily disables arriving in the pod to prevent not being able to get out of a pod.
