@@ -51,9 +51,9 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
 * **spawn_body** - Spawns a CharacterBody: `spawn_body {localised_objectname}`
 * **change_team** - Change team to Neutral, Player or Monster: `change_team {teamindex}`. Team indexes: 0=neutral,1=player,2=monster. 
 
-* **no_enemies** - Toggles enemy spawns
-* **god** - toggles HealthComponent.TakeDamage for all players. AKA: you can't take damage.
-* **noclip** - toggles noclip. Allow you to fly and going through objects. Sprinting will double the speed.
+* **no_enemies** - Toggles enemy spawns.
+* **god** - Toggles HealthComponent.TakeDamage for all players. AKA: you can't take damage.
+* **noclip** - Toggles noclip. Allow you to fly and going through objects. Sprinting will double the speed.
 
 
 ### Unlocked Vanilla Commands
@@ -91,6 +91,7 @@ These commands will be removed once we hit **3.2**. Speak out now or be forever 
 	* `remove_equip` While this functionality could already be achieved with `give_equip None, this was not obvious.
 	* `create_pickup` A lot of custom item mods also need to test their descriptions. Maybe you have an on pickup hook.
 	* `force_family_event` We initially tried it being able to do any family, but this proved to be hard. So instead we force an event to happen next stage.
+	* `noclip` Thank you iDeathHD for creating this!
 * **Fixes**
 	* 
 	* `Spawn_as` now temporarily disables arriving in the pod to prevent not being able to get out of a pod.
