@@ -748,7 +748,7 @@ namespace RoR2Cheats
             }
         }
 
-        [ConCommand(commandName = "noclip", flags = ConVarFlags.ExecuteOnServer, helpText = "Allow flying and going through objects. "+Lang.NOCLIP_ARGS)]
+        [ConCommand(commandName = "noclip", flags = ConVarFlags.ExecuteOnServer, helpText = "Allow flying and going through objects. Sprinting will double the speed."+Lang.NOCLIP_ARGS)]
         private static void CCNoclip(ConCommandArgs args)
         {
             if (Run.instance)

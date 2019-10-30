@@ -100,16 +100,15 @@ namespace RoR2Cheats
         private static bool UpdateCurrentPlayerBody()
         {
             _currentNetworkUser = LocalUserManager.GetFirstLocalUser().currentNetworkUser;
-            CharacterMaster master = null;
             if (_currentNetworkUser)
             {
-                master = _currentNetworkUser.master;
-            }
+                var master = _currentNetworkUser.master;
 
-            if (_currentNetworkUser && master && master.GetBody())
-            {
-                _currentBody = master.GetBody();
-                return true;
+                if (master && master.GetBody())
+                {
+                    _currentBody = master.GetBody();
+                    return true;
+                }
             }
 
             return false;

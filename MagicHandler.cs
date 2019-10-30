@@ -46,8 +46,7 @@ namespace RoR2Cheats
             ;
 
         internal const string
-            CREATEPICKUP_AMBIGIOUS_2 =
-                "Could not choose between {0} and {1}, please be more precise. Consider using 'equip' or 'item' as the first argument.",
+            CREATEPICKUP_AMBIGIOUS_2 = "Could not choose between {0} and {1}, please be more precise. Consider using 'equip' or 'item' as the first argument.",
             CREATEPICKUP_NAME = "create_pickup",
             CREATEPICKUP_NOTFOUND = "Could not find any item nor equipment with that name. It's not a coin either.",
             CREATEPICKUP_SUCCES_1 = "Succesfully created the pickup {0}.",
@@ -67,7 +66,7 @@ namespace RoR2Cheats
             RUNSETSTAGESCLEARED_HELP = "Sets the amount of stages cleared. This does not change the current stage.",
             SPAWN_ATTEMPT = "Attempting to spawn: ",
             SPAWN_ERROR = "Could not spawn: ",
-            NOTINARUN_ERROR = "This command only work when in a Run !",
+            NOTINARUN_ERROR = "This command only works when in a Run !",
             ALL = "ALL"
             ;
     }

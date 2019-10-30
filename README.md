@@ -53,6 +53,7 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
 
 * **no_enemies** - Toggles enemy spawns
 * **god** - toggles HealthComponent.TakeDamage for all players. AKA: you can't take damage.
+* **noclip** - toggles noclip. Allow you to fly and going through objects. Sprinting will double the speed.
 
 
 ### Unlocked Vanilla Commands
