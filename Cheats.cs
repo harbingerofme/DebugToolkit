@@ -430,7 +430,7 @@ namespace RoR2Cheats
                 NetworkUser nu = GetNetUserFromString(args[0]);
                 RoR2.Console.instance.RunClientCmd(args.sender, "kick_steam", new string[] { nu.Network_id.steamId.ToString() });
             }
-            catch (Exception ex)
+            catch
             {
                 Log.Message(Lang.PLAYER_NOTFOUND, args, LogLevel.Error);
             }
@@ -454,7 +454,7 @@ namespace RoR2Cheats
                 }
                 RoR2.Console.instance.RunClientCmd(args.sender, "ban_steam", new string[] { nu.Network_id.steamId.ToString() });
             }
-            catch (Exception ex)
+            catch
             {
                 Log.Message(Lang.PLAYER_NOTFOUND, args, LogLevel.Error);
             }
