@@ -58,8 +58,8 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
 * **god** - Toggles HealthComponent.TakeDamage for all players. AKA: you can't take damage.
 * **noclip** - Toggles noclip. Allow you to fly and going through objects. Sprinting will double the speed.
 
-* **kick**  - Kicks the specified Player Name/ID from the game.
-* **ban**  - Session bans the specified Player Name/ID from the game.
+* **kick** - Kicks the specified Player Name/ID from the game.
+* **ban** - Session bans the specified Player Name/ID from the game.
 
 
 ### Unlocked Vanilla Commands

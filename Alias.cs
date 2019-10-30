@@ -33,7 +33,7 @@ namespace RoR2Cheats
         }
 
         /// <summary>
-        /// Initialises the various alias lists and creates the DirectorCard cache
+        /// Initialises the various alias lists and creates the SpawnCard cache's
         /// </summary>
         private Alias()
         {
@@ -72,12 +72,6 @@ namespace RoR2Cheats
             var allISC = Resources.LoadAll<InteractableSpawnCard>("SpawnCards/InteractableSpawnCard");
             Debug.Log($"Loading all ISC's: {allISC.Length}");
             interactableSpawnCards = allISC.OfType<InteractableSpawnCard>().ToList();
-
-           
-            //foreach (InteractableSpawnCard isc in allISC)
-            //{
-            //    interactableSpawnCards.Add(isc);
-            //}
         }
 
         /// <summary>
@@ -91,6 +85,9 @@ namespace RoR2Cheats
             }
         }
 
+        /// <summary>
+        /// Returns a prepared list of available InteractableSpawnCards
+        /// </summary>
         public List<InteractableSpawnCard> InteractableSpawnCards
         {
             get
