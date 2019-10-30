@@ -61,7 +61,7 @@ namespace RoR2Cheats
             {
                 s.AppendLine(isc.name.Replace("isc", string.Empty));
             }
-            Log.Message(s.ToString(), args, LogLevel.MessageClientOnly);
+            Log.Message(s.ToString(), LogLevel.MessageClientOnly);
         }
 
         [ConCommand(commandName = "list_player", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.LISTPLAYER_ARGS)]
@@ -1115,7 +1115,7 @@ namespace RoR2Cheats
             Log.Message(Alias.Instance.GetDirectorCardFromPartial(args[0]).spawnCard.prefab.name);
         }
 
-        [ConCommand(commandName = "list_family", flags = ConVarFlags.None, helpText = "Lists all monster families")]
+        [ConCommand(commandName = "list_family", flags = ConVarFlags.ExecuteOnServer, helpText = "Lists all monster families in the current stage.")]
         private static void CCListFamily(ConCommandArgs args)
         {
             StringBuilder s = new StringBuilder();
@@ -1123,7 +1123,7 @@ namespace RoR2Cheats
             {
                 s.AppendLine(family.familySelectionChatString);
             }
-            Log.Message(s.ToString(), args, LogLevel.MessageClientOnly);
+            Log.Message(s.ToString(), LogLevel.MessageClientOnly);
         }
 #endif
         #endregion
