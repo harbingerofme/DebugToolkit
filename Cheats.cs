@@ -141,6 +141,7 @@ namespace RoR2Cheats
         [ConCommand(commandName = "give_item", flags = ConVarFlags.ExecuteOnServer, helpText = "Gives the specified item to the player in the specified quantity. " + Lang.GIVEITEM_ARGS)]
         private static void CCGiveItem(ConCommandArgs args)
         {
+            NetworkUser player = args.sender;
             if (args.Count == 0)
             {
                 Log.Message(Lang.GIVEITEM_ARGS, args, LogLevel.MessageClientOnly);
@@ -155,7 +156,7 @@ namespace RoR2Cheats
             Inventory inventory = args.sender.master.inventory;
             if (args.Count >= 3)
             {
-                NetworkUser player = GetNetUserFromString(args[2]);
+                player = GetNetUserFromString(args[2]);
                 if (player == null)
                 {
                     Log.Message(Lang.PLAYER_NOTFOUND, LogLevel.MessageClientOnly);
@@ -174,12 +175,13 @@ namespace RoR2Cheats
                 Log.Message(Lang.OBJECT_NOTFOUND + args[0] + ":" + item, args, LogLevel.MessageClientOnly);
             }
 
-            Log.Message(Lang.NOMESSAGE, args);
+            Log.Message($"Gave {iCount} {item} to {player.masterController.GetDisplayName()}", args);
         }
 
         [ConCommand(commandName = "give_equip", flags = ConVarFlags.ExecuteOnServer, helpText = "Gives the specified item to the player. " + Lang.GIVEEQUIP_ARGS)]
         private static void CCGiveEquipment(ConCommandArgs args)
         {
+            NetworkUser player = args.sender;
             if (args.Count == 0)
             {
                 Log.Message(Lang.GIVEEQUIP_ARGS, args, LogLevel.MessageClientOnly);
@@ -189,7 +191,7 @@ namespace RoR2Cheats
             Inventory inventory = args.sender.master.inventory;
             if (args.Count >= 2)
             {
-                NetworkUser player = GetNetUserFromString(args[1]);
+                player = GetNetUserFromString(args[1]);
                 if (player == null)
                 {
                     Log.Message(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
@@ -209,7 +211,7 @@ namespace RoR2Cheats
                 return;
             }
 
-            Log.Message(Lang.NOMESSAGE, args);
+            Log.Message($"Gave {equip} to {player.masterController.GetDisplayName()}", args);
         }
 
         [ConCommand(commandName = "give_lunar", flags = ConVarFlags.ExecuteOnServer, helpText = "Gives a lunar coin to the specified player. " + Lang.GIVELUNAR_ARGS)]
@@ -240,7 +242,6 @@ namespace RoR2Cheats
         private static void CCCreatePickup(ConCommandArgs args)
         {
             args.CheckArgumentCount(1);
-
             Transform transform = args.senderBody.gameObject.transform;
 
             bool searchEquip = true, searchItem = true;
@@ -294,6 +295,7 @@ namespace RoR2Cheats
         [ConCommand(commandName = "remove_item", flags = ConVarFlags.ExecuteOnServer, helpText = "Removes the specified quantities of an item from a player. " + Lang.REMOVEITEM_ARGS)]
         private static void CCRemoveItem(ConCommandArgs args)
         {
+            NetworkUser player = args.sender;
             if (args.Count == 0)
             {
                 Log.Message(Lang.REMOVEITEM_ARGS, args, LogLevel.MessageClientOnly);
@@ -308,7 +310,7 @@ namespace RoR2Cheats
             Inventory inventory = args.sender.master.inventory;
             if (args.Count >= 3)
             {
-                NetworkUser player = GetNetUserFromString(args[2]);
+                player = GetNetUserFromString(args[2]);
                 if (player == null)
                 {
                     Log.Message(Lang.PLAYER_NOTFOUND, LogLevel.MessageClientOnly);
@@ -336,17 +338,18 @@ namespace RoR2Cheats
             {
                 Log.Message(Lang.OBJECT_NOTFOUND + args[0] + ":" + item, args, LogLevel.MessageClientOnly);
             }
-
+            Log.Message($"Removed {iCount} {item} from {player.masterController.GetDisplayName()}", args);
             Log.Message(Lang.NOMESSAGE, args);
         }
 
         [ConCommand(commandName = "remove_equip", flags = ConVarFlags.ExecuteOnServer, helpText = "Removes the equipment from the specified player. " + Lang.REMOVEEQUIP_ARGS)]
         private static void CCRemoveEquipment(ConCommandArgs args)
         {
-            Inventory inventory = args.sender.master.inventory;
+            NetworkUser player = args.sender;
+            Inventory inventory = player.master.inventory;
             if (args.Count >= 1)
             {
-                NetworkUser player = GetNetUserFromString(args[0]);
+                player = GetNetUserFromString(args[0]);
                 if (player == null)
                 {
                     Log.Message(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
@@ -356,7 +359,7 @@ namespace RoR2Cheats
             }
             inventory.SetEquipmentIndex(EquipmentIndex.None);
 
-            Log.Message(Lang.NOMESSAGE, args);
+            Log.Message($"Removed current Equipment from {player.masterController.GetDisplayName()}", args);
         }
 
         [ConCommand(commandName = "give_money", flags = ConVarFlags.ExecuteOnServer, helpText = "Gives the specified amount of money to the specified player. " + Lang.GIVEMONEY_ARGS)]

@@ -51,6 +51,7 @@ namespace RoR2Cheats
             CREATEPICKUP_SUCCES_1 = "Succesfully created the pickup {0}.",
             COUNTISNUMERIC = "Count must be numeric!",
             GIVELUNAR_2 = "{0} {1} lunar coin(s).",
+            GIVEOBJECT = "Gave {0} {1}",
             INTEGER_EXPECTED = "Argument must be a whole number.",
             OBJECT_NOTFOUND = "The requested object could not be found: ",
             OBSOLETEWARNING = "This command has become obsolete and will be removed in the next version. ",
