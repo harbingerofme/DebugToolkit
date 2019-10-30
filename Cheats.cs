@@ -12,7 +12,6 @@ using MiniRpcLib;
 
 using LogLevel = RoR2Cheats.Log.LogLevel;
 
-
 namespace RoR2Cheats
 {
     [BepInDependency("com.bepis.r2api")]
@@ -41,6 +40,31 @@ namespace RoR2Cheats
         }
 
         #region Items&Stats
+        [ConCommand(commandName = "list_interactables", flags = ConVarFlags.None, helpText = "Lists all interactables.")]
+        private static void CCList_interactables(ConCommandArgs args)
+        {
+            StringBuilder s = new StringBuilder();
+            foreach (InteractableSpawnCard isc in Alias.Instance.InteractableSpawnCards)
+            {
+                s.AppendLine(isc.name.Replace("isc", string.Empty));
+            }
+            Log.Message(s.ToString(), args, LogLevel.MessageClientOnly);
+        }
+
+        [ConCommand(commandName = "list_player", flags = ConVarFlags.ExecuteOnServer, helpText = "List all players in the session. " + Lang.LISTPLAYER_ARGS)]
+        private static void CCListPlayer(ConCommandArgs args)
+        {
+            NetworkUser n;
+            StringBuilder list = new StringBuilder();
+            for (int i = 0; i < NetworkUser.readOnlyInstancesList.Count; i++)
+            {
+                n = NetworkUser.readOnlyInstancesList[i];
+                list.AppendLine($"[{i}]{n.userName}");
+
+            }
+            Log.Message(list.ToString(), args, LogLevel.MessageClientOnly);
+        }
+
         [ConCommand(commandName = "list_items", flags = ConVarFlags.None, helpText = "Lists all ItemIndexes. " + Lang.LISTITEM_ARGS)]
         private static void CCListItems(ConCommandArgs _)
         {
@@ -617,23 +641,39 @@ namespace RoR2Cheats
             return null;
         }
 
-        [ConCommand(commandName = "list_player", flags = ConVarFlags.ExecuteOnServer, helpText = "List all players in the session. "+Lang.LISTPLAYER_ARGS)]
-        private static void CCListPlayer(ConCommandArgs args)
-        {
-            NetworkUser n;
-            StringBuilder list = new StringBuilder();
-            for (int i = 0; i < NetworkUser.readOnlyInstancesList.Count; i++)
-            {
-                n = NetworkUser.readOnlyInstancesList[i];
-                list.AppendLine($"[{i}]{n.userName}");
-
-            }
-            Log.Message(list.ToString(), args, LogLevel.MessageClientOnly);
-        }
-
         private static void ResetEnemyTeamLevel()
         {
             TeamManager.instance.SetTeamLevel(TeamIndex.Monster, 1);
+        }
+
+        [ConCommand(commandName = "spawn_interactable", flags = ConVarFlags.None, helpText = "Spawns the specified interactable. List_Interactable for options. " + Lang.SPAWNINTERACTABLE_ARGS)]
+        private static void CCSpawnInteractable(ConCommandArgs args)
+        {
+            if (args.Count == 0)
+            {
+                Log.Message(Lang.SPAWNINTERACTABLE_ARGS, args, LogLevel.ErrorClientOnly);
+                return;
+            }
+            try
+            {
+                var isc = Alias.Instance.GetInteractableSpawnCard(args[0]);
+                isc.DoSpawn(args.senderBody.transform.position, new Quaternion(), new DirectorSpawnRequest(
+                    isc,
+                    new DirectorPlacementRule
+                    {
+                        placementMode = DirectorPlacementRule.PlacementMode.NearestNode,
+                        maxDistance = 100f,
+                        minDistance = 20f,
+                        position = args.senderBody.transform.position,
+                        preventOverhead = true
+                    },
+                    RoR2Application.rng)
+                );
+            }
+            catch (Exception ex)
+            {
+                Log.Message(ex.Message, args, LogLevel.ErrorClientOnly);
+            }
         }
 
         [ConCommand(commandName = "god", flags = ConVarFlags.ExecuteOnServer, helpText = "Become invincible"+Lang.GOD_ARGS)]
@@ -930,7 +970,6 @@ namespace RoR2Cheats
             }
         }
 
-
         internal static CombatDirector.EliteTierDef GetTierDef(EliteIndex index)
         {
             int tier = 0;
@@ -949,7 +988,6 @@ namespace RoR2Cheats
         }
 
         #endregion
-
 
         #region DEBUG
 #if DEBUG
@@ -1004,6 +1042,7 @@ namespace RoR2Cheats
         {
             Log.Message(Alias.Instance.GetDirectorCardFromPartial(args[0]).spawnCard.prefab.name);
         }
+
         [ConCommand(commandName = "list_family", flags = ConVarFlags.None, helpText = "Lists all monster families")]
         private static void CCListFamily(ConCommandArgs args)
         {
@@ -1014,10 +1053,8 @@ namespace RoR2Cheats
             }
             Log.Message(s.ToString(), args, LogLevel.MessageClientOnly);
         }
-
 #endif
         #endregion
-
 
         /// <summary>
         /// Required for automated manifest building.

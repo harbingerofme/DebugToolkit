@@ -29,6 +29,7 @@ namespace RoR2Cheats
             SPAWNAI_ARGS = "Requires 1 argument: spwan_ai {localised_objectname} [EliteIndex:-1/None] [TeamIndex:0/Neutral] [Braindead:0(0|1)]",
             SPAWNAS_ARGS = "Requires 1 argument: spawn_as {localised_objectname} ({PlayerID:self}|{Playername})",
             SPAWNBODY_ARGS = "Requires 1 argument: spawn_body {localised_objectname}",
+            SPAWNINTERACTABLE_ARGS = "Requires 1 argument: spawn_interactable {InteractableSpawnCard}",
             TIMESCALE_ARGS = "Requires 1 argument: time_scale {TimeIncrement}",
             TRUEKILL_ARGS = "Requires 0 arguments: true_kill ({PlayerID:self}|{Playername})"
             ;

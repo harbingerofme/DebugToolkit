@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using System.Collections;
 using System;
 using System.Text;
+using System.Linq;
 
 namespace RoR2Cheats
 {
@@ -15,7 +16,8 @@ namespace RoR2Cheats
         private static readonly Dictionary<string, string[]> ItemAlias = new Dictionary<string, string[]>();
         private static readonly Dictionary<string, string[]> EquipAlias = new Dictionary<string, string[]>();
         private static Alias instance;
-        private static List<DirectorCard> spawnCards = new List<DirectorCard>();
+        private static List<DirectorCard> characterSpawnCard = new List<DirectorCard>();
+        private static List<InteractableSpawnCard> interactableSpawnCards = new List<InteractableSpawnCard>();
 
         public static Alias Instance
         {
@@ -50,9 +52,10 @@ namespace RoR2Cheats
             MasterAlias.Add("RoboBallBossMaster", new string[] { "SCU", "roboboss" });
             MasterAlias.Add("SuperRoboBallBossMaster", new string[] { "AWU"});
 
-            Debug.Log($"CardCount: {Resources.LoadAll<CharacterSpawnCard>("SpawnCards/CharacterSpawnCards").Length}");
 
-            foreach (CharacterSpawnCard csc in Resources.LoadAll<CharacterSpawnCard>("SpawnCards/CharacterSpawnCards"))
+            var allCSC = Resources.LoadAll<CharacterSpawnCard>("SpawnCards/CharacterSpawnCards");
+            Debug.Log($"Loading all CSC's: {allCSC.Length}");
+            foreach (CharacterSpawnCard csc in allCSC)
             {
                 var dCard = new DirectorCard
                 {
@@ -64,8 +67,17 @@ namespace RoR2Cheats
                     preventOverhead = true,
                     spawnDistance = DirectorCore.MonsterSpawnDistance.Standard,
                 };
-                spawnCards.Add(dCard);
+                characterSpawnCard.Add(dCard);
             }
+            var allISC = Resources.LoadAll<InteractableSpawnCard>("SpawnCards/InteractableSpawnCard");
+            Debug.Log($"Loading all ISC's: {allISC.Length}");
+            interactableSpawnCards = allISC.OfType<InteractableSpawnCard>().ToList();
+
+           
+            //foreach (InteractableSpawnCard isc in allISC)
+            //{
+            //    interactableSpawnCards.Add(isc);
+            //}
         }
 
         /// <summary>
@@ -75,7 +87,15 @@ namespace RoR2Cheats
         {
             get
             {
-                return spawnCards;
+                return characterSpawnCard;
+            }
+        }
+
+        public List<InteractableSpawnCard> InteractableSpawnCards
+        {
+            get
+            {
+                return interactableSpawnCards;
             }
         }
 
@@ -214,22 +234,39 @@ namespace RoR2Cheats
         public DirectorCard GetDirectorCardFromPartial(string name)
         {
 
-            foreach(DirectorCard dc in spawnCards)
+            foreach(DirectorCard dc in characterSpawnCard)
             {
-                if (/*dc.spawnCard.name.ToUpper().Equals(name.ToUpper()) || */dc.spawnCard.name.ToUpper().Replace("csc", String.Empty).Equals(name.ToUpper()))
+                if (dc.spawnCard.name.ToUpper().Replace("csc", String.Empty).Equals(name.ToUpper()))
                 {
                     return dc;
                 }
             }
             name = GetMasterName(name);
-            foreach (DirectorCard dc in spawnCards)
+            foreach (DirectorCard dc in characterSpawnCard)
             {
                 if (dc.spawnCard.prefab.name.ToUpper().Equals(name.ToUpper()))
                 {
                     return dc;
                 }
             }
-            throw new Exception($"Card {name} not found");
+            throw new Exception($"DirectorCard {name} not foun.d");
+        }
+
+        /// <summary>
+        /// Returns an InteractableSpawnCard given a partial spawncard name
+        /// </summary>
+        /// <param name="name">Matches a specific spawncard prior to matching a partial.</param>
+        /// <returns>Returns a InteractableSpawncard or throws exception.</returns>
+        public InteractableSpawnCard GetInteractableSpawnCard(string name)
+        {
+            foreach(InteractableSpawnCard isc in interactableSpawnCards)
+            {
+                if(isc.name.ToUpper().Replace("ISC", String.Empty).Equals(name.ToUpper().Replace("ISC", string.Empty)) || isc.name.ToUpper().Replace("isc", String.Empty).Contains(name.ToUpper()))
+                {
+                    return isc;
+                }
+            }
+            throw new Exception($"InteractableSpawnCard {name} not found.");
         }
 
         /// <summary>
