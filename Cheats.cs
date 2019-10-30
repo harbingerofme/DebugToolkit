@@ -16,6 +16,9 @@ namespace RoR2Cheats
 {
     [BepInDependency("com.bepis.r2api")]
     [BepInDependency("dev.wildbook.libminirpc")]
+
+    [BepInIncompatibility("com.harbingerofme.debugtoolkit")]
+
     [BepInPlugin(GUID, modname, modver)]
     public class RoR2Cheats : BaseUnityPlugin
     {
