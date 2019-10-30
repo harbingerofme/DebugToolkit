@@ -1,7 +1,7 @@
 {
     "name": "RoR2Cheats",
     "version_number": "[MODVER]",
-    "website_url": "https://github.com/harbingerofme/RoR2Cheats",
+    "website_url": "https://github.com/harbingerofme/DebugToolkit",
     "description": "Various console commands for 'debugging'.",
     "dependencies": [
 	"bbepis-BepInExPack-3.0.0",
