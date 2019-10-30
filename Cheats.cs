@@ -434,12 +434,12 @@ namespace RoR2Cheats
             }
             try
             {
-                if(args[0]=="0")
+                NetworkUser nu = GetNetUserFromString(args[0]);
+                if(nu.isServer)
                 {
                     Log.Message("Banning yourself is counter-productive! Please kick instead.", args, LogLevel.Error);
                     return;
                 }
-                NetworkUser nu = GetNetUserFromString(args[0]);
                 RoR2.Console.instance.RunClientCmd(args.sender, "ban_steam", new string[] { nu.Network_id.steamId.ToString() });
             }
             catch (Exception ex)
