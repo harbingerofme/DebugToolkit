@@ -12,7 +12,7 @@ namespace RoR2Cheats
             BAN_ARGS = "Requires 1 argument: ({PlayerID:self}|{Playername})",
             CHANGETEAM_ARGS = "Requires 1 argument: change_team {TeamIndex:0/Neutral} ({PlayerID:self}|{Playername})",
             CREATEPICKUP_ARGS = "Requires 1 argument: create_pickup (\"coin\"|{localised_object_name}) (\"item\"|\"equip\")",
-            FAMILYEVENT_ARGS = "Requires 0 arguments: family_event",
+            FAMILYEVENT_ARGS = "Requires 0 arguments: force_family_event",
             FIXEDTIME_ARGS = "Requires 1 argument: fixed_time {NewTime}",
             GIVEEQUIP_ARGS = "Requires 1 argument: give_equip {localised_object_name} ({PlayerID:self}|{Playername})",
             GIVEITEM_ARGS = "Requires 1 argument: give_item {localised_object_name} {Count:1} ({PlayerID:self}|{Playername})",
