@@ -9,7 +9,6 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 using MiniRpcLib;
-using System.Reflection;
 
 using LogLevel = RoR2Cheats.Log.LogLevel;
 
@@ -35,9 +34,22 @@ namespace RoR2Cheats
             var miniRpc = MiniRpc.CreateInstance(GUID);
             new Log(Logger, miniRpc);
             TimeScaleNetwork = miniRpc.RegisterAction(Target.Client, (NetworkUser _, float f) => { HandleTimeScale(f); });
-            Log.Message("Harb's and 's Version. Original by Morris1927.", LogLevel.Info, Log.Target.Bepinex);/*Check github for the other contributor, lmao*/
 
+            Log.Message("Harb's and 's Version. Original by Morris1927.", LogLevel.Info, Log.Target.Bepinex);/*Check github for the other contributor, lmao*/
+            
             Hooks.InitializeHooks();
+            Noclip.Init(miniRpc);
+        }
+
+        private void Update()
+        {
+            if (Run.instance)
+            {
+                if (Noclip.IsActivated)
+                {
+                    Noclip.Update();
+                }
+            }
         }
 
         #region Items&Stats
@@ -733,6 +745,19 @@ namespace RoR2Cheats
                     Log.Message($"God mode {(playerInstance.master.GetBody().healthComponent.godMode ? "enabled" : "disabled")}.", args);
                     hasNotYetRun = false;
                 }
+            }
+        }
+
+        [ConCommand(commandName = "noclip", flags = ConVarFlags.ExecuteOnServer, helpText = "Allow flying and going through objects. "+Lang.NOCLIP_ARGS)]
+        private static void CCNoclip(ConCommandArgs args)
+        {
+            if (Run.instance)
+            {
+                Noclip.Toggle.Invoke(true, args.sender); //callback
+            }
+            else
+            {
+                Log.Message(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
             }
         }
 

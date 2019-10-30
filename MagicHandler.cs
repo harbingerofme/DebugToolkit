@@ -19,6 +19,7 @@ namespace RoR2Cheats
             GIVELUNAR_ARGS = "Requires 0 arguments: give_lunar {Count:1}",
             GIVEMONEY_ARGS = "Requires 1 argument: give_money {Count} ({PlayerID:self}|{Playername}|\"all\")",
             GOD_ARGS = "Requires 0 arguments: god",
+            NOCLIP_ARGS = "Requires 0 arguments: noclip",
             KICK_ARGS = "Requires 1 argument: ({PlayerID:self}|{Playername})",
             KILLALL_ARGS = "Requires 0 arguments: kill_all {TeamIndex:2/Monster}",
             NEXTBOSS_ARGS = "Requires 1 argument: next_boss ({localised_object_name}|{DirectorCard}) {(int)Count:1} {EliteIndex:-1/None}",
@@ -45,7 +46,8 @@ namespace RoR2Cheats
             ;
 
         internal const string
-            CREATEPICKUP_AMBIGIOUS_2 = "Could not choose between {0} and {1}, please be more precise. Consider using 'equip' or 'item' as the first argument.",
+            CREATEPICKUP_AMBIGIOUS_2 =
+                "Could not choose between {0} and {1}, please be more precise. Consider using 'equip' or 'item' as the first argument.",
             CREATEPICKUP_NAME = "create_pickup",
             CREATEPICKUP_NOTFOUND = "Could not find any item nor equipment with that name. It's not a coin either.",
             CREATEPICKUP_SUCCES_1 = "Succesfully created the pickup {0}.",
@@ -57,6 +59,7 @@ namespace RoR2Cheats
             NETWORKING_OTHERPLAYER_4 = "{0}({1}) issued: {2} {3}",
             NEXTROUND_STAGE = "Invalid Stage. Please choose from the following: ",
             NOMESSAGE = "Yell at the modmakers if you see this message!",
+            NOCLIP_TOGGLE = "Noclip toggled to {0}",
             PARTIALIMPLEMENTATION_WARNING = "WARNING: PARTIAL IMPLEMENTATION. WIP.",
             PLAYER_DEADRESPAWN = "Player is dead and cannot respawn.",
             PLAYER_NOTFOUND = "Specified player does not exist",
@@ -64,6 +67,7 @@ namespace RoR2Cheats
             RUNSETSTAGESCLEARED_HELP = "Sets the amount of stages cleared. This does not change the current stage.",
             SPAWN_ATTEMPT = "Attempting to spawn: ",
             SPAWN_ERROR = "Could not spawn: ",
+            NOTINARUN_ERROR = "This command only work when in a Run !",
             ALL = "ALL"
             ;
     }
