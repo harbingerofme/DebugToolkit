@@ -9,6 +9,7 @@ namespace RoR2Cheats
         //() denotes a list of specifc choices. : denotes a default. [] denotes a collection, and {} denotes freeform
         internal const string
             ADDPORTAL_ARGS = "Requires 1 argument: add_portal (blue|celestial|gold)",
+            BAN_ARGS = "Requires 1 argument: ({PlayerID:self}|{Playername})",
             CHANGETEAM_ARGS = "Requires 1 argument: change_team {TeamIndex:0/Neutral} ({PlayerID:self}|{Playername})",
             CREATEPICKUP_ARGS = "Requires 1 argument: " + CREATEPICKUP_NAME + "(\"coin\"|{localised_object_name}) (\"item\"|\"equip\")",
             FAMILYEVENT_ARGS = "Requires 0 arguments: family_event",
@@ -18,6 +19,7 @@ namespace RoR2Cheats
             GIVELUNAR_ARGS = "Requires 0 arguments: give_lunar {Count:1}",
             GIVEMONEY_ARGS = "Requires 1 argument: give_money {Count} ({PlayerID:self}|{Playername}|\"all\")",
             GOD_ARGS = "Requires 0 arguments: god",
+            KICK_ARGS = "Requires 1 argument: ({PlayerID:self}|{Playername})",
             KILLALL_ARGS = "Requires 0 arguments: kill_all {TeamIndex:2/Monster}",
             NEXTBOSS_ARGS = "Requires 1 argument: next_boss ({localised_object_name}|{DirectorCard}) {(int)Count:1} {EliteIndex:-1/None}",
             NEXTSTAGE_ARGS = "Requires 0 arguments: next_stage {Stage}",

@@ -9,6 +9,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 using MiniRpcLib;
+using System.Reflection;
 
 using LogLevel = RoR2Cheats.Log.LogLevel;
 
@@ -402,6 +403,49 @@ namespace RoR2Cheats
         {
             Time.timeScale = newTimeScale;
             Log.Message("Timescale set to: "+newTimeScale+". This message may appear twice if you are the host.");
+        }
+
+        [ConCommand(commandName = "kick", flags = ConVarFlags.SenderMustBeServer, helpText = "Kicks the specified player from the session. " + Lang.KICK_ARGS)]
+        private static void CCKick(ConCommandArgs args)
+        {
+            if(args.Count == 0)
+            {
+                Log.Message(Lang.KICK_ARGS, args, LogLevel.Error);
+                return;
+            }
+            try
+            {
+                NetworkUser nu = GetNetUserFromString(args[0]);
+                RoR2.Console.instance.RunClientCmd(args.sender, "kick_steam", new string[] { nu.Network_id.steamId.ToString() });
+            }
+            catch (Exception ex)
+            {
+                Log.Message(Lang.PLAYER_NOTFOUND, args, LogLevel.Error);
+            }
+        }
+
+        [ConCommand(commandName = "ban", flags = ConVarFlags.SenderMustBeServer, helpText = "Bans the specified player from the session. " + Lang.BAN_ARGS)]
+        private static void CCBan(ConCommandArgs args)
+        {
+            if (args.Count == 0)
+            {
+                Log.Message(Lang.BAN_ARGS, args, LogLevel.Error);
+                return;
+            }
+            try
+            {
+                if(args[0]=="0")
+                {
+                    Log.Message("Banning yourself is counter-productive! Please kick instead.", args, LogLevel.Error);
+                    return;
+                }
+                NetworkUser nu = GetNetUserFromString(args[0]);
+                RoR2.Console.instance.RunClientCmd(args.sender, "ban_steam", new string[] { nu.Network_id.steamId.ToString() });
+            }
+            catch (Exception ex)
+            {
+                Log.Message(Lang.PLAYER_NOTFOUND, args, LogLevel.Error);
+            }
         }
 
         [ConCommand(commandName = "family_event", flags = ConVarFlags.ExecuteOnServer, helpText = "Forces a family event to occur during the next stage. "+Lang.FAMILYEVENT_ARGS)]
