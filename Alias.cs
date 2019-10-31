@@ -39,19 +39,17 @@ namespace RoR2Cheats
         {
             BodyAlias.Add("ToolbotBody", new string[] { "MULT", "MUL-T", "ShoppingTrolly" });
             BodyAlias.Add("MercBody", new string[] { "Mercenary","Ninja"});
-            BodyAlias.Add("MageBody", new string[] { "Artificer"});
+            BodyAlias.Add("MageBody", new string[] { "Artificer", "Arti"});
             BodyAlias.Add("HANDBody", new string[] { "HAN-D"});
             BodyAlias.Add("TreebotBody", new string[] { "Treebot", "REX", "PlantBot", "Shrub"});
 
-            MasterAlias.Add("DroneBackupMaster", new string[] { "DroneBackup", "BackupDrone" });
-            MasterAlias.Add("DroneMissileMaster", new string[] { "DroneMissile", "MissileDrone" });
-            MasterAlias.Add("LemurianBruiserMasterFire", new string[] { "LemurianBruiserFire" });
-            MasterAlias.Add("LemurianBruiserMasterIce", new string[] { "LemurianBruiserIce" });
+            MasterAlias.Add("LemurianBruiserMasterFire", new string[] { "LemurianBruiserFire", "BruiserFire" });
+            MasterAlias.Add("LemurianBruiserMasterIce", new string[] { "LemurianBruiserIce", "BruiserIce" });
+            MasterAlias.Add("LemurianBruiserMasterHaunted", new string[] { "LemurianBruiserHaunted", "BruiserHaunter" });
             MasterAlias.Add("LemurianBruiserMasterPoison", new string[] { "LemurianBruiserPoison", "LemurianBruiserBlight", "LemurianBruisermalechite" });
             MasterAlias.Add("MercMonsterMaster", new string[] { "MercMonster" });
             MasterAlias.Add("RoboBallBossMaster", new string[] { "SCU", "roboboss" });
             MasterAlias.Add("SuperRoboBallBossMaster", new string[] { "AWU"});
-
 
             var allCSC = Resources.LoadAll<CharacterSpawnCard>("SpawnCards/CharacterSpawnCards");
             Debug.Log($"Loading all CSC's: {allCSC.Length}");
