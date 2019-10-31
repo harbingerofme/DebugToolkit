@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 using RoR2;
 using System.Text.RegularExpressions;
@@ -21,21 +21,15 @@ namespace RoR2Cheats
 
         public static Alias Instance
         {
-            get
-            {
-                if (instance == null)
-                {
-                    instance = new Alias();
-                }
+            get => instance ?? (instance = new Alias());
 
-                return instance;
-            }
+            set => instance = value;
         }
 
         /// <summary>
         /// Initialises the various alias lists and creates the SpawnCard cache's
         /// </summary>
-        private Alias()
+        public Alias()
         {
             BodyAlias.Add("ToolbotBody", new string[] { "MULT", "MUL-T", "ShoppingTrolly" });
             BodyAlias.Add("MercBody", new string[] { "Mercenary","Ninja"});
@@ -360,7 +354,12 @@ namespace RoR2Cheats
         /// <returns>Returns the LanguageInvariant for the BaseNameToken.</returns>
         public static string GetLangInvar(string baseToken)
         {
-            return Regex.Replace(Language.GetString(baseToken), @"[ '-]", string.Empty);
+            return RemoveSpacesAndAlike(Language.GetString(baseToken));
+        }
+
+        public static string RemoveSpacesAndAlike(string input)
+        {
+            return Regex.Replace(input, @"[ '-]", string.Empty);
         }
 
         /// <summary>
