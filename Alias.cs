@@ -229,20 +229,20 @@ namespace RoR2Cheats
 
             foreach (DirectorCard dc in characterSpawnCard)
             {
-                if (dc.spawnCard.name.ToUpper().Replace("csc", String.Empty).Equals(name.ToUpper()))
+                if (dc.spawnCard.name.ToUpper().Replace("CSC", String.Empty).Equals(name.ToUpper()))
                 {
                     return dc;
                 }
             }
-            name = GetMasterName(name);
+            name = GetMasterName(name).ToUpper();//.Replace("MASTER", string.Empty)
             foreach (DirectorCard dc in characterSpawnCard)
             {
-                if (dc.spawnCard.prefab.name.ToUpper().Equals(name.ToUpper()))
+                if (dc.spawnCard.prefab.name.ToUpper().Equals(name))
                 {
                     return dc;
                 }
             }
-            throw new Exception($"DirectorCard {name} not foun.d");
+            throw new Exception($"DirectorCard {name} not found. ");
         }
 
         /// <summary>

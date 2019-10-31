@@ -36,7 +36,7 @@ namespace RoR2Cheats
         {
             var miniRpc = MiniRpc.CreateInstance(GUID);
             new Log(Logger, miniRpc);
-            Alias.EnsureInstance();
+            //Alias.EnsureInstance();
 
 
             Log.Message("Harb's and 's Version. Original by Morris1927.", LogLevel.Info, Log.Target.Bepinex);/*Check github for the other contributor, lmao*/
@@ -48,6 +48,8 @@ namespace RoR2Cheats
 		
 		private void Start()
         {
+            var _ = Alias.Instance;
+            //Alias.EnsureInstance();
             ArgsAutoCompletion.GatherCommandsAndFillStaticArgs();
         }
 
@@ -143,6 +145,19 @@ namespace RoR2Cheats
             {
                 langInvar = Alias.GetLangInvar(body.baseNameToken);
                 sb.AppendLine($"[{i}]{body.name}={langInvar}");
+                i++;
+            }
+            Log.Message(sb);
+        }
+
+        [ConCommand(commandName = "list_Directorcards", flags = ConVarFlags.None, helpText = Lang.NOMESSAGE)]
+        private static void CCListDirectorCards(ConCommandArgs _)
+        {
+            int i = 0;
+            StringBuilder sb = new StringBuilder();
+            foreach (var card in Alias.Instance.DirectorCards)
+            {
+                sb.AppendLine($"[{i}]{card.spawnCard.name}");
                 i++;
             }
             Log.Message(sb);
@@ -351,7 +366,6 @@ namespace RoR2Cheats
                 Log.Message(Lang.OBJECT_NOTFOUND + args[0] + ":" + item, args, LogLevel.MessageClientOnly);
             }
             Log.Message($"Removed {iCount} {item} from {player.masterController.GetDisplayName()}", args);
-            Log.Message(Lang.NOMESSAGE, args);
         }
 
         [ConCommand(commandName = "remove_equip", flags = ConVarFlags.ExecuteOnServer, helpText = "Removes the equipment from the specified player. " + Lang.REMOVEEQUIP_ARGS)]
@@ -483,6 +497,7 @@ namespace RoR2Cheats
             Log.Message("The next stage will contain a family event!", args);
         }
 
+        [AutoCompletion(typeof(Alias), "characterSpawnCard", false, "spawnCard/prefab")]
         [ConCommand(commandName = "next_boss", flags = ConVarFlags.ExecuteOnServer, helpText = "Sets the next teleporter instance to the specified boss. "+Lang.NEXTBOSS_ARGS)]
         private static void CCNextBoss(ConCommandArgs args)
         {
