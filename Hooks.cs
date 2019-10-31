@@ -6,6 +6,7 @@ using Mono.Cecil.Cil;
 using System.Text;
 using System.Collections.Generic;
 using System.Globalization;
+using RoR2.ConVar;
 
 namespace RoR2Cheats
 {
@@ -56,6 +57,11 @@ namespace RoR2Cheats
             self.FindConVar("timestep").helpText += " Let the ror2cheats team know if you need this convar.";
             self.FindConVar("cmotor_safe_collision_step_threshold").helpText += " Let the ror2cheats team know if you need this convar.";
             self.FindConVar("cheats").helpText += " But you already have the RoR2Cheats mod installed...";
+            BaseConVar mmConvar = self.FindConVar("max_messages");
+            if(mmConvar.GetString() == mmConvar.defaultValue)
+            {
+                mmConvar.SetString("100");
+            }
         }
 
         private static void LogNetworkCommands(On.RoR2.Console.orig_RunCmd orig, RoR2.Console self, NetworkUser sender, string concommandName, System.Collections.Generic.List<string> userArgs)
