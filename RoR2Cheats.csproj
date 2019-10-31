@@ -34,6 +34,16 @@
     <None Include="CommandDiscover.csproj" />
   </ItemGroup>
 
+
+  <ItemGroup>
+    <PackageReference Include="Costura.Fody" Version="4.1.0" />
+    <PackageReference Include="Fody" Version="6.0.3">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.CSharp" Version="4.6.0" />
+  </ItemGroup>
+
   <ItemGroup>
     <Reference Include="0Harmony">
       <HintPath>libs\0Harmony.dll</HintPath>
