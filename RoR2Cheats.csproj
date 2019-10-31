@@ -4,9 +4,9 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <Version>3.1.0</Version>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <Authors>Harbingerofme; Paddywan</Authors>
+    <Authors>Harbingerofme; Paddywan; iDeathHD</Authors>
     <Description>Bepinex plugin for Risk of Rain 2.</Description>
-    <RepositoryUrl>https://github.com/harbingerofme/RoR2Cheats</RepositoryUrl>
+    <RepositoryUrl>https://github.com/harbingerofme/DebugToolkit</RepositoryUrl>
     <Configurations>Debug;Release</Configurations>
   </PropertyGroup>
 
