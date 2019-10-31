@@ -1,6 +1,5 @@
 ﻿using MonoMod.Cil;
 using System;
-using UnityEngine;
 using RoR2;
 using R2API.Utils;
 using Mono.Cecil.Cil;
@@ -17,6 +16,12 @@ namespace RoR2Cheats
             On.RoR2.Console.InitConVars += InitCommandsAndFreeConvars;
             CommandHelper.AddToConsoleWhenReady();
             On.RoR2.Console.RunCmd += LogNetworkCommands;
+            RoR2.Console.onLogReceived += ScrollThatConsoleDown;
+        }
+
+        private static void ScrollThatConsoleDown(RoR2.Console.Log _)
+        {
+            RoR2.UI.ConsoleWindow.instance.outputField.verticalScrollbar.value = 1f;
         }
 
         private static void LogNetworkCommands(On.RoR2.Console.orig_RunCmd orig, RoR2.Console self, NetworkUser sender, string concommandName, System.Collections.Generic.List<string> userArgs)
