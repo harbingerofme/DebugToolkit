@@ -153,12 +153,10 @@ namespace RoR2Cheats
         [ConCommand(commandName = "list_Directorcards", flags = ConVarFlags.None, helpText = Lang.NOMESSAGE)]
         private static void CCListDirectorCards(ConCommandArgs _)
         {
-            int i = 0;
             StringBuilder sb = new StringBuilder();
             foreach (var card in Alias.Instance.DirectorCards)
             {
-                sb.AppendLine($"[{i}]{card.spawnCard.name}");
-                i++;
+                sb.AppendLine($"{card.spawnCard.name}");
             }
             Log.Message(sb);
         }
