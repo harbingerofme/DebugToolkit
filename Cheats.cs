@@ -1,4 +1,4 @@
-﻿using BepInEx;
+using BepInEx;
 using R2API.Utils;
 using RoR2;
 using RoR2.CharacterAI;
@@ -36,12 +36,19 @@ namespace RoR2Cheats
         {
             var miniRpc = MiniRpc.CreateInstance(GUID);
             new Log(Logger, miniRpc);
-            TimeScaleNetwork = miniRpc.RegisterAction(Target.Client, (NetworkUser _, float f) => { HandleTimeScale(f); });
+            Alias.EnsureInstance();
+
 
             Log.Message("Harb's and 's Version. Original by Morris1927.", LogLevel.Info, Log.Target.Bepinex);/*Check github for the other contributor, lmao*/
             
             Hooks.InitializeHooks();
             Noclip.Init(miniRpc);
+            TimeScaleNetwork = miniRpc.RegisterAction(Target.Client, (NetworkUser _, float f) => { HandleTimeScale(f); });
+        }
+		
+		private void Start()
+        {
+            ArgsAutoCompletion.GatherCommandsAndFillStaticArgs();
         }
 
         private void Update()
@@ -142,6 +149,7 @@ namespace RoR2Cheats
         }
 
         [ConCommand(commandName = "give_item", flags = ConVarFlags.ExecuteOnServer, helpText = "Gives the specified item to the player in the specified quantity. " + Lang.GIVEITEM_ARGS)]
+		[AutoCompletion(typeof(ItemCatalog), "allItems")]
         private static void CCGiveItem(ConCommandArgs args)
         {
             NetworkUser player = args.sender;
@@ -182,6 +190,7 @@ namespace RoR2Cheats
         }
 
         [ConCommand(commandName = "give_equip", flags = ConVarFlags.ExecuteOnServer, helpText = "Gives the specified item to the player. " + Lang.GIVEEQUIP_ARGS)]
+		[AutoCompletion(typeof(EquipmentCatalog), "allEquipment")]
         private static void CCGiveEquipment(ConCommandArgs args)
         {
             NetworkUser player = args.sender;
@@ -709,6 +718,7 @@ namespace RoR2Cheats
         }
 
         [ConCommand(commandName = "spawn_interactable", flags = ConVarFlags.None, helpText = "Spawns the specified interactable. List_Interactable for options. " + Lang.SPAWNINTERACTABLE_ARGS)]
+		[AutoCompletion(typeof(Alias), "interactableSpawnCards")]
         private static void CCSpawnInteractable(ConCommandArgs args)
         {
             if (args.Count == 0)
@@ -840,6 +850,7 @@ namespace RoR2Cheats
         }
 
         [ConCommand(commandName = "spawn_as", flags = ConVarFlags.ExecuteOnServer, helpText = "Respawn the specified player using the specified body prefab. "+Lang.SPAWNAS_ARGS)]
+		[AutoCompletion(typeof(BodyCatalog), "bodyPrefabs")]
         private static void CCSpawnAs(ConCommandArgs args)
         {
             if (args.Count == 0)
@@ -888,6 +899,7 @@ namespace RoR2Cheats
         }
 
         [ConCommand(commandName = "spawn_ai", flags = ConVarFlags.ExecuteOnServer, helpText = "Spawns the specified CharacterMaster. "+Lang.SPAWNAI_ARGS)]
+		[AutoCompletion(typeof(MasterCatalog), "aiMasterPrefabs")]
         private static void CCSpawnAI(ConCommandArgs args)
         {
 
@@ -935,6 +947,7 @@ namespace RoR2Cheats
         }
 
         [ConCommand(commandName = "spawn_body", flags = ConVarFlags.ExecuteOnServer, helpText = "Spawns the specified dummy body. "+Lang.SPAWNBODY_ARGS)]
+		[AutoCompletion(typeof(BodyCatalog), "bodyPrefabs")]
         private static void CCSpawnBody(ConCommandArgs args)
         {
             if (args.Count == 0)
@@ -957,6 +970,8 @@ namespace RoR2Cheats
         }
 
         [ConCommand(commandName = "respawn", flags = ConVarFlags.ExecuteOnServer, helpText = "Respawns the specified player. "+Lang.RESPAWN_ARGS)]
+		[AutoCompletion(typeof(NetworkUser), "instancesList", true, "userName")]
+        [AutoCompletion(typeof(NetworkUser), "instancesList", true, "_id/value")]
         private static void RespawnPlayer(ConCommandArgs args)
         {
             CharacterMaster master = args.sender.master;

@@ -1,9 +1,11 @@
-﻿using MonoMod.Cil;
+using MonoMod.Cil;
 using System;
 using RoR2;
 using R2API.Utils;
 using Mono.Cecil.Cil;
 using System.Text;
+using System.Collections.Generic;
+using System.Globalization;
 
 namespace RoR2Cheats
 {
@@ -16,6 +18,44 @@ namespace RoR2Cheats
             On.RoR2.Console.InitConVars += InitCommandsAndFreeConvars;
             CommandHelper.AddToConsoleWhenReady();
             On.RoR2.Console.RunCmd += LogNetworkCommands;
+			On.RoR2.Console.AutoComplete.SetSearchString += BetterAutoCompletion;
+            On.RoR2.Console.AutoComplete.ctor += CommandArgsAutoCompletion;
+        }
+		
+		private static void UnlockConsole(ILContext il)
+        {
+            ILCursor c = new ILCursor(il);
+            c.GotoNext(
+                MoveType.After,
+                x => x.MatchCastclass(typeof(ConCommandAttribute))
+                );
+            c.EmitDelegate<Func<ConCommandAttribute, ConCommandAttribute>>(
+                (conAttr) =>
+                {
+                    conAttr.flags &= AllFlagsNoCheat;
+                    if (conAttr.commandName == "run_set_stages_cleared")
+                    {
+                        conAttr.helpText = Lang.RUNSETSTAGESCLEARED_HELP;
+                    }
+                    return conAttr;
+                });
+        }
+		
+		private static void InitCommandsAndFreeConvars(On.RoR2.Console.orig_InitConVars orig, RoR2.Console self)
+        {
+            void removeCheatFlag (RoR2.ConVar.BaseConVar cv)
+            {
+                cv.flags &= AllFlagsNoCheat;
+            }
+            orig(self);
+            removeCheatFlag(self.FindConVar("sv_time_transmit_interval"));
+            removeCheatFlag(self.FindConVar("run_scene_override"));
+            removeCheatFlag(self.FindConVar("stage1_pod"));
+            self.FindConVar("timescale").helpText += " Use time_scale instead!";
+            self.FindConVar("director_combat_disable").helpText += " Use no_enemies instead!";
+            self.FindConVar("timestep").helpText += " Let the ror2cheats team know if you need this convar.";
+            self.FindConVar("cmotor_safe_collision_step_threshold").helpText += " Let the ror2cheats team know if you need this convar.";
+            self.FindConVar("cheats").helpText += " But you already have the RoR2Cheats mod installed...";
         }
 
         private static void LogNetworkCommands(On.RoR2.Console.orig_RunCmd orig, RoR2.Console self, NetworkUser sender, string concommandName, System.Collections.Generic.List<string> userArgs)
@@ -37,43 +77,64 @@ namespace RoR2Cheats
                 RoR2.UI.ConsoleWindow.instance.outputField.verticalScrollbar.value = 1f;
             }
         }
-
-        private static void InitCommandsAndFreeConvars(On.RoR2.Console.orig_InitConVars orig, RoR2.Console self)
+		
+		private static bool BetterAutoCompletion(On.RoR2.Console.AutoComplete.orig_SetSearchString orig, RoR2.Console.AutoComplete self, string newSearchString)
         {
-            void removeCheatFlag (RoR2.ConVar.BaseConVar cv)
+            var searchString = self.GetFieldValue<string>("searchString");
+            var searchableStrings = self.GetFieldValue<List<string>>("searchableStrings");
+
+            newSearchString = newSearchString.ToLower(CultureInfo.InvariantCulture);
+            if (newSearchString == searchString)
             {
-                cv.flags &= AllFlagsNoCheat;
+                return false;
             }
-            orig(self);
-            removeCheatFlag(self.FindConVar("sv_time_transmit_interval"));
-            removeCheatFlag(self.FindConVar("run_scene_override"));
-            removeCheatFlag(self.FindConVar("stage1_pod"));
-            self.FindConVar("timescale").helpText += " Use time_scale instead!";
-            self.FindConVar("director_combat_disable").helpText += " Use no_enemies instead!";
-            self.FindConVar("timestep").helpText += " Let the ror2cheats team know if you need this convar.";
-            self.FindConVar("cmotor_safe_collision_step_threshold").helpText += " Let the ror2cheats team know if you need this convar.";
-            self.FindConVar("cheats").helpText += " But you already have the RoR2Cheats mod installed...";
-        }
+            self.SetFieldValue("searchString", newSearchString);
 
-        private static void UnlockConsole(ILContext il)
-        {
-            ILCursor c = new ILCursor(il);
-            c.GotoNext(
-                MoveType.After,
-                x => x.MatchCastclass(typeof(ConCommandAttribute))
-                );
-            c.EmitDelegate<Func<ConCommandAttribute, ConCommandAttribute>>(
-                (conAttr) =>
+            self.resultsList = new List<string>();
+            foreach (var searchableString in searchableStrings)
+            {
+                if (searchableString.ToLower(CultureInfo.InvariantCulture).Contains(newSearchString)) // StartWith case
                 {
-                    conAttr.flags &= AllFlagsNoCheat;
-                    if (conAttr.commandName == "run_set_stages_cleared")
+                    self.resultsList.Add(searchableString);
+                }
+                else // similar string in the middle of the user command arg
+                {
+                    string searchableStringsInvariant = searchableString.ToLower(CultureInfo.InvariantCulture);
+                    string userArg = newSearchString.Substring(newSearchString.IndexOf(' ') + 1);
+                    if (newSearchString.IndexOf(' ') > 0 && searchableString.IndexOf(' ') > 0)
                     {
-                        conAttr.helpText = Lang.RUNSETSTAGESCLEARED_HELP;
+                        string userCmd = newSearchString.Substring(0, newSearchString.IndexOf(' '));
+                        string searchableStringsCmd = searchableString.Substring(0, searchableString.IndexOf(' '));
+                        string searchableStringsArg = searchableStringsInvariant.Substring(searchableStringsInvariant.IndexOf(' ') + 1);
+                        if (searchableStringsArg.Contains(userArg) && userCmd.Equals(searchableStringsCmd))
+                        {
+                            self.resultsList.Add(searchableString);
+                        }
                     }
-                    return conAttr;
-                });
+                }
+            }
+            return true;
         }
 
+        private static void CommandArgsAutoCompletion(On.RoR2.Console.AutoComplete.orig_ctor orig, RoR2.Console.AutoComplete self, RoR2.Console console)
+        {
+            orig(self, console);
+
+            var searchableStrings = self.GetFieldValue<List<string>>("searchableStrings");
+
+            foreach (var item in ArgsAutoCompletion.CommandsWithStaticArgs)
+            {
+                searchableStrings.Add(item);
+            }
+            foreach (var item in ArgsAutoCompletion.CommandsWithDynamicArgs())
+            {
+                searchableStrings.Add(item);
+            }
+
+            searchableStrings.Sort();
+            self.SetFieldValue("searchableStrings", searchableStrings);
+        }
+		
         internal static void ForceFamilyEvent(ILContext il)
         {
             ILCursor c = new ILCursor(il);
