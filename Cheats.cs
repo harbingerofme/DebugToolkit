@@ -36,17 +36,18 @@ namespace RoR2Cheats
         {
             var miniRpc = MiniRpc.CreateInstance(GUID);
             new Log(Logger, miniRpc);
-            TimeScaleNetwork = miniRpc.RegisterAction(Target.Client, (NetworkUser _, float f) => { HandleTimeScale(f); });
+            Alias.EnsureInstance();
+
 
             Log.Message("Harb's and 's Version. Original by Morris1927.", LogLevel.Info, Log.Target.Bepinex);/*Check github for the other contributor, lmao*/
             
             Hooks.InitializeHooks();
             Noclip.Init(miniRpc);
+            TimeScaleNetwork = miniRpc.RegisterAction(Target.Client, (NetworkUser _, float f) => { HandleTimeScale(f); });
         }
 		
 		private void Start()
         {
-            Alias.Instance = new Alias();
             ArgsAutoCompletion.GatherCommandsAndFillStaticArgs();
         }
 

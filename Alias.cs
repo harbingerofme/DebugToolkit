@@ -22,14 +22,17 @@ namespace RoR2Cheats
         public static Alias Instance
         {
             get => instance ?? (instance = new Alias());
+        }
 
-            set => instance = value;
+        public static void EnsureInstance()
+        {
+            var _ = instance;
         }
 
         /// <summary>
         /// Initialises the various alias lists and creates the SpawnCard cache's
         /// </summary>
-        public Alias()
+        private Alias()
         {
             BodyAlias.Add("ToolbotBody", new string[] { "MULT", "MUL-T", "ShoppingTrolly" });
             BodyAlias.Add("MercBody", new string[] { "Mercenary","Ninja"});

@@ -4,6 +4,8 @@ using RoR2;
 using R2API.Utils;
 using Mono.Cecil.Cil;
 using System.Text;
+using System.Collections.Generic;
+using System.Globalization;
 
 namespace RoR2Cheats
 {
