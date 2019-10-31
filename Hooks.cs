@@ -16,12 +16,6 @@ namespace RoR2Cheats
             On.RoR2.Console.InitConVars += InitCommandsAndFreeConvars;
             CommandHelper.AddToConsoleWhenReady();
             On.RoR2.Console.RunCmd += LogNetworkCommands;
-            RoR2.Console.onLogReceived += ScrollThatConsoleDown;
-        }
-
-        private static void ScrollThatConsoleDown(RoR2.Console.Log _)
-        {
-            RoR2.UI.ConsoleWindow.instance.outputField.verticalScrollbar.value = 1f;
         }
 
         private static void LogNetworkCommands(On.RoR2.Console.orig_RunCmd orig, RoR2.Console self, NetworkUser sender, string concommandName, System.Collections.Generic.List<string> userArgs)
@@ -33,6 +27,10 @@ namespace RoR2Cheats
                 Log.Message(string.Format(Lang.NETWORKING_OTHERPLAYER_4, sender.userName, sender.id.value, concommandName, s.ToString()));
             }
             orig(self,sender,concommandName,userArgs);
+            if (RoR2.UI.ConsoleWindow.instance && RoR2.UI.ConsoleWindow.instance.outputField.verticalScrollbar)
+            {
+                RoR2.UI.ConsoleWindow.instance.outputField.verticalScrollbar.value = 1f;
+            }
         }
 
         private static void InitCommandsAndFreeConvars(On.RoR2.Console.orig_InitConVars orig, RoR2.Console self)
