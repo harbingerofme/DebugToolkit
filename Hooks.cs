@@ -27,6 +27,11 @@ namespace RoR2Cheats
                 Log.Message(string.Format(Lang.NETWORKING_OTHERPLAYER_4, sender.userName, sender.id.value, concommandName, s.ToString()));
             }
             orig(self,sender,concommandName,userArgs);
+            ScrollConsoleDown();
+        }
+
+        internal static void ScrollConsoleDown()
+        {
             if (RoR2.UI.ConsoleWindow.instance && RoR2.UI.ConsoleWindow.instance.outputField.verticalScrollbar)
             {
                 RoR2.UI.ConsoleWindow.instance.outputField.verticalScrollbar.value = 1f;

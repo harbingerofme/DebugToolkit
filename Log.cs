@@ -191,6 +191,7 @@ namespace RoR2Cheats
         private static void HandleNetworkMessage(LogNetworkMessageClass msg)
         {
             Message(msg.message, (LogLevel) msg.level);
+            Hooks.ScrollConsoleDown();
         }
 
         public enum LogLevel
