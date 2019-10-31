@@ -2,6 +2,7 @@
 using UnityEngine;
 using RoR2;
 using System.Text.RegularExpressions;
+using System.Collections;
 using System;
 using System.Text;
 using System.Linq;
@@ -20,15 +21,12 @@ namespace RoR2Cheats
 
         public static Alias Instance
         {
-            get
-            {
-                if (instance == null)
-                {
-                    instance = new Alias();
-                }
+            get => instance ?? (instance = new Alias());
+        }
 
-                return instance;
-            }
+        public static void EnsureInstance()
+        {
+            var _ = instance;
         }
 
         /// <summary>
@@ -37,10 +35,10 @@ namespace RoR2Cheats
         private Alias()
         {
             BodyAlias.Add("ToolbotBody", new string[] { "MULT", "MUL-T", "ShoppingTrolly" });
-            BodyAlias.Add("MercBody", new string[] { "Mercenary","Ninja"});
-            BodyAlias.Add("MageBody", new string[] { "Artificer", "Arti"});
-            BodyAlias.Add("HANDBody", new string[] { "HAN-D"});
-            BodyAlias.Add("TreebotBody", new string[] { "Treebot", "REX", "PlantBot", "Shrub"});
+            BodyAlias.Add("MercBody", new string[] { "Mercenary", "Ninja" });
+            BodyAlias.Add("MageBody", new string[] { "Artificer", "Arti" });
+            BodyAlias.Add("HANDBody", new string[] { "HAN-D" });
+            BodyAlias.Add("TreebotBody", new string[] { "Treebot", "REX", "PlantBot", "Shrub" });
 
             MasterAlias.Add("LemurianBruiserMasterFire", new string[] { "LemurianBruiserFire", "BruiserFire" });
             MasterAlias.Add("LemurianBruiserMasterIce", new string[] { "LemurianBruiserIce", "BruiserIce" });
@@ -48,7 +46,8 @@ namespace RoR2Cheats
             MasterAlias.Add("LemurianBruiserMasterPoison", new string[] { "LemurianBruiserPoison", "LemurianBruiserBlight", "LemurianBruisermalechite" });
             MasterAlias.Add("MercMonsterMaster", new string[] { "MercMonster" });
             MasterAlias.Add("RoboBallBossMaster", new string[] { "SCU", "roboboss" });
-            MasterAlias.Add("SuperRoboBallBossMaster", new string[] { "AWU"});
+            MasterAlias.Add("SuperRoboBallBossMaster", new string[] { "AWU" });
+
 
             var allCSC = Resources.LoadAll<CharacterSpawnCard>("SpawnCards/CharacterSpawnCards");
             Debug.Log($"Loading all CSC's: {allCSC.Length}");
@@ -228,7 +227,7 @@ namespace RoR2Cheats
         public DirectorCard GetDirectorCardFromPartial(string name)
         {
 
-            foreach(DirectorCard dc in characterSpawnCard)
+            foreach (DirectorCard dc in characterSpawnCard)
             {
                 if (dc.spawnCard.name.ToUpper().Replace("csc", String.Empty).Equals(name.ToUpper()))
                 {
@@ -253,9 +252,9 @@ namespace RoR2Cheats
         /// <returns>Returns a InteractableSpawncard or throws exception.</returns>
         public InteractableSpawnCard GetInteractableSpawnCard(string name)
         {
-            foreach(InteractableSpawnCard isc in interactableSpawnCards)
+            foreach (InteractableSpawnCard isc in interactableSpawnCards)
             {
-                if(isc.name.ToUpper().Replace("ISC", String.Empty).Equals(name.ToUpper().Replace("ISC", string.Empty)) || isc.name.ToUpper().Replace("isc", String.Empty).Contains(name.ToUpper()))
+                if (isc.name.ToUpper().Replace("ISC", String.Empty).Equals(name.ToUpper().Replace("ISC", string.Empty)) || isc.name.ToUpper().Replace("isc", String.Empty).Contains(name.ToUpper()))
                 {
                     return isc;
                 }
@@ -273,7 +272,7 @@ namespace RoR2Cheats
             string langInvar;
             foreach (KeyValuePair<string, string[]> dictEnt in BodyAlias)
             {
-                foreach(string alias in dictEnt.Value)
+                foreach (string alias in dictEnt.Value)
                 {
                     if (alias.ToUpper().Equals(name.ToUpper()))
                     {
@@ -282,7 +281,7 @@ namespace RoR2Cheats
                 }
             }
             int i = 0;
-            foreach(var body in BodyCatalog.allBodyPrefabBodyBodyComponents)
+            foreach (var body in BodyCatalog.allBodyPrefabBodyBodyComponents)
             {
                 if ((int.TryParse(name, out int iName) && i == iName) || body.name.ToUpper().Equals(name.ToUpper()) || body.name.ToUpper().Replace("BODY", string.Empty).Equals(name.ToUpper()))
                 {
@@ -327,7 +326,7 @@ namespace RoR2Cheats
             int i = 0;
             foreach (var master in MasterCatalog.allAiMasters)
             {
-                if ((int.TryParse(name, out int iName) && i==iName) || master.name.ToUpper().Equals(name.ToUpper()) || master.name.ToUpper().Replace("MASTER", string.Empty).Equals(name.ToUpper()))
+                if ((int.TryParse(name, out int iName) && i == iName) || master.name.ToUpper().Equals(name.ToUpper()) || master.name.ToUpper().Replace("MASTER", string.Empty).Equals(name.ToUpper()))
                 {
                     Log.MessageInfo("MATCHED EXACT!");
                     return master.name;
@@ -338,7 +337,7 @@ namespace RoR2Cheats
             foreach (var master in MasterCatalog.allAiMasters)
             {
 
-                langInvar = GetLangInvar(master.bodyPrefab.GetComponent<CharacterBody>().baseNameToken); 
+                langInvar = GetLangInvar(master.bodyPrefab.GetComponent<CharacterBody>().baseNameToken);
                 s.AppendLine(master.name + ":" + langInvar + ":" + name.ToUpper());
                 if (master.name.ToUpper().Contains(name.ToUpper()) || langInvar.ToUpper().Contains(name.ToUpper()))
                 {
@@ -357,7 +356,12 @@ namespace RoR2Cheats
         /// <returns>Returns the LanguageInvariant for the BaseNameToken.</returns>
         public static string GetLangInvar(string baseToken)
         {
-            return Regex.Replace(Language.GetString(baseToken), @"[ '-]", string.Empty);
+            return RemoveSpacesAndAlike(Language.GetString(baseToken));
+        }
+
+        public static string RemoveSpacesAndAlike(string input)
+        {
+            return Regex.Replace(input, @"[ '-]", string.Empty);
         }
 
         /// <summary>
@@ -376,7 +380,7 @@ namespace RoR2Cheats
 
             foreach (TEnum num in array)
             {
-                if (Enum.GetName(typeof(TEnum),num ).ToUpper().Contains(name.ToUpper()))
+                if (Enum.GetName(typeof(TEnum), num).ToUpper().Contains(name.ToUpper()))
                 {
                     return (TEnum)num;
                 }
