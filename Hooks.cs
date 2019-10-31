@@ -121,17 +121,14 @@ namespace RoR2Cheats
             orig(self, console);
 
             var searchableStrings = self.GetFieldValue<List<string>>("searchableStrings");
+            var tmp = new List<string>();
 
-            foreach (var item in ArgsAutoCompletion.CommandsWithStaticArgs)
-            {
-                searchableStrings.Add(item);
-            }
-            foreach (var item in ArgsAutoCompletion.CommandsWithDynamicArgs())
-            {
-                searchableStrings.Add(item);
-            }
+            tmp.AddRange(ArgsAutoCompletion.CommandsWithStaticArgs);
+            tmp.AddRange(ArgsAutoCompletion.CommandsWithDynamicArgs());
 
-            searchableStrings.Sort();
+            tmp.Sort();
+            searchableStrings.AddRange(tmp);
+
             self.SetFieldValue("searchableStrings", searchableStrings);
         }
 		
