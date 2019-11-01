@@ -777,14 +777,15 @@ namespace RoR2Cheats
         [ConCommand(commandName = "noclip", flags = ConVarFlags.ExecuteOnServer, helpText = "Allow flying and going through objects. Sprinting will double the speed. "+Lang.NOCLIP_ARGS)]
         private static void CCNoclip(ConCommandArgs args)
         {
-            //if (Run.instance)
-            //{
+            if (Run.instance)
+            {
                 Noclip.Toggle.Invoke(true, args.sender); //callback
-            //}
-            //else
-            //{
-            //    Log.Message(Lang.NOTINARUN_ERROR);
-            //}
+                
+            }
+            else
+            {
+                Log.Message(Lang.NOTINARUN_ERROR);
+            }
         }
 
         [ConCommand(commandName = "kill_all", flags = ConVarFlags.ExecuteOnServer, helpText = "Kill all entities on the specified team. "+Lang.KILLALL_ARGS)]
