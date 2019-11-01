@@ -149,6 +149,11 @@ This mod always hooks the following methods:
 * `On.RoR2.Console.RunCmd` -  We do this to log clients sending a command to the Host.
 * `IL.RoR2.Console.Awake` - We do this to 'free' `run_set_stages_cleared`.
 * `IL.RoR2.Networking.GameNetworkManager.CCSetScene` - We do this to 'free' `set_scene`.
+* NoClip requires 3 hooks:
+	* Two trampoline hooks on:
+		1. UnityEngine.NetworkManager.DisableOnServerSceneChange
+		2. UnityEngine.NetworkManager.DisableOnClientSceneChange
+	* `On.RoR2.Networking.GameNetworkManager.Disconnect`
 
 This mod hooks the following methods when prompted:
 
