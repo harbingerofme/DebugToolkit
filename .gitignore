@@ -351,3 +351,5 @@ healthchecksdb
 MigrationBackup/
 ror2cheats.zip
 *.txt
+manifest.json
+readmetest.zip

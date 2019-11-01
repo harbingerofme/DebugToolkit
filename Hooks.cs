@@ -1,12 +1,12 @@
-using MonoMod.Cil;
 using System;
 using RoR2;
+using RoR2.ConVar;
 using R2API.Utils;
 using Mono.Cecil.Cil;
+using MonoMod.Cil;
 using System.Text;
 using System.Collections.Generic;
 using System.Globalization;
-using RoR2.ConVar;
 
 namespace RoR2Cheats
 {
@@ -21,9 +21,19 @@ namespace RoR2Cheats
             On.RoR2.Console.RunCmd += LogNetworkCommands;
 			On.RoR2.Console.AutoComplete.SetSearchString += BetterAutoCompletion;
             On.RoR2.Console.AutoComplete.ctor += CommandArgsAutoCompletion;
+            IL.RoR2.Networking.GameNetworkManager.CCSetScene += EnableCheatsInCCSetScene;
+            Noclip.InitHooks();
         }
-		
-		private static void UnlockConsole(ILContext il)
+
+        private static void EnableCheatsInCCSetScene(ILContext il)
+        {
+            ILCursor c = new ILCursor(il);
+            c.Goto(3);
+            c.RemoveRange(2);
+            c.Emit(OpCodes.Ldc_I4_1);
+        }
+
+        private static void UnlockConsole(ILContext il)
         {
             ILCursor c = new ILCursor(il);
             c.GotoNext(
@@ -57,8 +67,8 @@ namespace RoR2Cheats
             self.FindConVar("timestep").helpText += " Let the ror2cheats team know if you need this convar.";
             self.FindConVar("cmotor_safe_collision_step_threshold").helpText += " Let the ror2cheats team know if you need this convar.";
             self.FindConVar("cheats").helpText += " But you already have the RoR2Cheats mod installed...";
-            BaseConVar mmConvar = self.FindConVar("max_messages");
-            if(mmConvar.GetString() == mmConvar.defaultValue)
+            IntConVar mmConvar = (IntConVar) self.FindConVar("max_messages");
+            if(mmConvar.value == 25)
             {
                 mmConvar.SetString("100");
             }
@@ -127,17 +137,14 @@ namespace RoR2Cheats
             orig(self, console);
 
             var searchableStrings = self.GetFieldValue<List<string>>("searchableStrings");
+            var tmp = new List<string>();
 
-            foreach (var item in ArgsAutoCompletion.CommandsWithStaticArgs)
-            {
-                searchableStrings.Add(item);
-            }
-            foreach (var item in ArgsAutoCompletion.CommandsWithDynamicArgs())
-            {
-                searchableStrings.Add(item);
-            }
+            tmp.AddRange(ArgsAutoCompletion.CommandsWithStaticArgs);
+            tmp.AddRange(ArgsAutoCompletion.CommandsWithDynamicArgs());
 
-            searchableStrings.Sort();
+            tmp.Sort();
+            searchableStrings.AddRange(tmp);
+
             self.SetFieldValue("searchableStrings", searchableStrings);
         }
 		

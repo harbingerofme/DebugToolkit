@@ -1,15 +1,21 @@
-﻿# We are moving towards a new name. This mod will be named "DebugToolkit" in the future.
+﻿**We are moving towards a new name. This mod will be named "DebugToolkit" in the future.**
 
-With the recent release of Lodington's RoRCheats, ambiguity exists between the mods. We are renaming to [DebugToolkit](https://thunderstore.io/package/Harb/DebugToolkit/) from version `3.2` onwards.
-We decided that the flexibility of our mod is more aimed towards developers who want to test extreme secnarios quickly, while Lodington's lends itself better to cheating.
-**This package will become deprecated once we release 3.2**. [This link will take you to that modpage once it releases.](https://thunderstore.io/package/Harb/DebugToolkit/)
+With the recent release of Lodington's RoRCheats, ambiguity exists between the mods. We are renaming to [DebugToolkit](https://thunderstore.io/package/Harb/DebugToolkit/) from version `3.2` onwards. We decided that the flexibility of our mod is more aimed towards developers who want to test extreme scenarios quickly, while Lodington's lends itself better to cheating. **This package will become deprecated once we release 3.2**. [This link will take you to that modpage once it releases.](https://thunderstore.io/package/Harb/DebugToolkit/)
 
-# RoR2Cheats
+# RoR2Cheats #
 
 This mod adds various debugging commands to the console. See below for all commands plus explanation.
-The console can be opened with `ctrl+alt+~`. Additionally `help {command}` may be used to get help, and `find {term}` can be used to find commands with that term.
 
-[Harb's](https://thunderstore.io/package/Harb/) and ['s](https://thunderstore.io/package/paddywan/) reimplementation of [Morris1927's](https://thunderstore.io/package/Morris1927/) [RoR2Cheats](https://thunderstore.io/package/Morris1927/RoR2Cheats/). Derived with permission. 
+Also adds autocompletion for arguments and networked commands giving their information to the right people to the console.
+
+Some vanilla console functions you might not know:
+
+* The console can be opened with `ctrl+alt+~`.
+* `help {command}` may be used to get help
+* `find {term}` can be used to find commands with that term.
+* `max_messages {nr}` changes how much scroll back the console has. We auto change this to 100 for you.
+
+[Harb](https://thunderstore.io/package/Harb/), [iDeathHD](https://thunderstore.io/package/xiaoxiao921/) and ['s](https://thunderstore.io/package/paddywan/) reimplementation of [Morris1927's](https://thunderstore.io/package/Morris1927/) [RoR2Cheats](https://thunderstore.io/package/Morris1927/RoR2Cheats/). Derived with permission. 
 
 Mods recommended for combined use:
 
@@ -18,11 +24,10 @@ Mods recommended for combined use:
 
 You may contact us at any time through issues on GitHub, or through the Risk of Rain 2 modding Discord found at the top of the Thunderstore website.
 
-Additional credits: **iDeathHD** for *noclip*.
-
 ---
 
-## **COMMANDS**
+## COMMANDS ##
+
 Verbiage: if an argument is encapsulated with brackets, it means it's either `(choose one)`, `{needed freeform}`, or `[optional freeform]`. The following may be used to indicate the default value: `def X`, a `*` denotes the default value cannot be entered.
 
 * **next_stage** - Advance to the next stage: `next_stage [specific stage]`. If no stage is entered, the next stage in progression is selected.
@@ -61,60 +66,66 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
 * **kick** - Kicks the specified Player Name/ID from the game.
 * **ban** - Session bans the specified Player Name/ID from the game.
 
+### Unlocked Vanilla Commands ###
 
-### Unlocked Vanilla Commands
 * **sv_time_transmit_interval** - How long it takes for the server to issue a time update to clients. `sv_time_transmit_interval [time]`
 * **run_scene_override** - Overrides the first scene to enter in a run. `run_scene_override [stage]`
 * **stage1_pod** - Whether or not to use the pod when spawning on the first stage. `stage1_pod [(0|1)]`
 * **run_set_stages_cleared**  - Sets the amount of stages cleared. This does not change the current stage. `run_set_stages_cleared {stagecount}`. This obsoletes `stage_clear_count` from previous RoR2Cheats versions.
 * **team_set_level** - Sets the specified team to the specified level: `team_set_level {teamindex} {level}` Team indexes: 0=neutral,1=player,2=monster. This obsoletes `give_exp` from previous RoR2Cheats versions.
 * **loadout_set_skill_variant** - Sets the skill variant for the sender's user profile: `loadout_set_skill_variant {body_name} {skill_slot_index} {skill_variant_index}`. Note that this does not use the loose bodymatching from custom commands.
+* **set_scene** - Removed the cheat check on this. Functions similar but not really to our `next_stage`, doesn't have our cool autocomplete features, and doesn't advance the stagecount, but can advance menus. `set_scene {scene}`
 
 ### Commands slated for deletion
+
 These commands will be removed once we hit **3.2**. Speak out now or be forever silenced.
 
 * **give_exp** - Use `team_set_level` instead.
 * You can now use language invariants, so the following lists have been invalidated.
-    * **list_items** 
+    * **list_items**
     * **list_equipments**
 * **stage_clear_count** - Use `run_set_stages_cleared` instead.
 
 ---
 
-## Changelog
+## Changelog ##
 
-### 3.1.0
+### 3.1.0 ###
+
+* "DebugToolkit"
 * **General**
-	* You may have noticed *MiniRPCLib* is a new dependency. This is to network cheats better over the network. Functionally nothing has changed.
-	* A secret new convar is added: `ror2cheats_debug`. Only available for those people who read the changelog. ❤️
-	* Various commands have had their ingame descriptions updated to better inform what args are expected.
-	* *Modders stuff:* Hooks that do not permanently need to exists have been been made to only exist for as long as they are needed.
-	* *Modders stuff:* All hooks, temporary or not, have been added to the readme to help resolve mod conflicts.
+    * **iDeathHD** has been added to the team behind RoR2Cheats/DebugToolkit, their expertise has been of amazing use and we're excited to have a joint venture in this.
+    * You may have noticed *MiniRPCLib* is a new dependency. This is to network cheats better over the network. Functionally nothing has changed.
+    * A secret new convar is added: `ror2cheats_debug`. Only available for those people who read the changelog. ❤️
+    * Various commands have had their ingame descriptions updated to better inform what args are expected.
+    * *Modders stuff:* Hooks that do not permanently need to exists have been been made to only exist for as long as they are needed.
+    * *Modders stuff:* All hooks, temporary or not, have been added to the readme to help resolve mod conflicts.
 * **New Commands**
-	* `set_boss` We've worked hard on this. We hope you find use for it. *(And with 'we', Harb means the other contributor who isn't Harb.)*
-	* `give_lunar` Editing your save is an unnessecary task. This command is restricted to the issuing player to prevent grieving.
-	* `remove_item` While this functionality could already be achieved with *give_item* and a negative amount, this was not obvious.
-	* `remove_equip` While this functionality could already be achieved with `give_equip None, this was not obvious.
-	* `create_pickup` A lot of custom item mods also need to test their descriptions. Maybe you have an on pickup hook.
-	* `force_family_event` We initially tried it being able to do any family, but this proved to be hard. So instead we force an event to happen next stage.
-	* `noclip` Thank you iDeathHD for creating this!
-	* `kick` Not much to say there are better ways to resolve your issues with players. 
-	* `ban`You can talk it out.
-	* `spawn_interactible` Implemented with full range of interactles, not limited to types. Accepts InteractableSpawnCard partial as parameter.
+    * `next_boss` We've worked hard on this. We hope you find use for it. *(And with 'we', Harb means the other contributor who isn't Harb nor iDeathHD.)*
+    * `give_lunar` Editing your save is an unnessecary task. This command is restricted to the issuing player to prevent grieving.
+    * `remove_item` While this functionality could already be achieved with *give_item* and a negative amount, this was not obvious.
+    * `remove_equip` While this functionality could already be achieved with `give_equip None, this was not obvious.
+    * `create_pickup` A lot of custom item mods also need to test their descriptions. Maybe you have an on pickup hook.
+    * `force_family_event` We initially tried it being able to do any family, but this proved to be hard. So instead we force an event to happen next stage.
+    * `noclip` Fly freely through the map.
+    * `kick` Not much to say there are better ways to resolve your issues with players. 
+    * `ban`You can talk it out.
+    * `spawn_interactible` Implemented with full range of interactles, not limited to types. Accepts InteractableSpawnCard partial as parameter.
 * **Fixes**
-	* 
-	* `Spawn_as` now temporarily disables arriving in the pod to prevent not being able to get out of a pod.
-	* Clients now see the output of commands with the ExecuteOnServer flag. *This change only applies to commands created by this mod.*
-	* Host now sees the input of commands with the ExecuteOnServer flag. *This change applies to all commands, even that of other mods.*
-	* `set_team` is now smarter in detecting which team you want.
-	* Several issues with argument matching are now resolved better.
-	* Special characters are now handled better (or rather, are ignored completely) when matching arguments.
+    * `Spawn_as` now temporarily disables arriving in the pod to prevent not being able to get out of a pod.
+    * Clients now see the output of commands with the ExecuteOnServer flag. *This change only applies to commands created by this mod.*
+    * Host now sees the input of commands with the ExecuteOnServer flag. *This change applies to all commands, even that of other mods.*
+    * `set_team` is now smarter in detecting which team you want.
+    * Several issues with argument matching are now resolved better.
+    * Special characters are now handled better (or rather, are ignored completely) when matching arguments.
+	* `set_scene` is now no longer denying access to you because you don't have cheats enabled. (you do, after all.)
 
-### 3.0.0
+### 3.0.0 ###
+
 * "Initial Release"
 * **General**
     * Reworked almost every command to be more maintainable. This should have no impact on current users.
-    *  FOV is now outside the scope of this project and has thus been removed
+    * FOV is now outside the scope of this project and has thus been removed
 * **New Features**
     * Object & Character names can now be queried using partial language invariants. For example: `give_item uku` will give one ukulele under "en".
     * Several vanilla cheats have now been unlocked.
@@ -124,21 +135,24 @@ These commands will be removed once we hit **3.2**. Speak out now or be forever 
     * `seed` is now networked.
     * Elites now spawn with correct stats, and should be update-proofed.
 
-### < 3.0.0
+### < 3.0.0 ###
+
 See [the old package](https://thunderstore.io/package/Morris1927/)
 
 ---
 
-## Hooks
+## Hooks ##
 
 This mod always hooks the following methods:
 
-* `IL.RoR2.Console.Awake` - We do this to 'free' `run_set_stages_cleared`.
 * `On.RoR2.Console.InitConVar` - We do this to 'free' the vanilla convars and change some vanilla descriptions.
 * `On.RoR2.Console.RunCmd` -  We do this to log clients sending a command to the Host.
+* `IL.RoR2.Console.Awake` - We do this to 'free' `run_set_stages_cleared`.
+* `IL.RoR2.Networking.GameNetworkManager.CCSetScene` - We do this to 'free' `set_scene`.
 
 This mod hooks the following methods when prompted:
+
 * `On.RoR2.PreGameController.Awake` - We use this to change the seed if needed.
 * `On.RoR2.CombatDirector.SetNextSpawnAsBoss` - We use this for `set_boss`.
-* `IL.RoR2.ClassicStageInfo.Awake` - We hook this to set a family event.
 * `On.RoR2.Stage.Start` - We hook this to remove the IL hook on ClassicStageInfo.
+* `IL.RoR2.ClassicStageInfo.Awake` - We hook this to set a family event.

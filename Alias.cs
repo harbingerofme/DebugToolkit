@@ -48,6 +48,8 @@ namespace RoR2Cheats
             MasterAlias.Add("RoboBallBossMaster", new string[] { "SCU", "roboboss" });
             MasterAlias.Add("SuperRoboBallBossMaster", new string[] { "AWU" });
 
+            ItemAlias.Add("Syringe", new string[] { "drugs" });
+
 
             var allCSC = Resources.LoadAll<CharacterSpawnCard>("SpawnCards/CharacterSpawnCards");
             Debug.Log($"Loading all CSC's: {allCSC.Length}");
