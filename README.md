@@ -100,7 +100,7 @@ These commands will be removed once we hit **3.2**. Speak out now or be forever 
     * *Modders stuff:* Hooks that do not permanently need to exists have been been made to only exist for as long as they are needed.
     * *Modders stuff:* All hooks, temporary or not, have been added to the readme to help resolve mod conflicts.
 * **New Commands**
-    * `set_boss` We've worked hard on this. We hope you find use for it. *(And with 'we', Harb means the other contributor who isn't Harb nor iDeathHD.)*
+    * `next_boss` We've worked hard on this. We hope you find use for it. *(And with 'we', Harb means the other contributor who isn't Harb nor iDeathHD.)*
     * `give_lunar` Editing your save is an unnessecary task. This command is restricted to the issuing player to prevent grieving.
     * `remove_item` While this functionality could already be achieved with *give_item* and a negative amount, this was not obvious.
     * `remove_equip` While this functionality could already be achieved with `give_equip None, this was not obvious.
