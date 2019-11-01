@@ -36,20 +36,17 @@ namespace RoR2Cheats
         {
             var miniRpc = MiniRpc.CreateInstance(GUID);
             new Log(Logger, miniRpc);
-            //Alias.EnsureInstance();
-
-
+            
             Log.Message("Harb's and 's Version. Original by Morris1927.", LogLevel.Info, Log.Target.Bepinex);/*Check github for the other contributor, lmao*/
             
             Hooks.InitializeHooks();
-            Noclip.Init(miniRpc);
+            Noclip.InitRPC(miniRpc);
             TimeScaleNetwork = miniRpc.RegisterAction(Target.Client, (NetworkUser _, float f) => { HandleTimeScale(f); });
         }
 		
 		private void Start()
         {
             var _ = Alias.Instance;
-            //Alias.EnsureInstance();
             ArgsAutoCompletion.GatherCommandsAndFillStaticArgs();
         }
 
@@ -783,10 +780,11 @@ namespace RoR2Cheats
             if (Run.instance)
             {
                 Noclip.Toggle.Invoke(true, args.sender); //callback
+                
             }
             else
             {
-                Log.Message(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
+                Log.Message(Lang.NOTINARUN_ERROR);
             }
         }
 

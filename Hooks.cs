@@ -1,12 +1,12 @@
-using MonoMod.Cil;
 using System;
 using RoR2;
+using RoR2.ConVar;
 using R2API.Utils;
 using Mono.Cecil.Cil;
+using MonoMod.Cil;
 using System.Text;
 using System.Collections.Generic;
 using System.Globalization;
-using RoR2.ConVar;
 
 namespace RoR2Cheats
 {
@@ -22,6 +22,7 @@ namespace RoR2Cheats
 			On.RoR2.Console.AutoComplete.SetSearchString += BetterAutoCompletion;
             On.RoR2.Console.AutoComplete.ctor += CommandArgsAutoCompletion;
             IL.RoR2.Networking.GameNetworkManager.CCSetScene += EnableCheatsInCCSetScene;
+            Noclip.InitHooks();
         }
 
         private static void EnableCheatsInCCSetScene(ILContext il)
