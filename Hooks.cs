@@ -1,12 +1,14 @@
-using MonoMod.Cil;
 using System;
 using RoR2;
+using RoR2.ConVar;
 using R2API.Utils;
 using Mono.Cecil.Cil;
+using MonoMod.Cil;
+using MonoMod.RuntimeDetour;
 using System.Text;
 using System.Collections.Generic;
 using System.Globalization;
-using RoR2.ConVar;
+using UnityEngine.Networking;
 
 namespace RoR2Cheats
 {
@@ -22,6 +24,16 @@ namespace RoR2Cheats
 			On.RoR2.Console.AutoComplete.SetSearchString += BetterAutoCompletion;
             On.RoR2.Console.AutoComplete.ctor += CommandArgsAutoCompletion;
             IL.RoR2.Networking.GameNetworkManager.CCSetScene += EnableCheatsInCCSetScene;
+
+            var noclipOnServerChangeSceneHook = new Hook(typeof(NetworkManager).GetMethodCached("ServerChangeScene"), 
+                                                         typeof(Noclip).GetMethodCached("DisableOnServerSceneChange"));
+            Noclip.origServerChangeScene = noclipOnServerChangeSceneHook.GenerateTrampoline<Noclip.d_ServerChangeScene>();
+            noclipOnServerChangeSceneHook.Apply();
+
+            var noclipOnClientChangeSceneHook = new Hook(typeof(NetworkManager).GetMethodCached("ClientChangeScene"),
+                                                         typeof(Noclip).GetMethodCached("DisableOnClientSceneChange"));
+            Noclip.origClientChangeScene = noclipOnClientChangeSceneHook.GenerateTrampoline<Noclip.d_ClientChangeScene>();
+            noclipOnClientChangeSceneHook.Apply();
         }
 
         private static void EnableCheatsInCCSetScene(ILContext il)

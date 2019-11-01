@@ -2,12 +2,18 @@
 using UnityEngine;
 using KinematicCharacterController;
 using MiniRpcLib;
+using UnityEngine.Networking;
 
 namespace RoR2Cheats
 {
     // ReSharper disable once UnusedMember.Global
     internal static class Noclip
     {
+        internal delegate void d_ServerChangeScene(NetworkManager instance, string newSceneName);
+        internal static d_ServerChangeScene origServerChangeScene;
+        internal delegate void d_ClientChangeScene(NetworkManager instance, string newSceneName, bool forceReload);
+        internal static d_ClientChangeScene origClientChangeScene;
+
         internal static bool IsActivated;
         internal static MiniRpcLib.Action.IRpcAction<bool> Toggle;
 
@@ -37,6 +43,26 @@ namespace RoR2Cheats
                     Log.Message(string.Format(Lang.NOCLIP_TOGGLE, IsActivated));
                 }
             });
+        }
+
+        internal static void DisableOnServerSceneChange(NetworkManager instance, string newSceneName)
+        {
+            if (IsActivated)
+            {
+                Console.instance.SubmitCmd(LocalUserManager.GetFirstLocalUser().currentNetworkUser, "noclip");
+            }
+
+            origServerChangeScene(instance, newSceneName);
+        }
+
+        internal static void DisableOnClientSceneChange(NetworkManager instance, string newSceneName, bool forceReload)
+        {
+            if (IsActivated)
+            {
+                Console.instance.SubmitCmd(LocalUserManager.GetFirstLocalUser().currentNetworkUser, "noclip");
+            }
+
+            origClientChangeScene(instance, newSceneName, forceReload);
         }
 
         internal static void Update()
