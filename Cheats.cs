@@ -63,7 +63,7 @@ namespace RoR2Cheats
 
         #region Items&Stats
         [ConCommand(commandName = "list_interactables", flags = ConVarFlags.None, helpText = "Lists all interactables.")]
-        private static void CCList_interactables(ConCommandArgs args)
+        private static void CCList_interactables(ConCommandArgs _)
         {
             StringBuilder s = new StringBuilder();
             foreach (InteractableSpawnCard isc in Alias.Instance.InteractableSpawnCards)
@@ -84,7 +84,7 @@ namespace RoR2Cheats
                 list.AppendLine($"[{i}]{n.userName}");
 
             }
-            Log.Message(list.ToString(), args, LogLevel.MessageClientOnly);
+            Log.MessageNetworked(list.ToString(), args, LogLevel.MessageClientOnly);
         }
 
         [ConCommand(commandName = "list_items", flags = ConVarFlags.None, helpText =  Lang.LISTITEM_ARGS)]
@@ -165,7 +165,7 @@ namespace RoR2Cheats
             NetworkUser player = args.sender;
             if (args.Count == 0)
             {
-                Log.Message(Lang.GIVEITEM_ARGS, args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(Lang.GIVEITEM_ARGS, args, LogLevel.MessageClientOnly);
                 return;
             }
             int iCount = 1;
@@ -180,7 +180,7 @@ namespace RoR2Cheats
                 player = GetNetUserFromString(args[2]);
                 if (player == null)
                 {
-                    Log.Message(Lang.PLAYER_NOTFOUND, LogLevel.MessageClientOnly);
+                    Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
                 }
 
                 inventory = (player == null) ? inventory : player.master.inventory;
@@ -193,10 +193,10 @@ namespace RoR2Cheats
             }
             else
             {
-                Log.Message(Lang.OBJECT_NOTFOUND + args[0] + ":" + item, args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(Lang.OBJECT_NOTFOUND + args[0] + ":" + item, args, LogLevel.MessageClientOnly);
             }
 
-            Log.Message($"Gave {iCount} {item} to {player.masterController.GetDisplayName()}", args);
+            Log.MessageNetworked($"Gave {iCount} {item} to {player.masterController.GetDisplayName()}", args);
         }
 
         [ConCommand(commandName = "give_equip", flags = ConVarFlags.ExecuteOnServer, helpText = "Gives the specified item to the player. " + Lang.GIVEEQUIP_ARGS)]
@@ -206,7 +206,7 @@ namespace RoR2Cheats
             NetworkUser player = args.sender;
             if (args.Count == 0)
             {
-                Log.Message(Lang.GIVEEQUIP_ARGS, args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(Lang.GIVEEQUIP_ARGS, args, LogLevel.MessageClientOnly);
                 return;
             }
 
@@ -216,7 +216,7 @@ namespace RoR2Cheats
                 player = GetNetUserFromString(args[1]);
                 if (player == null)
                 {
-                    Log.Message(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
+                    Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
                 }
 
                 inventory = (player == null) ? inventory : player.master.inventory;
@@ -229,11 +229,11 @@ namespace RoR2Cheats
             }
             else
             {
-                Log.Message(Lang.OBJECT_NOTFOUND + args[0] + ":" + equip, args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(Lang.OBJECT_NOTFOUND + args[0] + ":" + equip, args, LogLevel.MessageClientOnly);
                 return;
             }
 
-            Log.Message($"Gave {equip} to {player.masterController.GetDisplayName()}", args);
+            Log.MessageNetworked($"Gave {equip} to {player.masterController.GetDisplayName()}", args);
         }
 
         [ConCommand(commandName = "give_lunar", flags = ConVarFlags.ExecuteOnServer, helpText = "Gives a lunar coin to the specified player. " + Lang.GIVELUNAR_ARGS)]
@@ -257,7 +257,7 @@ namespace RoR2Cheats
                 target.DeductLunarCoins((uint)(amount));
                 str = string.Format(Lang.GIVELUNAR_2, "Removed", amount);
             }
-            Log.Message(str, args);
+            Log.MessageNetworked(str, args);
         }
 
         [ConCommand(commandName = "create_pickup", flags = ConVarFlags.ExecuteOnServer, helpText = "Creates a PickupDroplet infront of the players position. " +Lang.CREATEPICKUP_ARGS)]
@@ -294,7 +294,7 @@ namespace RoR2Cheats
             }
             if (item != ItemIndex.None && equipment != EquipmentIndex.None)
             {
-                Log.Message(string.Format(Lang.CREATEPICKUP_AMBIGIOUS_2, item, equipment), args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(string.Format(Lang.CREATEPICKUP_AMBIGIOUS_2, item, equipment), args, LogLevel.MessageClientOnly);
                 return;
             }
 
@@ -306,11 +306,11 @@ namespace RoR2Cheats
                 }
                 else
                 {
-                    Log.Message(Lang.CREATEPICKUP_NOTFOUND, args, LogLevel.MessageClientOnly);
+                    Log.MessageNetworked(Lang.CREATEPICKUP_NOTFOUND, args, LogLevel.MessageClientOnly);
                     return;
                 }
             }
-            Log.Message(string.Format(Lang.CREATEPICKUP_SUCCES_1, final), args);
+            Log.MessageNetworked(string.Format(Lang.CREATEPICKUP_SUCCES_1, final), args);
             PickupDropletController.CreatePickupDroplet(final, transform.position, transform.forward * 40f);
         }
 
@@ -320,7 +320,7 @@ namespace RoR2Cheats
             NetworkUser player = args.sender;
             if (args.Count == 0)
             {
-                Log.Message(Lang.REMOVEITEM_ARGS, args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(Lang.REMOVEITEM_ARGS, args, LogLevel.MessageClientOnly);
                 return;
             }
             int iCount = 1;
@@ -343,7 +343,7 @@ namespace RoR2Cheats
 
             if (args[0].ToUpper() == Lang.ALL)
             {
-                Log.Message("Removing inventory", args);
+                Log.MessageNetworked("Removing inventory", args);
                 inventory.CopyItemsFrom(new GameObject().AddComponent<Inventory>());
                 return;
             }
@@ -358,9 +358,9 @@ namespace RoR2Cheats
             }
             else
             {
-                Log.Message(Lang.OBJECT_NOTFOUND + args[0] + ":" + item, args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(Lang.OBJECT_NOTFOUND + args[0] + ":" + item, args, LogLevel.MessageClientOnly);
             }
-            Log.Message($"Removed {iCount} {item} from {player.masterController.GetDisplayName()}", args);
+            Log.MessageNetworked($"Removed {iCount} {item} from {player.masterController.GetDisplayName()}", args);
         }
 
         [ConCommand(commandName = "remove_equip", flags = ConVarFlags.ExecuteOnServer, helpText = "Removes the equipment from the specified player. " + Lang.REMOVEEQUIP_ARGS)]
@@ -373,14 +373,14 @@ namespace RoR2Cheats
                 player = GetNetUserFromString(args[0]);
                 if (player == null)
                 {
-                    Log.Message(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
+                    Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
                     return;
                 }
                 inventory = (player == null) ? inventory : player.master.inventory;
             }
             inventory.SetEquipmentIndex(EquipmentIndex.None);
 
-            Log.Message($"Removed current Equipment from {player.masterController.GetDisplayName()}", args);
+            Log.MessageNetworked($"Removed current Equipment from {player.masterController.GetDisplayName()}", args);
         }
 
         [ConCommand(commandName = "give_money", flags = ConVarFlags.ExecuteOnServer, helpText = "Gives the specified amount of money to the specified player. " + Lang.GIVEMONEY_ARGS)]
@@ -388,7 +388,7 @@ namespace RoR2Cheats
         {
             if (args.Count == 0)
             {
-                Log.Message(Lang.GIVEMONEY_ARGS, args, LogLevel.WarningClientOnly);
+                Log.MessageNetworked(Lang.GIVEMONEY_ARGS, args, LogLevel.WarningClientOnly);
                 return;
             }
 
@@ -414,13 +414,13 @@ namespace RoR2Cheats
             {
                 TeamManager.instance.GiveTeamMoney(args.sender.master.teamIndex, result);
             }
-            Log.Message("$$$", args);
+            Log.MessageNetworked("$$$", args);
         }
 
         [ConCommand(commandName = "give_exp", flags = ConVarFlags.ExecuteOnServer, helpText = "Gives experience. OBSOLETE")]
         private static void CCGiveExperience(ConCommandArgs args)
         {
-            Log.Message(Lang.OBSOLETEWARNING + "Use team_set_level instead.", args, LogLevel.WarningClientOnly);
+            Log.MessageNetworked(Lang.OBSOLETEWARNING + "Use team_set_level instead.", args, LogLevel.WarningClientOnly);
 
             if (args.Count == 0)
             {
@@ -446,7 +446,7 @@ namespace RoR2Cheats
         {
             if(args.Count == 0)
             {
-                Log.Message(Lang.KICK_ARGS, args, LogLevel.Error);
+                Log.MessageNetworked(Lang.KICK_ARGS, args, LogLevel.Error);
                 return;
             }
             try
@@ -456,7 +456,7 @@ namespace RoR2Cheats
             }
             catch
             {
-                Log.Message(Lang.PLAYER_NOTFOUND, args, LogLevel.Error);
+                Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.Error);
             }
         }
 
@@ -465,7 +465,7 @@ namespace RoR2Cheats
         {
             if (args.Count == 0)
             {
-                Log.Message(Lang.BAN_ARGS, args, LogLevel.Error);
+                Log.MessageNetworked(Lang.BAN_ARGS, args, LogLevel.Error);
                 return;
             }
             try
@@ -473,14 +473,14 @@ namespace RoR2Cheats
                 NetworkUser nu = GetNetUserFromString(args[0]);
                 if(nu.isServer)
                 {
-                    Log.Message("Banning yourself is counter-productive! Please kick instead.", args, LogLevel.Error);
+                    Log.MessageNetworked("Banning yourself is counter-productive! Please kick instead.", args, LogLevel.Error);
                     return;
                 }
                 RoR2.Console.instance.RunClientCmd(args.sender, "ban_steam", new string[] { nu.Network_id.steamId.ToString() });
             }
             catch
             {
-                Log.Message(Lang.PLAYER_NOTFOUND, args, LogLevel.Error);
+                Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.Error);
             }
         }
 
@@ -489,17 +489,17 @@ namespace RoR2Cheats
         {
             IL.RoR2.ClassicStageInfo.Awake += Hooks.ForceFamilyEvent;
             On.RoR2.Stage.Start += Hooks.RemoveFamilyEvent;
-            Log.Message("The next stage will contain a family event!", args);
+            Log.MessageNetworked("The next stage will contain a family event!", args);
         }
 
         [AutoCompletion(typeof(Alias), "characterSpawnCard", false, "spawnCard/prefab")]
         [ConCommand(commandName = "next_boss", flags = ConVarFlags.ExecuteOnServer, helpText = "Sets the next teleporter instance to the specified boss. "+Lang.NEXTBOSS_ARGS)]
         private static void CCNextBoss(ConCommandArgs args)
         {
-            Log.Message(Lang.PARTIALIMPLEMENTATION_WARNING, args, LogLevel.MessageClientOnly);
+            Log.MessageNetworked(Lang.PARTIALIMPLEMENTATION_WARNING, args, LogLevel.MessageClientOnly);
             if (args.Count == 0)
             {
-                Log.Message(Lang.NEXTBOSS_ARGS, args);
+                Log.MessageNetworked(Lang.NEXTBOSS_ARGS, args);
             }
             StringBuilder s = new StringBuilder();
             if (args.Count >= 1)
@@ -512,7 +512,7 @@ namespace RoR2Cheats
                     {
                         if (!int.TryParse(args[1], out nextBossCount))
                         {
-                            Log.Message(Lang.COUNTISNUMERIC, args, LogLevel.MessageClientOnly);
+                            Log.MessageNetworked(Lang.COUNTISNUMERIC, args, LogLevel.MessageClientOnly);
                             nextBossCount = 1;
                         }
                         else
@@ -534,12 +534,12 @@ namespace RoR2Cheats
                         }
                     }
                     On.RoR2.CombatDirector.SetNextSpawnAsBoss += Hooks.CombatDirector_SetNextSpawnAsBoss;
-                    Log.Message(s.ToString(), args);
+                    Log.MessageNetworked(s.ToString(), args);
                 }
                 catch (Exception ex)
                 {
-                    Log.Message(Lang.OBJECT_NOTFOUND + args[0], args, LogLevel.ErrorClientOnly);
-                    Log.Message(ex.ToString(), args, LogLevel.ErrorClientOnly);
+                    Log.MessageNetworked(Lang.OBJECT_NOTFOUND + args[0], args, LogLevel.ErrorClientOnly);
+                    Log.MessageNetworked(ex.ToString(), args, LogLevel.ErrorClientOnly);
                 }
             }
         }
@@ -550,7 +550,7 @@ namespace RoR2Cheats
             if (args.Count == 0)
             {
                 Run.instance.AdvanceStage(Run.instance.nextStageScene);
-                Log.Message("Stage advanced.", args);
+                Log.MessageNetworked("Stage advanced.", args);
                 return;
             }
 
@@ -564,7 +564,7 @@ namespace RoR2Cheats
             if (array.Contains(stageString))
             {
                 Run.instance.AdvanceStage(SceneCatalog.GetSceneDefFromSceneName(stageString));
-                Log.Message($"Stage advanced to {stageString}.", args);
+                Log.MessageNetworked($"Stage advanced to {stageString}.", args);
                 return;
             }
             else
@@ -572,7 +572,7 @@ namespace RoR2Cheats
                 StringBuilder s = new StringBuilder();
                 s.AppendLine(Lang.NEXTROUND_STAGE);
                 array.ForEach((string str) => { s.AppendLine(str); });
-                Log.Message(s.ToString(), args);
+                Log.MessageNetworked(s.ToString(), args);
             }
         }
 
@@ -590,7 +590,7 @@ namespace RoR2Cheats
                 {
                     s += (seed == 0) ? "random" : seed.ToString();
                 }
-                Log.Message(s, args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(s, args, LogLevel.MessageClientOnly);
                 return;
             }
             args.CheckArgumentCount(1);
@@ -615,7 +615,7 @@ namespace RoR2Cheats
                 }
             }
             seed = result;
-            Log.Message($"Seed set to {((seed == 0) ? "vanilla generation" : seed.ToString())}.", args);
+            Log.MessageNetworked($"Seed set to {((seed == 0) ? "vanilla generation" : seed.ToString())}.", args);
         }
 
         [ConCommand(commandName = "fixed_time", flags = ConVarFlags.ExecuteOnServer, helpText = "Sets the FixedTime to the specified value. "+Lang.FIXEDTIME_ARGS)]
@@ -624,7 +624,7 @@ namespace RoR2Cheats
 
             if (args.Count == 0)
             {
-                Log.Message(Run.instance.fixedTime.ToString(), args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(Run.instance.fixedTime.ToString(), args, LogLevel.MessageClientOnly);
                 return;
             }
 
@@ -632,11 +632,11 @@ namespace RoR2Cheats
             {
                 Run.instance.fixedTime = setTime;
                 ResetEnemyTeamLevel();
-                Log.Message("Fixed_time set to " + setTime, args);
+                Log.MessageNetworked("Fixed_time set to " + setTime, args);
             }
             else
             {
-                Log.Message(Lang.FIXEDTIME_ARGS, args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(Lang.FIXEDTIME_ARGS, args, LogLevel.MessageClientOnly);
             }
 
         }
@@ -646,14 +646,14 @@ namespace RoR2Cheats
         {
             if (args.Count == 0)
             {
-                Log.Message(Time.timeScale.ToString(), args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(Time.timeScale.ToString(), args, LogLevel.MessageClientOnly);
                 return;
             }
 
             if (TextSerialization.TryParseInvariant(args[0], out float scale))
             {
                 Time.timeScale = scale;
-                Log.Message("Time scale set to " + scale, args);
+                Log.MessageNetworked("Time scale set to " + scale, args);
                 TimeScaleNetwork.Invoke(scale);
             }
             else
@@ -665,11 +665,11 @@ namespace RoR2Cheats
         [ConCommand(commandName = "stage_clear_count", flags = ConVarFlags.ExecuteOnServer, helpText = "Sets stage clear count - Affects monster difficulty. OBSOLETE")]
         private static void CCSetClearCount(ConCommandArgs args)
         {
-            Log.Message(Lang.OBSOLETEWARNING + "Use run_set_stages_cleared instead.", args, LogLevel.WarningClientOnly);
+            Log.MessageNetworked(Lang.OBSOLETEWARNING + "Use run_set_stages_cleared instead.", args, LogLevel.WarningClientOnly);
 
             if (args.Count == 0)
             {
-                Log.Message(Run.instance.stageClearCount.ToString(), args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(Run.instance.stageClearCount.ToString(), args, LogLevel.MessageClientOnly);
                 return;
             }
 
@@ -677,11 +677,11 @@ namespace RoR2Cheats
             {
                 Run.instance.stageClearCount = setClearCount;
                 ResetEnemyTeamLevel();
-                Log.Message("Stage_clear_count set to " + setClearCount, args);
+                Log.MessageNetworked("Stage_clear_count set to " + setClearCount, args);
             }
             else
             {
-                Log.Message("Incorrect arguments. Try: stage_clear_count 5", args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked("Incorrect arguments. Try: stage_clear_count 5", args, LogLevel.MessageClientOnly);
             }
 
         }
@@ -733,7 +733,7 @@ namespace RoR2Cheats
         {
             if (args.Count == 0)
             {
-                Log.Message(Lang.SPAWNINTERACTABLE_ARGS, args, LogLevel.ErrorClientOnly);
+                Log.MessageNetworked(Lang.SPAWNINTERACTABLE_ARGS, args, LogLevel.ErrorClientOnly);
                 return;
             }
             try
@@ -754,7 +754,7 @@ namespace RoR2Cheats
             }
             catch (Exception ex)
             {
-                Log.Message(ex.Message, args, LogLevel.ErrorClientOnly);
+                Log.MessageNetworked(ex.Message, args, LogLevel.ErrorClientOnly);
             }
         }
 
@@ -768,7 +768,7 @@ namespace RoR2Cheats
                 godToggleMethod.Invoke(playerInstance.master, null);
                 if (hasNotYetRun)
                 {
-                    Log.Message($"God mode {(playerInstance.master.GetBody().healthComponent.godMode ? "enabled" : "disabled")}.", args);
+                    Log.MessageNetworked($"God mode {(playerInstance.master.GetBody().healthComponent.godMode ? "enabled" : "disabled")}.", args);
                     hasNotYetRun = false;
                 }
             }
@@ -784,7 +784,7 @@ namespace RoR2Cheats
             }
             else
             {
-                Log.Message(Lang.NOTINARUN_ERROR);
+                Log.MessageNetworked(Lang.NOTINARUN_ERROR,args,LogLevel.MessageClientOnly);
             }
         }
 
@@ -819,7 +819,7 @@ namespace RoR2Cheats
 
                 }
             }
-            Log.Message("Killed " + count + " of team " + team + ".", args);
+            Log.MessageNetworked("Killed " + count + " of team " + team + ".", args);
         }
 
         [ConCommand(commandName = "true_kill", flags = ConVarFlags.ExecuteOnServer, helpText = "Ignore Dio's and kill the entity. "+Lang.TRUEKILL_ARGS)]
@@ -835,13 +835,13 @@ namespace RoR2Cheats
                 }
                 else
                 {
-                    Log.Message(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
+                    Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
                     return;
                 }
             }
 
             master.TrueKill();
-            Log.Message(master.name + " was killed by server.", args);
+            Log.MessageNetworked(master.name + " was killed by server.", args);
         }
 
         [ConCommand(commandName = "no_enemies", flags = ConVarFlags.ExecuteOnServer, helpText = "Toggle Monster spawning. "+Lang.NOENEMIES_ARGS)]
@@ -857,7 +857,7 @@ namespace RoR2Cheats
             {
                 SceneDirector.onPrePopulateSceneServer -= Hooks.OnPrePopulateSetMonsterCreditZero;
             }
-            Log.Message("No_enemies set to " + noEnemies, args);
+            Log.MessageNetworked("No_enemies set to " + noEnemies, args);
         }
 
         [ConCommand(commandName = "spawn_as", flags = ConVarFlags.ExecuteOnServer, helpText = "Respawn the specified player using the specified body prefab. "+Lang.SPAWNAS_ARGS)]
@@ -866,15 +866,15 @@ namespace RoR2Cheats
         {
             if (args.Count == 0)
             {
-                Log.Message(Lang.SPAWNAS_ARGS, args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(Lang.SPAWNAS_ARGS, args, LogLevel.MessageClientOnly);
                 return;
             }
 
             string character = Alias.Instance.GetBodyName(args[0]);
             if (character == null)
             {
-                Log.Message(Lang.SPAWN_ERROR + args[0], args, LogLevel.MessageClientOnly);
-                Log.Message("Please use list_body to print CharacterBodies", args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(Lang.SPAWN_ERROR + args[0], args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked("Please use list_body to print CharacterBodies", args, LogLevel.MessageClientOnly);
                 return;
             }
             GameObject newBody = BodyCatalog.FindBodyPrefab(character);
@@ -889,19 +889,19 @@ namespace RoR2Cheats
                 }
                 else
                 {
-                    Log.Message(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
+                    Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
                     return;
                 }
             }
 
             if (!master.alive)
             {
-                Log.Message(Lang.PLAYER_DEADRESPAWN, args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(Lang.PLAYER_DEADRESPAWN, args, LogLevel.MessageClientOnly);
                 return;
             }
 
             master.bodyPrefab = newBody;
-            Log.Message(args.sender.userName + " is spawning as " + character, args);
+            Log.MessageNetworked(args.sender.userName + " is spawning as " + character, args);
             RoR2.ConVar.BoolConVar stage1pod = ((RoR2.ConVar.BoolConVar)(typeof(Stage)).GetFieldCached("stage1PodConVar").GetValue(null));
             bool oldVal = stage1pod.value;
             stage1pod.SetBool(false);
@@ -916,14 +916,14 @@ namespace RoR2Cheats
 
             if (args.Count == 0)
             {
-                Log.Message(Lang.SPAWNAI_ARGS, args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(Lang.SPAWNAI_ARGS, args, LogLevel.MessageClientOnly);
                 return;
             }
 
             string character = Alias.Instance.GetMasterName(args[0]);
             if (character == null)
             {
-                Log.Message(Lang.SPAWN_ERROR + character, args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(Lang.SPAWN_ERROR + character, args, LogLevel.MessageClientOnly);
                 return;
             }
             var masterprefab = MasterCatalog.FindMasterPrefab(character);
@@ -954,7 +954,7 @@ namespace RoR2Cheats
             {
                 Destroy(master.GetComponent<BaseAI>());
             }
-            Log.Message(Lang.SPAWN_ATTEMPT + character, args);
+            Log.MessageNetworked(Lang.SPAWN_ATTEMPT + character, args);
         }
 
         [ConCommand(commandName = "spawn_body", flags = ConVarFlags.ExecuteOnServer, helpText = "Spawns the specified dummy body. "+Lang.SPAWNBODY_ARGS)]
@@ -963,21 +963,21 @@ namespace RoR2Cheats
         {
             if (args.Count == 0)
             {
-                Log.Message(Lang.SPAWNBODY_ARGS, args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(Lang.SPAWNBODY_ARGS, args, LogLevel.MessageClientOnly);
                 return;
             }
 
             string character = Alias.Instance.GetBodyName(args[0]);
             if (character == null)
             {
-                Log.Message(string.Format(Lang.SPAWN_ERROR, args[0]), args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(string.Format(Lang.SPAWN_ERROR, args[0]), args, LogLevel.MessageClientOnly);
                 return;
             }
 
             GameObject body = BodyCatalog.FindBodyPrefab(character);
             GameObject gameObject = Instantiate<GameObject>(body, args.sender.master.GetBody().transform.position, Quaternion.identity);
             NetworkServer.Spawn(gameObject);
-            Log.Message(Lang.SPAWN_ATTEMPT + character, args);
+            Log.MessageNetworked(Lang.SPAWN_ATTEMPT + character, args);
         }
 
         [ConCommand(commandName = "respawn", flags = ConVarFlags.ExecuteOnServer, helpText = "Respawns the specified player. "+Lang.RESPAWN_ARGS)]
@@ -995,14 +995,14 @@ namespace RoR2Cheats
                 }
                 else
                 {
-                    Log.Message(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
+                    Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
                     return;
                 }
             }
 
             Transform spawnPoint = Stage.instance.GetPlayerSpawnTransform();
             master.Respawn(spawnPoint.position, spawnPoint.rotation, false);
-            Log.Message(Lang.SPAWN_ATTEMPT + master.name, args);
+            Log.MessageNetworked(Lang.SPAWN_ATTEMPT + master.name, args);
         }
 
         [ConCommand(commandName = "change_team", flags = ConVarFlags.ExecuteOnServer, helpText = "Change the specified player to the specified team. "+Lang.CHANGETEAM_ARGS)]
@@ -1010,7 +1010,7 @@ namespace RoR2Cheats
         {
             if (args.Count == 0)
             {
-                Log.Message(Lang.CHANGETEAM_ARGS, args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(Lang.CHANGETEAM_ARGS, args, LogLevel.MessageClientOnly);
                 return;
             }
 
@@ -1032,13 +1032,13 @@ namespace RoR2Cheats
                     {
                         master.GetBody().teamComponent.teamIndex = teamIndex;
                         master.teamIndex = teamIndex;
-                        Log.Message("Changed to team " + teamIndex, args);
+                        Log.MessageNetworked("Changed to team " + teamIndex, args);
                         return;
                     }
                 }
             }
             //Note the `return` on succesful evaluation.
-            Log.Message("Invalid team. Please use 0,'neutral',1,'player',2, or 'monster'", args, LogLevel.MessageClientOnly);
+            Log.MessageNetworked("Invalid team. Please use 0,'neutral',1,'player',2, or 'monster'", args, LogLevel.MessageClientOnly);
 
         }
 
@@ -1059,7 +1059,7 @@ namespace RoR2Cheats
                         TeleporterInteraction.instance.Network_shouldAttemptToSpawnMSPortal = true;
                         break;
                     default:
-                        Log.Message(Lang.PORTAL_NOTFOUND, args, LogLevel.MessageClientOnly);
+                        Log.MessageNetworked(Lang.PORTAL_NOTFOUND, args, LogLevel.MessageClientOnly);
                         return;
                 }
                 //Note the return on default.
@@ -1067,7 +1067,7 @@ namespace RoR2Cheats
             }
             else
             {
-                Log.Message("No teleporter instance!", args, LogLevel.WarningClientOnly);
+                Log.MessageNetworked("No teleporter instance!", args, LogLevel.WarningClientOnly);
             }
         }
 
@@ -1152,7 +1152,7 @@ namespace RoR2Cheats
             {
                 s.AppendLine(family.familySelectionChatString);
             }
-            Log.Message(s.ToString(), LogLevel.MessageClientOnly);
+            Log.MessageNetworked(s.ToString(), args, LogLevel.MessageClientOnly);
         }
 #endif
         #endregion

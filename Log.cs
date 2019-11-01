@@ -79,7 +79,7 @@ namespace RoR2Cheats
          * <param name="args">the commandargs</param>
          * <param name="level">The level to send the message at.</param>
          */
-        public static void Message(string input, ConCommandArgs args, LogLevel level = LogLevel.Message)
+        public static void MessageNetworked(string input, ConCommandArgs args, LogLevel level = LogLevel.Message)
         {
             if ((int) level < NetworkEnum || args.sender.isLocalPlayer == true)
             {
