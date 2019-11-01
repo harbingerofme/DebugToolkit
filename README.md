@@ -94,7 +94,7 @@ These commands will be removed once we hit **3.2**. Speak out now or be forever 
 
 * "DebugToolkit"
 * **General**
-    * **iDeathHD** has been added to the team behind RoR2Cheats/DebugToolkit, their expertise has been of amazing use and we're excited to have a joint venture in this.
+    * **iDeathHD** has joined the team behind RoR2Cheats/DebugToolkit, their expertise has been of amazing use and we're excited to have a joint venture in this.
     * You may have noticed *MiniRPCLib* is a new dependency. This is to network cheats better over the network. Functionally nothing has changed.
     * A secret new convar is added: `ror2cheats_debug`. Only available for those people who read the changelog. ❤️
     * Various commands have had their ingame descriptions updated to better inform what args are expected.
