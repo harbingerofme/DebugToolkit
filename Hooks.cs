@@ -27,11 +27,7 @@ namespace RoR2Cheats
         private static void EnableCheatsInCCSetScene(ILContext il)
         {
             ILCursor c = new ILCursor(il);
-            c.GotoNext(
-                MoveType.Before,
-                x => x.MatchLdsfld(typeof(RoR2Application.CheatsConVar), "cvCheats"),
-                x => x.MatchCallvirt(typeof(bool), "get_boolValue()")
-                );
+            c.Goto(3);
             c.RemoveRange(2);
             c.Emit(OpCodes.Ldc_I4_1);
         }
