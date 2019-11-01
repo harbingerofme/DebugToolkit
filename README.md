@@ -74,6 +74,7 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
 * **run_set_stages_cleared**  - Sets the amount of stages cleared. This does not change the current stage. `run_set_stages_cleared {stagecount}`. This obsoletes `stage_clear_count` from previous RoR2Cheats versions.
 * **team_set_level** - Sets the specified team to the specified level: `team_set_level {teamindex} {level}` Team indexes: 0=neutral,1=player,2=monster. This obsoletes `give_exp` from previous RoR2Cheats versions.
 * **loadout_set_skill_variant** - Sets the skill variant for the sender's user profile: `loadout_set_skill_variant {body_name} {skill_slot_index} {skill_variant_index}`. Note that this does not use the loose bodymatching from custom commands.
+* **set_scene** - Removed the cheat check on this. Functions similar but not really to our `next_stage`, doesn't have our cool autocomplete features, and doesn't advance the stagecount, but can advance menus. `set_scene {scene}`
 
 ### Commands slated for deletion
 
@@ -117,6 +118,7 @@ These commands will be removed once we hit **3.2**. Speak out now or be forever 
     * `set_team` is now smarter in detecting which team you want.
     * Several issues with argument matching are now resolved better.
     * Special characters are now handled better (or rather, are ignored completely) when matching arguments.
+	* `set_scene` is now no longer denying access to you because you don't have cheats enabled. (you do, after all.)
 
 ### 3.0.0 ###
 
@@ -143,13 +145,14 @@ See [the old package](https://thunderstore.io/package/Morris1927/)
 
 This mod always hooks the following methods:
 
-* `IL.RoR2.Console.Awake` - We do this to 'free' `run_set_stages_cleared`.
 * `On.RoR2.Console.InitConVar` - We do this to 'free' the vanilla convars and change some vanilla descriptions.
 * `On.RoR2.Console.RunCmd` -  We do this to log clients sending a command to the Host.
+* `IL.RoR2.Console.Awake` - We do this to 'free' `run_set_stages_cleared`.
+* `IL.RoR2.Networking.GameNetworkManager.CCSetScene` - We do this to 'free' `set_scene`.
 
 This mod hooks the following methods when prompted:
 
 * `On.RoR2.PreGameController.Awake` - We use this to change the seed if needed.
 * `On.RoR2.CombatDirector.SetNextSpawnAsBoss` - We use this for `set_boss`.
-* `IL.RoR2.ClassicStageInfo.Awake` - We hook this to set a family event.
 * `On.RoR2.Stage.Start` - We hook this to remove the IL hook on ClassicStageInfo.
+* `IL.RoR2.ClassicStageInfo.Awake` - We hook this to set a family event.

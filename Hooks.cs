@@ -21,9 +21,22 @@ namespace RoR2Cheats
             On.RoR2.Console.RunCmd += LogNetworkCommands;
 			On.RoR2.Console.AutoComplete.SetSearchString += BetterAutoCompletion;
             On.RoR2.Console.AutoComplete.ctor += CommandArgsAutoCompletion;
+            IL.RoR2.Networking.GameNetworkManager.CCSetScene += EnableCheatsInCCSetScene;
         }
-		
-		private static void UnlockConsole(ILContext il)
+
+        private static void EnableCheatsInCCSetScene(ILContext il)
+        {
+            ILCursor c = new ILCursor(il);
+            c.GotoNext(
+                MoveType.Before,
+                x => x.MatchLdsfld(typeof(RoR2Application.CheatsConVar), "cvCheats"),
+                x => x.MatchCallvirt(typeof(bool), "get_boolValue()")
+                );
+            c.RemoveRange(2);
+            c.Emit(OpCodes.Ldc_I4_1);
+        }
+
+        private static void UnlockConsole(ILContext il)
         {
             ILCursor c = new ILCursor(il);
             c.GotoNext(
