@@ -36,20 +36,17 @@ namespace RoR2Cheats
         {
             var miniRpc = MiniRpc.CreateInstance(GUID);
             new Log(Logger, miniRpc);
-            //Alias.EnsureInstance();
-
-
+            
             Log.Message("Harb's and 's Version. Original by Morris1927.", LogLevel.Info, Log.Target.Bepinex);/*Check github for the other contributor, lmao*/
             
             Hooks.InitializeHooks();
-            Noclip.Init(miniRpc);
+            Noclip.InitRPC(miniRpc);
             TimeScaleNetwork = miniRpc.RegisterAction(Target.Client, (NetworkUser _, float f) => { HandleTimeScale(f); });
         }
 		
 		private void Start()
         {
             var _ = Alias.Instance;
-            //Alias.EnsureInstance();
             ArgsAutoCompletion.GatherCommandsAndFillStaticArgs();
         }
 
@@ -780,14 +777,14 @@ namespace RoR2Cheats
         [ConCommand(commandName = "noclip", flags = ConVarFlags.ExecuteOnServer, helpText = "Allow flying and going through objects. Sprinting will double the speed. "+Lang.NOCLIP_ARGS)]
         private static void CCNoclip(ConCommandArgs args)
         {
-            if (Run.instance)
-            {
+            //if (Run.instance)
+            //{
                 Noclip.Toggle.Invoke(true, args.sender); //callback
-            }
-            else
-            {
-                Log.Message(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
-            }
+            //}
+            //else
+            //{
+            //    Log.Message(Lang.NOTINARUN_ERROR);
+            //}
         }
 
         [ConCommand(commandName = "kill_all", flags = ConVarFlags.ExecuteOnServer, helpText = "Kill all entities on the specified team. "+Lang.KILLALL_ARGS)]

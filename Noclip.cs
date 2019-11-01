@@ -2,6 +2,8 @@
 using UnityEngine;
 using KinematicCharacterController;
 using MiniRpcLib;
+using MonoMod.RuntimeDetour;
+using R2API.Utils;
 using UnityEngine.Networking;
 
 namespace RoR2Cheats
@@ -21,7 +23,7 @@ namespace RoR2Cheats
         private static CharacterBody _currentBody;
         private static int _collidableLayersCached;
 
-        internal static void Init(MiniRpcInstance miniRpc)
+        internal static void InitRPC(MiniRpcInstance miniRpc)
         {
             Toggle = miniRpc.RegisterAction(Target.Client, (NetworkUser _, bool __) =>
             {
@@ -45,25 +47,22 @@ namespace RoR2Cheats
             });
         }
 
-        internal static void DisableOnServerSceneChange(NetworkManager instance, string newSceneName)
+        internal static void InitHooks()
         {
-            if (IsActivated)
-            {
-                Console.instance.SubmitCmd(LocalUserManager.GetFirstLocalUser().currentNetworkUser, "noclip");
-            }
+            var noclipOnServerChangeSceneHook = new Hook(typeof(NetworkManager).GetMethodCached("ServerChangeScene"),
+                typeof(Noclip).GetMethodCached("DisableOnServerSceneChange"));
+            origServerChangeScene = noclipOnServerChangeSceneHook.GenerateTrampoline<d_ServerChangeScene>();
+            noclipOnServerChangeSceneHook.Apply();
 
-            origServerChangeScene(instance, newSceneName);
+            var noclipOnClientChangeSceneHook = new Hook(typeof(NetworkManager).GetMethodCached("ClientChangeScene"),
+                typeof(Noclip).GetMethodCached("DisableOnClientSceneChange"));
+            origClientChangeScene = noclipOnClientChangeSceneHook.GenerateTrampoline<d_ClientChangeScene>();
+            noclipOnClientChangeSceneHook.Apply();
+
+            On.RoR2.Networking.GameNetworkManager.Disconnect += DisableOnDisconnect;
         }
 
-        internal static void DisableOnClientSceneChange(NetworkManager instance, string newSceneName, bool forceReload)
-        {
-            if (IsActivated)
-            {
-                Console.instance.SubmitCmd(LocalUserManager.GetFirstLocalUser().currentNetworkUser, "noclip");
-            }
-
-            origClientChangeScene(instance, newSceneName, forceReload);
-        }
+        
 
         internal static void Update()
         {
@@ -138,6 +137,40 @@ namespace RoR2Cheats
             }
 
             return false;
+        }
+
+        private static void DisableOnServerSceneChange(NetworkManager instance, string newSceneName)
+        {
+            if (IsActivated)
+            {
+                Console.instance.SubmitCmd(LocalUserManager.GetFirstLocalUser().currentNetworkUser, "noclip");
+            }
+
+            origServerChangeScene(instance, newSceneName);
+        }
+
+        private static void DisableOnClientSceneChange(NetworkManager instance, string newSceneName, bool forceReload)
+        {
+            if (IsActivated)
+            {
+                Console.instance.SubmitCmd(LocalUserManager.GetFirstLocalUser().currentNetworkUser, "noclip");
+            }
+
+            origClientChangeScene(instance, newSceneName, forceReload);
+        }
+
+        private static void DisableOnDisconnect(On.RoR2.Networking.GameNetworkManager.orig_Disconnect orig, RoR2.Networking.GameNetworkManager self)
+        {
+            if (IsActivated)
+            {
+                _currentBody.GetComponent<KinematicCharacterMotor>().CollidableLayers = _collidableLayersCached;
+
+                _currentBody.characterMotor.useGravity = !_currentBody.characterMotor.useGravity;
+                IsActivated = !IsActivated;
+                Log.Message(string.Format(Lang.NOCLIP_TOGGLE, IsActivated));
+            }
+
+            orig(self);
         }
     }
 }
