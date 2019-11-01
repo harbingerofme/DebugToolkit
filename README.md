@@ -7,9 +7,12 @@ We decided that the flexibility of our mod is more aimed towards developers who 
 # RoR2Cheats
 
 This mod adds various debugging commands to the console. See below for all commands plus explanation.
+
+Also adds aAutocompletion for arguments and networked commands giving their information to the right people to the console.
+
 The console can be opened with `ctrl+alt+~`. Additionally `help {command}` may be used to get help, and `find {term}` can be used to find commands with that term.
 
-[Harb's](https://thunderstore.io/package/Harb/) and ['s](https://thunderstore.io/package/paddywan/) reimplementation of [Morris1927's](https://thunderstore.io/package/Morris1927/) [RoR2Cheats](https://thunderstore.io/package/Morris1927/RoR2Cheats/). Derived with permission. 
+[Harb](https://thunderstore.io/package/Harb/), [iDeathHD](https://thunderstore.io/package/xiaoxiao921/) and ['s](https://thunderstore.io/package/paddywan/) reimplementation of [Morris1927's](https://thunderstore.io/package/Morris1927/) [RoR2Cheats](https://thunderstore.io/package/Morris1927/RoR2Cheats/). Derived with permission. 
 
 Mods recommended for combined use:
 
@@ -17,8 +20,6 @@ Mods recommended for combined use:
 * [SimpleMacros](https://thunderstore.io/package/recursiveGecko/SimpleMacros/)
 
 You may contact us at any time through issues on GitHub, or through the Risk of Rain 2 modding Discord found at the top of the Thunderstore website.
-
-Additional credits: **iDeathHD** for *noclip*.
 
 ---
 
@@ -85,24 +86,24 @@ These commands will be removed once we hit **3.2**. Speak out now or be forever 
 
 ### 3.1.0
 * **General**
+	* **iDeathHD** has been added to the team behind RoR2Cheats/DebugToolkit, their expertise has been of amazing use and we're excited to have a joint venture in this.
 	* You may have noticed *MiniRPCLib* is a new dependency. This is to network cheats better over the network. Functionally nothing has changed.
 	* A secret new convar is added: `ror2cheats_debug`. Only available for those people who read the changelog. ❤️
 	* Various commands have had their ingame descriptions updated to better inform what args are expected.
 	* *Modders stuff:* Hooks that do not permanently need to exists have been been made to only exist for as long as they are needed.
 	* *Modders stuff:* All hooks, temporary or not, have been added to the readme to help resolve mod conflicts.
 * **New Commands**
-	* `set_boss` We've worked hard on this. We hope you find use for it. *(And with 'we', Harb means the other contributor who isn't Harb.)*
+	* `set_boss` We've worked hard on this. We hope you find use for it. *(And with 'we', Harb means the other contributor who isn't Harb nor iDeathHD.)*
 	* `give_lunar` Editing your save is an unnessecary task. This command is restricted to the issuing player to prevent grieving.
 	* `remove_item` While this functionality could already be achieved with *give_item* and a negative amount, this was not obvious.
 	* `remove_equip` While this functionality could already be achieved with `give_equip None, this was not obvious.
 	* `create_pickup` A lot of custom item mods also need to test their descriptions. Maybe you have an on pickup hook.
 	* `force_family_event` We initially tried it being able to do any family, but this proved to be hard. So instead we force an event to happen next stage.
-	* `noclip` Thank you iDeathHD for creating this!
+	* `noclip` Fly freely through the map.
 	* `kick` Not much to say there are better ways to resolve your issues with players. 
 	* `ban`You can talk it out.
 	* `spawn_interactible` Implemented with full range of interactles, not limited to types. Accepts InteractableSpawnCard partial as parameter.
 * **Fixes**
-	* 
 	* `Spawn_as` now temporarily disables arriving in the pod to prevent not being able to get out of a pod.
 	* Clients now see the output of commands with the ExecuteOnServer flag. *This change only applies to commands created by this mod.*
 	* Host now sees the input of commands with the ExecuteOnServer flag. *This change applies to all commands, even that of other mods.*
