@@ -39,6 +39,8 @@ namespace RoR2Cheats
             BodyAlias.Add("MageBody", new string[] { "Artificer", "Arti" });
             BodyAlias.Add("HANDBody", new string[] { "HAN-D" });
             BodyAlias.Add("TreebotBody", new string[] { "Treebot", "REX", "PlantBot", "Shrub" });
+            BodyAlias.Add("RoboBallBossBody", new string[] { "SCU", "roboboss" });
+            BodyAlias.Add("SuperRoboBallBossBody", new string[] { "AWU" });
 
             MasterAlias.Add("LemurianBruiserMasterFire", new string[] { "LemurianBruiserFire", "BruiserFire" });
             MasterAlias.Add("LemurianBruiserMasterIce", new string[] { "LemurianBruiserIce", "BruiserIce" });
