@@ -1050,20 +1050,20 @@ namespace RoR2Cheats
                 switch (args[0].ToLower())
                 {
                     case "blue":
-                        TeleporterInteraction.instance.Network_shouldAttemptToSpawnShopPortal = true;
+                        TeleporterInteraction.instance.shouldAttemptToSpawnShopPortal = true;
                         break;
                     case "gold":
-                        TeleporterInteraction.instance.Network_shouldAttemptToSpawnGoldshoresPortal = true;
+                        TeleporterInteraction.instance.shouldAttemptToSpawnGoldshoresPortal = true;
                         break;
                     case "celestial":
-                        TeleporterInteraction.instance.Network_shouldAttemptToSpawnMSPortal = true;
+                        TeleporterInteraction.instance.shouldAttemptToSpawnMSPortal = true;
                         break;
                     default:
                         Log.MessageNetworked(Lang.PORTAL_NOTFOUND, args, LogLevel.MessageClientOnly);
                         return;
                 }
                 //Note the return on default.
-                ChatMessage.SendColored($"A {args[0].ToLower()} orb spawns.", ColorCatalog.ColorIndex.Teleporter);
+                //ChatMessage.SendColored($"A {args[0].ToLower()} orb spawns.", ColorCatalog.ColorIndex.Teleporter);
             }
             else
             {
