@@ -1047,23 +1047,27 @@ namespace RoR2Cheats
         {
             if (TeleporterInteraction.instance)
             {
+                var TP = TeleporterInteraction.instance;
                 switch (args[0].ToLower())
                 {
                     case "blue":
-                        TeleporterInteraction.instance.shouldAttemptToSpawnShopPortal = true;
+                       TP.shouldAttemptToSpawnShopPortal = true;
                         break;
                     case "gold":
-                        TeleporterInteraction.instance.shouldAttemptToSpawnGoldshoresPortal = true;
+                        TP.shouldAttemptToSpawnGoldshoresPortal = true;
                         break;
                     case "celestial":
-                        TeleporterInteraction.instance.shouldAttemptToSpawnMSPortal = true;
+                        TP.shouldAttemptToSpawnMSPortal = true;
+                        break;
+                    case "all":
+                        TP.shouldAttemptToSpawnGoldshoresPortal = true;
+                        TP.shouldAttemptToSpawnShopPortal = true;
+                        TP.shouldAttemptToSpawnMSPortal = true;
                         break;
                     default:
                         Log.MessageNetworked(Lang.PORTAL_NOTFOUND, args, LogLevel.MessageClientOnly);
                         return;
                 }
-                //Note the return on default.
-                //ChatMessage.SendColored($"A {args[0].ToLower()} orb spawns.", ColorCatalog.ColorIndex.Teleporter);
             }
             else
             {
