@@ -34,7 +34,7 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
 * **force_family_event** - Forces a Family Event to happen in the next stage, take no arguments. `family_event`
 * **next_boss** - Sets the teleporter boss to the specified boss. `({localised_object_name}|{DirectorCard}) [count def 1] [EliteIndex def -1/None]`
 * **fixed_time** - Sets the time that has progressed in the run. Affects difficulty. `fixed_time [time]`. If no time is supplied, prints the current time to console.
-* **add_portal** - Teleporter will attempt to spawn a blue, gold, or celestial portal: `add_portal (blue|gold|celestial)`
+* **add_portal** - Teleporter will attempt to spawn a blue, gold, or celestial portal: `add_portal (blue|gold|celestial|all)`
 * **seed** - Set the seed for all next runs this session. `seed [new seed]`. Use `0` to specify the game should generate its own seed. If used without argument, it's equivalent to the vanilla `run_get_seed`.
 * **kill_all** - Kills all members of a specified team. `kill_all [teamindex def 2]` Team indexes: 0=neutral,1=player,2=monster. 
 * **true_kill** - Truly kill a player, ignoring revival effects `true_kill [player def *you]`
@@ -98,6 +98,7 @@ These commands will be removed once we hit **3.2**. Speak out now or be forever 
     * You may have noticed *MiniRPCLib* is a new dependency. This is to network cheats better over the network. Functionally nothing has changed.
     * A secret new convar is added: `ror2cheats_debug`. Only available for those people who read the changelog. ❤️
     * Various commands have had their ingame descriptions updated to better inform what args are expected.
+	* added the *"all"* overload to `add_portal`.
     * *Modders stuff:* Hooks that do not permanently need to exists have been been made to only exist for as long as they are needed.
     * *Modders stuff:* All hooks, temporary or not, have been added to the readme to help resolve mod conflicts.
 * **New Commands**
@@ -116,6 +117,7 @@ These commands will be removed once we hit **3.2**. Speak out now or be forever 
     * Clients now see the output of commands with the ExecuteOnServer flag. *This change only applies to commands created by this mod.*
     * Host now sees the input of commands with the ExecuteOnServer flag. *This change applies to all commands, even that of other mods.*
     * `set_team` is now smarter in detecting which team you want.
+	* `add_portal` now sets better values to get the vanilla orb messages to appear in chat.
     * Several issues with argument matching are now resolved better.
     * Special characters are now handled better (or rather, are ignored completely) when matching arguments.
 	* `set_scene` is now no longer denying access to you because you don't have cheats enabled. (you do, after all.)
