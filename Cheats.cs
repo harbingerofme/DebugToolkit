@@ -52,12 +52,9 @@ namespace RoR2Cheats
 
         private void Update()
         {
-            if (Run.instance)
+            if (Run.instance && Noclip.IsActivated)
             {
-                if (Noclip.IsActivated)
-                {
-                    Noclip.Update();
-                }
+                Noclip.Update();
             }
         }
 
