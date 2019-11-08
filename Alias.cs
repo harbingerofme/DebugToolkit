@@ -37,6 +37,7 @@ namespace RoR2Cheats
             BodyAlias.Add("ToolbotBody", new string[] { "MULT", "MUL-T", "ShoppingTrolly" });
             BodyAlias.Add("MercBody", new string[] { "Mercenary", "Ninja" });
             BodyAlias.Add("MageBody", new string[] { "Artificer", "Arti" });
+            BodyAlias.Add("EngiBody", new string[] { "Engineer" });
             BodyAlias.Add("HANDBody", new string[] { "HAN-D" });
             BodyAlias.Add("TreebotBody", new string[] { "Treebot", "REX", "PlantBot", "Shrub" });
             BodyAlias.Add("RoboBallBossBody", new string[] { "SCU", "roboboss" });
