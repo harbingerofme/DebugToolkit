@@ -10,6 +10,7 @@ using System.Globalization;
 
 namespace RoR2Cheats
 {
+    [R2APISubmoduleDependency("CommandHelper")]
     internal sealed class Hooks
     {
         private const ConVarFlags AllFlagsNoCheat = ConVarFlags.None | ConVarFlags.Archive | ConVarFlags.Engine | ConVarFlags.ExecuteOnServer | ConVarFlags.SenderMustBeServer;
