@@ -54,7 +54,7 @@ namespace RoR2Cheats
 
 
             var allCSC = Resources.LoadAll<CharacterSpawnCard>("SpawnCards/CharacterSpawnCards");
-            Debug.Log($"Loading all CSC's: {allCSC.Length}");
+            Log.MessageInfo($"Loading all CSC's: {allCSC.Length}");
             foreach (CharacterSpawnCard csc in allCSC)
             {
                 var dCard = new DirectorCard
@@ -70,7 +70,7 @@ namespace RoR2Cheats
                 characterSpawnCard.Add(dCard);
             }
             var allISC = Resources.LoadAll<InteractableSpawnCard>("SpawnCards/InteractableSpawnCard");
-            Debug.Log($"Loading all ISC's: {allISC.Length}");
+            Log.MessageInfo($"Loading all ISC's: {allISC.Length}");
             interactableSpawnCards = allISC.OfType<InteractableSpawnCard>().ToList();
         }
 
