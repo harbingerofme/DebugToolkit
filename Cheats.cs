@@ -37,7 +37,7 @@ namespace RoR2Cheats
             var miniRpc = MiniRpc.CreateInstance(GUID);
             new Log(Logger, miniRpc);
             
-            Log.Message("Harb's and 's Version. Original by Morris1927.", LogLevel.Info, Log.Target.Bepinex);/*Check github for the other contributor, lmao*/
+            Log.Message("Harb, iDeathHD and 's Version. Original by Morris1927.", LogLevel.Info, Log.Target.Bepinex);/*Check github for the other contributor, lmao*/
             
             Hooks.InitializeHooks();
             Noclip.InitRPC(miniRpc);
