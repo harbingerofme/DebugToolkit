@@ -5,7 +5,7 @@
     "description": "Various console commands for 'debugging'.",
     "dependencies": [
 	"bbepis-BepInExPack-3.0.0",
-	"tristanmcpherson-R2API-2.2.42",
+	"tristanmcpherson-R2API-2.2.54",
 	"wildbook-MiniRpcLib-0.0.1"
     ]
 }
