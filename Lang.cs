@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace RoR2Cheats
+namespace DebugToolkit
 {
     internal static class Lang
     {

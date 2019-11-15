@@ -1,11 +1,11 @@
 {
-    "name": "RoR2Cheats",
+    "name": "DebugToolkit",
     "version_number": "[MODVER]",
     "website_url": "https://github.com/harbingerofme/DebugToolkit",
-    "description": "Various console commands for 'debugging'.",
+    "description": "Adds console command for debugging mods.",
     "dependencies": [
 	"bbepis-BepInExPack-3.0.0",
-	"tristanmcpherson-R2API-2.2.54",
+	"tristanmcpherson-R2API-2.3.0",
 	"wildbook-MiniRpcLib-0.0.1"
     ]
 }
