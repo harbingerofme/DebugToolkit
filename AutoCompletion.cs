@@ -94,9 +94,9 @@ namespace DebugToolkit
                             itemString = item.ToString();
                         }
 
-                        if (itemString.Contains(" "))
+                        if (itemString.Contains(" ") || itemString.Contains("'") || itemString.Contains("-"))
                         {
-                            itemString = itemString.Substring(0, itemString.IndexOf(' '));
+                            itemString = StringFinder.RemoveSpacesAndAlike(itemString);
                         }
 
 
