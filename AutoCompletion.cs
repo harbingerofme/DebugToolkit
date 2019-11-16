@@ -110,9 +110,9 @@ namespace DebugToolkit
                                 foreach (var tokenAndInvar in dictionary)
                                 {
                                     if (tokenAndInvar.Key.Contains(itemString.ToUpper()) &&
-                                        tokenAndInvar.Key.Contains("NAME"))
+                                        IsToken(tokenAndInvar.Key))
                                     {
-                                        if (!tokenAndInvar.Value.Contains("NAME"))
+                                        if (!IsToken(tokenAndInvar.Value))
                                         {
                                             toFill.Add(commandName + StringFinder.RemoveSpacesAndAlike(tokenAndInvar.Value));
                                         }
