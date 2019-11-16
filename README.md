@@ -37,6 +37,7 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
 * **true_kill** - Truly kill a player, ignoring revival effects `true_kill [player def *you]`
 * **respawn** - Respawn a player at the map spawnpoint: `respawn [player def *you]`
 * **time_scale** -  Sets the timescale of the game. 0.5 would mean everything happens at half speed. `time_scale [time_scale]`. If no argument is supplied, gives the current timescale.
+* **post_sound_event** - Post a sound event to the AkSoundEngine (WWise) by its event name: `post_sound_event [eventName]`
 
 * **player_list** - Shows list of players with their ID
 * **list_body** - List all Bodies and their language invariants.

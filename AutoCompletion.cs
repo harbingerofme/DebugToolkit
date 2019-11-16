@@ -13,7 +13,7 @@ namespace DebugToolkit
         internal string NestedField;
         internal bool Dynamic;
 
-        public AutoCompletionAttribute(Type classType, string catalogName, bool dynamic = false, string nestedField = "")
+        public AutoCompletionAttribute(Type classType, string catalogName, string nestedField = "", bool dynamic = false)
         {
             Catalog = classType.GetFieldValue<dynamic>(catalogName);
             NestedField = nestedField;
@@ -36,7 +36,7 @@ namespace DebugToolkit
             foreach (var methodInfo in Assembly.GetExecutingAssembly().GetTypes().SelectMany(x => x.GetMethods(BindingFlags.NonPublic | BindingFlags.Static)))
             {
                 var autoCompletionAttribute = methodInfo.GetCustomAttributes(false).OfType<AutoCompletionAttribute>().ToArray();
-                var conCommandAttribute = (ConCommandAttribute) methodInfo.GetCustomAttributes(false).FirstOrDefault(x => x is ConCommandAttribute);
+                var conCommandAttribute = (ConCommandAttribute)methodInfo.GetCustomAttributes(false).FirstOrDefault(x => x is ConCommandAttribute);
 
                 if (autoCompletionAttribute.Length > 0 && conCommandAttribute != null)
                 {
@@ -94,36 +94,36 @@ namespace DebugToolkit
                             itemString = item.ToString();
                         }
 
-
-                        if (itemString.Contains(" "))
+                        if (itemString.Contains(" ") || itemString.Contains("'") || itemString.Contains("-"))
                         {
-                            itemString = itemString.Substring(0, itemString.IndexOf(' '));
-                            toFill.Add(commandName + itemString);
+                            itemString = StringFinder.RemoveSpacesAndAlike(itemString);
                         }
+
+
+                        if (!IsToken(itemString))
+                            toFill.Add(commandName + itemString);
                         else
                         {
-                            toFill.Add(commandName + itemString);
-                        }
-
-                        if (attribute.NestedField != string.Empty)
-                        {
-                            continue;
-                        }
-
-                        var languageDictionaries = typeof(Language).GetFieldValue<Dictionary<string, Dictionary<string, string>>>("languageDictionaries");
-                        if (languageDictionaries.TryGetValue(Language.currentLanguage, out var dictionary))
-                        {
-                            foreach (var tokenAndInvar in dictionary)
+                            var languageDictionaries = typeof(Language).GetFieldValue<Dictionary<string, Dictionary<string, string>>>("languageDictionaries");
+                            if (languageDictionaries.TryGetValue(Language.currentLanguage, out var dictionary))
                             {
-                                if (tokenAndInvar.Key.Contains(itemString.ToUpper()) &&
-                                    tokenAndInvar.Key.Contains("NAME"))
+                                foreach (var tokenAndInvar in dictionary)
                                 {
-                                    if (!tokenAndInvar.Value.Contains("NAME"))
+                                    if (tokenAndInvar.Key.Contains(itemString.ToUpper()) &&
+                                        IsToken(tokenAndInvar.Key))
                                     {
-                                        toFill.Add(commandName + StringFinder.RemoveSpacesAndAlike(tokenAndInvar.Value));
+                                        if (!IsToken(tokenAndInvar.Value))
+                                        {
+                                            toFill.Add(commandName + StringFinder.RemoveSpacesAndAlike(tokenAndInvar.Value));
+                                        }
                                     }
                                 }
                             }
+                        }
+
+                        bool IsToken(string s)
+                        {
+                            return s.Contains("NAME");
                         }
                     }
                 }

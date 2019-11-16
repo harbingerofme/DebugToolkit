@@ -3,7 +3,6 @@ using UnityEngine;
 using KinematicCharacterController;
 using MiniRpcLib;
 using MonoMod.RuntimeDetour;
-using R2API.Utils;
 using UnityEngine.Networking;
 
 namespace DebugToolkit
@@ -29,25 +28,30 @@ namespace DebugToolkit
         {
             Toggle = miniRpc.RegisterAction(Target.Client, (NetworkUser _, bool __) =>
             {
-                if (UpdateCurrentPlayerBody())
-                {
-                    if (IsActivated)
-                    {
-                        _currentBody.GetComponent<KinematicCharacterMotor>().CollidableLayers = _collidableLayersCached;
-                        UndoHooks();
-                    }
-                    else
-                    {
-                        _collidableLayersCached = _currentBody.GetComponent<KinematicCharacterMotor>().CollidableLayers;
-                        _currentBody.GetComponent<KinematicCharacterMotor>().CollidableLayers = 0;
-                        ApplyHooks();
-                    }
-
-                    _currentBody.characterMotor.useGravity = !_currentBody.characterMotor.useGravity;
-                    IsActivated = !IsActivated;
-                    Log.Message(string.Format(Lang.NOCLIP_TOGGLE, IsActivated));
-                }
+                InternalToggle();
             });
+        }
+
+        internal static void InternalToggle()
+        {
+            if (UpdateCurrentPlayerBody())
+            {
+                if (IsActivated)
+                {
+                    _currentBody.GetComponent<KinematicCharacterMotor>().CollidableLayers = _collidableLayersCached;
+                    UndoHooks();
+                }
+                else
+                {
+                    _collidableLayersCached = _currentBody.GetComponent<KinematicCharacterMotor>().CollidableLayers;
+                    _currentBody.GetComponent<KinematicCharacterMotor>().CollidableLayers = 0;
+                    ApplyHooks();
+                }
+
+                _currentBody.characterMotor.useGravity = !_currentBody.characterMotor.useGravity;
+                IsActivated = !IsActivated;
+                Log.Message(string.Format(Lang.NOCLIP_TOGGLE, IsActivated));
+            }
         }
 
         internal static void ApplyHooks()
@@ -69,7 +73,6 @@ namespace DebugToolkit
                 On.RoR2.Networking.GameNetworkManager.Disconnect -= DisableOnDisconnect;
             }
         }
-
 
 
         internal static void Update()
@@ -119,7 +122,7 @@ namespace DebugToolkit
                     {
                         _currentBody.characterMotor.velocity.y = aimDirection.y * -50;
                     }
-                       
+
                 }
             }
 
@@ -127,7 +130,7 @@ namespace DebugToolkit
             if (inputBank && inputBank.jump.down)
             {
                 _currentBody.characterMotor.velocity.y = 50f;
-            } 
+            }
         }
 
         private static bool UpdateCurrentPlayerBody()

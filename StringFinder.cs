@@ -2,7 +2,6 @@
 using UnityEngine;
 using RoR2;
 using System.Text.RegularExpressions;
-using System.Collections;
 using System;
 using System.Text;
 using System.Linq;
@@ -22,11 +21,6 @@ namespace DebugToolkit
         public static StringFinder Instance
         {
             get => instance ?? (instance = new StringFinder());
-        }
-
-        public static void EnsureInstance()
-        {
-            var _ = instance;
         }
 
         /// <summary>
@@ -55,7 +49,7 @@ namespace DebugToolkit
 
 
             var allCSC = Resources.LoadAll<CharacterSpawnCard>("SpawnCards/CharacterSpawnCards");
-            Log.MessageInfo($"Loading all CSC's: {allCSC.Length}");
+            Log.MessageInfo($"Loading all CSC's: {allCSC.Length}", Log.Target.Bepinex);
             foreach (CharacterSpawnCard csc in allCSC)
             {
                 var dCard = new DirectorCard
@@ -71,7 +65,7 @@ namespace DebugToolkit
                 characterSpawnCard.Add(dCard);
             }
             var allISC = Resources.LoadAll<InteractableSpawnCard>("SpawnCards/InteractableSpawnCard");
-            Log.MessageInfo($"Loading all ISC's: {allISC.Length}");
+            Log.MessageInfo($"Loading all ISC's: {allISC.Length}", Log.Target.Bepinex);
             interactableSpawnCards = allISC.OfType<InteractableSpawnCard>().ToList();
         }
 
@@ -112,30 +106,25 @@ namespace DebugToolkit
                 {
                     if (alias.ToUpper().Equals(name.ToUpper()))
                     {
-                        name = dictEnt.Key.ToString();
+                        name = dictEnt.Key;
                     }
                 }
             }
 
             if (Enum.TryParse(name, true, out EquipmentIndex foundEquip) && EquipmentCatalog.IsIndexValid(foundEquip))
             {
-                //catalogmod
-                Log.MessageInfo("RETURNED EXACT MATCH!");
                 return foundEquip;
             }
 
             StringBuilder s = new StringBuilder();
-            foreach (var equip in EquipmentCatalog.allEquipment)
+            foreach (var equip in typeof(EquipmentCatalog).GetFieldValue<EquipmentDef[]>("equipmentDefs"))
             {
-                langInvar = GetLangInvar("EQUIPMENT_" + equip.ToString().ToUpper() + "_NAME");
-                s.AppendLine(equip.ToString() + ":" + langInvar + ":" + name.ToUpper());
-                if (equip.ToString().ToUpper().Contains(name.ToUpper()) || langInvar.ToUpper().Contains(name.ToUpper()))
+                langInvar = GetLangInvar(equip.nameToken.ToUpper());
+                if (equip.name.ToUpper().Contains(name.ToUpper()) || langInvar.ToUpper().Contains(name.ToUpper()) || langInvar.ToUpper().Contains(RemoveSpacesAndAlike(name.ToUpper())))
                 {
-                    Log.MessageInfo(s);
-                    return equip;
+                    return equip.equipmentIndex;
                 }
             }
-            Log.MessageInfo(s);
             return EquipmentIndex.None;
         }
 
@@ -153,29 +142,24 @@ namespace DebugToolkit
                 {
                     if (alias.ToUpper().Equals(name.ToUpper()))
                     {
-                        name = dictEnt.Key.ToString();
+                        name = dictEnt.Key;
 
                     }
                 }
             }
             if (Enum.TryParse(name, true, out ItemIndex foundItem) && ItemCatalog.IsIndexValid(foundItem))
             {
-                Log.MessageInfo("RETURNED EXACT MATCH!");
                 return foundItem;
             }
 
-            StringBuilder s = new StringBuilder();
-            foreach (var item in ItemCatalog.allItems)
+            foreach (var item in typeof(ItemCatalog).GetFieldValue<ItemDef[]>("itemDefs"))
             {
-                langInvar = GetLangInvar("ITEM_" + item.ToString().ToUpper() + "_NAME");
-                s.AppendLine(item.ToString() + ":" + langInvar + ":" + name.ToUpper());
-                if (item.ToString().ToUpper().Contains(name.ToUpper()) || langInvar.ToUpper().Contains(name.ToUpper()))
+                langInvar = GetLangInvar(item.nameToken.ToUpper());
+                if (item.name.ToUpper().Contains(name.ToUpper()) || langInvar.ToUpper().Contains(name.ToUpper()) || langInvar.ToUpper().Contains(RemoveSpacesAndAlike(name.ToUpper())))
                 {
-                    Log.MessageInfo(s);
-                    return item;
+                    return item.itemIndex;
                 }
             }
-            Log.MessageInfo(s);
             return ItemIndex.None;
         }
 
@@ -236,16 +220,15 @@ namespace DebugToolkit
                 {
                     if (alias.ToUpper().Equals(name.ToUpper()))
                     {
-                        name = dictEnt.Key.ToString();
+                        name = dictEnt.Key;
                     }
                 }
             }
             int i = 0;
             foreach (var body in BodyCatalog.allBodyPrefabBodyBodyComponents)
             {
-                if ((int.TryParse(name, out int iName) && i == iName) || body.name.ToUpper().Equals(name.ToUpper()) || body.name.ToUpper().Replace("BODY", string.Empty).Equals(name.ToUpper()))
+                if (int.TryParse(name, out int iName) && i == iName || body.name.ToUpper().Equals(name.ToUpper()) || body.name.ToUpper().Replace("BODY", string.Empty).Equals(name.ToUpper()))
                 {
-                    Log.MessageInfo("MATCHED EXACT!");
                     return body.name;
                 }
                 i++;
@@ -257,11 +240,9 @@ namespace DebugToolkit
                 s.AppendLine(body.name + ":" + langInvar + ":" + name.ToUpper());
                 if (body.name.ToUpper().Contains(name.ToUpper()) || langInvar.ToUpper().Contains(name.ToUpper()))
                 {
-                    Log.MessageInfo(s);
                     return body.name;
                 }
             }
-            Log.MessageInfo(s);
             return null;
         }
 
@@ -272,23 +253,21 @@ namespace DebugToolkit
         /// <returns>Returns the matched Master name string or returns null.</returns>
         public string GetMasterName(string name)
         {
-            string langInvar;
             foreach (KeyValuePair<string, string[]> dictEnt in MasterAlias)
             {
                 foreach (string alias in dictEnt.Value)
                 {
                     if (alias.ToUpper().Equals(name.ToUpper()))
                     {
-                        name = dictEnt.Key.ToString();
+                        name = dictEnt.Key;
                     }
                 }
             }
             int i = 0;
             foreach (var master in MasterCatalog.allAiMasters)
             {
-                if ((int.TryParse(name, out int iName) && i == iName) || master.name.ToUpper().Equals(name.ToUpper()) || master.name.ToUpper().Replace("MASTER", string.Empty).Equals(name.ToUpper()))
+                if (int.TryParse(name, out int iName) && i == iName || master.name.ToUpper().Equals(name.ToUpper()) || master.name.ToUpper().Replace("MASTER", string.Empty).Equals(name.ToUpper()))
                 {
-                    Log.MessageInfo("MATCHED EXACT!");
                     return master.name;
                 }
                 i++;
@@ -297,15 +276,13 @@ namespace DebugToolkit
             foreach (var master in MasterCatalog.allAiMasters)
             {
 
-                langInvar = GetLangInvar(master.bodyPrefab.GetComponent<CharacterBody>().baseNameToken);
+                var langInvar = GetLangInvar(master.bodyPrefab.GetComponent<CharacterBody>().baseNameToken);
                 s.AppendLine(master.name + ":" + langInvar + ":" + name.ToUpper());
                 if (master.name.ToUpper().Contains(name.ToUpper()) || langInvar.ToUpper().Contains(name.ToUpper()))
                 {
-                    Log.MessageInfo(s);
                     return master.name;
                 }
             }
-            Log.MessageInfo(s);
             return null;
         }
 

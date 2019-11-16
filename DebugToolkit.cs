@@ -9,7 +9,6 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 using MiniRpcLib;
-
 using LogLevel = DebugToolkit.Log.LogLevel;
 
 namespace DebugToolkit
@@ -34,15 +33,15 @@ namespace DebugToolkit
         {
             var miniRpc = MiniRpc.CreateInstance(GUID);
             new Log(Logger, miniRpc);
-            
+
             Log.Message("Created by Harb, iDeathHD and . Based on RoR2Cheats by Morris1927.", LogLevel.Info, Log.Target.Bepinex);
-            
+
             Hooks.InitializeHooks();
             Command_Noclip.InitRPC(miniRpc);
             TimeScaleNetwork = miniRpc.RegisterAction(Target.Client, (NetworkUser _, float f) => { HandleTimeScale(f); });
         }
-		
-		private void Start()
+
+        private void Start()
         {
             var _ = StringFinder.Instance;
             ArgsAutoCompletion.GatherCommandsAndFillStaticArgs();
@@ -82,7 +81,7 @@ namespace DebugToolkit
             Log.MessageNetworked(list.ToString(), args, LogLevel.MessageClientOnly);
         }
 
-        [ConCommand(commandName = "list_items", flags = ConVarFlags.None, helpText =  Lang.LISTITEM_ARGS)]
+        [ConCommand(commandName = "list_items", flags = ConVarFlags.None, helpText = Lang.LISTITEM_ARGS)]
         private static void CCListItems(ConCommandArgs _)
         {
             Log.Message(Lang.OBSOLETEWARNING, LogLevel.Warning);
@@ -112,7 +111,7 @@ namespace DebugToolkit
             Log.Message(text.ToString());
         }
 
-        [ConCommand(commandName = "list_AI", flags = ConVarFlags.None, helpText =  Lang.LISTAI_ARGS)]
+        [ConCommand(commandName = "list_AI", flags = ConVarFlags.None, helpText = Lang.LISTAI_ARGS)]
         private static void CCListAI(ConCommandArgs _)
         {
             string langInvar;
@@ -154,7 +153,7 @@ namespace DebugToolkit
         }
 
         [ConCommand(commandName = "give_item", flags = ConVarFlags.ExecuteOnServer, helpText = "Gives the specified item to the player in the specified quantity. " + Lang.GIVEITEM_ARGS)]
-		[AutoCompletion(typeof(ItemCatalog), "allItems")]
+        [AutoCompletion(typeof(ItemCatalog), "itemDefs", "nameToken")]
         private static void CCGiveItem(ConCommandArgs args)
         {
             NetworkUser player = args.sender;
@@ -195,7 +194,7 @@ namespace DebugToolkit
         }
 
         [ConCommand(commandName = "give_equip", flags = ConVarFlags.ExecuteOnServer, helpText = "Gives the specified item to the player. " + Lang.GIVEEQUIP_ARGS)]
-		[AutoCompletion(typeof(EquipmentCatalog), "allEquipment")]
+        [AutoCompletion(typeof(EquipmentCatalog), "equipmentDefs", "nameToken")]
         private static void CCGiveEquipment(ConCommandArgs args)
         {
             NetworkUser player = args.sender;
@@ -255,7 +254,7 @@ namespace DebugToolkit
             Log.MessageNetworked(str, args);
         }
 
-        [ConCommand(commandName = "create_pickup", flags = ConVarFlags.ExecuteOnServer, helpText = "Creates a PickupDroplet infront of the players position. " +Lang.CREATEPICKUP_ARGS)]
+        [ConCommand(commandName = "create_pickup", flags = ConVarFlags.ExecuteOnServer, helpText = "Creates a PickupDroplet infront of the players position. " + Lang.CREATEPICKUP_ARGS)]
         private static void CCCreatePickup(ConCommandArgs args)
         {
             args.CheckArgumentCount(1);
@@ -274,7 +273,7 @@ namespace DebugToolkit
                 }
             }
             PickupIndex final = PickupIndex.none;
-            EquipmentIndex equipment = EquipmentIndex.None; 
+            EquipmentIndex equipment = EquipmentIndex.None;
             ItemIndex item = ItemIndex.None;
 
             if (searchEquip)
@@ -433,13 +432,13 @@ namespace DebugToolkit
         private static void HandleTimeScale(float newTimeScale)
         {
             Time.timeScale = newTimeScale;
-            Log.Message("Timescale set to: "+newTimeScale+". This message may appear twice if you are the host.");
+            Log.Message("Timescale set to: " + newTimeScale + ". This message may appear twice if you are the host.");
         }
 
         [ConCommand(commandName = "kick", flags = ConVarFlags.SenderMustBeServer, helpText = "Kicks the specified player from the session. " + Lang.KICK_ARGS)]
         private static void CCKick(ConCommandArgs args)
         {
-            if(args.Count == 0)
+            if (args.Count == 0)
             {
                 Log.MessageNetworked(Lang.KICK_ARGS, args, LogLevel.Error);
                 return;
@@ -466,7 +465,7 @@ namespace DebugToolkit
             try
             {
                 NetworkUser nu = GetNetUserFromString(args[0]);
-                if(nu.isServer)
+                if (nu.isServer)
                 {
                     Log.MessageNetworked("Banning yourself is counter-productive! Please kick instead.", args, LogLevel.Error);
                     return;
@@ -479,7 +478,7 @@ namespace DebugToolkit
             }
         }
 
-        [ConCommand(commandName = "force_family_event", flags = ConVarFlags.ExecuteOnServer, helpText = "Forces a family event to occur during the next stage. "+Lang.FAMILYEVENT_ARGS)]
+        [ConCommand(commandName = "force_family_event", flags = ConVarFlags.ExecuteOnServer, helpText = "Forces a family event to occur during the next stage. " + Lang.FAMILYEVENT_ARGS)]
         private static void CCFamilyEvent(ConCommandArgs args)
         {
             IL.RoR2.ClassicStageInfo.Awake += Hooks.ForceFamilyEvent;
@@ -487,8 +486,8 @@ namespace DebugToolkit
             Log.MessageNetworked("The next stage will contain a family event!", args);
         }
 
-        [AutoCompletion(typeof(StringFinder), "characterSpawnCard", false, "spawnCard/prefab")]
-        [ConCommand(commandName = "next_boss", flags = ConVarFlags.ExecuteOnServer, helpText = "Sets the next teleporter instance to the specified boss. "+Lang.NEXTBOSS_ARGS)]
+        [ConCommand(commandName = "next_boss", flags = ConVarFlags.ExecuteOnServer, helpText = "Sets the next teleporter instance to the specified boss. " + Lang.NEXTBOSS_ARGS)]
+        [AutoCompletion(typeof(StringFinder), "characterSpawnCard", "spawnCard/prefab")]
         private static void CCNextBoss(ConCommandArgs args)
         {
             Log.MessageNetworked(Lang.PARTIALIMPLEMENTATION_WARNING, args, LogLevel.MessageClientOnly);
@@ -539,7 +538,7 @@ namespace DebugToolkit
             }
         }
 
-        [ConCommand(commandName = "next_stage", flags = ConVarFlags.ExecuteOnServer, helpText = "Forces a stage change to the specified stage. "+Lang.NEXTSTAGE_ARGS)]
+        [ConCommand(commandName = "next_stage", flags = ConVarFlags.ExecuteOnServer, helpText = "Forces a stage change to the specified stage. " + Lang.NEXTSTAGE_ARGS)]
         private static void CCNextStage(ConCommandArgs args)
         {
             if (args.Count == 0)
@@ -571,7 +570,7 @@ namespace DebugToolkit
             }
         }
 
-        [ConCommand(commandName = "seed", flags = ConVarFlags.ExecuteOnServer, helpText = "Gets/Sets the game seed until game close. Use 0 to reset to vanilla generation. "+Lang.SEED_ARGS)]
+        [ConCommand(commandName = "seed", flags = ConVarFlags.ExecuteOnServer, helpText = "Gets/Sets the game seed until game close. Use 0 to reset to vanilla generation. " + Lang.SEED_ARGS)]
         private static void CCUseSeed(ConCommandArgs args)
         {
             if (args.Count == 0)
@@ -598,13 +597,13 @@ namespace DebugToolkit
             {
                 PreGameController.instance.runSeed = (result == 0) ? RoR2Application.rng.nextUlong : result;
             }
-            if(seed == 0 && result != 0)
+            if (seed == 0 && result != 0)
             {
                 On.RoR2.PreGameController.Awake += Hooks.SeedHook;
             }
             else
             {
-                if(seed != 0 && result == 0)
+                if (seed != 0 && result == 0)
                 {
                     On.RoR2.PreGameController.Awake -= Hooks.SeedHook;
                 }
@@ -613,7 +612,7 @@ namespace DebugToolkit
             Log.MessageNetworked($"Seed set to {((seed == 0) ? "vanilla generation" : seed.ToString())}.", args);
         }
 
-        [ConCommand(commandName = "fixed_time", flags = ConVarFlags.ExecuteOnServer, helpText = "Sets the FixedTime to the specified value. "+Lang.FIXEDTIME_ARGS)]
+        [ConCommand(commandName = "fixed_time", flags = ConVarFlags.ExecuteOnServer, helpText = "Sets the FixedTime to the specified value. " + Lang.FIXEDTIME_ARGS)]
         private static void CCSetTime(ConCommandArgs args)
         {
 
@@ -636,7 +635,7 @@ namespace DebugToolkit
 
         }
 
-        [ConCommand(commandName = "time_scale", flags = ConVarFlags.Engine | ConVarFlags.ExecuteOnServer, helpText = "Sets the Time Delta. "+Lang.TIMESCALE_ARGS)]
+        [ConCommand(commandName = "time_scale", flags = ConVarFlags.Engine | ConVarFlags.ExecuteOnServer, helpText = "Sets the Time Delta. " + Lang.TIMESCALE_ARGS)]
         private static void CCTimeScale(ConCommandArgs args)
         {
             if (args.Count == 0)
@@ -679,6 +678,12 @@ namespace DebugToolkit
                 Log.MessageNetworked("Incorrect arguments. Try: stage_clear_count 5", args, LogLevel.MessageClientOnly);
             }
 
+        }
+
+        [ConCommand(commandName = "post_sound_event", flags = ConVarFlags.ExecuteOnServer, helpText = "Post a sound event to the AkSoundEngine (WWise) by its event name.")]
+        private static void CCPostSoundEvent(ConCommandArgs args)
+        {
+            AkSoundEngine.PostEvent(args[0], CameraRigController.readOnlyInstancesList[0].localUserViewer.currentNetworkUser.master.GetBodyObject());
         }
         #endregion
 
@@ -723,7 +728,7 @@ namespace DebugToolkit
         }
 
         [ConCommand(commandName = "spawn_interactable", flags = ConVarFlags.None, helpText = "Spawns the specified interactable. List_Interactable for options. " + Lang.SPAWNINTERACTABLE_ARGS)]
-		[AutoCompletion(typeof(StringFinder), "interactableSpawnCards")]
+        [AutoCompletion(typeof(StringFinder), "interactableSpawnCards")]
         private static void CCSpawnInteractable(ConCommandArgs args)
         {
             if (args.Count == 0)
@@ -753,7 +758,7 @@ namespace DebugToolkit
             }
         }
 
-        [ConCommand(commandName = "god", flags = ConVarFlags.ExecuteOnServer, helpText = "Become invincible. "+Lang.GOD_ARGS)]
+        [ConCommand(commandName = "god", flags = ConVarFlags.ExecuteOnServer, helpText = "Become invincible. " + Lang.GOD_ARGS)]
         private static void CCGodModeToggle(ConCommandArgs args)
         {
             var godToggleMethod = typeof(CharacterMaster).GetMethodCached("ToggleGod");
@@ -769,21 +774,20 @@ namespace DebugToolkit
             }
         }
 
-        [ConCommand(commandName = "noclip", flags = ConVarFlags.ExecuteOnServer, helpText = "Allow flying and going through objects. Sprinting will double the speed. "+Lang.NOCLIP_ARGS)]
+        [ConCommand(commandName = "noclip", flags = ConVarFlags.ExecuteOnServer, helpText = "Allow flying and going through objects. Sprinting will double the speed. " + Lang.NOCLIP_ARGS)]
         private static void CCNoclip(ConCommandArgs args)
         {
             if (Run.instance)
             {
                 Command_Noclip.Toggle.Invoke(true, args.sender); //callback
-                
             }
             else
             {
-                Log.MessageNetworked(Lang.NOTINARUN_ERROR,args,LogLevel.MessageClientOnly);
+                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
             }
         }
 
-        [ConCommand(commandName = "kill_all", flags = ConVarFlags.ExecuteOnServer, helpText = "Kill all entities on the specified team. "+Lang.KILLALL_ARGS)]
+        [ConCommand(commandName = "kill_all", flags = ConVarFlags.ExecuteOnServer, helpText = "Kill all entities on the specified team. " + Lang.KILLALL_ARGS)]
         private static void CCKillAll(ConCommandArgs args)
         {
             TeamIndex team;
@@ -817,7 +821,7 @@ namespace DebugToolkit
             Log.MessageNetworked("Killed " + count + " of team " + team + ".", args);
         }
 
-        [ConCommand(commandName = "true_kill", flags = ConVarFlags.ExecuteOnServer, helpText = "Ignore Dio's and kill the entity. "+Lang.TRUEKILL_ARGS)]
+        [ConCommand(commandName = "true_kill", flags = ConVarFlags.ExecuteOnServer, helpText = "Ignore Dio's and kill the entity. " + Lang.TRUEKILL_ARGS)]
         private static void CCTrueKill(ConCommandArgs args)
         {
             CharacterMaster master = args.sender.master;
@@ -839,7 +843,7 @@ namespace DebugToolkit
             Log.MessageNetworked(master.name + " was killed by server.", args);
         }
 
-        [ConCommand(commandName = "no_enemies", flags = ConVarFlags.ExecuteOnServer, helpText = "Toggle Monster spawning. "+Lang.NOENEMIES_ARGS)]
+        [ConCommand(commandName = "no_enemies", flags = ConVarFlags.ExecuteOnServer, helpText = "Toggle Monster spawning. " + Lang.NOENEMIES_ARGS)]
         private static void CCNoEnemies(ConCommandArgs args)
         {
             noEnemies = (noEnemies) ? false : true;
@@ -855,8 +859,8 @@ namespace DebugToolkit
             Log.MessageNetworked("No_enemies set to " + noEnemies, args);
         }
 
-        [ConCommand(commandName = "spawn_as", flags = ConVarFlags.ExecuteOnServer, helpText = "Respawn the specified player using the specified body prefab. "+Lang.SPAWNAS_ARGS)]
-		[AutoCompletion(typeof(BodyCatalog), "bodyPrefabs")]
+        [ConCommand(commandName = "spawn_as", flags = ConVarFlags.ExecuteOnServer, helpText = "Respawn the specified player using the specified body prefab. " + Lang.SPAWNAS_ARGS)]
+        [AutoCompletion(typeof(BodyCatalog), "bodyPrefabBodyComponents", "baseNameToken")]
         private static void CCSpawnAs(ConCommandArgs args)
         {
             if (args.Count == 0)
@@ -900,12 +904,19 @@ namespace DebugToolkit
             RoR2.ConVar.BoolConVar stage1pod = ((RoR2.ConVar.BoolConVar)(typeof(Stage)).GetFieldCached("stage1PodConVar").GetValue(null));
             bool oldVal = stage1pod.value;
             stage1pod.SetBool(false);
+
+            // TODO: Fix so that the respawning player has its noclip disabled no matter what, for now, band aid fix for the local player only
+            if (LocalUserManager.GetFirstLocalUser().currentNetworkUser == args.sender && Command_Noclip.IsActivated)
+            {
+                Command_Noclip.InternalToggle();
+            }
+
             master.Respawn(master.GetBody().transform.position, master.GetBody().transform.rotation);
             stage1pod.SetBool(oldVal);
         }
 
-        [ConCommand(commandName = "spawn_ai", flags = ConVarFlags.ExecuteOnServer, helpText = "Spawns the specified CharacterMaster. "+Lang.SPAWNAI_ARGS)]
-		[AutoCompletion(typeof(MasterCatalog), "aiMasterPrefabs")]
+        [ConCommand(commandName = "spawn_ai", flags = ConVarFlags.ExecuteOnServer, helpText = "Spawns the specified CharacterMaster. " + Lang.SPAWNAI_ARGS)]
+        [AutoCompletion(typeof(MasterCatalog), "aiMasterPrefabs")]
         private static void CCSpawnAI(ConCommandArgs args)
         {
 
@@ -952,8 +963,8 @@ namespace DebugToolkit
             Log.MessageNetworked(Lang.SPAWN_ATTEMPT + character, args);
         }
 
-        [ConCommand(commandName = "spawn_body", flags = ConVarFlags.ExecuteOnServer, helpText = "Spawns the specified dummy body. "+Lang.SPAWNBODY_ARGS)]
-		[AutoCompletion(typeof(BodyCatalog), "bodyPrefabs")]
+        [ConCommand(commandName = "spawn_body", flags = ConVarFlags.ExecuteOnServer, helpText = "Spawns the specified dummy body. " + Lang.SPAWNBODY_ARGS)]
+        [AutoCompletion(typeof(BodyCatalog), "bodyPrefabBodyComponents", "baseNameToken")]
         private static void CCSpawnBody(ConCommandArgs args)
         {
             if (args.Count == 0)
@@ -975,9 +986,9 @@ namespace DebugToolkit
             Log.MessageNetworked(Lang.SPAWN_ATTEMPT + character, args);
         }
 
-        [ConCommand(commandName = "respawn", flags = ConVarFlags.ExecuteOnServer, helpText = "Respawns the specified player. "+Lang.RESPAWN_ARGS)]
-		[AutoCompletion(typeof(NetworkUser), "instancesList", true, "userName")]
-        [AutoCompletion(typeof(NetworkUser), "instancesList", true, "_id/value")]
+        [ConCommand(commandName = "respawn", flags = ConVarFlags.ExecuteOnServer, helpText = "Respawns the specified player. " + Lang.RESPAWN_ARGS)]
+        [AutoCompletion(typeof(NetworkUser), "instancesList", "userName", true)]
+        [AutoCompletion(typeof(NetworkUser), "instancesList", "_id/value", true)]
         private static void RespawnPlayer(ConCommandArgs args)
         {
             CharacterMaster master = args.sender.master;
@@ -1000,7 +1011,7 @@ namespace DebugToolkit
             Log.MessageNetworked(Lang.SPAWN_ATTEMPT + master.name, args);
         }
 
-        [ConCommand(commandName = "change_team", flags = ConVarFlags.ExecuteOnServer, helpText = "Change the specified player to the specified team. "+Lang.CHANGETEAM_ARGS)]
+        [ConCommand(commandName = "change_team", flags = ConVarFlags.ExecuteOnServer, helpText = "Change the specified player to the specified team. " + Lang.CHANGETEAM_ARGS)]
         private static void CCChangeTeam(ConCommandArgs args)
         {
             if (args.Count == 0)
@@ -1037,7 +1048,7 @@ namespace DebugToolkit
 
         }
 
-        [ConCommand(commandName = "add_portal", flags = ConVarFlags.ExecuteOnServer, helpText = "Add a portal to the current Teleporter on completion. "+Lang.ADDPORTAL_ARGS)]
+        [ConCommand(commandName = "add_portal", flags = ConVarFlags.ExecuteOnServer, helpText = "Add a portal to the current Teleporter on completion. " + Lang.ADDPORTAL_ARGS)]
         private static void CCAddPortal(ConCommandArgs args)
         {
             if (TeleporterInteraction.instance)
@@ -1046,7 +1057,7 @@ namespace DebugToolkit
                 switch (args[0].ToLower())
                 {
                     case "blue":
-                       TP.shouldAttemptToSpawnShopPortal = true;
+                        TP.shouldAttemptToSpawnShopPortal = true;
                         break;
                     case "gold":
                         TP.shouldAttemptToSpawnGoldshoresPortal = true;
