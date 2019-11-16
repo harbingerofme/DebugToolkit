@@ -6,6 +6,7 @@ using System.Collections;
 using System;
 using System.Text;
 using System.Linq;
+using R2API.Utils;
 
 namespace DebugToolkit
 {
@@ -112,7 +113,7 @@ namespace DebugToolkit
                 {
                     if (alias.ToUpper().Equals(name.ToUpper()))
                     {
-                        name = dictEnt.Key.ToString();
+                        name = dictEnt.Key;
                     }
                 }
             }
@@ -120,22 +121,18 @@ namespace DebugToolkit
             if (Enum.TryParse(name, true, out EquipmentIndex foundEquip) && EquipmentCatalog.IsIndexValid(foundEquip))
             {
                 //catalogmod
-                Log.MessageInfo("RETURNED EXACT MATCH!");
                 return foundEquip;
             }
 
             StringBuilder s = new StringBuilder();
-            foreach (var equip in EquipmentCatalog.allEquipment)
+            foreach (var equip in typeof(EquipmentCatalog).GetFieldValue<EquipmentDef[]>("equipmentDefs"))
             {
-                langInvar = GetLangInvar("EQUIPMENT_" + equip.ToString().ToUpper() + "_NAME");
-                s.AppendLine(equip.ToString() + ":" + langInvar + ":" + name.ToUpper());
-                if (equip.ToString().ToUpper().Contains(name.ToUpper()) || langInvar.ToUpper().Contains(name.ToUpper()))
+                langInvar = GetLangInvar(equip.nameToken.ToUpper());
+                if (equip.name.ToUpper().Contains(name.ToUpper()) || langInvar.ToUpper().Contains(name.ToUpper()) || langInvar.ToUpper().Contains(RemoveSpacesAndAlike(name.ToUpper())))
                 {
-                    Log.MessageInfo(s);
-                    return equip;
+                    return equip.equipmentIndex;
                 }
             }
-            Log.MessageInfo(s);
             return EquipmentIndex.None;
         }
 
@@ -153,29 +150,24 @@ namespace DebugToolkit
                 {
                     if (alias.ToUpper().Equals(name.ToUpper()))
                     {
-                        name = dictEnt.Key.ToString();
+                        name = dictEnt.Key;
 
                     }
                 }
             }
             if (Enum.TryParse(name, true, out ItemIndex foundItem) && ItemCatalog.IsIndexValid(foundItem))
             {
-                Log.MessageInfo("RETURNED EXACT MATCH!");
                 return foundItem;
             }
 
-            StringBuilder s = new StringBuilder();
-            foreach (var item in ItemCatalog.allItems)
+            foreach (var item in typeof(ItemCatalog).GetFieldValue<ItemDef[]>("itemDefs"))
             {
-                langInvar = GetLangInvar("ITEM_" + item.ToString().ToUpper() + "_NAME");
-                s.AppendLine(item.ToString() + ":" + langInvar + ":" + name.ToUpper());
-                if (item.ToString().ToUpper().Contains(name.ToUpper()) || langInvar.ToUpper().Contains(name.ToUpper()))
+                langInvar = GetLangInvar(item.nameToken.ToUpper());
+                if (item.name.ToUpper().Contains(name.ToUpper()) || langInvar.ToUpper().Contains(name.ToUpper()) || langInvar.ToUpper().Contains(RemoveSpacesAndAlike(name.ToUpper())))
                 {
-                    Log.MessageInfo(s);
-                    return item;
+                    return item.itemIndex;
                 }
             }
-            Log.MessageInfo(s);
             return ItemIndex.None;
         }
 
