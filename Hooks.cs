@@ -10,7 +10,7 @@ using System.Globalization;
 using System.Text;
 using UnityEngine.Networking;
 
-namespace RoR2Cheats
+namespace DebugToolkit
 {
     [R2APISubmoduleDependency("CommandHelper")]
     internal sealed class Hooks
@@ -28,12 +28,12 @@ namespace RoR2Cheats
 
             // Noclip hooks
             var hookConfig = new HookConfig() { ManualApply = true };
-            Noclip.OnServerChangeSceneHook = new Hook(typeof(NetworkManager).GetMethodCached("ServerChangeScene"),
-    typeof(Noclip).GetMethodCached("DisableOnServerSceneChange"),hookConfig);
-            Noclip.origServerChangeScene = Noclip.OnServerChangeSceneHook.GenerateTrampoline<Noclip.d_ServerChangeScene>();
-            Noclip.OnClientChangeSceneHook = new Hook(typeof(NetworkManager).GetMethodCached("ClientChangeScene"),
-                typeof(Noclip).GetMethodCached("DisableOnClientSceneChange"),hookConfig);
-            Noclip.origClientChangeScene = Noclip.OnClientChangeSceneHook.GenerateTrampoline<Noclip.d_ClientChangeScene>();
+            Command_Noclip.OnServerChangeSceneHook = new Hook(typeof(NetworkManager).GetMethodCached("ServerChangeScene"),
+    typeof(Command_Noclip).GetMethodCached("DisableOnServerSceneChange"),hookConfig);
+            Command_Noclip.origServerChangeScene = Command_Noclip.OnServerChangeSceneHook.GenerateTrampoline<Command_Noclip.d_ServerChangeScene>();
+            Command_Noclip.OnClientChangeSceneHook = new Hook(typeof(NetworkManager).GetMethodCached("ClientChangeScene"),
+                typeof(Command_Noclip).GetMethodCached("DisableOnClientSceneChange"),hookConfig);
+            Command_Noclip.origClientChangeScene = Command_Noclip.OnClientChangeSceneHook.GenerateTrampoline<Command_Noclip.d_ClientChangeScene>();
         }
 
         private static void EnableCheatsInCCSetScene(ILContext il)
@@ -65,7 +65,7 @@ namespace RoR2Cheats
 		
 		private static void InitCommandsAndFreeConvars(On.RoR2.Console.orig_InitConVars orig, RoR2.Console self)
         {
-            void removeCheatFlag (RoR2.ConVar.BaseConVar cv)
+            void removeCheatFlag (BaseConVar cv)
             {
                 cv.flags &= AllFlagsNoCheat;
             }
@@ -75,9 +75,9 @@ namespace RoR2Cheats
             removeCheatFlag(self.FindConVar("stage1_pod"));
             self.FindConVar("timescale").helpText += " Use time_scale instead!";
             self.FindConVar("director_combat_disable").helpText += " Use no_enemies instead!";
-            self.FindConVar("timestep").helpText += " Let the ror2cheats team know if you need this convar.";
-            self.FindConVar("cmotor_safe_collision_step_threshold").helpText += " Let the ror2cheats team know if you need this convar.";
-            self.FindConVar("cheats").helpText += " But you already have the RoR2Cheats mod installed...";
+            self.FindConVar("timestep").helpText += " Let the DebugToolkit team know if you need this convar.";
+            self.FindConVar("cmotor_safe_collision_step_threshold").helpText += " Let the DebugToolkit team know if you need this convar.";
+            self.FindConVar("cheats").helpText += " But you already have the DebugToolkit mod installed...";
             IntConVar mmConvar = (IntConVar) self.FindConVar("max_messages");
             if(mmConvar.value == 25)
             {
@@ -187,23 +187,23 @@ namespace RoR2Cheats
         {
             orig(self);
             self.monsterCredit *= 100; 
-            var selected = RoR2Cheats.nextBoss;
-            selected.cost = (int)((self.monsterCredit / RoR2Cheats.nextBossCount) / RoR2Cheats.GetTierDef(RoR2Cheats.nextBossElite).costMultiplier);
+            var selected = DebugToolkit.nextBoss;
+            selected.cost = (int)((self.monsterCredit / DebugToolkit.nextBossCount) / DebugToolkit.GetTierDef(DebugToolkit.nextBossElite).costMultiplier);
             self.OverrideCurrentMonsterCard(selected);
-            self.SetFieldValue<CombatDirector.EliteTierDef>("currentActiveEliteTier", RoR2Cheats.GetTierDef(RoR2Cheats.nextBossElite));
-            self.SetFieldValue<EliteIndex>("currentActiveEliteIndex", RoR2Cheats.nextBossElite);
-            Log.Message($"{selected.spawnCard.name} cost has been set to {selected.cost} for {RoR2Cheats.nextBossCount} {RoR2Cheats.nextBossElite.ToString()} bosses with available credit: {self.monsterCredit}",Log.LogLevel.Info);
-            RoR2Cheats.nextBossCount = 1;
-            RoR2Cheats.nextBossElite = EliteIndex.None;
+            self.SetFieldValue<CombatDirector.EliteTierDef>("currentActiveEliteTier", DebugToolkit.GetTierDef(DebugToolkit.nextBossElite));
+            self.SetFieldValue<EliteIndex>("currentActiveEliteIndex", DebugToolkit.nextBossElite);
+            Log.Message($"{selected.spawnCard.name} cost has been set to {selected.cost} for {DebugToolkit.nextBossCount} {DebugToolkit.nextBossElite.ToString()} bosses with available credit: {self.monsterCredit}",Log.LogLevel.Info);
+            DebugToolkit.nextBossCount = 1;
+            DebugToolkit.nextBossElite = EliteIndex.None;
             On.RoR2.CombatDirector.SetNextSpawnAsBoss -= CombatDirector_SetNextSpawnAsBoss;
         }
 
         internal static void SeedHook(On.RoR2.PreGameController.orig_Awake orig, PreGameController self)
         {
             orig(self);
-            if (RoR2Cheats.seed != 0)
+            if (DebugToolkit.seed != 0)
             {
-                self.runSeed = RoR2Cheats.seed;
+                self.runSeed = DebugToolkit.seed;
             }
         }
 

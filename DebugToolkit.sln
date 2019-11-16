@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29306.81
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoR2Cheats", "RoR2Cheats.csproj", "{38FD0DD5-5D4F-424B-9590-2DB309099D17}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DebugToolkit", "DebugToolkit.csproj", "{38FD0DD5-5D4F-424B-9590-2DB309099D17}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommandDiscover", "CommandDiscover\CommandDiscover.csproj", "{98FEB4E1-E057-474D-9AF9-F7CF43761521}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommandDiscover", "RoR2CommandFinder\CommandDiscover.csproj", "{98FEB4E1-E057-474D-9AF9-F7CF43761521}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

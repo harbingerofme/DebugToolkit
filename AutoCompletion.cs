@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using RoR2;
 
-namespace RoR2Cheats
+namespace DebugToolkit
 {
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
     internal class AutoCompletionAttribute : Attribute
@@ -120,7 +120,7 @@ namespace RoR2Cheats
                                 {
                                     if (!tokenAndInvar.Value.Contains("NAME"))
                                     {
-                                        toFill.Add(commandName + Alias.RemoveSpacesAndAlike(tokenAndInvar.Value));
+                                        toFill.Add(commandName + StringFinder.RemoveSpacesAndAlike(tokenAndInvar.Value));
                                     }
                                 }
                             }

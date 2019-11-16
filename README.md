@@ -1,8 +1,4 @@
-﻿**We are moving towards a new name. This mod will be named "DebugToolkit" in the future.**
-
-With the recent release of Lodington's RoRCheats, ambiguity exists between the mods. We are renaming to [DebugToolkit](https://thunderstore.io/package/Harb/DebugToolkit/) from version `3.2` onwards. We decided that the flexibility of our mod is more aimed towards developers who want to test extreme scenarios quickly, while Lodington's lends itself better to cheating. **This package will become deprecated once we release 3.2**. [This link will take you to that modpage once it releases.](https://thunderstore.io/package/Harb/DebugToolkit/)
-
-# RoR2Cheats #
+﻿##Debug Toolkit
 
 This mod adds various debugging commands to the console. See below for all commands plus explanation.
 
@@ -21,6 +17,7 @@ Mods recommended for combined use:
 
 * [KeyBindForConsole](https://thunderstore.io/package/kristiansja/KeyBindForConsole/)
 * [SimpleMacros](https://thunderstore.io/package/recursiveGecko/SimpleMacros/)
+* [MacroCommands] (https://thunderstore.io/package/JackPendarvesRead/MacroCommands/)
 
 You may contact us at any time through issues on GitHub, or through the Risk of Rain 2 modding Discord found at the top of the Thunderstore website.
 
@@ -94,9 +91,10 @@ These commands will be removed once we hit **3.2**. Speak out now or be forever 
 
 * "DebugToolkit"
 * **General**
+	* **Paddywan** has left the modding community. We thank them for their contributions to this project and wish them the best of luck in future endavours.
     * **iDeathHD** has joined the team behind RoR2Cheats/DebugToolkit, their expertise has been of amazing use and we're excited to have a joint venture in this.
     * You may have noticed *MiniRPCLib* is a new dependency. This is to network cheats better over the network. Functionally nothing has changed.
-    * A secret new convar is added: `ror2cheats_debug`. Only available for those people who read the changelog. ❤️
+    * A secret new convar is added: `debugtoolkit_debug`. Only available for those people who read the changelog. ❤️
     * Various commands have had their ingame descriptions updated to better inform what args are expected.
 	* added the *"all"* overload to `add_portal`.
     * *Modders stuff:* Hooks that do not permanently need to exists have been been made to only exist for as long as they are needed.

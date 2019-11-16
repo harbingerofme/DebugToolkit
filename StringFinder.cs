@@ -7,21 +7,21 @@ using System;
 using System.Text;
 using System.Linq;
 
-namespace RoR2Cheats
+namespace DebugToolkit
 {
-    public class Alias
+    internal sealed class StringFinder
     {
         private static readonly Dictionary<string, string[]> BodyAlias = new Dictionary<string, string[]>();
         private static readonly Dictionary<string, string[]> MasterAlias = new Dictionary<string, string[]>();
         private static readonly Dictionary<string, string[]> ItemAlias = new Dictionary<string, string[]>();
         private static readonly Dictionary<string, string[]> EquipAlias = new Dictionary<string, string[]>();
-        private static Alias instance;
+        private static StringFinder instance;
         private static List<DirectorCard> characterSpawnCard = new List<DirectorCard>();
         private static List<InteractableSpawnCard> interactableSpawnCards = new List<InteractableSpawnCard>();
 
-        public static Alias Instance
+        public static StringFinder Instance
         {
-            get => instance ?? (instance = new Alias());
+            get => instance ?? (instance = new StringFinder());
         }
 
         public static void EnsureInstance()
@@ -32,7 +32,7 @@ namespace RoR2Cheats
         /// <summary>
         /// Initialises the various alias lists and creates the SpawnCard cache's
         /// </summary>
-        private Alias()
+        private StringFinder()
         {
             BodyAlias.Add("ToolbotBody", new string[] { "MULT", "MUL-T", "ShoppingTrolly" });
             BodyAlias.Add("MercBody", new string[] { "Mercenary", "Ninja" });
@@ -97,51 +97,6 @@ namespace RoR2Cheats
             }
         }
 
-        //public TEnum GetIndexFromPartial<TEnum>(string name)
-        //{
-        //    string langInvar;
-        //    Dictionary<string, string[]> aliasList;
-        //    object catalog;
-        //    if (typeof(TEnum) == typeof(ItemIndex))
-        //    {
-        //        aliasList = ItemAlias;
-        //    }
-        //    else if (typeof(TEnum) == typeof(EquipmentIndex))
-        //    {
-        //        aliasList = EquipAlias;
-        //    }
-        //    else
-        //    {
-        //        Log.Message("Invalid type");
-        //        throw new Exception("Invalid Type");
-        //    }
-
-        //    foreach (KeyValuePair<string, string[]> dictEnt in aliasList)
-        //    {
-        //        foreach (string alias in dictEnt.Value)
-        //        {
-        //            if (alias.ToUpper().Equals(name.ToUpper()))
-        //            {
-        //                name = dictEnt.Key.ToString();
-        //            }
-        //        }
-        //    }
-        //    TEnum foundObject;
-        //    if (Enum.TryParse(name, true, out foundObject) && EquipmentCatalog.IsIndexValid(foundObject))
-        //    {
-        //        //catalogmod
-        //        Log.MessageInfo("RETURNED EXACT MATCH!");
-        //        return foundObject;
-        //    }
-        //    return default;
-        //}
-
-        //public bool TryParse<T>(string name, out T result, Predicate<T> isValid) where T : struct
-        //{
-        //    if (Enum.TryParse(name, out result) && isValid(result))
-        //        return true;
-        //    return false;
-        //}
 
         /// <summary>
         /// Returns an EquipmentIndex when provided with a partial/invariant.

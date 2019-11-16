@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using MiniRpcLib;
 
-namespace RoR2Cheats
+namespace DebugToolkit
 {
     /* This class may be re-used and modified without attribution, as long as this notice remains.*/
 
@@ -23,14 +23,14 @@ namespace RoR2Cheats
          */
         public static BoolConVar DebugConvar = new BoolConVar
             (
-            $"{RoR2Cheats.modname.ToLower()}_debug",
+            $"{DebugToolkit.modname.ToLower()}_debug",
             RoR2.ConVarFlags.None,
 #if DEBUG
             "1",
 #else
             "0",
 #endif
-            $"{RoR2Cheats.modname} extensive debugging");
+            $"{DebugToolkit.modname} extensive debugging");
 
         public Log(ManualLogSource bepLogger, MiniRpcInstance miniRpc)
         {
