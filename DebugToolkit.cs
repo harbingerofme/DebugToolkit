@@ -9,14 +9,12 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 using MiniRpcLib;
-using Console = RoR2.Console;
 using LogLevel = DebugToolkit.Log.LogLevel;
 
 namespace DebugToolkit
 {
     [BepInDependency("com.bepis.r2api")]
     [BepInDependency("dev.wildbook.libminirpc")]
-    //[BepInIncompatibility("com.harbingerofme.RoR2Cheats")]
     [BepInPlugin(GUID, modname, modver)]
     public class DebugToolkit : BaseUnityPlugin
     {
