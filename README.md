@@ -1,4 +1,4 @@
-﻿##Debug Toolkit
+##Debug Toolkit
 
 This mod adds various debugging commands to the console. See below for all commands plus explanation.
 
@@ -74,15 +74,6 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
 * **loadout_set_skill_variant** - Sets the skill variant for the sender's user profile: `loadout_set_skill_variant {body_name} {skill_slot_index} {skill_variant_index}`. Note that this does not use the loose bodymatching from custom commands.
 * **set_scene** - Removed the cheat check on this. Functions similar but not really to our `next_stage`, doesn't have our cool autocomplete features, and doesn't advance the stagecount, but can advance menus. `set_scene {scene}`
 
-### Commands slated for deletion
-
-These commands will be removed once we hit **3.2**. Speak out now or be forever silenced.
-
-* **give_exp** - Use `team_set_level` instead.
-* You can now use language invariants, so the following lists have been invalidated.
-    * **list_items**
-    * **list_equipments**
-* **stage_clear_count** - Use `run_set_stages_cleared` instead.
 
 ---
 
@@ -92,6 +83,7 @@ These commands will be removed once we hit **3.2**. Speak out now or be forever 
 
 * "DebugToolkit"
 * **General**
+	* **3.1.1:** Removed obsoleted commands.
 	* **Paddywan** has left the modding community. We thank them for their contributions to this project and wish them the best of luck in future endavours.
     * **iDeathHD** has joined the team behind RoR2Cheats/DebugToolkit, their expertise has been of amazing use and we're excited to have a joint venture in this.
     * You may have noticed *MiniRPCLib* is a new dependency. This is to network cheats better over the network. Functionally nothing has changed.

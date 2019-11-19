@@ -81,36 +81,6 @@ namespace DebugToolkit
             Log.MessageNetworked(list.ToString(), args, LogLevel.MessageClientOnly);
         }
 
-        [ConCommand(commandName = "list_items", flags = ConVarFlags.None, helpText = Lang.LISTITEM_ARGS)]
-        private static void CCListItems(ConCommandArgs _)
-        {
-            Log.Message(Lang.OBSOLETEWARNING, LogLevel.Warning);
-            StringBuilder text = new StringBuilder();
-            foreach (ItemIndex item in ItemCatalog.allItems)
-            {
-                int index = (int)item;
-                string invar = StringFinder.GetLangInvar("ITEM_" + item.ToString().ToUpper() + "_NAME");
-                string line = string.Format("[{0}]{1}={2}", index, item, invar);
-                text.AppendLine(line);
-            }
-            Log.Message(text.ToString());
-        }
-
-        [ConCommand(commandName = "list_equips", flags = ConVarFlags.None, helpText = Lang.LISTEQUIP_ARGS)]
-        private static void CCListEquipments(ConCommandArgs _)
-        {
-            Log.Message(Lang.OBSOLETEWARNING, LogLevel.Warning);
-            StringBuilder text = new StringBuilder();
-            foreach (EquipmentIndex equip in EquipmentCatalog.allEquipment)
-            {
-                int index = (int)equip;
-                string invar = StringFinder.GetLangInvar("EQUIPMENT_" + equip.ToString().ToUpper() + "_NAME");
-                string line = string.Format("[{0}]{1}={2}", index, equip, invar);
-                text.AppendLine(line);
-            }
-            Log.Message(text.ToString());
-        }
-
         [ConCommand(commandName = "list_AI", flags = ConVarFlags.None, helpText = Lang.LISTAI_ARGS)]
         private static void CCListAI(ConCommandArgs _)
         {
@@ -410,22 +380,6 @@ namespace DebugToolkit
             }
             Log.MessageNetworked("$$$", args);
         }
-
-        [ConCommand(commandName = "give_exp", flags = ConVarFlags.ExecuteOnServer, helpText = "Gives experience. OBSOLETE")]
-        private static void CCGiveExperience(ConCommandArgs args)
-        {
-            Log.MessageNetworked(Lang.OBSOLETEWARNING + "Use team_set_level instead.", args, LogLevel.WarningClientOnly);
-
-            if (args.Count == 0)
-            {
-                return;
-            }
-
-            if (TeamManager.instance && uint.TryParse(args[0], out uint result))
-            {
-                TeamManager.instance.GiveTeamExperience(args.sender.master.teamIndex, result);
-            }
-        }
         #endregion
 
         #region Run.instance
@@ -654,30 +608,6 @@ namespace DebugToolkit
             {
                 Log.Message(Lang.TIMESCALE_ARGS, LogLevel.MessageClientOnly);
             }
-        }
-
-        [ConCommand(commandName = "stage_clear_count", flags = ConVarFlags.ExecuteOnServer, helpText = "Sets stage clear count - Affects monster difficulty. OBSOLETE")]
-        private static void CCSetClearCount(ConCommandArgs args)
-        {
-            Log.MessageNetworked(Lang.OBSOLETEWARNING + "Use run_set_stages_cleared instead.", args, LogLevel.WarningClientOnly);
-
-            if (args.Count == 0)
-            {
-                Log.MessageNetworked(Run.instance.stageClearCount.ToString(), args, LogLevel.MessageClientOnly);
-                return;
-            }
-
-            if (TextSerialization.TryParseInvariant(args[0], out int setClearCount))
-            {
-                Run.instance.stageClearCount = setClearCount;
-                ResetEnemyTeamLevel();
-                Log.MessageNetworked("Stage_clear_count set to " + setClearCount, args);
-            }
-            else
-            {
-                Log.MessageNetworked("Incorrect arguments. Try: stage_clear_count 5", args, LogLevel.MessageClientOnly);
-            }
-
         }
 
         [ConCommand(commandName = "post_sound_event", flags = ConVarFlags.ExecuteOnServer, helpText = "Post a sound event to the AkSoundEngine (WWise) by its event name.")]
