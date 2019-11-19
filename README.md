@@ -83,6 +83,7 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
 
 * "DebugToolkit"
 * **General**
+	* **3.1.1:** Now known as DebugToolkit on Thunderstore.
 	* **3.1.1:** Removed obsoleted commands.
 	* **Paddywan** has left the modding community. We thank them for their contributions to this project and wish them the best of luck in future endavours.
     * **iDeathHD** has joined the team behind RoR2Cheats/DebugToolkit, their expertise has been of amazing use and we're excited to have a joint venture in this.
@@ -93,6 +94,7 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
     * *Modders stuff:* Hooks that do not permanently need to exists have been been made to only exist for as long as they are needed.
     * *Modders stuff:* All hooks, temporary or not, have been added to the readme to help resolve mod conflicts.
 * **New Commands**
+	* **3.1.1:** `post_sound_event` Sounds be hard. This should help.
     * `next_boss` We've worked hard on this. We hope you find use for it. *(And with 'we', Harb means the other contributor who isn't Harb nor iDeathHD.)*
     * `give_lunar` Editing your save is an unnessecary task. This command is restricted to the issuing player to prevent grieving.
     * `remove_item` While this functionality could already be achieved with *give_item* and a negative amount, this was not obvious.
