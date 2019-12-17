@@ -444,6 +444,8 @@ namespace DebugToolkit
         [AutoCompletion(typeof(StringFinder), "characterSpawnCard", "spawnCard/prefab")]
         private static void CCNextBoss(ConCommandArgs args)
         {
+            Log.MessageNetworked("This feature is currently not working. We'll hopefully provide an update to this soon.", args);
+            return;
             Log.MessageNetworked(Lang.PARTIALIMPLEMENTATION_WARNING, args, LogLevel.MessageClientOnly);
             if (args.Count == 0)
             {

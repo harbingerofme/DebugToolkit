@@ -188,7 +188,8 @@ namespace DebugToolkit
             orig(self);
             self.monsterCredit *= 100; 
             var selected = DebugToolkit.nextBoss;
-            selected.cost = (int)((self.monsterCredit / DebugToolkit.nextBossCount) / DebugToolkit.GetTierDef(DebugToolkit.nextBossElite).costMultiplier);
+            //todo: fix this line.
+            // selected.cost = (int)((self.monsterCredit / DebugToolkit.nextBossCount) / DebugToolkit.GetTierDef(DebugToolkit.nextBossElite).costMultiplier);
             self.OverrideCurrentMonsterCard(selected);
             self.SetFieldValue<CombatDirector.EliteTierDef>("currentActiveEliteTier", DebugToolkit.GetTierDef(DebugToolkit.nextBossElite));
             self.SetFieldValue<EliteIndex>("currentActiveEliteIndex", DebugToolkit.nextBossElite);
