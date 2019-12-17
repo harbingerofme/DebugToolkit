@@ -2,3 +2,6 @@
 
 # IDE0011: Add braces
 csharp_prefer_braces = true:suggestion
+
+# IDE0035: Unreachable code detected
+dotnet_diagnostic.IDE0035.severity = suggestion

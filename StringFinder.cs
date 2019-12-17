@@ -115,7 +115,6 @@ namespace DebugToolkit
                 return foundEquip;
             }
 
-            StringBuilder s = new StringBuilder();
             foreach (var equip in typeof(EquipmentCatalog).GetFieldValue<EquipmentDef[]>("equipmentDefs"))
             {
                 langInvar = GetLangInvar(equip.nameToken.ToUpper());
