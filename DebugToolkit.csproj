@@ -2,12 +2,14 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Version>3.1.1</Version>
+    <Version>3.1.2</Version>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <Authors>Harbingerofme; Paddywan; iDeathHD</Authors>
     <Description>Bepinex plugin for Risk of Rain 2.</Description>
     <RepositoryUrl>https://github.com/harbingerofme/DebugToolkit</RepositoryUrl>
     <Configurations>Debug;Release</Configurations>
+    <PackageIconUrl>https://raw.githubusercontent.com/harbingerofme/DebugToolkit/master/icon.png</PackageIconUrl>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -25,6 +27,10 @@
     <EmbeddedResource Remove="RoR2CommandFinder\**" />
     <None Remove="CommandDiscover\**" />
     <None Remove="RoR2CommandFinder\**" />
+    <None Include="LICENSE">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
