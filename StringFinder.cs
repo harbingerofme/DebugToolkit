@@ -55,7 +55,6 @@ namespace DebugToolkit
                 var dCard = new DirectorCard
                 {
                     spawnCard = csc,
-                    cost = 600,
                     allowAmbushSpawn = true,
                     forbiddenUnlockable = "",
                     minimumStageCompletions = 0,
