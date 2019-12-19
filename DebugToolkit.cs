@@ -39,6 +39,7 @@ namespace DebugToolkit
 
             Hooks.InitializeHooks();
             Command_Noclip.InitRPC(miniRpc);
+            Command_Teleport.InitRPC(miniRpc);
             TimeScaleNetwork = miniRpc.RegisterAction(Target.Client, (NetworkUser _, float f) => { HandleTimeScale(f); });
         }
 

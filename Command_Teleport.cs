@@ -6,7 +6,6 @@ using MiniRpcLib;
 
 namespace DebugToolkit
 {
-    // ReSharper disable once UnusedMember.Global
     internal static class Command_Teleport
     {
         internal static MiniRpcLib.Action.IRpcAction<bool> Activator;
