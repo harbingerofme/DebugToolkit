@@ -20,6 +20,7 @@ namespace DebugToolkit
             GIVEMONEY_ARGS = "Requires 1 argument: give_money {Count} ({PlayerID:self}|{Playername}|\"all\")",
             GOD_ARGS = "Requires 0 arguments: god",
             NOCLIP_ARGS = "Requires 0 arguments: noclip",
+            CURSORTELEPORT_ARGS = "Requires 0 arguments: teleport_on_cursor",
             KICK_ARGS = "Requires 1 argument: ({PlayerID:self}|{Playername})",
             KILLALL_ARGS = "Requires 0 arguments: kill_all {TeamIndex:2/Monster}",
             NEXTBOSS_ARGS = "Requires 1 argument: next_boss ({localised_object_name}|{DirectorCard}) {(int)Count:1} {EliteIndex:-1/None}",

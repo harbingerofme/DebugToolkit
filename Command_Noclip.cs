@@ -4,6 +4,8 @@ using KinematicCharacterController;
 using MiniRpcLib;
 using MonoMod.RuntimeDetour;
 using UnityEngine.Networking;
+// ReSharper disable UnusedMember.Local
+// ReSharper disable InconsistentNaming
 
 namespace DebugToolkit
 {
@@ -34,7 +36,7 @@ namespace DebugToolkit
 
         internal static void InternalToggle()
         {
-            if (UpdateCurrentPlayerBody())
+            if (DebugToolkit.UpdateCurrentPlayerBody(out _currentNetworkUser, out _currentBody))
             {
                 if (IsActivated)
                 {
@@ -54,30 +56,32 @@ namespace DebugToolkit
             }
         }
 
-        internal static void ApplyHooks()
+        private static void ApplyHooks()
         {
             if (!IsActivated)
             {
                 OnServerChangeSceneHook.Apply();
                 OnClientChangeSceneHook.Apply();
                 On.RoR2.Networking.GameNetworkManager.Disconnect += DisableOnDisconnect;
+                On.RoR2.MapZone.TeleportBody += DisableOOBCheck;
             }
         }
 
-        internal static void UndoHooks()
+        private static void UndoHooks()
         {
             if (IsActivated)
             {
                 OnServerChangeSceneHook.Undo();
                 OnClientChangeSceneHook.Undo();
                 On.RoR2.Networking.GameNetworkManager.Disconnect -= DisableOnDisconnect;
+                On.RoR2.MapZone.TeleportBody -= DisableOOBCheck;
             }
         }
 
 
         internal static void Update()
         {
-            if (UpdateCurrentPlayerBody())
+            if (DebugToolkit.UpdateCurrentPlayerBody(out _currentNetworkUser, out _currentBody))
             {
                 Loop();
             }
@@ -133,23 +137,6 @@ namespace DebugToolkit
             }
         }
 
-        private static bool UpdateCurrentPlayerBody()
-        {
-            _currentNetworkUser = LocalUserManager.GetFirstLocalUser().currentNetworkUser;
-            if (_currentNetworkUser)
-            {
-                var master = _currentNetworkUser.master;
-
-                if (master && master.GetBody())
-                {
-                    _currentBody = master.GetBody();
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
         private static void DisableOnServerSceneChange(NetworkManager instance, string newSceneName)
         {
             if (IsActivated)
@@ -183,6 +170,15 @@ namespace DebugToolkit
             }
 
             orig(self);
+        }
+
+        // ReSharper disable once InconsistentNaming
+        private static void DisableOOBCheck(On.RoR2.MapZone.orig_TeleportBody orig, MapZone self, CharacterBody characterBody)
+        {
+            if (!characterBody.isPlayerControlled)
+            {
+                orig(self, characterBody);
+            }
         }
     }
 }
