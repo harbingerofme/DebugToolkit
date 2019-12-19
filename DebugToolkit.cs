@@ -5,6 +5,7 @@ using RoR2.CharacterAI;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using KinematicCharacterController;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
@@ -38,6 +39,7 @@ namespace DebugToolkit
 
             Hooks.InitializeHooks();
             Command_Noclip.InitRPC(miniRpc);
+            Command_Teleport.InitRPC(miniRpc);
             TimeScaleNetwork = miniRpc.RegisterAction(Target.Client, (NetworkUser _, float f) => { HandleTimeScale(f); });
         }
 
@@ -719,6 +721,19 @@ namespace DebugToolkit
             }
         }
 
+        [ConCommand(commandName = "teleport_on_cursor", flags = ConVarFlags.ExecuteOnServer, helpText = "Teleport you to where your cursor is currently aiming at. " + Lang.CURSORTELEPORT_ARGS)]
+        private static void CCCursorTeleport(ConCommandArgs args)
+        {
+            if (Run.instance && args.senderBody)
+            {
+                Command_Teleport.Activator.Invoke(true, args.sender); //callback
+            }
+            else
+            {
+                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
+            }
+        }
+
         [ConCommand(commandName = "kill_all", flags = ConVarFlags.ExecuteOnServer, helpText = "Kill all entities on the specified team. " + Lang.KILLALL_ARGS)]
         private static void CCKillAll(ConCommandArgs args)
         {
@@ -997,14 +1012,25 @@ namespace DebugToolkit
                     case "celestial":
                         TP.shouldAttemptToSpawnMSPortal = true;
                         break;
+                    case "arena":
+                        spawnArenaPortal();
+                        break;
                     case "all":
                         TP.shouldAttemptToSpawnGoldshoresPortal = true;
                         TP.shouldAttemptToSpawnShopPortal = true;
                         TP.shouldAttemptToSpawnMSPortal = true;
+                        spawnArenaPortal();
                         break;
                     default:
                         Log.MessageNetworked(Lang.PORTAL_NOTFOUND, args, LogLevel.MessageClientOnly);
                         return;
+                }
+
+                void spawnArenaPortal()
+                {
+                    var arenaPortal = Instantiate(Resources.Load<GameObject>("prefabs\\networkedobjects\\portalarena"), args.senderBody.corePosition, Quaternion.identity);
+                    arenaPortal.GetComponent<SceneExitController>().useRunNextStageScene = false;
+                    NetworkServer.Spawn(arenaPortal);
                 }
             }
             else
@@ -1028,6 +1054,25 @@ namespace DebugToolkit
                 }
             }
             return tierdefs[tier];
+        }
+
+        internal static bool UpdateCurrentPlayerBody(out NetworkUser networkUser, out CharacterBody characterBody)
+        {
+            networkUser = LocalUserManager.GetFirstLocalUser().currentNetworkUser;
+            characterBody = null;
+
+            if (networkUser)
+            {
+                var master = networkUser.master;
+
+                if (master && master.GetBody())
+                {
+                    characterBody = master.GetBody();
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         #endregion
