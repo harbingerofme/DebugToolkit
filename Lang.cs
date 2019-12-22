@@ -74,7 +74,9 @@ namespace DebugToolkit
 
         internal const string
             DS_REQUIREFULLQUALIFY = "Command must be fully qualified on dedicated servers.",
-            DS_NOTAVAILABLE = "This command doesn't make sense to run from a dedicated server.";
+            DS_NOTAVAILABLE = "This command doesn't make sense to run from a dedicated server.",
+            DS_NOTYETIMPLEMENTED = "This command has not yet been implemented to be run from a dedicated server,"
+            ;
     }
     internal static class Number
     {
