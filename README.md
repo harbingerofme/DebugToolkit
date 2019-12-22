@@ -4,6 +4,8 @@ This mod adds various debugging commands to the console. See below for all comma
 
 Also adds autocompletion for arguments and networked commands giving their information to the right people to the console.
 
+Track update progress, get support and suggest new features over at the [DebugToolkit discord](https://discord.gg/yTfsMWP).
+
 Some vanilla console functions you might not know:
 
 * The console can be opened with `ctrl+alt+~`.
@@ -19,7 +21,7 @@ Mods recommended for combined use:
 * [SimpleMacros](https://thunderstore.io/package/recursiveGecko/SimpleMacros/)
 * [MacroCommands] (https://thunderstore.io/package/JackPendarvesRead/MacroCommands/)
 
-You may contact us at any time through issues on GitHub, or through the Risk of Rain 2 modding Discord found at the top of the Thunderstore website.
+You may contact us at any time through issues on GitHub, or through the Risk of Rain 2 modding Discord found at the top of the Thunderstore website. 
 
 ---
 
