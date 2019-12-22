@@ -29,7 +29,7 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
 
 * **next_stage** - Advance to the next stage: `next_stage [specific stage]`. If no stage is entered, the next stage in progression is selected.
 * **force_family_event** - Forces a Family Event to happen in the next stage, take no arguments. `family_event`
-* ~~**next_boss** - Sets the teleporter boss to the specified boss. `({localised_object_name}|{DirectorCard}) [count def 1] [EliteIndex def -1/None]`~~ *next_boss has been disabled due to a directorcard update. To expedite testing, this feature ahs been temporarily disabled.*
+* **next_boss** - Sets the teleporter boss to the specified boss. `({localised_object_name}|{DirectorCard}) [count def 1] [EliteIndex def -1/None]`
 * **fixed_time** - Sets the time that has progressed in the run. Affects difficulty. `fixed_time [time]`. If no time is supplied, prints the current time to console.
 * **add_portal** - Teleporter will attempt to spawn a blue, gold, or celestial portal: `add_portal (blue|gold|celestial|all)`
 * **seed** - Set the seed for all next runs this session. `seed [new seed]`. Use `0` to specify the game should generate its own seed. If used without argument, it's equivalent to the vanilla `run_get_seed`.
