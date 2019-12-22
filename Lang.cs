@@ -51,6 +51,7 @@ namespace DebugToolkit
             CREATEPICKUP_NOTFOUND = "Could not find any item nor equipment with that name. It's not a coin either.",
             CREATEPICKUP_SUCCES_1 = "Succesfully created the pickup {0}.",
             COUNTISNUMERIC = "Count must be numeric!",
+            
             GIVELUNAR_2 = "{0} {1} lunar coin(s).",
             GIVEOBJECT = "Gave {0} {1}",
             INTEGER_EXPECTED = "Argument must be a whole number.",
@@ -70,6 +71,10 @@ namespace DebugToolkit
             NOTINARUN_ERROR = "This command only works when in a Run !",
             ALL = "ALL"
             ;
+
+        internal const string
+            DS_REQUIREFULLQUALIFY = "Command must be fully qualified on dedicated servers.",
+            DS_NOTAVAILABLE = "This command doesn't make sense to run from a dedicated server.";
     }
     internal static class Number
     {

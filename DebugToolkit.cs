@@ -128,6 +128,15 @@ namespace DebugToolkit
         [AutoCompletion(typeof(ItemCatalog), "itemDefs", "nameToken")]
         private static void CCGiveItem(ConCommandArgs args)
         {
+            if (args.sender == null)
+            {
+                if (args.Count <= 3)
+                {
+                    Log.Message(Lang.DS_REQUIREFULLQUALIFY, LogLevel.Error);
+                    Log.Message(Lang.GIVEITEM_ARGS, LogLevel.Message);
+                    return;
+                }
+            }
             NetworkUser player = args.sender;
             if (args.Count == 0)
             {
@@ -147,6 +156,10 @@ namespace DebugToolkit
                 if (player == null)
                 {
                     Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
+                    if(args.sender == null)
+                    {
+                        return;
+                    }
                 }
 
                 inventory = (player == null) ? inventory : player.master.inventory;
@@ -175,16 +188,27 @@ namespace DebugToolkit
                 Log.MessageNetworked(Lang.GIVEEQUIP_ARGS, args, LogLevel.MessageClientOnly);
                 return;
             }
+            if (args.sender == null)
+            {
+                if (args.Count < 2)
+                {
+                    Log.Message(Lang.DS_REQUIREFULLQUALIFY, LogLevel.Error);
+                    return;
+                }
+            }
 
-            Inventory inventory = args.sender.master.inventory;
+            Inventory inventory = args.sender?.master.inventory;
             if (args.Count >= 2)
             {
                 player = GetNetUserFromString(args[1]);
                 if (player == null)
                 {
                     Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
+                    if (args.sender == null)
+                    {
+                        return;
+                    }
                 }
-
                 inventory = (player == null) ? inventory : player.master.inventory;
             }
 
@@ -202,9 +226,14 @@ namespace DebugToolkit
             Log.MessageNetworked($"Gave {equip} to {player.masterController.GetDisplayName()}", args);
         }
 
-        [ConCommand(commandName = "give_lunar", flags = ConVarFlags.ExecuteOnServer, helpText = "Gives a lunar coin to the specified player. " + Lang.GIVELUNAR_ARGS)]
+        [ConCommand(commandName = "give_lunar", flags = ConVarFlags.ExecuteOnServer, helpText = "Gives a lunar coin to you. " + Lang.GIVELUNAR_ARGS)]
         private static void CCGiveLunar(ConCommandArgs args)
         {
+            if (args.sender == null)
+            {
+                Log.Message("Can't modify Lunar coins of other users directly.", LogLevel.Error);
+                return;
+            }
             int amount = 1;
             if (args.Count > 0)
             {
@@ -226,11 +255,33 @@ namespace DebugToolkit
             Log.MessageNetworked(str, args);
         }
 
-        [ConCommand(commandName = "create_pickup", flags = ConVarFlags.ExecuteOnServer, helpText = "Creates a PickupDroplet infront of the players position. " + Lang.CREATEPICKUP_ARGS)]
+        [ConCommand(commandName = "create_pickup", flags = ConVarFlags.ExecuteOnServer, helpText = "Creates a PickupDroplet infront of your position. " + Lang.CREATEPICKUP_ARGS)]
         private static void CCCreatePickup(ConCommandArgs args)
         {
             args.CheckArgumentCount(1);
-            Transform transform = args.senderBody.gameObject.transform;
+            if(args.sender == null)
+            {
+                if (args.Count <= 3)
+                {
+                    Log.Message(Lang.DS_REQUIREFULLQUALIFY, LogLevel.Error);
+                    return;
+                }
+            }
+            NetworkUser player = args.sender;
+            if (args.Count >= 3)
+            {
+                player = GetNetUserFromString(args[2]);
+                if (player == null)
+                {
+                    Log.Message(Lang.PLAYER_NOTFOUND, LogLevel.MessageClientOnly);
+                    if (args.sender == null)
+                    {
+                        return;
+                    }
+                    player = args.sender;
+                }
+            }
+            Transform transform = player.GetCurrentBody().gameObject.transform;
 
             bool searchEquip = true, searchItem = true;
             if (args.Count == 2)
@@ -289,19 +340,31 @@ namespace DebugToolkit
                 Log.MessageNetworked(Lang.REMOVEITEM_ARGS, args, LogLevel.MessageClientOnly);
                 return;
             }
+            if (args.sender == null)
+            {
+                if (args.Count < 3)
+                {
+                    Log.Message(Lang.DS_REQUIREFULLQUALIFY, LogLevel.Error);
+                    return;
+                }
+            }
             int iCount = 1;
             if (args.Count >= 2)
             {
                 int.TryParse(args[1], out iCount);
             }
 
-            Inventory inventory = args.sender.master.inventory;
+            Inventory inventory = args.sender?.master.inventory;
             if (args.Count >= 3)
             {
                 player = GetNetUserFromString(args[2]);
                 if (player == null)
                 {
                     Log.Message(Lang.PLAYER_NOTFOUND, LogLevel.MessageClientOnly);
+                    if (args.sender == null)
+                    {
+                        return;
+                    }
                 }
 
                 inventory = (player == null) ? inventory : player.master.inventory;
@@ -363,15 +426,19 @@ namespace DebugToolkit
                 return;
             }
 
-            if (args.Count < 2 || args[1].ToLower() != "all")
+            if ( (args.sender != null && args.Count < 2) || args[1].ToLower() != "all")
             {
-                CharacterMaster master = args.sender.master;
+                CharacterMaster master = args.sender?.master;
                 if (args.Count >= 2)
                 {
                     NetworkUser player = GetNetUserFromString(args[1]);
                     if (player != null)
                     {
                         master = player.master;
+                    }else if(args.sender = null)
+                    {
+                        Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
+                        return;
                     }
                 }
                 master.GiveMoney(result);
@@ -402,7 +469,10 @@ namespace DebugToolkit
             try
             {
                 NetworkUser nu = GetNetUserFromString(args[0]);
-                RoR2.Console.instance.RunClientCmd(args.sender, "kick_steam", new string[] { nu.Network_id.steamId.ToString() });
+                if (args.sender != null || !nu.isServer)
+                {
+                    RoR2.Console.instance.RunClientCmd(args.sender, "kick_steam", new string[] { nu.Network_id.steamId.ToString() });
+                }
             }
             catch
             {
@@ -446,8 +516,8 @@ namespace DebugToolkit
         [AutoCompletion(typeof(StringFinder), "characterSpawnCard", "spawnCard/prefab")]
         private static void CCNextBoss(ConCommandArgs args)
         {
-            Log.MessageNetworked("This feature is currently not working. We'll hopefully provide an update to this soon.", args);
-            return;
+            //Log.MessageNetworked("This feature is currently not working. We'll hopefully provide an update to this soon.", args);
+            //return;
             Log.MessageNetworked(Lang.PARTIALIMPLEMENTATION_WARNING, args, LogLevel.MessageClientOnly);
             if (args.Count == 0)
             {
@@ -617,6 +687,11 @@ namespace DebugToolkit
         [ConCommand(commandName = "post_sound_event", flags = ConVarFlags.ExecuteOnServer, helpText = "Post a sound event to the AkSoundEngine (WWise) by its event name.")]
         private static void CCPostSoundEvent(ConCommandArgs args)
         {
+            if (args.sender == null)
+            {
+                Log.MessageWarning(Lang.DS_NOTAVAILABLE);
+                return;
+            }
             AkSoundEngine.PostEvent(args[0], CameraRigController.readOnlyInstancesList[0].localUserViewer.currentNetworkUser.master.GetBodyObject());
         }
         #endregion
@@ -644,7 +719,7 @@ namespace DebugToolkit
                 {
                     foreach (NetworkUser n in NetworkUser.readOnlyInstancesList)
                     {
-                        if (n.userName.Equals(playerString, StringComparison.CurrentCultureIgnoreCase))
+                        if (n.userName.IndexOf(playerString, StringComparison.CurrentCultureIgnoreCase) >= 0)//because contains(string,StringComparison) isn't a thing we can do.
                         {
                             return n;
                         }
@@ -711,6 +786,11 @@ namespace DebugToolkit
         [ConCommand(commandName = "noclip", flags = ConVarFlags.ExecuteOnServer, helpText = "Allow flying and going through objects. Sprinting will double the speed. " + Lang.NOCLIP_ARGS)]
         private static void CCNoclip(ConCommandArgs args)
         {
+            if(args.sender == null)
+            {
+                Log.MessageWarning(Lang.DS_NOTAVAILABLE);
+                return;
+            }
             if (Run.instance)
             {
                 Command_Noclip.Toggle.Invoke(true, args.sender); //callback
@@ -724,6 +804,11 @@ namespace DebugToolkit
         [ConCommand(commandName = "teleport_on_cursor", flags = ConVarFlags.ExecuteOnServer, helpText = "Teleport you to where your cursor is currently aiming at. " + Lang.CURSORTELEPORT_ARGS)]
         private static void CCCursorTeleport(ConCommandArgs args)
         {
+            if(args.sender == null)
+            {
+                Log.MessageWarning(Lang.DS_NOTAVAILABLE);
+                return;
+            }
             if (Run.instance && args.senderBody)
             {
                 Command_Teleport.Activator.Invoke(true, args.sender); //callback
@@ -771,7 +856,12 @@ namespace DebugToolkit
         [ConCommand(commandName = "true_kill", flags = ConVarFlags.ExecuteOnServer, helpText = "Ignore Dio's and kill the entity. " + Lang.TRUEKILL_ARGS)]
         private static void CCTrueKill(ConCommandArgs args)
         {
-            CharacterMaster master = args.sender.master;
+            if(args.sender==null && args.Count < 1)
+            {
+                Log.Message(Lang.DS_REQUIREFULLQUALIFY, LogLevel.Error);
+                return;
+            }
+            CharacterMaster master = args.sender?.master;
             if (args.Count > 0)
             {
                 NetworkUser player = GetNetUserFromString(args[0]);
@@ -824,6 +914,8 @@ namespace DebugToolkit
                 return;
             }
             GameObject newBody = BodyCatalog.FindBodyPrefab(character);
+
+            if(args.sender == null && args.Count)
 
             CharacterMaster master = args.sender.master;
             if (args.Count > 1)
