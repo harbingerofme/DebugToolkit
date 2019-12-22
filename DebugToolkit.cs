@@ -914,10 +914,14 @@ namespace DebugToolkit
                 return;
             }
             GameObject newBody = BodyCatalog.FindBodyPrefab(character);
+            
+            if (args.sender == null && args.Count < 2)
+            {
+                Log.Message(Lang.DS_REQUIREFULLQUALIFY, LogLevel.Error);
+                return;
+            }
 
-            if(args.sender == null && args.Count)
-
-            CharacterMaster master = args.sender.master;
+            CharacterMaster master = args.sender?.master;
             if (args.Count > 1)
             {
                 NetworkUser player = GetNetUserFromString(args[1]);
@@ -958,7 +962,11 @@ namespace DebugToolkit
         [AutoCompletion(typeof(MasterCatalog), "aiMasterPrefabs")]
         private static void CCSpawnAI(ConCommandArgs args)
         {
-
+            if (args.sender == null)
+            {
+                Log.Message(Lang.DS_NOTYETIMPLEMENTED, LogLevel.Error);
+                return;
+            }
             if (args.Count == 0)
             {
                 Log.MessageNetworked(Lang.SPAWNAI_ARGS, args, LogLevel.MessageClientOnly);
@@ -1011,6 +1019,11 @@ namespace DebugToolkit
                 Log.MessageNetworked(Lang.SPAWNBODY_ARGS, args, LogLevel.MessageClientOnly);
                 return;
             }
+            if (args.sender == null)
+            {
+                Log.Message(Lang.DS_NOTYETIMPLEMENTED, LogLevel.Error);
+                return;
+            }
 
             string character = StringFinder.Instance.GetBodyName(args[0]);
             if (character == null)
@@ -1030,7 +1043,12 @@ namespace DebugToolkit
         [AutoCompletion(typeof(NetworkUser), "instancesList", "_id/value", true)]
         private static void RespawnPlayer(ConCommandArgs args)
         {
-            CharacterMaster master = args.sender.master;
+            if(args.sender==null && args.Count < 1)
+            {
+                Log.Message(Lang.DS_REQUIREFULLQUALIFY, LogLevel.Error);
+                return;
+            }
+            CharacterMaster master = args.sender?.master;
             if (args.Count > 0)
             {
                 NetworkUser player = GetNetUserFromString(args[0]);
@@ -1058,14 +1076,24 @@ namespace DebugToolkit
                 Log.MessageNetworked(Lang.CHANGETEAM_ARGS, args, LogLevel.MessageClientOnly);
                 return;
             }
+            if (args.sender == null && args.Count < 2)
+            {
+                Log.Message(Lang.DS_REQUIREFULLQUALIFY, LogLevel.Error);
+                return;
+            }
 
-            CharacterMaster master = args.sender.master;
+            CharacterMaster master = args.sender?.master;
             if (args.Count > 1)
             {
                 NetworkUser player = GetNetUserFromString(args[1]);
                 if (player != null)
                 {
                     master = player.master;
+                }
+                else
+                {
+                    Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
+                    return;
                 }
             }
 
