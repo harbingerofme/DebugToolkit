@@ -79,6 +79,16 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
 
 ## Changelog ##
 
+### 3.2.0 ###
+
+* "Dedicated Servers"
+* **General**
+	* Commands are now safe to run with a dedicated server as the sender. Want to know how you can issue commands duriung runtime as a server? [R2DSE](https://github.com/harbingerofme/R2DS-Essentials)
+		* Some commands have not yet been implemented this way and merely do nothing, expect fixes for that in `3.2.X` updates.
+		* When a player is needed for a command, dedicated servers will have to fully qualify their command.
+* **Fixes**
+	* `Noclip` now disables the out of bounds teleport. Go take a look at that collossus head!
+
 ### 3.1.0 ###
 
 * "DebugToolkit"
