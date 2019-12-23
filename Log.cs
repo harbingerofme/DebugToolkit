@@ -81,11 +81,11 @@ namespace DebugToolkit
          */
         public static void MessageNetworked(string input, ConCommandArgs args, LogLevel level = LogLevel.Message)
         {
-            if (args.sender!=null && args.sender.isLocalPlayer == false)
+            if (args.sender != null && !args.sender.isLocalPlayer)
             {
                 Message(input, args.sender, level);
             }
-            if ((int) level < NetworkEnum || args.sender == null || args.sender.isLocalPlayer == true)
+            if ((int) level < NetworkEnum || args.sender == null || args.sender.isLocalPlayer)
             {
                 Message(input, level);
             }

@@ -5,11 +5,11 @@ using RoR2.CharacterAI;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using KinematicCharacterController;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 using MiniRpcLib;
+using RoR2.Networking;
 using LogLevel = DebugToolkit.Log.LogLevel;
 
 namespace DebugToolkit
@@ -458,7 +458,7 @@ namespace DebugToolkit
             Log.Message("Timescale set to: " + newTimeScale + ". This message may appear twice if you are the host.");
         }
 
-        [ConCommand(commandName = "kick", flags = ConVarFlags.SenderMustBeServer, helpText = "Kicks the specified player from the session. " + Lang.KICK_ARGS)]
+        [ConCommand(commandName = "kick", flags = ConVarFlags.ExecuteOnServer, helpText = "Kicks the specified player from the session. " + Lang.KICK_ARGS)]
         private static void CCKick(ConCommandArgs args)
         {
             if (args.Count == 0)
@@ -469,9 +469,40 @@ namespace DebugToolkit
             try
             {
                 NetworkUser nu = GetNetUserFromString(args[0]);
-                if (args.sender != null || !nu.isServer)
+
+                if (nu.isServer)
                 {
-                    RoR2.Console.instance.RunClientCmd(args.sender, "kick_steam", new string[] { nu.Network_id.steamId.ToString() });
+                    Log.MessageNetworked("Specified user is hosting.", args, LogLevel.Error);
+                    return;
+                }
+
+                NetworkConnection client = null;
+                foreach (var connection in NetworkServer.connections)
+                {
+                    if (nu.connectionToClient == connection)
+                    {
+                        client = connection;
+                        break;
+                    }
+                }
+
+                if (client != null)
+                {
+                    if (args.sender != null)
+                    {
+                        if (args.sender.isServer)
+                        {
+                            GameNetworkManager.singleton.InvokeMethod("ServerKickClient", client, GameNetworkManager.KickReason.Kick);
+                        }
+                    }
+                    else
+                    {
+                        GameNetworkManager.singleton.InvokeMethod("ServerKickClient", client, GameNetworkManager.KickReason.Kick);
+                    }
+                }
+                else
+                {
+                    Log.MessageNetworked("Error trying to find the associated connection with the user", args, LogLevel.Error);
                 }
             }
             catch
@@ -480,7 +511,7 @@ namespace DebugToolkit
             }
         }
 
-        [ConCommand(commandName = "ban", flags = ConVarFlags.SenderMustBeServer, helpText = "Bans the specified player from the session. " + Lang.BAN_ARGS)]
+        [ConCommand(commandName = "ban", flags = ConVarFlags.ExecuteOnServer, helpText = "Bans the specified player from the session. " + Lang.BAN_ARGS)]
         private static void CCBan(ConCommandArgs args)
         {
             if (args.Count == 0)
@@ -491,12 +522,41 @@ namespace DebugToolkit
             try
             {
                 NetworkUser nu = GetNetUserFromString(args[0]);
+
                 if (nu.isServer)
                 {
-                    Log.MessageNetworked("Banning yourself is counter-productive! Please kick instead.", args, LogLevel.Error);
+                    Log.MessageNetworked("Specified user is hosting.", args, LogLevel.Error);
                     return;
                 }
-                RoR2.Console.instance.RunClientCmd(args.sender, "ban_steam", new string[] { nu.Network_id.steamId.ToString() });
+
+                NetworkConnection client = null;
+                foreach (var connection in NetworkServer.connections)
+                {
+                    if (nu.connectionToClient == connection)
+                    {
+                        client = connection;
+                        break;
+                    }
+                }
+
+                if (client != null)
+                {
+                    if (args.sender != null)
+                    {
+                        if (args.sender.isServer)
+                        {
+                            GameNetworkManager.singleton.InvokeMethod("ServerKickClient", client, GameNetworkManager.KickReason.Kick);
+                        }
+                    }
+                    else
+                    {
+                        GameNetworkManager.singleton.InvokeMethod("ServerKickClient", client, GameNetworkManager.KickReason.Kick);
+                    }
+                }
+                else
+                {
+                    Log.MessageNetworked("Error trying to find the associated connection with the user", args, LogLevel.Error);
+                }
             }
             catch
             {
