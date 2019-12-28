@@ -64,6 +64,8 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
 * **kick** - Kicks the specified Player Name/ID from the game.
 * **ban** - Session bans the specified Player Name/ID from the game.
 
+* **reload_all_config** - Reload all default config files from all loaded BepinEx plugins.
+
 ### Unlocked Vanilla Commands ###
 
 * **sv_time_transmit_interval** - How long it takes for the server to issue a time update to clients. `sv_time_transmit_interval [time]`
@@ -83,7 +85,7 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
 
 * "Dedicated Servers"
 * **General**
-	* Commands are now safe to run with a dedicated server as the sender. Want to know how you can issue commands duriung runtime as a server? [R2DSE](https://github.com/harbingerofme/R2DS-Essentials)
+	* Commands are now safe to run with a dedicated server as the sender. Want to know how you can issue commands during runtime as a server? [R2DSE](https://github.com/harbingerofme/R2DS-Essentials)
 		* Some commands have not yet been implemented this way and merely do nothing, expect fixes for that in `3.2.X` updates.
 		* When a player is needed for a command, dedicated servers will have to fully qualify their command.
 * **Fixes**

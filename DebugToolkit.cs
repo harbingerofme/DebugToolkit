@@ -4,12 +4,16 @@ using RoR2;
 using RoR2.CharacterAI;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
+using BepInEx.Bootstrap;
+using BepInEx.Configuration;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 using MiniRpcLib;
 using RoR2.Networking;
+using Console = System.Console;
 using LogLevel = DebugToolkit.Log.LogLevel;
 
 namespace DebugToolkit
@@ -54,6 +58,22 @@ namespace DebugToolkit
             if (Run.instance && Command_Noclip.IsActivated)
             {
                 Command_Noclip.Update();
+            }
+        }
+
+        [ConCommand(commandName = "reload_all_config", flags = ConVarFlags.None, helpText = "Reload all default config files from all loaded plugins.")]
+        private static void CCReloadAllConfig(ConCommandArgs args)
+        {
+            foreach (var pluginInfo in Chainloader.PluginInfos.Values)
+            {
+                try
+                {
+                    pluginInfo.Instance.Config?.Reload();
+                }
+                catch (Exception e)
+                {
+                    // exception if the config file of that plugin doesnt exist. Also, can't reload a plugins config if it has a custom name. 
+                }
             }
         }
 
