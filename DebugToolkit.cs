@@ -796,7 +796,7 @@ namespace DebugToolkit
             TeamManager.instance.SetTeamLevel(TeamIndex.Monster, 1);
         }
 
-        [ConCommand(commandName = "spawn_interactable", flags = ConVarFlags.None, helpText = "Spawns the specified interactable. List_Interactable for options. " + Lang.SPAWNINTERACTABLE_ARGS)]
+        [ConCommand(commandName = "spawn_interactable", flags = ConVarFlags.ExecuteOnServer, helpText = "Spawns the specified interactable. List_Interactable for options. " + Lang.SPAWNINTERACTABLE_ARGS)]
         [AutoCompletion(typeof(StringFinder), "interactableSpawnCards")]
         private static void CCSpawnInteractable(ConCommandArgs args)
         {
@@ -823,7 +823,7 @@ namespace DebugToolkit
             }
             catch (Exception ex)
             {
-                Log.MessageNetworked(ex.Message, args, LogLevel.ErrorClientOnly);
+                Log.MessageNetworked(ex.ToString(), args, LogLevel.ErrorClientOnly);
             }
         }
 

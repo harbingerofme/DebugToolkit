@@ -34,6 +34,7 @@ namespace DebugToolkit
             BodyAlias.Add("EngiBody", new string[] { "Engineer" });
             BodyAlias.Add("HANDBody", new string[] { "HAN-D" });
             BodyAlias.Add("TreebotBody", new string[] { "Treebot", "REX", "PlantBot", "Shrub" });
+            BodyAlias.Add("CrocoBody", new string[] { "barney" });
             BodyAlias.Add("RoboBallBossBody", new string[] { "SCU", "roboboss" });
             BodyAlias.Add("SuperRoboBallBossBody", new string[] { "AWU" });
 
