@@ -89,7 +89,7 @@ namespace DebugToolkit
             Log.Message(s.ToString(), LogLevel.MessageClientOnly);
         }
 
-        [ConCommand(commandName = "list_player", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.LISTPLAYER_ARGS)]
+        [ConCommand(commandName = "list_player", flags = ConVarFlags.None, helpText = Lang.LISTPLAYER_ARGS)]
         private static void CCListPlayer(ConCommandArgs args)
         {
             NetworkUser n;
@@ -150,13 +150,14 @@ namespace DebugToolkit
         {
             if (args.sender == null)
             {
-                if (args.Count <= 3)
+                if (args.Count != 3)
                 {
                     Log.Message(Lang.DS_REQUIREFULLQUALIFY, LogLevel.Error);
                     Log.Message(Lang.GIVEITEM_ARGS, LogLevel.Message);
                     return;
                 }
             }
+
             NetworkUser player = args.sender;
             if (args.Count == 0)
             {
@@ -169,7 +170,7 @@ namespace DebugToolkit
                 int.TryParse(args[1], out iCount);
             }
 
-            Inventory inventory = args.sender.master.inventory;
+            Inventory inventory = args.sender?.master.inventory;
             if (args.Count >= 3)
             {
                 player = GetNetUserFromString(args[2]);
@@ -188,7 +189,7 @@ namespace DebugToolkit
             var item = StringFinder.Instance.GetItemFromPartial(args[0]);
             if (item != ItemIndex.None)
             {
-                inventory.GiveItem(item, iCount);
+                inventory?.GiveItem(item, iCount);
             }
             else
             {
@@ -235,7 +236,7 @@ namespace DebugToolkit
             var equip = StringFinder.Instance.GetEquipFromPartial(args[0]);
             if (equip != EquipmentIndex.None)
             {
-                inventory.SetEquipmentIndex(equip);
+                inventory?.SetEquipmentIndex(equip);
             }
             else
             {
@@ -1340,6 +1341,26 @@ namespace DebugToolkit
                 s.AppendLine(family.familySelectionChatString);
             }
             Log.MessageNetworked(s.ToString(), args, LogLevel.MessageClientOnly);
+        }
+
+        [ConCommand(commandName = "list_pcmc", flags = ConVarFlags.None, helpText = "Lists all PlayerCharacterMasterController instances.")]
+        private static void CCListPlayerCharacterMasterController(ConCommandArgs args)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("Number of PCMC instances : " + PlayerCharacterMasterController.instances.Count);
+            foreach (var masterController in PlayerCharacterMasterController.instances)
+            {
+                sb.AppendLine($" is connected : {masterController.isConnected}");
+            }
+            if (args.sender == null)
+            {
+                Log.Message(sb.ToString());
+            }
+            else
+            {
+                Log.MessageNetworked(sb.ToString(), args, LogLevel.MessageClientOnly);
+            }
+
         }
 #endif
         #endregion
