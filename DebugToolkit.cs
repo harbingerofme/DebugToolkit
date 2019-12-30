@@ -4,6 +4,7 @@ using RoR2;
 using RoR2.CharacterAI;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using BepInEx.Bootstrap;
 using BepInEx.Configuration;
@@ -62,12 +63,6 @@ namespace DebugToolkit
             {
                 Command_Noclip.Update();
             }
-        }
-
-        [ConCommand(commandName = "reload_permission", flags = ConVarFlags.None, helpText = "Reload the permission system.")]
-        private static void CCReloadPermissionSystem(ConCommandArgs args)
-        {
-            Config.Reload();
         }
 
         [ConCommand(commandName = "reload_all_config", flags = ConVarFlags.None, helpText = "Reload all default config files from all loaded plugins.")]
@@ -182,7 +177,7 @@ namespace DebugToolkit
             Inventory inventory = args.sender?.master.inventory;
             if (args.Count >= 3)
             {
-                player = GetNetUserFromString(args[2]);
+                player = Util.GetNetUserFromString(args.userArgs, 2);
                 if (player == null)
                 {
                     Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
@@ -230,7 +225,7 @@ namespace DebugToolkit
             Inventory inventory = args.sender?.master.inventory;
             if (args.Count >= 2)
             {
-                player = GetNetUserFromString(args[1]);
+                player = Util.GetNetUserFromString(args.userArgs, 1);
                 if (player == null)
                 {
                     Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
@@ -270,7 +265,7 @@ namespace DebugToolkit
                 amount = args.GetArgInt(0);
             }
             string str = "Nothing happened. Big suprise.";
-            NetworkUser target = Util.LookUpBodyNetworkUser(args.senderBody);
+            NetworkUser target = RoR2.Util.LookUpBodyNetworkUser(args.senderBody);
             if (amount > 0)
             {
                 target.AwardLunarCoins((uint)amount);
@@ -300,7 +295,7 @@ namespace DebugToolkit
             NetworkUser player = args.sender;
             if (args.Count >= 3)
             {
-                player = GetNetUserFromString(args[2]);
+                player = Util.GetNetUserFromString(args.userArgs, 2);
                 if (player == null)
                 {
                     Log.Message(Lang.PLAYER_NOTFOUND, LogLevel.MessageClientOnly);
@@ -387,7 +382,7 @@ namespace DebugToolkit
             Inventory inventory = args.sender?.master.inventory;
             if (args.Count >= 3)
             {
-                player = GetNetUserFromString(args[2]);
+                player = Util.GetNetUserFromString(args.userArgs, 2);
                 if (player == null)
                 {
                     Log.Message(Lang.PLAYER_NOTFOUND, LogLevel.MessageClientOnly);
@@ -445,7 +440,7 @@ namespace DebugToolkit
             Inventory inventory = player.master.inventory;
             if (args.Count >= 1)
             {
-                player = GetNetUserFromString(args[0]);
+                player = Util.GetNetUserFromString(args.userArgs);
                 if (player == null)
                 {
                     Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
@@ -478,7 +473,7 @@ namespace DebugToolkit
                 CharacterMaster master = args.sender?.master;
                 if (args.Count >= 2)
                 {
-                    NetworkUser player = GetNetUserFromString(args[1]);
+                    NetworkUser player = Util.GetNetUserFromString(args.userArgs, 1);
                     if (player != null)
                     {
                         master = player.master;
@@ -530,7 +525,7 @@ namespace DebugToolkit
             }
             try
             {
-                NetworkUser nu = GetNetUserFromString(args[0]);
+                NetworkUser nu = Util.GetNetUserFromString(args.userArgs);
 
                 // Check if we can kick targeted user.
                 if (!Application.isBatchMode)
@@ -551,13 +546,13 @@ namespace DebugToolkit
 
                     if (senderElevationLevel < targetElevationLevel)
                     {
-                        Log.MessageNetworked("Specified user has a greater permission level than you.", args, LogLevel.Error);
+                        Log.MessageNetworked(string.Format(Lang.PS_ARGUSER_HAS_MORE_PERM, nu.userName), args, LogLevel.Error);
                         return;
                     }
 
                     if (senderElevationLevel == targetElevationLevel)
                     {
-                        Log.MessageNetworked("Specified user has the same permission level as you.", args, LogLevel.Error);
+                        Log.MessageNetworked(string.Format(Lang.PS_ARGUSER_HAS_SAME_PERM, nu.userName), args, LogLevel.Error);
                         return;
                     }
                 }
@@ -598,7 +593,7 @@ namespace DebugToolkit
             }
             try
             {
-                NetworkUser nu = GetNetUserFromString(args[0]);
+                NetworkUser nu = Util.GetNetUserFromString(args.userArgs);
                 
                 // Check if we can kick targeted user.
                 if (!Application.isBatchMode)
@@ -848,39 +843,6 @@ namespace DebugToolkit
         #endregion
 
         #region Entities
-        /// <summary>
-        /// Returns a matched NetworkUser when provided to a player.
-        /// </summary>
-        /// <param name="playerString">(int)PlayerID or (string)PlayerName</param>
-        /// <returns>Returns a NetworkUser if a match is found, or null if not</returns>
-        private static NetworkUser GetNetUserFromString(string playerString)
-        {
-            if (playerString != "")
-            {
-                if (int.TryParse(playerString, out int result))
-                {
-                    if (result < NetworkUser.readOnlyInstancesList.Count && result >= 0)
-                    {
-                        return NetworkUser.readOnlyInstancesList[result];
-                    }
-                    Log.Message(Lang.PLAYER_NOTFOUND);
-                    return null;
-                }
-                else
-                {
-                    foreach (NetworkUser n in NetworkUser.readOnlyInstancesList)
-                    {
-                        if (n.userName.IndexOf(playerString, StringComparison.CurrentCultureIgnoreCase) >= 0)//because contains(string,StringComparison) isn't a thing we can do.
-                        {
-                            return n;
-                        }
-                    }
-                    Log.Message(Lang.PLAYER_NOTFOUND);
-                    return null;
-                }
-            }
-            return null;
-        }
 
         private static void ResetEnemyTeamLevel()
         {
@@ -1015,7 +977,7 @@ namespace DebugToolkit
             CharacterMaster master = args.sender?.master;
             if (args.Count > 0)
             {
-                NetworkUser player = GetNetUserFromString(args[0]);
+                NetworkUser player = Util.GetNetUserFromString(args.userArgs);
                 if (player != null)
                 {
                     master = player.master;
@@ -1075,7 +1037,7 @@ namespace DebugToolkit
             CharacterMaster master = args.sender?.master;
             if (args.Count > 1)
             {
-                NetworkUser player = GetNetUserFromString(args[1]);
+                NetworkUser player = Util.GetNetUserFromString(args.userArgs, 1);
                 if (player != null)
                 {
                     master = player.master;
@@ -1202,7 +1164,7 @@ namespace DebugToolkit
             CharacterMaster master = args.sender?.master;
             if (args.Count > 0)
             {
-                NetworkUser player = GetNetUserFromString(args[0]);
+                NetworkUser player = Util.GetNetUserFromString(args.userArgs);
                 if (player != null)
                 {
                     master = player.master;
@@ -1236,7 +1198,7 @@ namespace DebugToolkit
             CharacterMaster master = args.sender?.master;
             if (args.Count > 1)
             {
-                NetworkUser player = GetNetUserFromString(args[1]);
+                NetworkUser player = Util.GetNetUserFromString(args.userArgs, 1);
                 if (player != null)
                 {
                     master = player.master;

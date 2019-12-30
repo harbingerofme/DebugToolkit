@@ -64,7 +64,10 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
 * **kick** - Kicks the specified Player Name/ID from the game.
 * **ban** - Session bans the specified Player Name/ID from the game.
 
-* **reload_permission** - Reload the permission system.
+* **perm_enable** - Enable or disable the permission system.
+* **perm_mod** - Change the permission level of the specified PlayerID/Username with the specified Permission Level.
+
+* **perm_reload** - Reload the permission system, updates user and commands permissions.
 * **reload_all_config** - Reload all default config files from all loaded BepinEx plugins.
 
 ### Unlocked Vanilla Commands ###

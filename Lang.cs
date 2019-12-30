@@ -26,6 +26,8 @@ namespace DebugToolkit
             NEXTBOSS_ARGS = "Requires 1 argument: next_boss ({localised_object_name}|{DirectorCard}) {(int)Count:1} {EliteIndex:-1/None}",
             NEXTSTAGE_ARGS = "Requires 0 arguments: next_stage {Stage}",
             NOENEMIES_ARGS = "Requires 0 arguments: no_enemies",
+            PERM_ENABLE_ARGS = "Requires 0 argument: perm_enable",
+            PERM_MOD_ARGS = "Requires 2 argument: perm_mod (PermissionLevel (0, 1, 2 OR None, SubAdmin, Admin) ({PlayerID}|{Playername}) ",
             REMOVEITEM_ARGS = "Requires 1 argument: remove_item {localised_object_name} ({Count}|\"all\") ({PlayerID:self}|{Playername})",
             REMOVEEQUIP_ARGS = "Requires 0 arguments: remove_equip ({PlayerID:self}|{Playername})",
             RESPAWN_ARGS = "Requires 0 arguments: respawn ({PlayerID:self}|{Playername})",
@@ -70,6 +72,12 @@ namespace DebugToolkit
             SPAWN_ERROR = "Could not spawn: ",
             NOTINARUN_ERROR = "This command only works when in a Run !",
             ALL = "ALL"
+            ;
+
+        internal const string
+            PS_ARGUSER_HAS_MORE_PERM = "Specified user {0} has a greater permission level than you.",
+            PS_ARGUSER_HAS_SAME_PERM = "Specified user {0} has the same permission level as you.",
+            PS_NO_REQUIRED_LEVEL = "You don't have the required permission {0} to use this command."
             ;
 
         internal const string
