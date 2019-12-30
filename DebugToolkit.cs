@@ -4,7 +4,6 @@ using RoR2;
 using RoR2.CharacterAI;
 using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using System.Text;
 using BepInEx.Bootstrap;
 using BepInEx.Configuration;
@@ -13,7 +12,6 @@ using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 using MiniRpcLib;
 using RoR2.Networking;
-using Console = System.Console;
 using LogLevel = DebugToolkit.Log.LogLevel;
 
 namespace DebugToolkit
@@ -26,6 +24,8 @@ namespace DebugToolkit
         public const string modname = "DebugToolkit", modver = "3.2.0";
         public const string GUID = "com.harbingerofme." + modname;
 
+        internal static ConfigFile Config;
+
         internal static bool noEnemies = false;
         internal static ulong seed = 0;
         internal static DirectorCard nextBoss;
@@ -36,11 +36,14 @@ namespace DebugToolkit
 
         private void Awake()
         {
+            Config = base.Config;
+
             var miniRpc = MiniRpc.CreateInstance(GUID);
             new Log(Logger, miniRpc);
 
             Log.Message("Created by Harb, iDeathHD and . Based on RoR2Cheats by Morris1927.", LogLevel.Info, Log.Target.Bepinex);
 
+            PermissionSystem.Init();
             Hooks.InitializeHooks();
             Command_Noclip.InitRPC(miniRpc);
             Command_Teleport.InitRPC(miniRpc);
@@ -59,6 +62,12 @@ namespace DebugToolkit
             {
                 Command_Noclip.Update();
             }
+        }
+
+        [ConCommand(commandName = "reload_permission", flags = ConVarFlags.None, helpText = "Reload the permission system.")]
+        private static void CCReloadPermissionSystem(ConCommandArgs args)
+        {
+            Config.Reload();
         }
 
         [ConCommand(commandName = "reload_all_config", flags = ConVarFlags.None, helpText = "Reload all default config files from all loaded plugins.")]
@@ -393,8 +402,13 @@ namespace DebugToolkit
 
             if (args[0].ToUpper() == Lang.ALL)
             {
-                Log.MessageNetworked("Removing inventory", args);
-                inventory.CopyItemsFrom(new GameObject().AddComponent<Inventory>());
+                
+                if (inventory)
+                {
+                    inventory.CopyItemsFrom(new GameObject().AddComponent<Inventory>());
+                    Log.MessageNetworked("Removing inventory", args);
+                }
+
                 return;
             }
             var item = StringFinder.Instance.GetItemFromPartial(args[0]);
@@ -402,15 +416,26 @@ namespace DebugToolkit
             {
                 if (args[1].ToUpper() == Lang.ALL)
                 {
-                    iCount = inventory.GetItemCount(item);
+                    if (inventory != null)
+                    {
+                        iCount = inventory.GetItemCount(item);
+                    }
                 }
-                inventory.RemoveItem(item, iCount);
+
+                if (inventory != null)
+                {
+                    inventory.RemoveItem(item, iCount);
+                }
             }
             else
             {
                 Log.MessageNetworked(Lang.OBJECT_NOTFOUND + args[0] + ":" + item, args, LogLevel.MessageClientOnly);
             }
-            Log.MessageNetworked($"Removed {iCount} {item} from {player.masterController.GetDisplayName()}", args);
+
+            if (player)
+            {
+                Log.MessageNetworked($"Removed {iCount} {item} from {player.masterController.GetDisplayName()}", args);
+            }
         }
 
         [ConCommand(commandName = "remove_equip", flags = ConVarFlags.ExecuteOnServer, helpText = "Removes the equipment from the specified player. " + Lang.REMOVEEQUIP_ARGS)]
@@ -426,7 +451,8 @@ namespace DebugToolkit
                     Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
                     return;
                 }
-                inventory = (player == null) ? inventory : player.master.inventory;
+
+                inventory = player.master.inventory;
             }
             inventory.SetEquipmentIndex(EquipmentIndex.None);
 
@@ -447,7 +473,7 @@ namespace DebugToolkit
                 return;
             }
 
-            if ( (args.sender != null && args.Count < 2) || args[1].ToLower() != "all")
+            if (args.sender != null && args.Count < 2 || args[1].ToLower() != "all")
             {
                 CharacterMaster master = args.sender?.master;
                 if (args.Count >= 2)
@@ -456,18 +482,32 @@ namespace DebugToolkit
                     if (player != null)
                     {
                         master = player.master;
-                    }else if(args.sender = null)
+                    }
+                    else if (args.sender == null)
                     {
                         Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
                         return;
                     }
                 }
-                master.GiveMoney(result);
+
+                if (master)
+                {
+                    master.GiveMoney(result);
+                }
+                else
+                {
+                    Log.MessageNetworked("Error: Master was null", args, LogLevel.MessageClientOnly);
+                    return;
+                }
             }
             else
             {
-                TeamManager.instance.GiveTeamMoney(args.sender.master.teamIndex, result);
+                if (args.sender != null)
+                {
+                    TeamManager.instance.GiveTeamMoney(args.sender.master.teamIndex, result);
+                }
             }
+
             Log.MessageNetworked("$$$", args);
         }
         #endregion
@@ -480,6 +520,7 @@ namespace DebugToolkit
         }
 
         [ConCommand(commandName = "kick", flags = ConVarFlags.ExecuteOnServer, helpText = "Kicks the specified player from the session. " + Lang.KICK_ARGS)]
+        [RequiredPermissionLevel]
         private static void CCKick(ConCommandArgs args)
         {
             if (args.Count == 0)
@@ -491,10 +532,34 @@ namespace DebugToolkit
             {
                 NetworkUser nu = GetNetUserFromString(args[0]);
 
-                if (nu.isServer)
+                // Check if we can kick targeted user.
+                if (!Application.isBatchMode)
                 {
-                    Log.MessageNetworked("Specified user is hosting.", args, LogLevel.Error);
-                    return;
+                    foreach (var serverLocalUsers in NetworkUser.readOnlyLocalPlayersList)
+                    {
+                        if (serverLocalUsers == nu)
+                        {
+                            Log.MessageNetworked("Specified user is hosting.", args, LogLevel.Error);
+                            return;
+                        }
+                    }
+                }
+                else if (PermissionSystem.IsEnabled.Value)
+                {
+                    var senderElevationLevel = args.sender.GetPermissionLevel();
+                    var targetElevationLevel = nu.GetPermissionLevel();
+
+                    if (senderElevationLevel < targetElevationLevel)
+                    {
+                        Log.MessageNetworked("Specified user has a greater permission level than you.", args, LogLevel.Error);
+                        return;
+                    }
+
+                    if (senderElevationLevel == targetElevationLevel)
+                    {
+                        Log.MessageNetworked("Specified user has the same permission level as you.", args, LogLevel.Error);
+                        return;
+                    }
                 }
 
                 NetworkConnection client = null;
@@ -509,17 +574,7 @@ namespace DebugToolkit
 
                 if (client != null)
                 {
-                    if (args.sender != null)
-                    {
-                        if (args.sender.isServer)
-                        {
-                            GameNetworkManager.singleton.InvokeMethod("ServerKickClient", client, GameNetworkManager.KickReason.Kick);
-                        }
-                    }
-                    else
-                    {
-                        GameNetworkManager.singleton.InvokeMethod("ServerKickClient", client, GameNetworkManager.KickReason.Kick);
-                    }
+                    GameNetworkManager.singleton.InvokeMethod("ServerKickClient", client, GameNetworkManager.KickReason.Kick);
                 }
                 else
                 {
@@ -533,6 +588,7 @@ namespace DebugToolkit
         }
 
         [ConCommand(commandName = "ban", flags = ConVarFlags.ExecuteOnServer, helpText = "Bans the specified player from the session. " + Lang.BAN_ARGS)]
+        [RequiredPermissionLevel]
         private static void CCBan(ConCommandArgs args)
         {
             if (args.Count == 0)
@@ -543,11 +599,35 @@ namespace DebugToolkit
             try
             {
                 NetworkUser nu = GetNetUserFromString(args[0]);
-
-                if (nu.isServer)
+                
+                // Check if we can kick targeted user.
+                if (!Application.isBatchMode)
                 {
-                    Log.MessageNetworked("Specified user is hosting.", args, LogLevel.Error);
-                    return;
+                    foreach (var serverLocalUsers in NetworkUser.readOnlyLocalPlayersList)
+                    {
+                        if (serverLocalUsers == nu)
+                        {
+                            Log.MessageNetworked("Specified user is hosting.", args, LogLevel.Error);
+                            return;
+                        }
+                    }
+                }
+                else if (PermissionSystem.IsEnabled.Value)
+                {
+                    var senderElevationLevel = args.sender.GetPermissionLevel();
+                    var targetElevationLevel = nu.GetPermissionLevel();
+
+                    if (senderElevationLevel < targetElevationLevel)
+                    {
+                        Log.MessageNetworked("Specified user has a greater permission level than you.", args, LogLevel.Error);
+                        return;
+                    }
+
+                    if (senderElevationLevel == targetElevationLevel)
+                    {
+                        Log.MessageNetworked("Specified user has the same permission level as you.", args, LogLevel.Error);
+                        return;
+                    }
                 }
 
                 NetworkConnection client = null;
@@ -562,17 +642,7 @@ namespace DebugToolkit
 
                 if (client != null)
                 {
-                    if (args.sender != null)
-                    {
-                        if (args.sender.isServer)
-                        {
-                            GameNetworkManager.singleton.InvokeMethod("ServerKickClient", client, GameNetworkManager.KickReason.Kick);
-                        }
-                    }
-                    else
-                    {
-                        GameNetworkManager.singleton.InvokeMethod("ServerKickClient", client, GameNetworkManager.KickReason.Kick);
-                    }
+                    GameNetworkManager.singleton.InvokeMethod("ServerKickClient", client, GameNetworkManager.KickReason.Ban);
                 }
                 else
                 {

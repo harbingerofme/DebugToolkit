@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
+using UnityEngine;
 using UnityEngine.Networking;
 
 namespace DebugToolkit
@@ -21,7 +22,7 @@ namespace DebugToolkit
             IL.RoR2.Console.Awake += UnlockConsole;
             On.RoR2.Console.InitConVars += InitCommandsAndFreeConvars;
             CommandHelper.AddToConsoleWhenReady();
-            On.RoR2.Console.RunCmd += LogNetworkCommands;
+            On.RoR2.Console.RunCmd += LogNetworkCommandsAndCheckPermissions;
 			On.RoR2.Console.AutoComplete.SetSearchString += BetterAutoCompletion;
             On.RoR2.Console.AutoComplete.ctor += CommandArgsAutoCompletion;
             IL.RoR2.Networking.GameNetworkManager.CCSetScene += EnableCheatsInCCSetScene;
@@ -85,16 +86,32 @@ namespace DebugToolkit
             }
         }
 
-        private static void LogNetworkCommands(On.RoR2.Console.orig_RunCmd orig, RoR2.Console self, NetworkUser sender, string concommandName, System.Collections.Generic.List<string> userArgs)
+        private static void LogNetworkCommandsAndCheckPermissions(On.RoR2.Console.orig_RunCmd orig, RoR2.Console self, NetworkUser sender, string concommandName, List<string> userArgs)
         {
-            if (sender!= null && sender.isLocalPlayer == false)
+            StringBuilder s = new StringBuilder();
+            userArgs.ForEach((str) => s.AppendLine(str));
+
+            if (sender != null && sender.isLocalPlayer == false)
             {
-                StringBuilder s = new StringBuilder();
-                userArgs.ForEach((str) => s.AppendLine(str));
                 Log.Message(string.Format(Lang.NETWORKING_OTHERPLAYER_4, sender.userName, sender.id.value, concommandName, s.ToString()));
             }
-            orig(self,sender,concommandName,userArgs);
-            ScrollConsoleDown();
+            else if (Application.isBatchMode)
+            {
+                Log.Message(string.Format(Lang.NETWORKING_OTHERPLAYER_4, "Server", 0, concommandName, s.ToString()));
+            }
+
+            var canExecute = true;
+
+            if (sender != null && !sender.isLocalPlayer && PermissionSystem.IsEnabled.Value)
+            {
+                canExecute = PermissionSystem.CanUserExecute(sender, concommandName, userArgs);
+            }
+
+            if (canExecute)
+            {
+                orig(self, sender, concommandName, userArgs);
+                ScrollConsoleDown();
+            }
         }
 
         internal static void ScrollConsoleDown()

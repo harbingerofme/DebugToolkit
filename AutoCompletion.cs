@@ -9,9 +9,9 @@ namespace DebugToolkit
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
     internal class AutoCompletionAttribute : Attribute
     {
-        internal dynamic Catalog;
-        internal string NestedField;
-        internal bool Dynamic;
+        internal readonly dynamic Catalog;
+        internal readonly string NestedField;
+        internal readonly bool Dynamic;
 
         public AutoCompletionAttribute(Type classType, string catalogName, string nestedField = "", bool dynamic = false)
         {
@@ -101,7 +101,9 @@ namespace DebugToolkit
 
 
                         if (!IsToken(itemString))
+                        {
                             toFill.Add(commandName + itemString);
+                        }
                         else
                         {
                             var languageDictionaries = typeof(Language).GetFieldValue<Dictionary<string, Dictionary<string, string>>>("languageDictionaries");
