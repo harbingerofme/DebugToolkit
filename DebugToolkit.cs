@@ -541,18 +541,8 @@ namespace DebugToolkit
                 }
                 else if (PermissionSystem.IsEnabled.Value)
                 {
-                    var senderElevationLevel = args.sender.GetPermissionLevel();
-                    var targetElevationLevel = nu.GetPermissionLevel();
-
-                    if (senderElevationLevel < targetElevationLevel)
+                    if (!PermissionSystem.HasMorePerm(args.sender, nu, args))
                     {
-                        Log.MessageNetworked(string.Format(Lang.PS_ARGUSER_HAS_MORE_PERM, nu.userName), args, LogLevel.Error);
-                        return;
-                    }
-
-                    if (senderElevationLevel == targetElevationLevel)
-                    {
-                        Log.MessageNetworked(string.Format(Lang.PS_ARGUSER_HAS_SAME_PERM, nu.userName), args, LogLevel.Error);
                         return;
                     }
                 }
@@ -609,18 +599,8 @@ namespace DebugToolkit
                 }
                 else if (PermissionSystem.IsEnabled.Value)
                 {
-                    var senderElevationLevel = args.sender.GetPermissionLevel();
-                    var targetElevationLevel = nu.GetPermissionLevel();
-
-                    if (senderElevationLevel < targetElevationLevel)
+                    if (!PermissionSystem.HasMorePerm(args.sender, nu, args))
                     {
-                        Log.MessageNetworked("Specified user has a greater permission level than you.", args, LogLevel.Error);
-                        return;
-                    }
-
-                    if (senderElevationLevel == targetElevationLevel)
-                    {
-                        Log.MessageNetworked("Specified user has the same permission level as you.", args, LogLevel.Error);
                         return;
                     }
                 }

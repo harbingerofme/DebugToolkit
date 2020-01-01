@@ -4,9 +4,6 @@ using System.Linq;
 using System.Reflection;
 using BepInEx.Configuration;
 using RoR2;
-using RoR2.Networking;
-using UnityEngine;
-using UnityEngine.Networking;
 
 namespace DebugToolkit
 {
@@ -38,9 +35,9 @@ namespace DebugToolkit
             if (!IsEnabled.Value)
                 return;
 
-            _adminList = DebugToolkit.Config.Bind("Permission System", "2. Admin", "userName1, userName2",
-                "Who is/are the admin(s).");
-            _subAdminList = DebugToolkit.Config.Bind("Permission System", "3. Sub Admin List", "userName3, userName4",
+            _adminList = DebugToolkit.Config.Bind("Permission System", "2. Admin", "76561197960265728, 76561197960265729",
+                "Who is/are the admin(s). They are identified using their STEAM64 ID, the ID can be seen when the player connects to the server.");
+            _subAdminList = DebugToolkit.Config.Bind("Permission System", "3. Sub Admin List", "76561197960265730, 76561197960265731",
                 "Who is/are the sub admin(s).");
 
             _adminCommands.Clear();
@@ -96,7 +93,7 @@ namespace DebugToolkit
                     if (Enum.TryParse(args[0], out PermissionLevel level))
                     {
                         // TODO: finish that lol
-                        Log.MessageNetworked("Please edit the users permissions through the config file for now", args, Log.LogLevel.Error);
+                        Log.MessageNetworked("Please edit the users permissions through the config file for now and reload using perm_reload in the console", args, Log.LogLevel.Error);
                     }
                     else
                     {
@@ -139,18 +136,38 @@ namespace DebugToolkit
             return true;
         }
 
+        public static bool HasMorePerm(NetworkUser sender, NetworkUser target, ConCommandArgs args)
+        {
+            var senderElevationLevel = sender ? sender.GetPermissionLevel() : PermissionLevel.Admin + 1; // +1 for server console
+            var targetElevationLevel = target.GetPermissionLevel();
+
+            if (senderElevationLevel < targetElevationLevel)
+            {
+                Log.MessageNetworked(string.Format(Lang.PS_ARGUSER_HAS_MORE_PERM, target.userName), args, Log.LogLevel.Error);
+                return false;
+            }
+
+            if (senderElevationLevel == targetElevationLevel)
+            {
+                Log.MessageNetworked(string.Format(Lang.PS_ARGUSER_HAS_SAME_PERM, target.userName), args, Log.LogLevel.Error);
+                return false;
+            }
+
+            return true;
+        }
+
         public static PermissionLevel GetPermissionLevel(this NetworkUser networkUser)
         {
             var adminList = _adminList.Value.Split(',');
 
-            if (adminList.Contains(networkUser.userName))
+            if (adminList.Contains(networkUser.GetNetworkPlayerName().steamId.value.ToString()))
             {
                 return PermissionLevel.Admin;
             }
 
             var subAdminList = _subAdminList.Value.Split(',');
 
-            if (subAdminList.Contains(networkUser.userName))
+            if (subAdminList.Contains(networkUser.GetNetworkPlayerName().steamId.value.ToString()))
             {
                 return PermissionLevel.SubAdmin;
             }

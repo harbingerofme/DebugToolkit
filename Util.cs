@@ -38,13 +38,12 @@ namespace DebugToolkit
 
                 foreach (var n in NetworkUser.readOnlyInstancesList)
                 {
-                    if (n.userName.Equals(args[startLocation]))
+                    if (n.userName.ToLower().Contains(args[startLocation].ToLower()))
                     {
                         return n;
                     }
                 }
-
-                Log.Message(Lang.PLAYER_NOTFOUND);
+                
                 return null;
             }
 
