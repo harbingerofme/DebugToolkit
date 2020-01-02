@@ -25,7 +25,8 @@ namespace DebugToolkit
         private static ConfigEntry<string> _adminList;
         private static ConfigEntry<string> _subAdminList;
 
-        private static readonly Dictionary<string, ConfigEntry<PermissionLevel>> _adminCommands = new Dictionary<string, ConfigEntry<PermissionLevel>>();
+        private static ConfigEntry<PermissionLevel> _defaultPermissionLevel;
+        private static readonly Dictionary<string, ConfigEntry<PermissionLevel>> AdminCommands = new Dictionary<string, ConfigEntry<PermissionLevel>>();
 
         internal static void Init()
         {
@@ -40,9 +41,18 @@ namespace DebugToolkit
             _subAdminList = DebugToolkit.Config.Bind("Permission System", "3. Sub Admin List", "76561197960265730, 76561197960265731",
                 "Who is/are the sub admin(s).");
 
-            _adminCommands.Clear();
+            _defaultPermissionLevel = DebugToolkit.Config.Bind("Permission System", "4. Default Permission Level", PermissionLevel.SubAdmin,
+                "What is the default permission level to use DebugToolkit commands, available levels : None (0), SubAdmin (1), Admin (2)");
 
-            foreach (var methodInfo in Assembly.GetExecutingAssembly().GetTypes().SelectMany(x => x.GetMethods(BindingFlags.NonPublic | BindingFlags.Static)))
+            AdminCommands.Clear();
+
+            AddPermissionCheckToConCommands();
+        }
+
+        // ReSharper disable once MemberCanBePrivate.Global
+        public static void AddPermissionCheckToConCommands()
+        {
+            foreach (var methodInfo in Assembly.GetCallingAssembly().GetTypes().SelectMany(x => x.GetMethods(BindingFlags.NonPublic | BindingFlags.Static)))
             {
                 var adminCommandAttribute = methodInfo.GetCustomAttributes(false).OfType<RequiredPermissionLevel>().ToArray();
                 var conCommandAttribute = (ConCommandAttribute)methodInfo.GetCustomAttributes(false).FirstOrDefault(x => x is ConCommandAttribute);
@@ -52,7 +62,14 @@ namespace DebugToolkit
                     var overrideConfigEntry = DebugToolkit.Config.Bind("Permission System", $"Override: {conCommandAttribute.commandName}", adminCommandAttribute[0].Level,
                         $"Override Required Permission Level for the {conCommandAttribute.commandName} command");
 
-                    _adminCommands.Add(conCommandAttribute.commandName, overrideConfigEntry);
+                    AdminCommands.Add(conCommandAttribute.commandName, overrideConfigEntry);
+                }
+                else if (adminCommandAttribute.Length == 0 && conCommandAttribute != null)
+                {
+                    var overrideConfigEntry = DebugToolkit.Config.Bind("Permission System", $"Override: {conCommandAttribute.commandName}", _defaultPermissionLevel.Value,
+                        $"Override Required Permission Level for the {conCommandAttribute.commandName} command");
+
+                    AdminCommands.Add(conCommandAttribute.commandName, overrideConfigEntry);
                 }
             }
         }
@@ -113,7 +130,7 @@ namespace DebugToolkit
 
         public static bool CanUserExecute(NetworkUser networkUser, string conCommandName, List<string> userArgs)
         {
-            if (_adminCommands.TryGetValue(conCommandName, out var requiredLevel))
+            if (AdminCommands.TryGetValue(conCommandName, out var requiredLevel))
             {
                 var userLevel = GetPermissionLevel(networkUser);
 
@@ -156,7 +173,7 @@ namespace DebugToolkit
             return true;
         }
 
-        public static PermissionLevel GetPermissionLevel(this NetworkUser networkUser)
+        private static PermissionLevel GetPermissionLevel(this NetworkUser networkUser)
         {
             var adminList = _adminList.Value.Split(',');
 
