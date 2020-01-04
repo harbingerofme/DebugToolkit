@@ -5,6 +5,16 @@ VisualStudioVersion = 16.0.29306.81
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DebugToolkit", "DebugToolkit.csproj", "{38FD0DD5-5D4F-424B-9590-2DB309099D17}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Items", "Items", "{841CDF50-F197-4B30-AE96-270AE80E6032}"
+	ProjectSection(SolutionItems) = preProject
+		FodyWeavers.xml = FodyWeavers.xml
+		LICENSE = LICENSE
+		manifest.json = manifest.json
+		manifest.template = manifest.template
+		README.md = README.md
+		readmetest.zip = readmetest.zip
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

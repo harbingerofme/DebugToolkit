@@ -41,9 +41,15 @@
     <None Remove=".markdownlint.json" />
     <None Remove="DebugToolkit.dll" />
     <None Remove="DebugToolkit.zip" />
+    <None Remove="FodyWeavers.xml" />
     <None Remove="GetVer.ps1" />
     <None Remove="icon.png" />
     <None Remove="icon.xcf" />
+    <None Remove="LICENSE" />
+    <None Remove="manifest.json" />
+    <None Remove="manifest.template" />
+    <None Remove="README.md" />
+    <None Remove="readmetest.zip" />
   </ItemGroup>
 
 
@@ -423,12 +429,6 @@
       <HintPath>libs\Zio.dll</HintPath>
       <Private>false</Private>
     </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="LICENSE">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
