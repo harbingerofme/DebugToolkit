@@ -30,18 +30,18 @@ namespace DebugToolkit
 
         internal static void Init()
         {
-            IsEnabled = DebugToolkit.Config.Bind("Permission System", "1. Enable", true,
+            IsEnabled = DebugToolkit.Configuration.Bind("Permission System", "1. Enable", true,
                 "Is the Permission System enabled.");
 
             if (!IsEnabled.Value)
                 return;
 
-            _adminList = DebugToolkit.Config.Bind("Permission System", "2. Admin", "76561197960265728, 76561197960265729",
+            _adminList = DebugToolkit.Configuration.Bind("Permission System", "2. Admin", "76561197960265728, 76561197960265729",
                 "Who is/are the admin(s). They are identified using their STEAM64 ID, the ID can be seen when the player connects to the server.");
-            _subAdminList = DebugToolkit.Config.Bind("Permission System", "3. Sub Admin List", "76561197960265730, 76561197960265731",
+            _subAdminList = DebugToolkit.Configuration.Bind("Permission System", "3. Sub Admin List", "76561197960265730, 76561197960265731",
                 "Who is/are the sub admin(s).");
 
-            _defaultPermissionLevel = DebugToolkit.Config.Bind("Permission System", "4. Default Permission Level", PermissionLevel.SubAdmin,
+            _defaultPermissionLevel = DebugToolkit.Configuration.Bind("Permission System", "4. Default Permission Level", PermissionLevel.SubAdmin,
                 "What is the default permission level to use DebugToolkit commands, available levels : None (0), SubAdmin (1), Admin (2)");
 
             AdminCommands.Clear();
@@ -59,14 +59,14 @@ namespace DebugToolkit
 
                 if (adminCommandAttribute.Length > 0 && conCommandAttribute != null)
                 {
-                    var overrideConfigEntry = DebugToolkit.Config.Bind("Permission System", $"Override: {conCommandAttribute.commandName}", adminCommandAttribute[0].Level,
+                    var overrideConfigEntry = DebugToolkit.Configuration.Bind("Permission System", $"Override: {conCommandAttribute.commandName}", adminCommandAttribute[0].Level,
                         $"Override Required Permission Level for the {conCommandAttribute.commandName} command");
 
                     AdminCommands.Add(conCommandAttribute.commandName, overrideConfigEntry);
                 }
                 else if (adminCommandAttribute.Length == 0 && conCommandAttribute != null)
                 {
-                    var overrideConfigEntry = DebugToolkit.Config.Bind("Permission System", $"Override: {conCommandAttribute.commandName}", _defaultPermissionLevel.Value,
+                    var overrideConfigEntry = DebugToolkit.Configuration.Bind("Permission System", $"Override: {conCommandAttribute.commandName}", _defaultPermissionLevel.Value,
                         $"Override Required Permission Level for the {conCommandAttribute.commandName} command");
 
                     AdminCommands.Add(conCommandAttribute.commandName, overrideConfigEntry);
@@ -78,7 +78,7 @@ namespace DebugToolkit
         [RequiredPermissionLevel(PermissionLevel.Admin)]
         private static void CCReloadPermissionSystem(ConCommandArgs args)
         {
-            DebugToolkit.Config.Reload();
+            DebugToolkit.Configuration.Reload();
             Init();
             Log.MessageNetworked("Config File of DebugToolkit / Permission System successfully reloaded.", args, Log.LogLevel.Info);
         }

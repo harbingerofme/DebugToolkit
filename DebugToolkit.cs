@@ -25,7 +25,7 @@ namespace DebugToolkit
         public const string modname = "DebugToolkit", modver = "3.2.0";
         public const string GUID = "com.harbingerofme." + modname;
 
-        internal static ConfigFile Config;
+        internal static ConfigFile Configuration;
 
         internal static bool noEnemies = false;
         internal static ulong seed = 0;
@@ -37,7 +37,7 @@ namespace DebugToolkit
 
         private void Awake()
         {
-            Config = base.Config;
+            Configuration = base.Config;
 
             var miniRpc = MiniRpc.CreateInstance(GUID);
             new Log(Logger, miniRpc);
