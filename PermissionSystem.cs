@@ -7,7 +7,7 @@ using RoR2;
 
 namespace DebugToolkit
 {
-    [AttributeUsage(AttributeTargets.Method)]
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
     internal class RequiredPermissionLevel : Attribute
     {
         internal readonly PermissionLevel Level;
@@ -55,22 +55,24 @@ namespace DebugToolkit
         {
             foreach (var methodInfo in Assembly.GetCallingAssembly().GetTypes().SelectMany(x => x.GetMethods(BindingFlags.NonPublic | BindingFlags.Static)))
             {
-                var adminCommandAttribute = methodInfo.GetCustomAttributes(false).OfType<RequiredPermissionLevel>().ToArray();
+                var adminCommandAttribute = methodInfo.GetCustomAttribute<RequiredPermissionLevel>(false);
                 var conCommandAttribute = (ConCommandAttribute)methodInfo.GetCustomAttributes(false).FirstOrDefault(x => x is ConCommandAttribute);
-
-                if (adminCommandAttribute.Length > 0 && conCommandAttribute != null)
+                if (conCommandAttribute != null)
                 {
-                    var overrideConfigEntry = DebugToolkit.Configuration.Bind("Permission System", $"Override: {conCommandAttribute.commandName}", adminCommandAttribute[0].Level,
-                        $"Override Required Permission Level for the {conCommandAttribute.commandName} command");
+                    if (adminCommandAttribute != null)
+                    {
+                        var overrideConfigEntry = DebugToolkit.Configuration.Bind("Permission System", $"Override: {conCommandAttribute.commandName}", adminCommandAttribute[0].Level,
+                            $"Override Required Permission Level for the {conCommandAttribute.commandName} command");
 
-                    AdminCommands.Add(conCommandAttribute.commandName, overrideConfigEntry);
-                }
-                else if (adminCommandAttribute.Length == 0 && conCommandAttribute != null)
-                {
-                    var overrideConfigEntry = DebugToolkit.Configuration.Bind("Permission System", $"Override: {conCommandAttribute.commandName}", _defaultPermissionLevel.Value,
-                        $"Override Required Permission Level for the {conCommandAttribute.commandName} command");
+                        AdminCommands.Add(conCommandAttribute.commandName, overrideConfigEntry);
+                    }
+                    else
+                    {
+                        var overrideConfigEntry = DebugToolkit.Configuration.Bind("Permission System", $"Override: {conCommandAttribute.commandName}", _defaultPermissionLevel.Value,
+                            $"Override Required Permission Level for the {conCommandAttribute.commandName} command");
 
-                    AdminCommands.Add(conCommandAttribute.commandName, overrideConfigEntry);
+                        AdminCommands.Add(conCommandAttribute.commandName, overrideConfigEntry);
+                    }
                 }
             }
         }
