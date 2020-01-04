@@ -90,7 +90,15 @@ namespace DebugToolkit
         [RequiredPermissionLevel(PermissionLevel.Admin)]
         private static void CCPermissionEnable(ConCommandArgs args)
         {
-            IsEnabled.Value = !IsEnabled.Value;
+            if (args.Count == 0)
+            {
+                IsEnabled.Value = !IsEnabled.Value;
+            }
+            else
+            {
+                IsEnabled.Value = args.GetArgBool(0);
+            }
+
             var res = IsEnabled.Value ? "enabled" : "disabled";
             Log.MessageNetworked($"Permission System is {res}", args, Log.LogLevel.Info);
         }
