@@ -28,10 +28,11 @@ namespace DebugToolkit
         private static ConfigEntry<PermissionLevel> _defaultPermissionLevel;
         private static readonly Dictionary<string, ConfigEntry<PermissionLevel>> AdminCommands = new Dictionary<string, ConfigEntry<PermissionLevel>>();
 
-        internal static void Init()
+        internal static void Init(object _ = null, EventArgs __ = null)
         {
-            IsEnabled = DebugToolkit.Configuration.Bind("Permission System", "1. Enable", true,
+            IsEnabled = DebugToolkit.Configuration.Bind("Permission System", "1. Enable", false,
                 "Is the Permission System enabled.");
+            IsEnabled.SettingChanged += Init;
 
             if (!IsEnabled.Value)
                 return;
