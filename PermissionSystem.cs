@@ -61,7 +61,7 @@ namespace DebugToolkit
                 {
                     if (adminCommandAttribute != null)
                     {
-                        var overrideConfigEntry = DebugToolkit.Configuration.Bind("Permission System", $"Override: {conCommandAttribute.commandName}", adminCommandAttribute[0].Level,
+                        var overrideConfigEntry = DebugToolkit.Configuration.Bind("Permission System", $"Override: {conCommandAttribute.commandName}", adminCommandAttribute.Level,
                             $"Override Required Permission Level for the {conCommandAttribute.commandName} command");
 
                         AdminCommands.Add(conCommandAttribute.commandName, overrideConfigEntry);
