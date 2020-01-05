@@ -42,6 +42,17 @@ namespace DebugToolkit
             var miniRpc = MiniRpc.CreateInstance(GUID);
             new Log(Logger, miniRpc);
 
+#if DEBUG   //Additional references in this block must be fully qualifed as to not use them in Release Builds.
+            string gitVersion = "";
+            using (System.IO.Stream stream = System.Reflection.Assembly.GetExecutingAssembly()
+                    .GetManifestResourceStream($"{typeof(DebugToolkit).Namespace}.CurrentCommit"))
+            using (System.IO.StreamReader reader = new System.IO.StreamReader(stream))
+            {
+                gitVersion= reader.ReadToEnd();
+            }
+            Log.MessageWarning($"This is an expirimental build! Commit:" + gitVersion);
+#endif
+
             Log.Message("Created by Harb, iDeathHD and . Based on RoR2Cheats by Morris1927.", LogLevel.Info, Log.Target.Bepinex);
 
             PermissionSystem.Init();
@@ -81,7 +92,7 @@ namespace DebugToolkit
             }
         }
 
-        #region Items&Stats
+#region Items&Stats
         [ConCommand(commandName = "list_interactables", flags = ConVarFlags.None, helpText = "Lists all interactables.")]
         private static void CCList_interactables(ConCommandArgs _)
         {
@@ -505,9 +516,9 @@ namespace DebugToolkit
 
             Log.MessageNetworked("$$$", args);
         }
-        #endregion
+#endregion
 
-        #region Run.instance
+#region Run.instance
         private static void HandleTimeScale(float newTimeScale)
         {
             Time.timeScale = newTimeScale;
@@ -820,9 +831,9 @@ namespace DebugToolkit
             }
             AkSoundEngine.PostEvent(args[0], CameraRigController.readOnlyInstancesList[0].localUserViewer.currentNetworkUser.master.GetBodyObject());
         }
-        #endregion
+#endregion
 
-        #region Entities
+#region Entities
 
         private static void ResetEnemyTeamLevel()
         {
@@ -1288,9 +1299,9 @@ namespace DebugToolkit
             return false;
         }
 
-        #endregion
+#endregion
 
-        #region DEBUG
+#region DEBUG
 #if DEBUG
         [ConCommand(commandName = "network_echo", flags = ConVarFlags.ExecuteOnServer, helpText = "Sends a message to the target network user.")]
         private static void CCNetworkEcho(ConCommandArgs args)
@@ -1375,7 +1386,7 @@ namespace DebugToolkit
 
         }
 #endif
-        #endregion
+#endregion
 
         /// <summary>
         /// Required for automated manifest building.

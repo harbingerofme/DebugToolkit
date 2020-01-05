@@ -39,6 +39,7 @@
     <None Remove=".gitignore" />
     <None Remove=".gitmodules" />
     <None Remove=".markdownlint.json" />
+    <None Remove="CurrentCommit" />
     <None Remove="DebugToolkit.dll" />
     <None Remove="DebugToolkit.zip" />
     <None Remove="FodyWeavers.xml" />
@@ -50,6 +51,12 @@
     <None Remove="manifest.template" />
     <None Remove="README.md" />
     <None Remove="readmetest.zip" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="CurrentCommit">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
 
 
@@ -433,6 +440,10 @@
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="copy /y $(TargetPath) $(ProjectDir)&#xD;&#xA;&#xD;&#xA;if $(Configuration) == Debug (&#xD;&#xA;goto debug&#xD;&#xA;)&#xD;&#xA;&#xD;&#xA;if $(Configuration) == Release (&#xD;&#xA;goto release&#xD;&#xA;)&#xD;&#xA;&#xD;&#xA;:debug&#xD;&#xA;echo Debug, only dll is updated.&#xD;&#xA;goto:EOF&#xD;&#xA;&#xD;&#xA;:release&#xD;&#xA;echo Building RELEASE, zip and dll will be updated.&#xD;&#xA;copy /y $(TargetPath) $(ProjectDir)libs\&#xD;&#xA;del &quot;$(TargetDir)DebugToolkitLicense.txt&quot;&#xD;&#xA;ren &quot;$(TargetDir)LICENSE&quot; DebugToolkitLicense.txt&#xD;&#xA;setlocal EnableDelayedExpansion&#xD;&#xA;powershell -ExecutionPolicy Unrestricted $(ProjectDir)getVer.ps1 -ProjectName $(ProjectName)  &gt; $(TargetDir)modver.txt&#xD;&#xA;set /p MODVER= &lt;$(TargetDir)modver.txt&#xD;&#xA;powershell -Command &quot;(gc $(ProjectDir)manifest.template) -replace '\[MODVER\]', '!MODVER!' | Out-File -encoding ASCII $(TargetDir)manifest.json&quot;&#xD;&#xA;powershell Compress-Archive -Path '$(TargetDir)$(TargetFileName)', '$(TargetDir)DebugToolkitLicense.txt', '$(ProjectDir)icon.png', '$(TargetDir)manifest.json', '$(ProjectDir)README.md' -DestinationPath '$(ProjectDir)\$(ProjectName).zip' -Force&#xD;&#xA;del $(ProjectDir)libs\$(TargetFileName)&#xD;&#xA;goto:EOF&#xD;&#xA;&#xD;&#xA;:eof" />
+  </Target>
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="git rev-parse --verify HEAD &gt; CurrentCommit&#xD;&#xA;" />
   </Target>
 
 </Project>
