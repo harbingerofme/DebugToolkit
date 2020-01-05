@@ -45,12 +45,12 @@ namespace DebugToolkit
 #if DEBUG   //Additional references in this block must be fully qualifed as to not use them in Release Builds.
             string gitVersion = "";
             using (System.IO.Stream stream = System.Reflection.Assembly.GetExecutingAssembly()
-                    .GetManifestResourceStream($"{typeof(DebugToolkit).Namespace}.CurrentCommit"))
+                    .GetManifestResourceStream($"{this.GetType().Namespace}.CurrentCommit"))
             using (System.IO.StreamReader reader = new System.IO.StreamReader(stream))
             {
                 gitVersion= reader.ReadToEnd();
             }
-            Log.MessageWarning($"This is an expiremental build! Commit:" + gitVersion,Log.Target.Bepinex);
+            Log.MessageWarning($"This is an experimental  build! Commit: {gitVersion.Trim()}");
 #endif
 
             Log.Message("Created by Harb, iDeathHD and . Based on RoR2Cheats by Morris1927.", LogLevel.Info, Log.Target.Bepinex);
