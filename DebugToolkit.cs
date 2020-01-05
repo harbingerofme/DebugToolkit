@@ -50,7 +50,7 @@ namespace DebugToolkit
             {
                 gitVersion= reader.ReadToEnd();
             }
-            Log.MessageWarning($"This is an expiremental build! Commit:" + gitVersion);
+            Log.MessageWarning($"This is an expiremental build! Commit:" + gitVersion,Log.Target.Bepinex);
 #endif
 
             Log.Message("Created by Harb, iDeathHD and . Based on RoR2Cheats by Morris1927.", LogLevel.Info, Log.Target.Bepinex);
