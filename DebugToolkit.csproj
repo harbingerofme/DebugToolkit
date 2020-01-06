@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Version>3.1.2</Version>
+    <Version>3.2.0</Version>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <Authors>Harbingerofme; Paddywan; iDeathHD</Authors>
     <Description>Bepinex plugin for Risk of Rain 2.</Description>
@@ -32,6 +32,10 @@
     <EmbeddedResource Remove="RoR2CommandFinder\**" />
     <None Remove="CommandDiscover\**" />
     <None Remove="RoR2CommandFinder\**" />
+    <None Include="LICENSE">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
     <None Include="LICENSE">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
