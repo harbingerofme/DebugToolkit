@@ -7,13 +7,18 @@
     <Authors>Harbingerofme; Paddywan; iDeathHD</Authors>
     <Description>Bepinex plugin for Risk of Rain 2.</Description>
     <RepositoryUrl>https://github.com/harbingerofme/DebugToolkit</RepositoryUrl>
-    <Configurations>Debug;Release</Configurations>
+    <Configurations>Debug;Release;BLEEDING-EDGE</Configurations>
     <PackageIconUrl>https://raw.githubusercontent.com/harbingerofme/DebugToolkit/master/icon.png</PackageIconUrl>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <LangVersion>7.1</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='BLEEDING-EDGE|AnyCPU'">
+    <LangVersion>7.1</LangVersion>
+    <DefineConstants>TRACE;BLEEDING = 1;</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -438,8 +443,14 @@
     </Reference>
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="libs\BepInEx.dll">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="copy /y $(TargetPath) $(ProjectDir)&#xD;&#xA;&#xD;&#xA;if $(Configuration) == Debug (&#xD;&#xA;goto debug&#xD;&#xA;)&#xD;&#xA;&#xD;&#xA;if $(Configuration) == Release (&#xD;&#xA;goto release&#xD;&#xA;)&#xD;&#xA;&#xD;&#xA;:debug&#xD;&#xA;echo Debug, only dll is updated.&#xD;&#xA;goto:EOF&#xD;&#xA;&#xD;&#xA;:release&#xD;&#xA;echo Building RELEASE, zip and dll will be updated.&#xD;&#xA;copy /y $(TargetPath) $(ProjectDir)libs\&#xD;&#xA;del &quot;$(TargetDir)DebugToolkitLicense.txt&quot;&#xD;&#xA;ren &quot;$(TargetDir)LICENSE&quot; DebugToolkitLicense.txt&#xD;&#xA;setlocal EnableDelayedExpansion&#xD;&#xA;powershell -ExecutionPolicy Unrestricted $(ProjectDir)getVer.ps1 -ProjectName $(ProjectName)  &gt; $(TargetDir)modver.txt&#xD;&#xA;set /p MODVER= &lt;$(TargetDir)modver.txt&#xD;&#xA;powershell -Command &quot;(gc $(ProjectDir)manifest.template) -replace '\[MODVER\]', '!MODVER!' | Out-File -encoding ASCII $(TargetDir)manifest.json&quot;&#xD;&#xA;powershell Compress-Archive -Path '$(TargetDir)$(TargetFileName)', '$(TargetDir)DebugToolkitLicense.txt', '$(ProjectDir)icon.png', '$(TargetDir)manifest.json', '$(ProjectDir)README.md' -DestinationPath '$(ProjectDir)\$(ProjectName).zip' -Force&#xD;&#xA;del $(ProjectDir)libs\$(TargetFileName)&#xD;&#xA;goto:EOF&#xD;&#xA;&#xD;&#xA;:eof" />
+    <Exec Command="robocopy $(TargetDir) $(ProjectDir) $(TargetFileName) &gt; $(TargetDir)Robocopy&#xD;&#xA;&#xD;&#xA;if $(Configuration) == Release (&#xD;&#xA;goto release&#xD;&#xA;)&#xD;&#xA;&#xD;&#xA;echo Not Release, only dll is updated.&#xD;&#xA;goto:EOF&#xD;&#xA;&#xD;&#xA;:release&#xD;&#xA;echo Building RELEASE, zip and dll will be updated.&#xD;&#xA;robocopy $(TargetDir) $(ProjectDir)libs\ $(TargetFileName) &gt; $(TargetDir)Robocopy&#xD;&#xA;robocopy $(ProjectDir) $(TargetDir) LICENCE &gt; $(TargetDir)Robocopy&#xD;&#xA;IF EXIST DebugToolkitLicense.txt DEL /F DebugToolkitLicense.txt&#xD;&#xA;echo hai&#xD;&#xA;ren &quot;$(TargetDir)LICENSE&quot; DebugToolkitLicense.txt&#xD;&#xA;echo bai&#xD;&#xA;setlocal EnableDelayedExpansion&#xD;&#xA;powershell -ExecutionPolicy Unrestricted $(ProjectDir)getVer.ps1 -ProjectName $(ProjectName)  &gt; $(TargetDir)modver.txt&#xD;&#xA;set /p MODVER= &lt;$(TargetDir)modver.txt&#xD;&#xA;powershell -Command &quot;(gc $(ProjectDir)manifest.template) -replace '\[MODVER\]', '!MODVER!' | Out-File -encoding ASCII $(TargetDir)manifest.json&quot;&#xD;&#xA;powershell Compress-Archive -Path '$(TargetDir)$(TargetFileName)', '$(TargetDir)DebugToolkitLicense.txt', '$(ProjectDir)icon.png', '$(TargetDir)manifest.json', '$(ProjectDir)README.md' -DestinationPath '$(ProjectDir)\$(ProjectName).zip' -Force&#xD;&#xA;del $(ProjectDir)libs\$(TargetFileName)&#xD;&#xA;goto:EOF&#xD;&#xA;&#xD;&#xA;:eof&#xD;&#xA;del $(TargetDir)Robocopy" />
   </Target>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">

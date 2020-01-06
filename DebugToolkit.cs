@@ -42,7 +42,8 @@ namespace DebugToolkit
             var miniRpc = MiniRpc.CreateInstance(GUID);
             new Log(Logger, miniRpc);
 
-#if DEBUG   //Additional references in this block must be fully qualifed as to not use them in Release Builds.
+            #region Not Release Message
+#if !RELEASE   //Additional references in this block must be fully qualifed as to not use them in Release Builds.
             string gitVersion = "";
             using (System.IO.Stream stream = System.Reflection.Assembly.GetExecutingAssembly()
                     .GetManifestResourceStream($"{this.GetType().Namespace}.CurrentCommit"))
@@ -50,8 +51,16 @@ namespace DebugToolkit
             {
                 gitVersion= reader.ReadToEnd();
             }
-            Log.MessageWarning($"This is an experimental  build! Commit: {gitVersion.Trim()}");
+            Log.MessageWarning(
+#if DEBUG       
+                $"This is a debug build!"
+#elif BLEEDING  
+                $"This is a Bleeding-Edge build!"
+#endif          
+                ,Log.Target.Bepinex);
+            Log.MessageWarning($" Commit: {gitVersion.Trim()}",Log.Target.Bepinex);
 #endif
+            #endregion
 
             Log.Message("Created by Harb, iDeathHD and . Based on RoR2Cheats by Morris1927.", LogLevel.Info, Log.Target.Bepinex);
 
