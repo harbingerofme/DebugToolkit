@@ -86,7 +86,7 @@ namespace DebugToolkit
         }
 
         [ConCommand(commandName = "reload_all_config", flags = ConVarFlags.None, helpText = "Reload all default config files from all loaded plugins.")]
-        private static void CCReloadAllConfig(ConCommandArgs args)
+        private static void CCReloadAllConfig(ConCommandArgs _)
         {
             foreach (var pluginInfo in Chainloader.PluginInfos.Values)
             {
@@ -94,7 +94,7 @@ namespace DebugToolkit
                 {
                     pluginInfo.Instance.Config?.Reload();
                 }
-                catch (Exception e)
+                catch
                 {
                     // exception if the config file of that plugin doesnt exist. Also, can't reload a plugins config if it has a custom name. 
                 }
