@@ -1246,6 +1246,8 @@ namespace DebugToolkit
                         TP.shouldAttemptToSpawnMSPortal = true;
                         break;
                     case "arena":
+                    case "null":
+                    case "void":
                         spawnArenaPortal();
                         break;
                     case "all":

@@ -66,7 +66,7 @@ namespace DebugToolkit
             PARTIALIMPLEMENTATION_WARNING = "WARNING: PARTIAL IMPLEMENTATION. WIP.",
             PLAYER_DEADRESPAWN = "Player is dead and cannot respawn.",
             PLAYER_NOTFOUND = "Specified player does not exist",
-            PORTAL_NOTFOUND = "The specified portal could not be found.",
+            PORTAL_NOTFOUND = "The specified portal could not be found. Valid portals: 'blue','gold','celestial','null','all'",
             RUNSETSTAGESCLEARED_HELP = "Sets the amount of stages cleared. This does not change the current stage.",
             SPAWN_ATTEMPT = "Attempting to spawn: ",
             SPAWN_ERROR = "Could not spawn: ",
