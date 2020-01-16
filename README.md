@@ -17,11 +17,12 @@ Some vanilla console functions you might not know:
 
 Mods recommended for combined use:
 
-* [KeyBindForConsole](https://thunderstore.io/package/kristiansja/KeyBindForConsole/)
-* [SimpleMacros](https://thunderstore.io/package/recursiveGecko/SimpleMacros/)
-* [MacroCommands] (https://thunderstore.io/package/JackPendarvesRead/MacroCommands/)
+* [KeyBindForConsole](https://thunderstore.io/package/kristiansja/KeyBindForConsole/) for easier enabling of the console. Especially useful for non-US keyboard layouts.
+* [SimpleMacros](https://thunderstore.io/package/recursiveGecko/SimpleMacros/) for binding console commands to keys.
+* [MacroCommands](https://thunderstore.io/package/JackPendarvesRead/MacroCommands/) for binding console commands to keys.
+* [R2DSE](https://thunderstore.io/package/Harb/R2DSEssentials/) for running DT on dedicated servers.
 
-You may contact us at any time through issues on GitHub, or through the Risk of Rain 2 modding Discord found at the top of the Thunderstore website. 
+You may contact us at any time through issues on GitHub, the dedicated server or through the Risk of Rain 2 modding Discord found at the top of the Thunderstore website. 
 
 ---
 
@@ -94,8 +95,20 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
 	* Commands are now safe to run with a dedicated server as the sender. Want to know how you can issue commands during runtime as a server? [R2DSE](https://github.com/harbingerofme/R2DS-Essentials)
 		* Some commands have not yet been implemented this way and merely do nothing, expect fixes for that in `3.2.X` updates.
 		* When a player is needed for a command, dedicated servers will have to fully qualify their command.
+* **Additions**
+    * Added the null portal to `add_portal`
+    * `reload_all_config` makes a best effort to reload all plugins' configurations.
+    * Permission system:
+        * There's a config for the permission system located in your `bepinex/config/` folder after running the new version once.
+        * The permission system is by default DISABLED.
 * **Fixes**
 	* `Noclip` now disables the out of bounds teleport. Go take a look at that collossus head!
+    * `add_portal` now gives a nicer error message with all available portals
+    * Reenabled `next_boss`. Behaviour might still be weird.
+* **Known Bugs**
+    * Some commands work improperly when connected to a dedicated server with this enabled. Due to the amount of testing required basically doubling because of dedicated servers, we ask you to report these issues as you spot them.
+* Other things:
+    * Want to get bleeding edge builds? Check out our [Discord](https://discord.gg/yTfsMWP)!
 
 ### 3.1.0 ###
 
