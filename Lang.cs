@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace DebugToolkit
+﻿namespace DebugToolkit
 {
     internal static class Lang
     {
@@ -14,8 +10,8 @@ namespace DebugToolkit
             CREATEPICKUP_ARGS = "Requires 1 argument: create_pickup (\"coin\"|{localised_object_name}) (\"item\"|\"equip\")",
             FAMILYEVENT_ARGS = "Requires 0 arguments: force_family_event",
             FIXEDTIME_ARGS = "Requires 1 argument: fixed_time {NewTime}",
-            GIVEEQUIP_ARGS = "Requires 1 argument: give_equip {localised_object_name} ({PlayerID:self}|{Playername})",
-            GIVEITEM_ARGS = "Requires 1 argument: give_item {localised_object_name} {Count:1} ({PlayerID:self}|{Playername})",
+            GIVEEQUIP_ARGS = "Requires 1 (2 if from server) argument: give_equip {localised_object_name} ({PlayerID:self}|{Playername})",
+            GIVEITEM_ARGS = "Requires 1 (2 if from server) argument: give_item {localised_object_name} {Count:1} ({PlayerID:self}|{Playername})",
             GIVELUNAR_ARGS = "Requires 0 arguments: give_lunar {Count:1}",
             GIVEMONEY_ARGS = "Requires 1 argument: give_money {Count} ({PlayerID:self}|{Playername}|\"all\")",
             GOD_ARGS = "Requires 0 arguments: god",

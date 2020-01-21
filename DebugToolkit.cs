@@ -58,7 +58,7 @@ namespace DebugToolkit
                 $"This is a Bleeding-Edge build!"
 #endif          
                 ,Log.Target.Bepinex);
-            Log.MessageWarning($" Commit: {gitVersion.Trim()}",Log.Target.Bepinex);
+            Log.MessageWarning($"Commit: {gitVersion.Trim()}",Log.Target.Bepinex);
 #endif
             #endregion
 
@@ -172,9 +172,15 @@ namespace DebugToolkit
         [AutoCompletion(typeof(ItemCatalog), "itemDefs", "nameToken")]
         private static void CCGiveItem(ConCommandArgs args)
         {
+            if (args.Count == 0)
+            {
+                Log.MessageNetworked(Lang.GIVEITEM_ARGS, args, LogLevel.MessageClientOnly);
+                return;
+            }
+
             if (args.sender == null)
             {
-                if (args.Count != 3)
+                if (args.Count < 2)
                 {
                     Log.Message(Lang.DS_REQUIREFULLQUALIFY, LogLevel.Error);
                     Log.Message(Lang.GIVEITEM_ARGS, LogLevel.Message);
@@ -183,32 +189,28 @@ namespace DebugToolkit
             }
 
             NetworkUser player = args.sender;
-            if (args.Count == 0)
-            {
-                Log.MessageNetworked(Lang.GIVEITEM_ARGS, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            int iCount = 1;
+            Inventory inventory = args.sender?.master.inventory;
+
+            int iCount = 1; // it'll get overwritten by the TryParse...
+            bool secondArgIsCount = false;
             if (args.Count >= 2)
             {
-                int.TryParse(args[1], out iCount);
-            }
+                secondArgIsCount = int.TryParse(args[1], out iCount);
 
-            Inventory inventory = args.sender?.master.inventory;
-            if (args.Count >= 3)
-            {
-                player = Util.GetNetUserFromString(args.userArgs, 2);
+                player = Util.GetNetUserFromString(args.userArgs, secondArgIsCount ? 2 : 1); // allow to give directly the player name without specifying item count
                 if (player == null)
                 {
                     Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
-                    if(args.sender == null)
+                    if (args.sender == null)
                     {
                         return;
                     }
                 }
 
-                inventory = (player == null) ? inventory : player.master.inventory;
+                inventory = player == null ? inventory : player.master.inventory;
             }
+
+            iCount = secondArgIsCount ? iCount : 1;
 
             var item = StringFinder.Instance.GetItemFromPartial(args[0]);
             if (item != ItemIndex.None)
@@ -227,22 +229,25 @@ namespace DebugToolkit
         [AutoCompletion(typeof(EquipmentCatalog), "equipmentDefs", "nameToken")]
         private static void CCGiveEquipment(ConCommandArgs args)
         {
-            NetworkUser player = args.sender;
             if (args.Count == 0)
             {
                 Log.MessageNetworked(Lang.GIVEEQUIP_ARGS, args, LogLevel.MessageClientOnly);
                 return;
             }
+
             if (args.sender == null)
             {
                 if (args.Count < 2)
                 {
                     Log.Message(Lang.DS_REQUIREFULLQUALIFY, LogLevel.Error);
+                    Log.Message(Lang.GIVEEQUIP_ARGS, LogLevel.Message);
                     return;
                 }
             }
 
+            NetworkUser player = args.sender;
             Inventory inventory = args.sender?.master.inventory;
+            
             if (args.Count >= 2)
             {
                 player = Util.GetNetUserFromString(args.userArgs, 1);
@@ -254,7 +259,8 @@ namespace DebugToolkit
                         return;
                     }
                 }
-                inventory = (player == null) ? inventory : player.master.inventory;
+
+                inventory = player == null ? inventory : player.master.inventory;
             }
 
             var equip = StringFinder.Instance.GetEquipFromPartial(args[0]);
@@ -265,7 +271,6 @@ namespace DebugToolkit
             else
             {
                 Log.MessageNetworked(Lang.OBJECT_NOTFOUND + args[0] + ":" + equip, args, LogLevel.MessageClientOnly);
-                return;
             }
 
             Log.MessageNetworked($"Gave {equip} to {player.masterController.GetDisplayName()}", args);

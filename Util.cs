@@ -22,7 +22,7 @@ namespace DebugToolkit
                     var startIndex = startString.IndexOf('\"') + 1;
                     var length = startString.LastIndexOf('\"') - startIndex;
 
-                    args[startLocation] = startString.Substring(startString.IndexOf('\"') + 1, length);
+                    args[startLocation] = startString.Substring(startIndex, length);
                 }
 
                 if (int.TryParse(args[startLocation], out int result))
