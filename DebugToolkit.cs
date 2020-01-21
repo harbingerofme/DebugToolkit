@@ -195,19 +195,24 @@ namespace DebugToolkit
             bool secondArgIsCount = false;
             if (args.Count >= 2)
             {
+                // secondArgIsCount allow to give directly the player name without specifying item count
                 secondArgIsCount = int.TryParse(args[1], out iCount);
 
-                player = Util.GetNetUserFromString(args.userArgs, secondArgIsCount ? 2 : 1); // allow to give directly the player name without specifying item count
-                if (player == null)
+                var tmpPlayer = Util.GetNetUserFromString(args.userArgs, secondArgIsCount ? 2 : 1);
+                if (tmpPlayer == null)
                 {
-                    Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
                     if (args.sender == null)
                     {
+                        Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
                         return;
                     }
                 }
+                else
+                {
+                    player = tmpPlayer;
+                }
 
-                inventory = player == null ? inventory : player.master.inventory;
+                inventory = player.master.inventory;
             }
 
             iCount = secondArgIsCount ? iCount : 1;

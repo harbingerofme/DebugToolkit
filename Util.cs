@@ -13,7 +13,7 @@ namespace DebugToolkit
         /// <returns>Returns a NetworkUser if a match is found, or null if not</returns>
         internal static NetworkUser GetNetUserFromString(List<string> args, int startLocation = 0)
         {
-            if (args.Count > 0)
+            if (args.Count > 0 && startLocation < args.Count)
             {
                 if (args[startLocation].StartsWith("\""))
                 {
