@@ -10,6 +10,8 @@
     <Configurations>Debug;Release;BLEEDING-EDGE</Configurations>
     <PackageIconUrl>https://raw.githubusercontent.com/harbingerofme/DebugToolkit/master/icon.png</PackageIconUrl>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <ApplicationIcon>icon.ico</ApplicationIcon>
+    <SignAssembly>false</SignAssembly>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
