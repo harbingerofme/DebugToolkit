@@ -1,4 +1,4 @@
-﻿namespace DebugToolkit
+namespace DebugToolkit
 {
     internal static class Lang
     {
@@ -28,7 +28,7 @@
             REMOVEEQUIP_ARGS = "Requires 0 arguments: remove_equip ({PlayerID:self}|{Playername})",
             RESPAWN_ARGS = "Requires 0 arguments: respawn ({PlayerID:self}|{Playername})",
             SEED_ARGS = "Requires no or 1 argument: seed [new seed]",
-            SPAWNAI_ARGS = "Requires 1 argument: spwan_ai {localised_objectname} [EliteIndex:-1/None] [TeamIndex:0/Neutral] [Braindead:0(0|1)]",
+            SPAWNAI_ARGS = "Requires 1 argument: spawn_ai {localised_objectname} [EliteIndex:-1/None] [TeamIndex:0/Neutral] [Braindead:0(0|1)]",
             SPAWNAS_ARGS = "Requires 1 argument: spawn_as {localised_objectname} ({PlayerID:self}|{Playername})",
             SPAWNBODY_ARGS = "Requires 1 argument: spawn_body {localised_objectname}",
             SPAWNINTERACTABLE_ARGS = "Requires 1 argument: spawn_interactable {InteractableSpawnCard}",
