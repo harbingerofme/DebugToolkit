@@ -102,6 +102,8 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
         * There's a config for the permission system located in your `bepinex/config/` folder after running the new version once.
         * The permission system is by default DISABLED.
 * **Fixes**
+    * **3.2.1** `spawn_ai` now parses braindead if it's an integer.
+    * **3.2.1** Fix `spawn_as` crashing dedicated servers.
 	* `Noclip` now disables the out of bounds teleport. Go take a look at that collossus head!
     * `add_portal` now gives a nicer error message with all available portals
     * Reenabled `next_boss`. Behaviour might still be weird.
