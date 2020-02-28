@@ -1107,35 +1107,49 @@ namespace DebugToolkit
             var masterprefab = MasterCatalog.FindMasterPrefab(character);
             var body = masterprefab.GetComponent<CharacterMaster>().bodyPrefab;
 
-            var bodyGameObject = Instantiate<GameObject>(masterprefab, args.sender.master.GetBody().transform.position, Quaternion.identity);
-            CharacterMaster master = bodyGameObject.GetComponent<CharacterMaster>();
-            NetworkServer.Spawn(bodyGameObject);
-            master.SpawnBody(body, args.sender.master.GetBody().transform.position, Quaternion.identity);
-
+            int amount = 1;
             if (args.Count > 1)
             {
-                var eliteIndex = StringFinder.GetEnumFromPartial<EliteIndex>(args[1]);
-                if (eliteIndex != EliteIndex.None)
+                if (int.TryParse(args[1], out amount) == false)
                 {
-                    master.inventory.SetEquipmentIndex(EliteCatalog.GetEliteDef(eliteIndex).eliteEquipmentIndex);
-                    master.inventory.GiveItem(ItemIndex.BoostHp, Mathf.RoundToInt((GetTierDef(eliteIndex).healthBoostCoefficient - 1) * 10));
-                    master.inventory.GiveItem(ItemIndex.BoostDamage, Mathf.RoundToInt((GetTierDef(eliteIndex).damageBoostCoefficient - 1) * 10));
+                    Log.MessageNetworked(Lang.SPAWNAI_ARGS, args, LogLevel.MessageClientOnly);
+                    return;
                 }
             }
-
-            if (args.Count > 2 && Enum.TryParse<TeamIndex>(StringFinder.GetEnumFromPartial<TeamIndex>(args[2]).ToString(), true, out TeamIndex teamIndex))
+            Vector3 location = args.sender.master.GetBody().transform.position;
+            Log.MessageNetworked(string.Format(Lang.SPAWN_ATTEMPT_2,amount,character), args);
+            for (int i = 0; i < amount; i++)
             {
-                if ((int)teamIndex >= (int)TeamIndex.None && (int)teamIndex < (int)TeamIndex.Count)
+                var bodyGameObject = Instantiate<GameObject>(masterprefab, location, Quaternion.identity);
+                CharacterMaster master = bodyGameObject.GetComponent<CharacterMaster>();
+                NetworkServer.Spawn(bodyGameObject);
+                master.SpawnBody(body, args.sender.master.GetBody().transform.position, Quaternion.identity);
+
+                if (args.Count > 2)
                 {
-                    master.teamIndex = teamIndex;
+                    var eliteIndex = StringFinder.GetEnumFromPartial<EliteIndex>(args[2]);
+                    if (eliteIndex != EliteIndex.None)
+                    {
+                        master.inventory.SetEquipmentIndex(EliteCatalog.GetEliteDef(eliteIndex).eliteEquipmentIndex);
+                        master.inventory.GiveItem(ItemIndex.BoostHp, Mathf.RoundToInt((GetTierDef(eliteIndex).healthBoostCoefficient - 1) * 10));
+                        master.inventory.GiveItem(ItemIndex.BoostDamage, Mathf.RoundToInt((GetTierDef(eliteIndex).damageBoostCoefficient - 1) * 10));
+                    }
+                }
+
+                if (args.Count > 3 && Util.TryParseBool(args[3], out bool braindead) && braindead)
+                {
+                    Destroy(master.GetComponent<BaseAI>());
+                }
+                
+
+                if (args.Count > 4 && Enum.TryParse<TeamIndex>(StringFinder.GetEnumFromPartial<TeamIndex>(args[2]).ToString(), true, out TeamIndex teamIndex))
+                {
+                    if ((int)teamIndex >= (int)TeamIndex.None && (int)teamIndex < (int)TeamIndex.Count)
+                    {
+                        master.teamIndex = teamIndex;
+                    }
                 }
             }
-
-            if (args.Count > 3 && Util.TryParseBool(args[3], out bool braindead) && braindead)
-            {
-                Destroy(master.GetComponent<BaseAI>());
-            }
-            Log.MessageNetworked(Lang.SPAWN_ATTEMPT + character, args);
         }
 
         [ConCommand(commandName = "spawn_body", flags = ConVarFlags.ExecuteOnServer, helpText = "Spawns the specified dummy body. " + Lang.SPAWNBODY_ARGS)]
