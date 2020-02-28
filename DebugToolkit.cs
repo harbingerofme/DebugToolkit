@@ -1131,7 +1131,7 @@ namespace DebugToolkit
                 }
             }
 
-            if (args.Count > 3 && bool.TryParse(args[3], out bool braindead) && braindead)
+            if (args.Count > 3 && Util.TryParseBool(args[3], out bool braindead) && braindead)
             {
                 Destroy(master.GetComponent<BaseAI>());
             }

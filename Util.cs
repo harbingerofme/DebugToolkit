@@ -49,5 +49,20 @@ namespace DebugToolkit
 
             return null;
         }
+
+        internal static bool TryParseBool(string input, out bool result)
+        {
+            if(bool.TryParse(input,out result))
+            {
+                return true;
+            }
+            int val;
+            if(int.TryParse(input,out val))
+            {
+                result = val > 0 ? true : false;
+                return true;
+            }
+            return false;
+        }
     }
 }
