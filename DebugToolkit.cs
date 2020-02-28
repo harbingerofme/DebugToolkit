@@ -1028,7 +1028,6 @@ namespace DebugToolkit
                 Log.MessageNetworked(Lang.SPAWNAS_ARGS, args, LogLevel.MessageClientOnly);
                 return;
             }
-
             string character = StringFinder.Instance.GetBodyName(args[0]);
             if (character == null)
             {
@@ -1072,7 +1071,8 @@ namespace DebugToolkit
             stage1pod.SetBool(false);
 
             // TODO: Fix so that the respawning player has its noclip disabled no matter what, for now, band aid fix for the local player only
-            if (LocalUserManager.GetFirstLocalUser().currentNetworkUser == args.sender && Command_Noclip.IsActivated)
+            var localPlayer = LocalUserManager.GetFirstLocalUser();
+            if (localPlayer!=null && localPlayer.currentNetworkUser == args.sender && Command_Noclip.IsActivated)
             {
                 Command_Noclip.InternalToggle();
             }
