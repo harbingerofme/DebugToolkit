@@ -1085,6 +1085,8 @@ namespace DebugToolkit
         [AutoCompletion(typeof(MasterCatalog), "aiMasterPrefabs")]
         private static void CCSpawnAI(ConCommandArgs args)
         {
+            //- Spawns the specified CharacterMaster. Requires 1 argument: spwan_ai 0:{localised_objectname} 1:[EliteIndex:-1/None] 2:[TeamIndex:0/Neutral] 3:[Braindead:0(0|1)]
+
             if (args.sender == null)
             {
                 Log.Message(Lang.DS_NOTYETIMPLEMENTED, LogLevel.Error);
@@ -1113,9 +1115,12 @@ namespace DebugToolkit
             if (args.Count > 1)
             {
                 var eliteIndex = StringFinder.GetEnumFromPartial<EliteIndex>(args[1]);
-                master.inventory.SetEquipmentIndex(EliteCatalog.GetEliteDef(eliteIndex).eliteEquipmentIndex);
-                master.inventory.GiveItem(ItemIndex.BoostHp, Mathf.RoundToInt((GetTierDef(eliteIndex).healthBoostCoefficient - 1) * 10));
-                master.inventory.GiveItem(ItemIndex.BoostDamage, Mathf.RoundToInt((GetTierDef(eliteIndex).damageBoostCoefficient - 1) * 10));
+                if (eliteIndex != EliteIndex.None)
+                {
+                    master.inventory.SetEquipmentIndex(EliteCatalog.GetEliteDef(eliteIndex).eliteEquipmentIndex);
+                    master.inventory.GiveItem(ItemIndex.BoostHp, Mathf.RoundToInt((GetTierDef(eliteIndex).healthBoostCoefficient - 1) * 10));
+                    master.inventory.GiveItem(ItemIndex.BoostDamage, Mathf.RoundToInt((GetTierDef(eliteIndex).damageBoostCoefficient - 1) * 10));
+                }
             }
 
             if (args.Count > 2 && Enum.TryParse<TeamIndex>(StringFinder.GetEnumFromPartial<TeamIndex>(args[2]).ToString(), true, out TeamIndex teamIndex))
