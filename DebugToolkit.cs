@@ -1071,12 +1071,6 @@ namespace DebugToolkit
             bool oldVal = stage1pod.value;
             stage1pod.SetBool(false);
 
-            // TODO: Fix so that the respawning player has its noclip disabled no matter what, for now, band aid fix for the local player only
-            if (LocalUserManager.GetFirstLocalUser().currentNetworkUser == args.sender && Command_Noclip.IsActivated)
-            {
-                Command_Noclip.InternalToggle();
-            }
-
             master.Respawn(master.GetBody().transform.position, master.GetBody().transform.rotation);
             stage1pod.SetBool(oldVal);
         }
