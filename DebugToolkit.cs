@@ -796,21 +796,21 @@ namespace DebugToolkit
             Log.MessageNetworked($"Seed set to {((seed == 0) ? "vanilla generation" : seed.ToString())}.", args);
         }
 
-        [ConCommand(commandName = "fixed_time", flags = ConVarFlags.ExecuteOnServer, helpText = "Sets the FixedTime to the specified value. " + Lang.FIXEDTIME_ARGS)]
+        [ConCommand(commandName = "fixed_time", flags = ConVarFlags.ExecuteOnServer, helpText = "Sets the run timer to the specified value. " + Lang.FIXEDTIME_ARGS)]
         private static void CCSetTime(ConCommandArgs args)
         {
 
             if (args.Count == 0)
             {
-                Log.MessageNetworked(Run.instance.fixedTime.ToString(), args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked("Run time is " + Run.instance.GetRunStopwatch().ToString(), args, LogLevel.MessageClientOnly);
                 return;
             }
 
             if (TextSerialization.TryParseInvariant(args[0], out float setTime))
             {
-                Run.instance.fixedTime = setTime;
+                Run.instance.SetRunStopwatch(setTime);
                 ResetEnemyTeamLevel();
-                Log.MessageNetworked("Fixed_time set to " + setTime, args);
+                Log.MessageNetworked("Run timer set to " + setTime, args);
             }
             else
             {
