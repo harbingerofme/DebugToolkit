@@ -1085,7 +1085,7 @@ namespace DebugToolkit
         [AutoCompletion(typeof(MasterCatalog), "aiMasterPrefabs")]
         private static void CCSpawnAI(ConCommandArgs args)
         {
-            //- Spawns the specified CharacterMaster. Requires 1 argument: spwan_ai 0:{localised_objectname} 1:[EliteIndex:-1/None] 2:[TeamIndex:0/Neutral] 3:[Braindead:0(0|1)]
+            //- Spawns the specified CharacterMaster. Requires 1 argument: spawn_ai 0:{localised_objectname} 1:[Count:1] 2:[EliteIndex:-1/None] 3:[Braindead:0/false(0|1)] 4:[TeamIndex:0/Neutral]
 
             if (args.sender == null)
             {
@@ -1140,14 +1140,16 @@ namespace DebugToolkit
                 {
                     Destroy(master.GetComponent<BaseAI>());
                 }
-                
 
-                if (args.Count > 4 && Enum.TryParse<TeamIndex>(StringFinder.GetEnumFromPartial<TeamIndex>(args[2]).ToString(), true, out TeamIndex teamIndex))
+                TeamIndex teamIndex = TeamIndex.Monster;
+                if (args.Count > 4)
                 {
-                    if ((int)teamIndex >= (int)TeamIndex.None && (int)teamIndex < (int)TeamIndex.Count)
-                    {
-                        master.teamIndex = teamIndex;
-                    }
+                    StringFinder.TryGetEnumFromPartial(args[4], out teamIndex);
+                }
+
+                if (teamIndex >= TeamIndex.None && teamIndex < TeamIndex.Count)
+                {
+                    master.teamIndex = teamIndex;
                 }
             }
         }

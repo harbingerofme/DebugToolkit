@@ -308,20 +308,34 @@ namespace DebugToolkit
         /// <returns>Returns the match TEnum.</returns>
         public static TEnum GetEnumFromPartial<TEnum>(string name)
         {
+            TryGetEnumFromPartial<TEnum>(name, out TEnum result);
+            return result;
+        }
+
+        public static bool TryGetEnumFromPartial<TEnum>(string name, out TEnum result)
+        {
             var array = (TEnum[])Enum.GetValues(typeof(TEnum));
             if (int.TryParse(name, out int index))
             {
-                return (index < array.Length) ? array[index] : default;
+                if (index < array.Length)
+                {
+                    result = array[index];
+                    return true;
+                }
+                result = default;
+                return false;
             }
 
             foreach (TEnum num in array)
             {
                 if (Enum.GetName(typeof(TEnum), num).ToUpper().Contains(name.ToUpper()))
                 {
-                    return (TEnum)num;
+                    result = (TEnum)num;
+                    return true;
                 }
             }
-            return default;
+            result = default;
+            return false;
         }
     }
 }

@@ -55,7 +55,7 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
 * **create_pickup** - Creates a pickup in front of the issuing player. Pickups are items, equipment and lunar coins. Additionally 'item' or 'equip' may be specified to only search that list. `create_pickup (localized_object_name| "coin") [('item'|'equip') def *both]`
 
 * **spawn_interactible** - Spawns an interactible in front of the player. `spawn_interactable {InteractableSpawnCard}`
-* **spawn_ai** - Spawn an AI: `spawn_ai {localised_objectname} [eliteIndex def -1/None] [teamIndex def 0] [braindead def 1]`. Elite indexes: 0=Fire,1=Overloading,2=Ice,3=Malachite,4=Celestine. Team indexes: 0=neutral,1=player,2=monster. 
+* **spawn_ai** - Spawn an AI: `Requires 1 argument: spawn_ai {localised_objectname} [Count:1] [EliteIndex:-1/None] [Braindead:0/false(0|1)] [TeamIndex:2/Monster]`. Elite indexes: -1=None, 0=Fire,1=Overloading,2=Ice,3=Malachite,4=Celestine. Team indexes: 0=neutral,1=player,2=monster. 
 * **spawn_as** - Spawn as a new character. Type body_list for a full list of characters: `spawn_as {localised_objectname} {playername}`
 * **spawn_body** - Spawns a CharacterBody: `spawn_body {localised_objectname}`
 * **change_team** - Change team to Neutral, Player or Monster: `change_team {teamindex}`. Team indexes: 0=neutral,1=player,2=monster. 
@@ -96,6 +96,7 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
 		* Some commands have not yet been implemented this way and merely do nothing, expect fixes for that in `3.2.X` updates.
 		* When a player is needed for a command, dedicated servers will have to fully qualify their command.
 * **Additions**
+    * **3.2.1** reworked `spawn_ai` so that it can now spawn multiple enemies. As a result the command arguments have been shuffled around a bit.
     * Added the null portal to `add_portal`
     * `reload_all_config` makes a best effort to reload all plugins' configurations.
     * Permission system:
