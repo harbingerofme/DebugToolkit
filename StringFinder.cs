@@ -314,18 +314,18 @@ namespace DebugToolkit
 
         public static bool TryGetEnumFromPartial<TEnum>(string name, out TEnum result)
         {
-            var array = (TEnum[])Enum.GetValues(typeof(TEnum));
             if (int.TryParse(name, out int index))
             {
-                if (index < array.Length)
+                if (Enum.IsDefined(typeof(TEnum),index))
                 {
-                    result = array[index];
+                    result = (TEnum) Enum.ToObject(typeof(TEnum), index);
                     return true;
                 }
                 result = default;
                 return false;
             }
 
+            var array = Enum.GetValues(typeof(TEnum));
             foreach (TEnum num in array)
             {
                 if (Enum.GetName(typeof(TEnum), num).ToUpper().Contains(name.ToUpper()))
