@@ -34,23 +34,27 @@ namespace DebugToolkit
             });
         }
 
-        internal static void InternalToggle()
+        private static void InternalToggle()
         {
             if (DebugToolkit.UpdateCurrentPlayerBody(out _currentNetworkUser, out _currentBody))
             {
                 if (IsActivated)
                 {
-                    _currentBody.GetComponent<KinematicCharacterMotor>().CollidableLayers = _collidableLayersCached;
+                    if (_collidableLayersCached != 0)
+                    {
+                        _currentBody.GetComponent<KinematicCharacterMotor>().CollidableLayers = _collidableLayersCached;
+                    }
+                    _currentBody.characterMotor.useGravity = true;
                     UndoHooks();
                 }
                 else
                 {
                     _collidableLayersCached = _currentBody.GetComponent<KinematicCharacterMotor>().CollidableLayers;
                     _currentBody.GetComponent<KinematicCharacterMotor>().CollidableLayers = 0;
+                    _currentBody.characterMotor.useGravity = false;
                     ApplyHooks();
                 }
-
-                _currentBody.characterMotor.useGravity = !_currentBody.characterMotor.useGravity;
+                
                 IsActivated = !IsActivated;
                 Log.Message(string.Format(Lang.NOCLIP_TOGGLE, IsActivated));
             }
@@ -89,6 +93,12 @@ namespace DebugToolkit
 
         private static void Loop()
         {
+            if (_currentBody.characterMotor.useGravity) // when respawning or things like that, call the toggle to set the variables correctly again
+            {
+                InternalToggle();
+                InternalToggle();
+            }
+
             var forwardDirection = _currentBody.GetComponent<InputBankTest>().moveVector.normalized;
             var aimDirection = _currentBody.GetComponent<InputBankTest>().aimDirection.normalized;
             var isForward = Vector3.Dot(forwardDirection, aimDirection) > 0f;
