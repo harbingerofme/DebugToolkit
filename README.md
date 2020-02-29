@@ -105,6 +105,7 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
 * **Fixes**
     * **3.2.1** `spawn_ai` now parses braindead if it's an integer.
     * **3.2.1** Fix `spawn_as` crashing dedicated servers.
+    * **3.2.1** fixed_time now actually sets/displays the ingame time. Thank you [@Rayss](https://github.com/SuperRayss).
 	* `Noclip` now disables the out of bounds teleport. Go take a look at that collossus head!
     * `add_portal` now gives a nicer error message with all available portals
     * Reenabled `next_boss`. Behaviour might still be weird.
