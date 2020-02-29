@@ -64,6 +64,7 @@
             PLAYER_NOTFOUND = "Specified player does not exist",
             PORTAL_NOTFOUND = "The specified portal could not be found. Valid portals: 'blue','gold','celestial','null','all'",
             RUNSETSTAGESCLEARED_HELP = "Sets the amount of stages cleared. This does not change the current stage.",
+            SPAWN_ATTEMPT_1 = "Attempting to spawn: {0}",
             SPAWN_ATTEMPT_2 = "Attempting to spawn {0}: {1}",
             SPAWN_ERROR = "Could not spawn: ",
             NOTINARUN_ERROR = "This command only works when in a Run !",

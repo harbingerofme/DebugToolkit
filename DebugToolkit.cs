@@ -1179,7 +1179,7 @@ namespace DebugToolkit
             GameObject body = BodyCatalog.FindBodyPrefab(character);
             GameObject gameObject = Instantiate<GameObject>(body, args.sender.master.GetBody().transform.position, Quaternion.identity);
             NetworkServer.Spawn(gameObject);
-            Log.MessageNetworked(Lang.SPAWN_ATTEMPT + character, args);
+            Log.MessageNetworked(string.Format(Lang.SPAWN_ATTEMPT_1, character), args);
         }
 
         [ConCommand(commandName = "respawn", flags = ConVarFlags.ExecuteOnServer, helpText = "Respawns the specified player. " + Lang.RESPAWN_ARGS)]
@@ -1209,7 +1209,7 @@ namespace DebugToolkit
 
             Transform spawnPoint = Stage.instance.GetPlayerSpawnTransform();
             master.Respawn(spawnPoint.position, spawnPoint.rotation, false);
-            Log.MessageNetworked(Lang.SPAWN_ATTEMPT + master.name, args);
+            Log.MessageNetworked(string.Format(Lang.SPAWN_ATTEMPT_1,master.name), args);
         }
 
         [ConCommand(commandName = "change_team", flags = ConVarFlags.ExecuteOnServer, helpText = "Change the specified player to the specified team. " + Lang.CHANGETEAM_ARGS)]
