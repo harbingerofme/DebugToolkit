@@ -1143,6 +1143,7 @@ namespace DebugToolkit
                 if (teamIndex >= TeamIndex.None && teamIndex < TeamIndex.Count)
                 {
                     master.teamIndex = teamIndex;
+                    master.GetBody().teamComponent.teamIndex = teamIndex;
                 }
             }
         }
