@@ -2,16 +2,18 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Version>3.2.0</Version>
+    <Version>3.2.1</Version>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <Authors>Harbingerofme; Paddywan; iDeathHD</Authors>
-    <Description>Bepinex plugin for Risk of Rain 2.</Description>
+    <Description>DebugToolkit is an expansive list of console commands for Risk of Rain 2, intended to make forcing specific situation easier. This is supposed to help with testing of interactions, mods, and what else.</Description>
     <RepositoryUrl>https://github.com/harbingerofme/DebugToolkit</RepositoryUrl>
     <Configurations>Debug;Release;BLEEDING-EDGE</Configurations>
-    <PackageIconUrl>https://raw.githubusercontent.com/harbingerofme/DebugToolkit/master/icon.png</PackageIconUrl>
+    <PackageIconUrl></PackageIconUrl>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <ApplicationIcon>icon.ico</ApplicationIcon>
     <SignAssembly>false</SignAssembly>
+    <PackageIcon>icon.png</PackageIcon>
+    <Copyright>2020 Harbingerofme; Paddywan; iDeathHD</Copyright>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -34,6 +36,10 @@
     <EmbeddedResource Remove="RoR2CommandFinder\**" />
     <None Remove="CommandDiscover\**" />
     <None Remove="RoR2CommandFinder\**" />
+    <None Include="icon.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
     <None Include="LICENSE">
       <Pack>True</Pack>
       <PackagePath></PackagePath>

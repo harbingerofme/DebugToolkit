@@ -22,7 +22,7 @@ namespace DebugToolkit
     [BepInPlugin(GUID, modname, modver)]
     public class DebugToolkit : BaseUnityPlugin
     {
-        public const string modname = "DebugToolkit", modver = "3.2.0";
+        public const string modname = "DebugToolkit", modver = "3.2.1";
         public const string GUID = "com.harbingerofme." + modname;
 
         internal static ConfigFile Configuration;
@@ -796,21 +796,21 @@ namespace DebugToolkit
             Log.MessageNetworked($"Seed set to {((seed == 0) ? "vanilla generation" : seed.ToString())}.", args);
         }
 
-        [ConCommand(commandName = "fixed_time", flags = ConVarFlags.ExecuteOnServer, helpText = "Sets the FixedTime to the specified value. " + Lang.FIXEDTIME_ARGS)]
+        [ConCommand(commandName = "fixed_time", flags = ConVarFlags.ExecuteOnServer, helpText = "Sets the run timer to the specified value. " + Lang.FIXEDTIME_ARGS)]
         private static void CCSetTime(ConCommandArgs args)
         {
 
             if (args.Count == 0)
             {
-                Log.MessageNetworked(Run.instance.fixedTime.ToString(), args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked("Run time is " + Run.instance.GetRunStopwatch().ToString(), args, LogLevel.MessageClientOnly);
                 return;
             }
 
             if (TextSerialization.TryParseInvariant(args[0], out float setTime))
             {
-                Run.instance.fixedTime = setTime;
+                Run.instance.SetRunStopwatch(setTime);
                 ResetEnemyTeamLevel();
-                Log.MessageNetworked("Fixed_time set to " + setTime, args);
+                Log.MessageNetworked("Run timer set to " + setTime, args);
             }
             else
             {
@@ -1028,7 +1028,6 @@ namespace DebugToolkit
                 Log.MessageNetworked(Lang.SPAWNAS_ARGS, args, LogLevel.MessageClientOnly);
                 return;
             }
-
             string character = StringFinder.Instance.GetBodyName(args[0]);
             if (character == null)
             {
@@ -1079,6 +1078,8 @@ namespace DebugToolkit
         [AutoCompletion(typeof(MasterCatalog), "aiMasterPrefabs")]
         private static void CCSpawnAI(ConCommandArgs args)
         {
+            //- Spawns the specified CharacterMaster. Requires 1 argument: spawn_ai 0:{localised_objectname} 1:[Count:1] 2:[EliteIndex:-1/None] 3:[Braindead:0/false(0|1)] 4:[TeamIndex:0/Neutral]
+
             if (args.sender == null)
             {
                 Log.Message(Lang.DS_NOTYETIMPLEMENTED, LogLevel.Error);
@@ -1099,32 +1100,52 @@ namespace DebugToolkit
             var masterprefab = MasterCatalog.FindMasterPrefab(character);
             var body = masterprefab.GetComponent<CharacterMaster>().bodyPrefab;
 
-            var bodyGameObject = Instantiate<GameObject>(masterprefab, args.sender.master.GetBody().transform.position, Quaternion.identity);
-            CharacterMaster master = bodyGameObject.GetComponent<CharacterMaster>();
-            NetworkServer.Spawn(bodyGameObject);
-            master.SpawnBody(body, args.sender.master.GetBody().transform.position, Quaternion.identity);
-
+            int amount = 1;
             if (args.Count > 1)
             {
-                var eliteIndex = StringFinder.GetEnumFromPartial<EliteIndex>(args[1]);
-                master.inventory.SetEquipmentIndex(EliteCatalog.GetEliteDef(eliteIndex).eliteEquipmentIndex);
-                master.inventory.GiveItem(ItemIndex.BoostHp, Mathf.RoundToInt((GetTierDef(eliteIndex).healthBoostCoefficient - 1) * 10));
-                master.inventory.GiveItem(ItemIndex.BoostDamage, Mathf.RoundToInt((GetTierDef(eliteIndex).damageBoostCoefficient - 1) * 10));
-            }
-
-            if (args.Count > 2 && Enum.TryParse<TeamIndex>(StringFinder.GetEnumFromPartial<TeamIndex>(args[2]).ToString(), true, out TeamIndex teamIndex))
-            {
-                if ((int)teamIndex >= (int)TeamIndex.None && (int)teamIndex < (int)TeamIndex.Count)
+                if (int.TryParse(args[1], out amount) == false)
                 {
-                    master.teamIndex = teamIndex;
+                    Log.MessageNetworked(Lang.SPAWNAI_ARGS, args, LogLevel.MessageClientOnly);
+                    return;
                 }
             }
-
-            if (args.Count > 3 && bool.TryParse(args[3], out bool braindead) && braindead)
+            Vector3 location = args.sender.master.GetBody().transform.position;
+            Log.MessageNetworked(string.Format(Lang.SPAWN_ATTEMPT_2,amount,character), args);
+            for (int i = 0; i < amount; i++)
             {
-                Destroy(master.GetComponent<BaseAI>());
+                var bodyGameObject = Instantiate<GameObject>(masterprefab, location, Quaternion.identity);
+                CharacterMaster master = bodyGameObject.GetComponent<CharacterMaster>();
+                NetworkServer.Spawn(bodyGameObject);
+                master.SpawnBody(body, args.sender.master.GetBody().transform.position, Quaternion.identity);
+
+                if (args.Count > 2)
+                {
+                    var eliteIndex = StringFinder.GetEnumFromPartial<EliteIndex>(args[2]);
+                    if (eliteIndex != EliteIndex.None)
+                    {
+                        master.inventory.SetEquipmentIndex(EliteCatalog.GetEliteDef(eliteIndex).eliteEquipmentIndex);
+                        master.inventory.GiveItem(ItemIndex.BoostHp, Mathf.RoundToInt((GetTierDef(eliteIndex).healthBoostCoefficient - 1) * 10));
+                        master.inventory.GiveItem(ItemIndex.BoostDamage, Mathf.RoundToInt((GetTierDef(eliteIndex).damageBoostCoefficient - 1) * 10));
+                    }
+                }
+
+                if (args.Count > 3 && Util.TryParseBool(args[3], out bool braindead) && braindead)
+                {
+                    Destroy(master.GetComponent<BaseAI>());
+                }
+
+                TeamIndex teamIndex = TeamIndex.Monster;
+                if (args.Count > 4)
+                {
+                    StringFinder.TryGetEnumFromPartial(args[4], out teamIndex);
+                }
+
+                if (teamIndex >= TeamIndex.None && teamIndex < TeamIndex.Count)
+                {
+                    master.teamIndex = teamIndex;
+                    master.GetBody().teamComponent.teamIndex = teamIndex;
+                }
             }
-            Log.MessageNetworked(Lang.SPAWN_ATTEMPT + character, args);
         }
 
         [ConCommand(commandName = "spawn_body", flags = ConVarFlags.ExecuteOnServer, helpText = "Spawns the specified dummy body. " + Lang.SPAWNBODY_ARGS)]
@@ -1152,7 +1173,7 @@ namespace DebugToolkit
             GameObject body = BodyCatalog.FindBodyPrefab(character);
             GameObject gameObject = Instantiate<GameObject>(body, args.sender.master.GetBody().transform.position, Quaternion.identity);
             NetworkServer.Spawn(gameObject);
-            Log.MessageNetworked(Lang.SPAWN_ATTEMPT + character, args);
+            Log.MessageNetworked(string.Format(Lang.SPAWN_ATTEMPT_1, character), args);
         }
 
         [ConCommand(commandName = "respawn", flags = ConVarFlags.ExecuteOnServer, helpText = "Respawns the specified player. " + Lang.RESPAWN_ARGS)]
@@ -1182,7 +1203,7 @@ namespace DebugToolkit
 
             Transform spawnPoint = Stage.instance.GetPlayerSpawnTransform();
             master.Respawn(spawnPoint.position, spawnPoint.rotation, false);
-            Log.MessageNetworked(Lang.SPAWN_ATTEMPT + master.name, args);
+            Log.MessageNetworked(string.Format(Lang.SPAWN_ATTEMPT_1,master.name), args);
         }
 
         [ConCommand(commandName = "change_team", flags = ConVarFlags.ExecuteOnServer, helpText = "Change the specified player to the specified team. " + Lang.CHANGETEAM_ARGS)]

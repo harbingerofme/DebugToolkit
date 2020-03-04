@@ -28,7 +28,7 @@
             REMOVEEQUIP_ARGS = "Requires 0 arguments: remove_equip ({PlayerID:self}|{Playername})",
             RESPAWN_ARGS = "Requires 0 arguments: respawn ({PlayerID:self}|{Playername})",
             SEED_ARGS = "Requires no or 1 argument: seed [new seed]",
-            SPAWNAI_ARGS = "Requires 1 argument: spwan_ai {localised_objectname} [EliteIndex:-1/None] [TeamIndex:0/Neutral] [Braindead:0(0|1)]",
+            SPAWNAI_ARGS = "Requires 1 argument: spawn_ai {localised_objectname} [Count:1] [EliteIndex:-1/None] [Braindead:0/false(0|1)] [TeamIndex:2/Monster]",
             SPAWNAS_ARGS = "Requires 1 argument: spawn_as {localised_objectname} ({PlayerID:self}|{Playername})",
             SPAWNBODY_ARGS = "Requires 1 argument: spawn_body {localised_objectname}",
             SPAWNINTERACTABLE_ARGS = "Requires 1 argument: spawn_interactable {InteractableSpawnCard}",
@@ -64,7 +64,8 @@
             PLAYER_NOTFOUND = "Specified player does not exist",
             PORTAL_NOTFOUND = "The specified portal could not be found. Valid portals: 'blue','gold','celestial','null','all'",
             RUNSETSTAGESCLEARED_HELP = "Sets the amount of stages cleared. This does not change the current stage.",
-            SPAWN_ATTEMPT = "Attempting to spawn: ",
+            SPAWN_ATTEMPT_1 = "Attempting to spawn: {0}",
+            SPAWN_ATTEMPT_2 = "Attempting to spawn {0}: {1}",
             SPAWN_ERROR = "Could not spawn: ",
             NOTINARUN_ERROR = "This command only works when in a Run !",
             ALL = "ALL"
