@@ -50,14 +50,19 @@ namespace DebugToolkit
             return null;
         }
 
+        /// <summary>
+        /// Try to parse a bool that's either formatted as "true"/"false" or a whole number "0","1". Values above 0 are considered "truthy" and values equal or lower than zero are considered "false".
+        /// </summary>
+        /// <param name="input">the string to parse</param>
+        /// <param name="result">the result if parsing was correct.</param>
+        /// <returns>True if the string was parsed correctly. False otherwise</returns>
         internal static bool TryParseBool(string input, out bool result)
         {
             if(bool.TryParse(input,out result))
             {
                 return true;
             }
-            int val;
-            if(int.TryParse(input,out val))
+            if (int.TryParse(input, out int val))
             {
                 result = val > 0 ? true : false;
                 return true;
