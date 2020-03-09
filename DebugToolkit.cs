@@ -1318,7 +1318,7 @@ namespace DebugToolkit
 
         internal static bool UpdateCurrentPlayerBody(out NetworkUser networkUser, out CharacterBody characterBody)
         {
-            networkUser = LocalUserManager.GetFirstLocalUser().currentNetworkUser;
+            networkUser = LocalUserManager.GetFirstLocalUser()?.currentNetworkUser;
             characterBody = null;
 
             if (networkUser)

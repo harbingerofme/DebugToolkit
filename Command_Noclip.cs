@@ -171,9 +171,12 @@ namespace DebugToolkit
         {
             if (IsActivated)
             {
-                _currentBody.GetComponent<KinematicCharacterMotor>().CollidableLayers = _collidableLayersCached;
+                if (_currentBody)
+                {
+                    _currentBody.GetComponent<KinematicCharacterMotor>().CollidableLayers = _collidableLayersCached;
+                    _currentBody.characterMotor.useGravity = !_currentBody.characterMotor.useGravity;
+                }
 
-                _currentBody.characterMotor.useGravity = !_currentBody.characterMotor.useGravity;
                 IsActivated = !IsActivated;
                 UndoHooks();
                 Log.Message(string.Format(Lang.NOCLIP_TOGGLE, IsActivated));
