@@ -1,4 +1,4 @@
-##Debug Toolkit
+## DebugToolkit
 
 This mod adds various debugging commands to the console. See below for all commands plus explanation.
 
