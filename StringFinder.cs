@@ -15,7 +15,7 @@ namespace DebugToolkit
         private static readonly Dictionary<string, string[]> ItemAlias = new Dictionary<string, string[]>();
         private static readonly Dictionary<string, string[]> EquipAlias = new Dictionary<string, string[]>();
         private static StringFinder instance;
-        private static List<DirectorCard> characterSpawnCard = new List<DirectorCard>();
+        private static readonly List<DirectorCard> characterSpawnCard = new List<DirectorCard>();
         private static List<InteractableSpawnCard> interactableSpawnCards = new List<InteractableSpawnCard>();
 
         public static StringFinder Instance
