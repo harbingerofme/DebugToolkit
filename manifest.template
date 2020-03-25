@@ -4,8 +4,8 @@
     "website_url": "https://github.com/harbingerofme/DebugToolkit",
     "description": "Adds console command for debugging mods.",
     "dependencies": [
-	"bbepis-BepInExPack-3.0.0",
-	"tristanmcpherson-R2API-2.3.22",
+	"bbepis-BepInExPack-3.1.0",
+	"tristanmcpherson-R2API-2.4.2",
 	"wildbook-MiniRpcLib-0.0.1"
     ]
 }
