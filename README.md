@@ -2,6 +2,8 @@
 
 This mod adds various debugging commands to the console. See below for all commands plus explanation.
 
+[Harb](https://thunderstore.io/package/Harb/), [iDeathHD](https://thunderstore.io/package/xiaoxiao921/) and ['s](https://thunderstore.io/package/paddywan/) reimplementation of [Morris1927's](https://thunderstore.io/package/Morris1927/) [RoR2Cheats](https://thunderstore.io/package/Morris1927/RoR2Cheats/). Derived with permission. 
+
 Also adds autocompletion for arguments and networked commands giving their information to the right people to the console.
 
 Track update progress, get support and suggest new features over at the [DebugToolkit discord](https://discord.gg/yTfsMWP).
@@ -12,8 +14,6 @@ Some vanilla console functions you might not know:
 * `help {command}` may be used to get help
 * `find {term}` can be used to find commands with that term.
 * `max_messages {nr}` changes how much scroll back the console has. We auto change this to 100 for you.
-
-[Harb](https://thunderstore.io/package/Harb/), [iDeathHD](https://thunderstore.io/package/xiaoxiao921/) and ['s](https://thunderstore.io/package/paddywan/) reimplementation of [Morris1927's](https://thunderstore.io/package/Morris1927/) [RoR2Cheats](https://thunderstore.io/package/Morris1927/RoR2Cheats/). Derived with permission. 
 
 Mods recommended for combined use:
 
