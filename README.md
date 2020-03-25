@@ -103,6 +103,8 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
         * There's a config for the permission system located in your `bepinex/config/` folder after running the new version once.
         * The permission system is by default DISABLED.
 * **Fixes**
+    * **3.2.2** Fix seeveral premature game ends with noclip enabled crashing outside stuff.
+    * **3.2.2** DT now correctly handles nonpostive enums. this fixes an annoying persistent issue in `spawn_ai`.
     * **3.2.1** `spawn_ai` now parses braindead if it's an integer.
     * **3.2.1** Fix `spawn_as` crashing dedicated servers.
     * **3.2.1** fixed_time now actually sets/displays the ingame time. Thank you [@Rayss](https://github.com/SuperRayss).
