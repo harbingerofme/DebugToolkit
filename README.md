@@ -88,7 +88,7 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
 
 ## Changelog ##
 
-### 3.2.0 ###
+### 3.2 ###
 
 * "Dedicated Servers"
 * **General**
@@ -116,7 +116,7 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
 * Other things:
     * Want to get bleeding edge builds? Check out our [Discord](https://discord.gg/yTfsMWP)!
 
-### 3.1.0 ###
+### 3.1 ###
 
 * "DebugToolkit"
 * **General**
@@ -153,7 +153,7 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
     * Special characters are now handled better (or rather, are ignored completely) when matching arguments.
 	* `set_scene` is now no longer denying access to you because you don't have cheats enabled. (you do, after all.)
 
-### 3.0.0 ###
+### 3.0 ###
 
 * "Initial Release"
 * **General**
@@ -168,7 +168,7 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
     * `seed` is now networked.
     * Elites now spawn with correct stats, and should be update-proofed.
 
-### < 3.0.0 ###
+### < 3.0 ###
 
 See [the old package](https://thunderstore.io/package/Morris1927/)
 
