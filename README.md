@@ -22,7 +22,7 @@ Mods recommended for combined use:
 * [MacroCommands](https://thunderstore.io/package/JackPendarvesRead/MacroCommands/) for binding console commands to keys.
 * [R2DSE](https://thunderstore.io/package/Harb/R2DSEssentials/) for running DT on dedicated servers.
 
-You may contact us at any time through issues on GitHub, the dedicated server or through the Risk of Rain 2 modding Discord found at the top of the Thunderstore website. 
+You may contact us at any time through [issues on GitHub](https://github.com/harbingerofme/DebugToolkit/issues/new/choose), the [dedicated discord server]((https://discord.gg/yTfsMWP) or through the [Risk of Rain 2 modding Discord](https://discord.gg/5MbXZvd) found at the top of the Thunderstore website. 
 
 ---
 
