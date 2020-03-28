@@ -32,6 +32,7 @@ namespace DebugToolkit
             
             On.RoR2.Console.AutoComplete.SetSearchString += BetterAutoCompletion;
             On.RoR2.Console.AutoComplete.ctor += CommandArgsAutoCompletion;
+            IL.RoR2.UI.ConsoleWindow.Update += SmoothDropDownSuggestionNavigation;
             IL.RoR2.Networking.GameNetworkManager.CCSetScene += EnableCheatsInCCSetScene;
 
             // Noclip hooks
@@ -183,7 +184,52 @@ namespace DebugToolkit
 
             self.SetFieldValue("searchableStrings", searchableStrings);
         }
-		
+
+        private const float changeSelectedItemTimer = 0.1f;
+        private static float _lastSelectedItemChange;
+        private static void SmoothDropDownSuggestionNavigation(ILContext il)
+        {
+            var cursor = new ILCursor(il);
+
+            var getKey = il.Import(typeof(Input).GetMethodCached("GetKey", new []{ typeof(KeyCode) }));
+            
+            cursor.GotoNext(
+                MoveType.After,
+                x => x.MatchLdcI4(0x111),
+                x => x.MatchCallOrCallvirt<Input>("GetKeyDown")
+            );
+            cursor.Prev.Operand = getKey;
+            cursor.EmitDelegate<Func<bool, bool>>(LimitChangeItemFrequency);
+
+            cursor.GotoNext(
+                MoveType.After,
+                x => x.MatchLdcI4(0x112),
+                x => x.MatchCallOrCallvirt<Input>("GetKeyDown")
+            );
+            cursor.Prev.Operand = getKey;
+            cursor.EmitDelegate<Func<bool, bool>>(LimitChangeItemFrequency);
+
+            bool LimitChangeItemFrequency(bool canChangeItem)
+            {
+                if (canChangeItem)
+                {
+                    var timeNow = Time.time;
+                    if (timeNow > changeSelectedItemTimer + _lastSelectedItemChange)
+                    {
+                        _lastSelectedItemChange = timeNow;
+
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+
+                return canChangeItem;
+            }
+        }
+
         internal static void ForceFamilyEvent(ILContext il)
         {
             ILCursor c = new ILCursor(il);
