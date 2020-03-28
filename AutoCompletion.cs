@@ -99,6 +99,10 @@ namespace DebugToolkit
                             itemString = StringFinder.RemoveSpacesAndAlike(itemString);
                         }
 
+                        if (itemString.Contains("(RoR"))
+                        {
+                            itemString = itemString.Substring(0, itemString.IndexOf('('));
+                        }
 
                         if (!IsToken(itemString))
                         {
