@@ -40,7 +40,7 @@ namespace DebugToolkit
         private static void EnableCheatsInCCSetScene(ILContext il)
         {
             ILCursor c = new ILCursor(il);
-            c.Goto(3);
+            c.Goto(4);
             c.RemoveRange(2);
             c.Emit(OpCodes.Ldc_I4_1);
         }
