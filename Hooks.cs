@@ -10,6 +10,7 @@ using System.Globalization;
 using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
+using Console = RoR2.Console;
 
 namespace DebugToolkit
 {
@@ -17,14 +18,21 @@ namespace DebugToolkit
     internal sealed class Hooks
     {
         private const ConVarFlags AllFlagsNoCheat = ConVarFlags.None | ConVarFlags.Archive | ConVarFlags.Engine | ConVarFlags.ExecuteOnServer | ConVarFlags.SenderMustBeServer;
+
+        private static On.RoR2.Console.orig_RunCmd _origRunCmd;
         public static void InitializeHooks()
         {
             IL.RoR2.Console.Awake += UnlockConsole;
             On.RoR2.Console.InitConVars += InitCommandsAndFreeConvars;
             CommandHelper.AddToConsoleWhenReady();
-            On.RoR2.Console.RunCmd += LogNetworkCommandsAndCheckPermissions;
-			On.RoR2.Console.AutoComplete.SetSearchString += BetterAutoCompletion;
+
+            var runCmdHook = new Hook(typeof(Console).GetMethodCached("RunCmd"),
+                typeof(Hooks).GetMethodCached(nameof(LogNetworkCommandsAndCheckPermissions)), new HookConfig { Priority = 1 });
+            _origRunCmd = runCmdHook.GenerateTrampoline<On.RoR2.Console.orig_RunCmd>();
+            
+            On.RoR2.Console.AutoComplete.SetSearchString += BetterAutoCompletion;
             On.RoR2.Console.AutoComplete.ctor += CommandArgsAutoCompletion;
+            IL.RoR2.UI.ConsoleWindow.Update += SmoothDropDownSuggestionNavigation;
             IL.RoR2.Networking.GameNetworkManager.CCSetScene += EnableCheatsInCCSetScene;
 
             // Noclip hooks
@@ -86,7 +94,8 @@ namespace DebugToolkit
             }
         }
 
-        private static void LogNetworkCommandsAndCheckPermissions(On.RoR2.Console.orig_RunCmd orig, RoR2.Console self, NetworkUser sender, string concommandName, List<string> userArgs)
+        // ReSharper disable once UnusedMember.Local
+        private static void LogNetworkCommandsAndCheckPermissions(Console self, NetworkUser sender, string concommandName, List<string> userArgs)
         {
             StringBuilder s = new StringBuilder();
             userArgs.ForEach((str) => s.AppendLine(str));
@@ -109,7 +118,7 @@ namespace DebugToolkit
 
             if (canExecute)
             {
-                orig(self, sender, concommandName, userArgs);
+                _origRunCmd(self, sender, concommandName, userArgs);
                 ScrollConsoleDown();
             }
         }
@@ -175,7 +184,52 @@ namespace DebugToolkit
 
             self.SetFieldValue("searchableStrings", searchableStrings);
         }
-		
+
+        private const float changeSelectedItemTimer = 0.1f;
+        private static float _lastSelectedItemChange;
+        private static void SmoothDropDownSuggestionNavigation(ILContext il)
+        {
+            var cursor = new ILCursor(il);
+
+            var getKey = il.Import(typeof(Input).GetMethodCached("GetKey", new []{ typeof(KeyCode) }));
+            
+            cursor.GotoNext(
+                MoveType.After,
+                x => x.MatchLdcI4(0x111),
+                x => x.MatchCallOrCallvirt<Input>("GetKeyDown")
+            );
+            cursor.Prev.Operand = getKey;
+            cursor.EmitDelegate<Func<bool, bool>>(LimitChangeItemFrequency);
+
+            cursor.GotoNext(
+                MoveType.After,
+                x => x.MatchLdcI4(0x112),
+                x => x.MatchCallOrCallvirt<Input>("GetKeyDown")
+            );
+            cursor.Prev.Operand = getKey;
+            cursor.EmitDelegate<Func<bool, bool>>(LimitChangeItemFrequency);
+
+            bool LimitChangeItemFrequency(bool canChangeItem)
+            {
+                if (canChangeItem)
+                {
+                    var timeNow = Time.time;
+                    if (timeNow > changeSelectedItemTimer + _lastSelectedItemChange)
+                    {
+                        _lastSelectedItemChange = timeNow;
+
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+
+                return canChangeItem;
+            }
+        }
+
         internal static void ForceFamilyEvent(ILContext il)
         {
             ILCursor c = new ILCursor(il);
