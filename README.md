@@ -86,6 +86,9 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
 
 ### Additional Macros ###
 
+* **midgame** - This is the preset HopooGames uses for midgame testing. Gives all users random items, and drops you off in the bazaar. `midgame`
+* **lategame** - This is the preset HopooGames uses for endgame testing. Gives all users random items, and drops you off in the bazaar. `lategame`
+* **dtzoom** - Gives you 20 hooves and 200 feathers to get around the map quickly. Based on a command in the initial release of Risk of Rain 2.
 
 ---
 
@@ -95,10 +98,13 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
 
 * "Artifacts"
 * **General**
-    * Updated for artifacts. Minor additions.
+    * Updated for artifacts.
+    * We've added some predefined macros for testing. We still recommend the macro plugins linked in our description if you want to define your own macros.
 * **Additions**
     * `random_items` generates an inventory of items for you.
     * `give_equip random` now gives you a random equipment from your available drop pool.
+    * `midgame` and `lategame` allow you to test your mod in a typical mid/endgame scenario. The presets come from HopooGames.
+    * `dtzoom` gives you some items to make you move around the map faster. This is a macro that was present in the original release of RoR2.
 * **Fixes**
     * Fix a faulty ILHook in CCSetScene
     * Fix `spawn_as`.
