@@ -68,10 +68,14 @@
     <None Remove="manifest.template" />
     <None Remove="README.md" />
     <None Remove="readmetest.zip" />
+    <None Remove="Resources\Microsoft.CSharp.dll" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="CurrentCommit">
+    <EmbeddedResource Include="Resources\CurrentCommit">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Microsoft.CSharp.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>
@@ -79,6 +83,7 @@
 
   <ItemGroup>
     <Folder Include="libs\" />
+    <Folder Include="Properties\" />
   </ItemGroup>
 
 
@@ -88,6 +93,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="Mono.Cecil" Version="0.11.1" />
   </ItemGroup>
 
@@ -103,6 +109,7 @@
     </Reference>
     <Reference Include="Microsoft.CSharp">
       <HintPath>libs\Microsoft.CSharp.dll</HintPath>
+      <Private>true</Private>
     </Reference>
     <Reference Include="MiniRpcLib">
       <HintPath>libs\MiniRpcLib.dll</HintPath>
@@ -185,7 +192,7 @@
   </Target>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="git rev-parse --verify HEAD &gt; CurrentCommit&#xD;&#xA;" />
+    <Exec Command="git rev-parse --verify HEAD &gt; Resources\CurrentCommit&#xD;&#xA;robocopy %25userprofile%25\.nuget\packages\microsoft.csharp\4.7.0\lib\netstandard2.0 $(ProjectDir)Resources Microsoft.CSharp.dll &gt; $(TargetDir)Robocopy&#xD;&#xA;del $(TargetDir)Robocopy" />
   </Target>
 
 </Project>

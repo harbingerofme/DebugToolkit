@@ -4,11 +4,10 @@ using KinematicCharacterController;
 using MiniRpcLib;
 using MonoMod.RuntimeDetour;
 using UnityEngine.Networking;
-using DebugToolkit.Commands;
 // ReSharper disable UnusedMember.Local
 // ReSharper disable InconsistentNaming
 
-namespace DebugToolkit
+namespace DebugToolkit.Commands
 {
     // ReSharper disable once UnusedMember.Global
     internal static class Command_Noclip
@@ -42,9 +41,7 @@ namespace DebugToolkit
                 if (IsActivated)
                 {
                     if (_collidableLayersCached != 0)
-                    {
                         _currentBody.GetComponent<KinematicCharacterMotor>().CollidableLayers = _collidableLayersCached;
-                    }
                     _currentBody.characterMotor.useGravity = true;
                     UndoHooks();
                 }
@@ -55,7 +52,7 @@ namespace DebugToolkit
                     _currentBody.characterMotor.useGravity = false;
                     ApplyHooks();
                 }
-                
+
                 IsActivated = !IsActivated;
                 Log.Message(string.Format(Lang.NOCLIP_TOGGLE, IsActivated));
             }
@@ -87,9 +84,7 @@ namespace DebugToolkit
         internal static void Update()
         {
             if (PlayerCommands.UpdateCurrentPlayerBody(out _currentNetworkUser, out _currentBody))
-            {
                 Loop();
-            }
         }
 
         private static void Loop()
@@ -114,9 +109,7 @@ namespace DebugToolkit
                 if (isStrafing)
                 {
                     if (isForward)
-                    {
                         _currentBody.characterMotor.velocity.y = aimDirection.y * 100f;
-                    }
                     else
                     {
                         _currentBody.characterMotor.velocity.y = aimDirection.y * -100f;
@@ -130,9 +123,7 @@ namespace DebugToolkit
                 if (isStrafing)
                 {
                     if (isForward)
-                    {
                         _currentBody.characterMotor.velocity.y = aimDirection.y * 50;
-                    }
                     else
                     {
                         _currentBody.characterMotor.velocity.y = aimDirection.y * -50;
@@ -143,17 +134,13 @@ namespace DebugToolkit
 
             var inputBank = _currentBody.GetComponent<InputBankTest>();
             if (inputBank && inputBank.jump.down)
-            {
                 _currentBody.characterMotor.velocity.y = 50f;
-            }
         }
 
         private static void DisableOnServerSceneChange(NetworkManager instance, string newSceneName)
         {
             if (IsActivated)
-            {
                 Console.instance.SubmitCmd(LocalUserManager.GetFirstLocalUser().currentNetworkUser, "noclip");
-            }
 
             origServerChangeScene(instance, newSceneName);
         }
@@ -161,9 +148,7 @@ namespace DebugToolkit
         private static void DisableOnClientSceneChange(NetworkManager instance, string newSceneName, bool forceReload)
         {
             if (IsActivated)
-            {
                 Console.instance.SubmitCmd(LocalUserManager.GetFirstLocalUser().currentNetworkUser, "noclip");
-            }
 
             origClientChangeScene(instance, newSceneName, forceReload);
         }
@@ -190,9 +175,7 @@ namespace DebugToolkit
         private static void DisableOOBCheck(On.RoR2.MapZone.orig_TeleportBody orig, MapZone self, CharacterBody characterBody)
         {
             if (!characterBody.isPlayerControlled)
-            {
                 orig(self, characterBody);
-            }
         }
     }
 }
