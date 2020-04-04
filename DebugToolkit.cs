@@ -4,6 +4,9 @@ using BepInEx.Configuration;
 using MiniRpcLib;
 using LogLevel = DebugToolkit.Log.LogLevel;
 using DebugToolkit.Commands;
+using System.Reflection;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace DebugToolkit
 {
@@ -14,6 +17,8 @@ namespace DebugToolkit
     {
         public const string modname = "DebugToolkit", modver = "3.3.0";
         public const string GUID = "com.harbingerofme." + modname;
+
+        private static MethodInfo RunCmdMethod;
 
         internal static ConfigFile Configuration;
 
@@ -53,6 +58,8 @@ namespace DebugToolkit
             Command_Noclip.InitRPC(miniRpc);
             Command_Teleport.InitRPC(miniRpc);
             TimeScaleNetwork = miniRpc.RegisterAction(Target.Client, (NetworkUser _, float f) => { CurrentRun.HandleTimeScale(f); });
+
+            RunCmdMethod = typeof(Console).GetMethod("RunCmd", BindingFlags.Instance | BindingFlags.NonPublic);
         }
 
         private void Start()
@@ -69,10 +76,11 @@ namespace DebugToolkit
             }
         }
 
-        public static void InvokeCMD(NetworkUser user, string commandname, params object[] arguments)
+        public static void InvokeCMD(NetworkUser user, string commandname, params string[] arguments)
         {
+            List<string> args = arguments.ToList<string>(); 
             if (Console.instance)
-                Console.instance.SubmitCmd(user, string.Join(" ", commandname, arguments));
+                RunCmdMethod.Invoke(Console.instance, new object []  { user, commandname, args});
             else
                 Log.Message($"InvokeCMD called whilst no console instance exists.",LogLevel.Error,Log.Target.Bepinex);
         }
