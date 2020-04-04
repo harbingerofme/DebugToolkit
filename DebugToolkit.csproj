@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -94,67 +94,70 @@
 
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
-      <HintPath>..\R2Mods\libs\Assembly-CSharp.dll</HintPath>
+      <HintPath>libs\Assembly-CSharp.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="BepInEx">
-      <HintPath>..\R2Mods\libs\BepInEx.dll</HintPath>
+      <HintPath>libs\BepInEx.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="Microsoft.CSharp">
+      <HintPath>libs\Microsoft.CSharp.dll</HintPath>
+    </Reference>
     <Reference Include="MiniRpcLib">
-      <HintPath>..\R2Mods\libs\MiniRpcLib.dll</HintPath>
+      <HintPath>libs\MiniRpcLib.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="MMHOOK_Assembly-CSharp">
-      <HintPath>..\R2Mods\libs\MMHOOK_Assembly-CSharp.dll</HintPath>
+      <HintPath>libs\MMHOOK_Assembly-CSharp.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="MonoMod">
-      <HintPath>..\R2Mods\libs\MonoMod.dll</HintPath>
+      <HintPath>libs\MonoMod.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="MonoMod.RuntimeDetour">
-      <HintPath>..\R2Mods\libs\MonoMod.RuntimeDetour.dll</HintPath>
+      <HintPath>libs\MonoMod.RuntimeDetour.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="MonoMod.Utils">
-      <HintPath>..\R2Mods\libs\MonoMod.Utils.dll</HintPath>
+      <HintPath>libs\MonoMod.Utils.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="R2API">
-      <HintPath>..\R2Mods\libs\R2API.dll</HintPath>
+      <HintPath>libs\R2API.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Unity.TextMeshPro">
-      <HintPath>..\R2Mods\libs\Unity.TextMeshPro.dll</HintPath>
+      <HintPath>libs\Unity.TextMeshPro.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>..\R2Mods\libs\UnityEngine.dll</HintPath>
+      <HintPath>libs\UnityEngine.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
-      <HintPath>..\R2Mods\libs\UnityEngine.CoreModule.dll</HintPath>
+      <HintPath>libs\UnityEngine.CoreModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine.Networking">
-      <HintPath>..\R2Mods\libs\UnityEngine.Networking.dll</HintPath>
+      <HintPath>libs\UnityEngine.Networking.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine.UI">
-      <HintPath>..\R2Mods\libs\UnityEngine.UI.dll</HintPath>
+      <HintPath>libs\UnityEngine.UI.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine.UIElementsModule">
-      <HintPath>..\R2Mods\libs\UnityEngine.UIElementsModule.dll</HintPath>
+      <HintPath>libs\UnityEngine.UIElementsModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine.UIModule">
-      <HintPath>..\R2Mods\libs\UnityEngine.UIModule.dll</HintPath>
+      <HintPath>libs\UnityEngine.UIModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Wwise">
-      <HintPath>..\R2Mods\libs\Wwise.dll</HintPath>
+      <HintPath>libs\Wwise.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>
