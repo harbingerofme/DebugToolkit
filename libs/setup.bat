@@ -1,7 +1,5 @@
-git clone --single-branch --branch bep150 https://github.com/Paddywaan/RoR2Libs
-del RoR2Libs\.gitattributes
-del RoR2Libs\.gitignore
-del RoR2Libs\RoR2Libs.sln
+git clone https://github.com/harbingerofme/RoR2Libs.git
 rmdir /S /Q RoR2Libs\.git
-copy RoR2Libs\libs\*.dll .\
+copy RoR2Libs\*.dll .\
+copy RoR2Libs\*.xml .\
 rmdir /S /Q RoR2Libs
