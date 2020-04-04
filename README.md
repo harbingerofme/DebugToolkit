@@ -47,7 +47,8 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
 * **list_ai** - List all Masters and their language invariants
 
 * **give_item** - Give item directly to the player's inventory: `give_item {localised_object_name} [count def 1] [player def *you]`
-* **give_equip** - Give equipment directly to a player's inventory: `give_equip {localised_object_name} [player def *you]`
+* **random_items** - Generate random items from the available droptables. `random_items {Count} [player def *you]`
+* **give_equip** - Give equipment directly to a player's inventory: `give_equip {localised_object_name|'random'} [player def *you]`
 * **give_money** - Gives the desired player/team money `give_money {amount} [(all | [player]) def all]`
 * **give_lunar** - Gives the specified amount of lunar coins to the issuing player. A negative count may be specified to remove that many. `give_lunar {amount def 1}`
 * **remove_item** - Removes an item from a player's inventory. `remove_item (localised_object_name | 'all') [(player | 'all') def *you]`
@@ -83,10 +84,24 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
 * **loadout_set_skill_variant** - Sets the skill variant for the sender's user profile: `loadout_set_skill_variant {body_name} {skill_slot_index} {skill_variant_index}`. Note that this does not use the loose bodymatching from custom commands.
 * **set_scene** - Removed the cheat check on this. Functions similar but not really to our `next_stage`, doesn't have our cool autocomplete features, and doesn't advance the stagecount, but can advance menus. `set_scene {scene}`
 
+### Additional Macros ###
+
 
 ---
 
 ## Changelog ##
+
+### 3.3 ###
+
+* "Artifacts"
+* **General**
+    * Updated for artifacts. Minor additions.
+* **Additions**
+    * `random_items` generates an inventory of items for you.
+    * `give_equip random` now gives you a random equipment from your available drop pool.
+* **Fixes**
+    * Fix a faulty ILHook in CCSetScene
+    * Fix `spawn_as`.
 
 ### 3.2 ###
 

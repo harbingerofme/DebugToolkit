@@ -230,6 +230,54 @@ namespace DebugToolkit
             Log.MessageNetworked($"Gave {iCount} {item} to {player.masterController.GetDisplayName()}", args);
         }
 
+        [ConCommand(commandName = "random_items", flags = ConVarFlags.ExecuteOnServer, helpText = "Generates the specified amount of items for the specified player from the available item pools at random.")]
+        private static void CCRandom_items(ConCommandArgs args)
+        {
+            if(args.Count<2 && args.sender == null)
+            {
+                Log.Message(Lang.DS_REQUIREFULLQUALIFY,LogLevel.Error);
+                Log.Message(Lang.RANDOM_ITEM_ARGS,LogLevel.Message);
+                return;
+            }
+
+            if(args.Count < 1)
+            {
+                Log.MessageNetworked(Lang.RANDOM_ITEM_ARGS,args);
+                return;
+            }
+
+            NetworkUser player = args.sender;
+            Inventory inventory = args.sender?.master.inventory;
+
+            if (args.Count >= 2)
+            {
+                player = Util.GetNetUserFromString(args.userArgs, 1);
+                if (player == null)
+                {
+                    Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
+                    if (args.sender == null)
+                    {
+                        return;
+                    }
+                }
+
+                inventory = player == null ? inventory : player.master.inventory;
+            }
+
+            var a = args.TryGetArgInt(0);
+            if (a.HasValue && a.Value > 0)
+            {
+                inventory.GiveRandomItems(a.Value);
+                Log.MessageNetworked($"Generated {a.Value} items!",args);
+            }
+            else
+            {
+                Log.MessageNetworked(Lang.RANDOM_ITEM_ARGS, args, LogLevel.MessageClientOnly);
+            }
+
+
+        }
+
         [ConCommand(commandName = "give_equip", flags = ConVarFlags.ExecuteOnServer, helpText = "Gives the specified item to the player. " + Lang.GIVEEQUIP_ARGS)]
         [AutoCompletion(typeof(EquipmentCatalog), "equipmentDefs", "nameToken")]
         private static void CCGiveEquipment(ConCommandArgs args)
@@ -272,6 +320,10 @@ namespace DebugToolkit
             if (equip != EquipmentIndex.None)
             {
                 inventory?.SetEquipmentIndex(equip);
+            } else if(args[0].ToLower() == "random")
+            {
+                inventory?.GiveRandomEquipment();
+                equip = inventory.GetEquipmentIndex();
             }
             else
             {

@@ -24,6 +24,7 @@
             NOENEMIES_ARGS = "Requires 0 arguments: no_enemies",
             PERM_ENABLE_ARGS = "Requires 0 argument: perm_enable",
             PERM_MOD_ARGS = "Requires 2 argument: perm_mod (PermissionLevel (0, 1, 2 OR None, SubAdmin, Admin) ({PlayerID}|{Playername}) ",
+            RANDOM_ITEM_ARGS = "Requires 1 argument: random_items {Count} ({PlayerID:self}|{Playername})",
             REMOVEITEM_ARGS = "Requires 1 argument: remove_item {localised_object_name} ({Count}|\"all\") ({PlayerID:self}|{Playername})",
             REMOVEEQUIP_ARGS = "Requires 0 arguments: remove_equip ({PlayerID:self}|{Playername})",
             RESPAWN_ARGS = "Requires 0 arguments: respawn ({PlayerID:self}|{Playername})",
@@ -82,6 +83,7 @@
             DS_NOTAVAILABLE = "This command doesn't make sense to run from a dedicated server.",
             DS_NOTYETIMPLEMENTED = "This command has not yet been implemented to be run from a dedicated server,"
             ;
+        
     }
     internal static class Number
     {
