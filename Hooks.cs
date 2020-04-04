@@ -264,7 +264,7 @@ namespace DebugToolkit
             self.OverrideCurrentMonsterCard(selected);
             self.SetFieldValue<CombatDirector.EliteTierDef>("currentActiveEliteTier", DebugToolkit.GetTierDef(DebugToolkit.nextBossElite));
             self.SetFieldValue<EliteIndex>("currentActiveEliteIndex", DebugToolkit.nextBossElite);
-            Log.Message($"{selected.spawnCard.name} cost has been set to {selected.cost} for {DebugToolkit.nextBossCount} {DebugToolkit.nextBossElite.ToString()} bosses with available credit: {self.monsterCredit}",Log.LogLevel.Info);
+            Log.Message($"{selected.spawnCard.name} cost has been set to {selected.cost} for {DebugToolkit.nextBossCount} {DebugToolkit.nextBossElite} bosses with available credit: {self.monsterCredit}",Log.LogLevel.Info);
             DebugToolkit.nextBossCount = 1;
             DebugToolkit.nextBossElite = EliteIndex.None;
             On.RoR2.CombatDirector.SetNextSpawnAsBoss -= CombatDirector_SetNextSpawnAsBoss;
