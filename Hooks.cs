@@ -1,3 +1,4 @@
+using DebugToolkit.Commands;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
@@ -258,24 +259,24 @@ namespace DebugToolkit
         {
             orig(self);
             self.monsterCredit *= 100; 
-            var selected = DebugToolkit.nextBoss;
+            var selected = CurrentRun.nextBoss;
             //todo: fix this line.
             // selected.cost = (int)((self.monsterCredit / DebugToolkit.nextBossCount) / DebugToolkit.GetTierDef(DebugToolkit.nextBossElite).costMultiplier);
             self.OverrideCurrentMonsterCard(selected);
-            self.SetFieldValue<CombatDirector.EliteTierDef>("currentActiveEliteTier", DebugToolkit.GetTierDef(DebugToolkit.nextBossElite));
-            self.SetFieldValue<EliteIndex>("currentActiveEliteIndex", DebugToolkit.nextBossElite);
-            Log.Message($"{selected.spawnCard.name} cost has been set to {selected.cost} for {DebugToolkit.nextBossCount} {DebugToolkit.nextBossElite} bosses with available credit: {self.monsterCredit}",Log.LogLevel.Info);
-            DebugToolkit.nextBossCount = 1;
-            DebugToolkit.nextBossElite = EliteIndex.None;
+            self.SetFieldValue<CombatDirector.EliteTierDef>("currentActiveEliteTier", Spawners.GetTierDef(CurrentRun.nextBossElite));
+            self.SetFieldValue<EliteIndex>("currentActiveEliteIndex", CurrentRun.nextBossElite);
+            Log.Message($"{selected.spawnCard.name} cost has been set to {selected.cost} for {CurrentRun.nextBossCount} {CurrentRun.nextBossElite} bosses with available credit: {self.monsterCredit}",Log.LogLevel.Info);
+            CurrentRun.nextBossCount = 1;
+            CurrentRun.nextBossElite = EliteIndex.None;
             On.RoR2.CombatDirector.SetNextSpawnAsBoss -= CombatDirector_SetNextSpawnAsBoss;
         }
 
         internal static void SeedHook(On.RoR2.PreGameController.orig_Awake orig, PreGameController self)
         {
             orig(self);
-            if (DebugToolkit.seed != 0)
+            if (CurrentRun.seed != 0)
             {
-                self.runSeed = DebugToolkit.seed;
+                self.runSeed = CurrentRun.seed;
             }
         }
 

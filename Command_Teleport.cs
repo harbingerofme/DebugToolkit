@@ -2,6 +2,7 @@
 using UnityEngine;
 using KinematicCharacterController;
 using MiniRpcLib;
+using DebugToolkit.Commands;
 // ReSharper disable InconsistentNaming
 
 namespace DebugToolkit
@@ -22,7 +23,7 @@ namespace DebugToolkit
 
         private static void InternalActivation()
         {
-            if (DebugToolkit.UpdateCurrentPlayerBody(out _, out _currentBody))
+            if (PlayerCommands.UpdateCurrentPlayerBody(out _, out _currentBody))
             {
                 var playerTransform = _currentBody.GetComponentInChildren<KinematicCharacterMotor>().transform;
                 var aimDirection = _currentBody.GetComponentInChildren<InputBankTest>().aimDirection;
