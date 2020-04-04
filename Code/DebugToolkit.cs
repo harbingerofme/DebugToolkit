@@ -35,7 +35,7 @@ namespace DebugToolkit
 #if !RELEASE   //Additional references in this block must be fully qualifed as to not use them in Release Builds.
             string gitVersion = "";
             using (System.IO.Stream stream = System.Reflection.Assembly.GetExecutingAssembly()
-                    .GetManifestResourceStream($"{this.GetType().Namespace}.CurrentCommit"))
+                    .GetManifestResourceStream($"{this.GetType().Namespace}.Resources.CurrentCommit"))
             using (System.IO.StreamReader reader = new System.IO.StreamReader(stream))
             {
                 gitVersion= reader.ReadToEnd();

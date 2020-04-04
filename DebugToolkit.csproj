@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Version>3.2.2</Version>
+    <Version>3.3.0</Version>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <Authors>Harbingerofme; Paddywan; iDeathHD</Authors>
     <Description>DebugToolkit is an expansive list of console commands for Risk of Rain 2, intended to make forcing specific situation easier. This is supposed to help with testing of interactions, mods, and what else.</Description>
@@ -10,7 +10,7 @@
     <Configurations>Debug;Release;BLEEDING-EDGE</Configurations>
     <PackageIconUrl></PackageIconUrl>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <ApplicationIcon>icon.ico</ApplicationIcon>
+    <ApplicationIcon>Resources\icon.ico</ApplicationIcon>
     <SignAssembly>false</SignAssembly>
     <PackageIcon>icon.png</PackageIcon>
     <Copyright>2020 Harbingerofme; Paddywan; iDeathHD</Copyright>
@@ -22,7 +22,7 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='BLEEDING-EDGE|AnyCPU'">
     <LangVersion>7.1</LangVersion>
-    <DefineConstants>TRACE;BLEEDING;</DefineConstants>
+    <DefineConstants>BLEEDING;</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -30,12 +30,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="CommandDiscover\**" />
-    <Compile Remove="RoR2CommandFinder\**" />
-    <EmbeddedResource Remove="CommandDiscover\**" />
-    <EmbeddedResource Remove="RoR2CommandFinder\**" />
-    <None Remove="CommandDiscover\**" />
-    <None Remove="RoR2CommandFinder\**" />
     <None Include="icon.png">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
@@ -192,7 +186,7 @@
   </Target>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="git rev-parse --verify HEAD &gt; Resources\CurrentCommit&#xD;&#xA;robocopy %25userprofile%25\.nuget\packages\microsoft.csharp\4.7.0\lib\netstandard2.0 $(ProjectDir)Resources Microsoft.CSharp.dll &gt; $(TargetDir)Robocopy&#xD;&#xA;del $(TargetDir)Robocopy" />
+    <Exec Command="git rev-parse --verify HEAD &gt; Resources\CurrentCommit&#xD;&#xA;robocopy %25userprofile%25\.nuget\packages\microsoft.csharp\4.7.0\lib\netstandard2.0 $(ProjectDir)Resources Microsoft.CSharp.dll &gt; $(TargetDir)Robocopy&#xD;&#xA;" />
   </Target>
 
 </Project>
