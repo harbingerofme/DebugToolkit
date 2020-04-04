@@ -350,12 +350,8 @@ healthchecksdb
 
 # Backup folder for Package Reference Convert tool in Visual Studio 2017
 MigrationBackup/
-ror2cheats.zip
-*.txt
-manifest.json
-readmetest.zip
 
+#Manual
 DebugToolkit.dll
-
 DebugToolkit.zip
 CurrentCommit
