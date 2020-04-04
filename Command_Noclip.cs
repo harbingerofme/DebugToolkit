@@ -4,6 +4,7 @@ using KinematicCharacterController;
 using MiniRpcLib;
 using MonoMod.RuntimeDetour;
 using UnityEngine.Networking;
+using DebugToolkit.Commands;
 // ReSharper disable UnusedMember.Local
 // ReSharper disable InconsistentNaming
 
@@ -36,7 +37,7 @@ namespace DebugToolkit
 
         private static void InternalToggle()
         {
-            if (DebugToolkit.UpdateCurrentPlayerBody(out _currentNetworkUser, out _currentBody))
+            if (PlayerCommands.UpdateCurrentPlayerBody(out _currentNetworkUser, out _currentBody))
             {
                 if (IsActivated)
                 {
@@ -85,7 +86,7 @@ namespace DebugToolkit
 
         internal static void Update()
         {
-            if (DebugToolkit.UpdateCurrentPlayerBody(out _currentNetworkUser, out _currentBody))
+            if (PlayerCommands.UpdateCurrentPlayerBody(out _currentNetworkUser, out _currentBody))
             {
                 Loop();
             }
