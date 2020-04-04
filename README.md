@@ -99,6 +99,7 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
 * "Artifacts"
 * **General**
     * Updated for artifacts.
+    * `give_money` is now compatible with ShareSuite's money sharing.
     * We've added some predefined macros for testing. We still recommend the macro plugins linked in our description if you want to define your own macros.
 * **Additions**
     * `random_items` generates an inventory of items for you.
