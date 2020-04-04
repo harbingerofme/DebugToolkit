@@ -137,6 +137,9 @@
       <HintPath>libs\Rewired_CSharp.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="ShareSuite">
+      <HintPath>libs\ShareSuite.dll</HintPath>
+    </Reference>
     <Reference Include="Unity.TextMeshPro">
       <HintPath>libs\Unity.TextMeshPro.dll</HintPath>
       <Private>false</Private>
