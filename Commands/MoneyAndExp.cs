@@ -1,6 +1,4 @@
-﻿
-
-using RoR2;
+﻿using RoR2;
 using static DebugToolkit.Log;
 
 namespace DebugToolkit.Commands

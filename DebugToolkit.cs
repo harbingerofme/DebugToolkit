@@ -69,9 +69,12 @@ namespace DebugToolkit
             }
         }
 
-        static void InvokeCMD(NetworkUser user, string commandname, params object[] arguments)
+        public static void InvokeCMD(NetworkUser user, string commandname, params object[] arguments)
         {
-            RoR2.Console.instance.SubmitCmd(user, string.Join(" ", commandname, arguments));
+            if (Console.instance)
+                Console.instance.SubmitCmd(user, string.Join(" ", commandname, arguments));
+            else
+                Log.Message($"InvokeCMD called whilst no console instance exists.",LogLevel.Error,Log.Target.Bepinex);
         }
 
 
