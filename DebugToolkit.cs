@@ -1058,7 +1058,7 @@ namespace DebugToolkit
                 }
             }
 
-            if (!master.alive)
+            if (!master.GetBody())
             {
                 Log.MessageNetworked(Lang.PLAYER_DEADRESPAWN, args, LogLevel.MessageClientOnly);
                 return;
