@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using System;
 using System.Text;
 using System.Linq;
+using R2API.Utils;
 
 namespace DebugToolkit
 {

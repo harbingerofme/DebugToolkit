@@ -2,10 +2,8 @@
 using RoR2.ConVar;
 using RoR2;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.Networking;
-using MiniRpcLib;
 
 namespace DebugToolkit
 {
@@ -17,7 +15,7 @@ namespace DebugToolkit
         private const int NetworkEnum = 69;
 
         private static ManualLogSource logger;
-        private static MiniRpcLib.Action.IRpcAction<LogNetworkMessageClass> networkMessageClientRPC;
+        private static LogNet logNet;
 
         /** <summary>Unless added to the game and modified by the user, this convar is equivalent to #if DEBUG</summary>
          */
@@ -32,10 +30,10 @@ namespace DebugToolkit
 #endif
             $"{DebugToolkit.modname} extensive debugging");
 
-        public Log(ManualLogSource bepLogger, MiniRpcInstance miniRpc)
+        public Log(ManualLogSource bepLogger)
         {
             logger = bepLogger;
-            networkMessageClientRPC = miniRpc.RegisterAction(MiniRpcLib.Target.Client, (NetworkUser _, LogNetworkMessageClass message) => { HandleNetworkMessage(message); });
+            logNet = DebugToolkit.DebugToolKitComponents.AddComponent<LogNet>();
         }
 
         /** <summary>Sends a message to a console.</summary>
@@ -97,7 +95,7 @@ namespace DebugToolkit
          *  <param name="input">The string to send</param>
          *  <param name="networkUser">The user to target, may not be null</param>
          *  <param name="level">The level, defaults to LogLevel.Message</param>
-         *  */ 
+         *  */
         public static void Message(string input, NetworkUser networkUser, LogLevel level = LogLevel.Message)
         {
             if (networkUser == null)
@@ -105,12 +103,7 @@ namespace DebugToolkit
                 return;
             }
 
-            var msg = new LogNetworkMessageClass()
-            {
-                level = (int)level,
-                message = input
-            };
-            networkMessageClientRPC.Invoke(msg, networkUser);
+            logNet.Invoke(networkUser, input, (int)level);
         }
 
         /** <summary>Sends a warning to a console.</summary>
@@ -189,12 +182,6 @@ namespace DebugToolkit
             }
         }
 
-        private static void HandleNetworkMessage(LogNetworkMessageClass msg)
-        {
-            Message(msg.message, (LogLevel) msg.level);
-            Hooks.ScrollConsoleDown();
-        }
-
         public enum LogLevel
         {
             Info    = 0,
@@ -212,23 +199,23 @@ namespace DebugToolkit
             Bepinex = -2,
             Ror2 = -1
         }
+    }
 
-        public class LogNetworkMessageClass : MessageBase
+    // ReSharper disable once ClassNeverInstantiated.Global
+    // ReSharper disable once MemberCanBeMadeStatic.Local
+    // ReSharper disable once UnusedParameter.Local
+    internal class LogNet : NetworkBehaviour
+    {
+        public void Invoke(NetworkUser networkUser, string msg, int level)
         {
-            public int level;
-            public string message;
-
-            public override void Serialize(NetworkWriter writer)
-            {
-                writer.Write(level);
-                writer.Write(message);
-            }
-
-            public override void Deserialize(NetworkReader reader)
-            {
-                level = reader.ReadInt32();
-                message = reader.ReadString();
-            }
+            TargetLog(networkUser.connectionToClient, msg, level);
+        }
+        
+        [TargetRpc]
+        private void TargetLog(NetworkConnection target, string msg, int level)
+        {
+            Log.Message(msg, (Log.LogLevel)level);
+            Hooks.ScrollConsoleDown();
         }
     }
 }

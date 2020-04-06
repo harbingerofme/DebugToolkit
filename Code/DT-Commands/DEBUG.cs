@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using RoR2;
 
 namespace DebugToolkit.Commands
 {
@@ -19,7 +20,7 @@ namespace DebugToolkit.Commands
             args.userArgs.ForEach((string temp) => { s.Append(temp + " "); });
             string str = s.ToString().TrimEnd(' ');
 
-            Log.Message(str, LogLevel.Message, target);
+            Log.Message(str, Log.LogLevel.Message, target);
         }
 
         [ConCommand(commandName = "getItemName", flags = ConVarFlags.None, helpText = "Match a partial localised item name to an ItemIndex")]
@@ -67,7 +68,7 @@ namespace DebugToolkit.Commands
             {
                 s.AppendLine(family.familySelectionChatString);
             }
-            Log.MessageNetworked(s.ToString(), args, LogLevel.MessageClientOnly);
+            Log.MessageNetworked(s.ToString(), args, Log.LogLevel.MessageClientOnly);
         }
 
         [ConCommand(commandName = "list_pcmc", flags = ConVarFlags.None, helpText = "Lists all PlayerCharacterMasterController instances.")]
@@ -85,7 +86,7 @@ namespace DebugToolkit.Commands
             }
             else
             {
-                Log.MessageNetworked(sb.ToString(), args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(sb.ToString(), args, Log.LogLevel.MessageClientOnly);
             }
 
         }

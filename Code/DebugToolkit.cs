@@ -1,12 +1,14 @@
 using BepInEx;
 using RoR2;
 using BepInEx.Configuration;
-using MiniRpcLib;
 using LogLevel = DebugToolkit.Log.LogLevel;
 using DebugToolkit.Commands;
 using System.Reflection;
 using System.Collections.Generic;
 using System.Linq;
+using R2API;
+using UnityEngine;
+using UnityEngine.Networking;
 
 namespace DebugToolkit
 {
@@ -22,14 +24,17 @@ namespace DebugToolkit
 
         internal static ConfigFile Configuration;
 
-        internal static MiniRpcLib.Action.IRpcAction<float> TimeScaleNetwork;
+        internal static GameObject DebugToolKitComponents;
 
         private void Awake()
         {
             Configuration = base.Config;
 
-            var miniRpc = MiniRpc.CreateInstance(GUID);
-            new Log(Logger, miniRpc);
+            DebugToolKitComponents = new GameObject("dtcn");
+            DebugToolKitComponents.AddComponent<NetworkIdentity>();
+            DebugToolKitComponents = DebugToolKitComponents.InstantiateClone("DebugToolKitComponentsNetworked");
+
+            new Log(Logger);
 
             #region Not Release Message
 #if !RELEASE   //Additional references in this block must be fully qualifed as to not use them in Release Builds.
@@ -55,9 +60,9 @@ namespace DebugToolkit
 
             PermissionSystem.Init();
             Hooks.InitializeHooks();
-            Command_Noclip.InitRPC(miniRpc);
-            Command_Teleport.InitRPC(miniRpc);
-            TimeScaleNetwork = miniRpc.RegisterAction(Target.Client, (NetworkUser _, float f) => { CurrentRun.HandleTimeScale(f); });
+            Command_Noclip.InitRPC();
+            Command_Teleport.InitRPC();
+            CurrentRun.timescaleNet = DebugToolKitComponents.AddComponent<TimescaleNet>();
 
             RunCmdMethod = typeof(Console).GetMethod("RunCmd", BindingFlags.Instance | BindingFlags.NonPublic);
         }

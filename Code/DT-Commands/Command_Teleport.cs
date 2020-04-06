@@ -1,27 +1,24 @@
-﻿using RoR2;
+﻿using KinematicCharacterController;
+using RoR2;
 using UnityEngine;
-using KinematicCharacterController;
-using MiniRpcLib;
-using DebugToolkit.Commands;
+using UnityEngine.Networking;
+
 // ReSharper disable InconsistentNaming
 
-namespace DebugToolkit
+namespace DebugToolkit.Commands
 {
     internal static class Command_Teleport
     {
-        internal static MiniRpcLib.Action.IRpcAction<bool> Activator;
-        
         private static CharacterBody _currentBody;
-        
-        internal static void InitRPC(MiniRpcInstance miniRpc)
+
+        internal static TeleportNet teleportNet;
+
+        internal static void InitRPC()
         {
-            Activator = miniRpc.RegisterAction(Target.Client, (NetworkUser _, bool __) =>
-            {
-                InternalActivation();
-            });
+            teleportNet = DebugToolkit.DebugToolKitComponents.AddComponent<TeleportNet>();
         }
 
-        private static void InternalActivation()
+        internal static void InternalActivation()
         {
             if (PlayerCommands.UpdateCurrentPlayerBody(out _, out _currentBody))
             {
@@ -33,6 +30,23 @@ namespace DebugToolkit
                     _currentBody.GetComponentInChildren<KinematicCharacterMotor>().SetPosition(hit.point + new Vector3(0, 5));
                 }
             }
+        }
+    }
+
+    // ReSharper disable once ClassNeverInstantiated.Global
+    // ReSharper disable once MemberCanBeMadeStatic.Local
+    // ReSharper disable once UnusedParameter.Local
+    internal class TeleportNet : NetworkBehaviour
+    {
+        internal void Invoke(NetworkUser argsSender)
+        {
+            TargetToggle(argsSender.connectionToClient);
+        }
+
+        [TargetRpc]
+        private void TargetToggle(NetworkConnection target)
+        {
+            Command_Teleport.InternalActivation();
         }
     }
 }

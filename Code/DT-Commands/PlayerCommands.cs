@@ -2,6 +2,7 @@
 using R2API.Utils;
 using RoR2;
 using UnityEngine;
+using UnityEngine.Networking;
 using static DebugToolkit.Log;
 
 namespace DebugToolkit.Commands
@@ -34,7 +35,8 @@ namespace DebugToolkit.Commands
             }
             if (Run.instance)
             {
-                Command_Noclip.Toggle.Invoke(true, args.sender); //callback
+                NetworkServer.Spawn(DebugToolkit.DebugToolKitComponents);
+                Command_Noclip.noclipNet.Invoke(args.sender); // callback
             }
             else
             {
@@ -52,7 +54,8 @@ namespace DebugToolkit.Commands
             }
             if (Run.instance && args.senderBody)
             {
-                Command_Teleport.Activator.Invoke(true, args.sender); //callback
+                NetworkServer.Spawn(DebugToolkit.DebugToolKitComponents);
+                Command_Teleport.teleportNet.Invoke(args.sender); // callback
             }
             else
             {
@@ -124,7 +127,7 @@ namespace DebugToolkit.Commands
 
         [ConCommand(commandName = "respawn", flags = ConVarFlags.ExecuteOnServer, helpText = "Respawns the specified player. " + Lang.RESPAWN_ARGS)]
         [AutoCompletion(typeof(NetworkUser), "instancesList", "userName", true)]
-        [AutoCompletion(typeof(NetworkUser), "instancesList", "_id/value", true)]
+        //[AutoCompletion(typeof(NetworkUser), "instancesList", "_id/value", true)] // ideathhd : breaks the whole console for me
         private static void RespawnPlayer(ConCommandArgs args)
         {
             if (args.sender == null && args.Count < 1)

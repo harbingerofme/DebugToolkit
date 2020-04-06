@@ -1,7 +1,6 @@
 ﻿using RoR2;
 using UnityEngine;
 using KinematicCharacterController;
-using MiniRpcLib;
 using MonoMod.RuntimeDetour;
 using UnityEngine.Networking;
 // ReSharper disable UnusedMember.Local
@@ -20,21 +19,19 @@ namespace DebugToolkit.Commands
         internal static Hook OnClientChangeSceneHook;
 
         internal static bool IsActivated;
-        internal static MiniRpcLib.Action.IRpcAction<bool> Toggle;
 
         private static NetworkUser _currentNetworkUser;
         private static CharacterBody _currentBody;
         private static int _collidableLayersCached;
 
-        internal static void InitRPC(MiniRpcInstance miniRpc)
+        internal static NoclipNet noclipNet;
+
+        internal static void InitRPC()
         {
-            Toggle = miniRpc.RegisterAction(Target.Client, (NetworkUser _, bool __) =>
-            {
-                InternalToggle();
-            });
+            noclipNet = DebugToolkit.DebugToolKitComponents.AddComponent<NoclipNet>();
         }
 
-        private static void InternalToggle()
+        internal static void InternalToggle()
         {
             if (PlayerCommands.UpdateCurrentPlayerBody(out _currentNetworkUser, out _currentBody))
             {
@@ -176,6 +173,23 @@ namespace DebugToolkit.Commands
         {
             if (!characterBody.isPlayerControlled)
                 orig(self, characterBody);
+        }
+    }
+
+    // ReSharper disable once ClassNeverInstantiated.Global
+    // ReSharper disable once MemberCanBeMadeStatic.Local
+    // ReSharper disable once UnusedParameter.Local
+    internal class NoclipNet : NetworkBehaviour
+    {
+        internal void Invoke(NetworkUser argsSender)
+        {
+            TargetToggle(argsSender.connectionToClient);
+        }
+
+        [TargetRpc]
+        private void TargetToggle(NetworkConnection target)
+        {
+            Command_Noclip.InternalToggle();
         }
     }
 }

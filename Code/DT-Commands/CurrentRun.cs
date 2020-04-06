@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using R2API.Utils;
 using RoR2;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -9,7 +10,7 @@ using static DebugToolkit.Log;
 
 namespace DebugToolkit.Commands
 {
-    class CurrentRun
+    internal static class CurrentRun
     {
 
         internal static bool noEnemies = false;
@@ -18,6 +19,8 @@ namespace DebugToolkit.Commands
         internal static DirectorCard nextBoss;
         internal static int nextBossCount = 1;
         internal static EliteIndex nextBossElite = EliteIndex.None;
+
+        internal static TimescaleNet timescaleNet;
 
         [ConCommand(commandName = "add_portal", flags = ConVarFlags.ExecuteOnServer, helpText = "Add a portal to the current Teleporter on completion. " + Lang.ADDPORTAL_ARGS)]
         private static void CCAddPortal(ConCommandArgs args)
@@ -69,7 +72,7 @@ namespace DebugToolkit.Commands
         [ConCommand(commandName = "no_enemies", flags = ConVarFlags.ExecuteOnServer, helpText = "Toggle Monster spawning. " + Lang.NOENEMIES_ARGS)]
         private static void CCNoEnemies(ConCommandArgs args)
         {
-            noEnemies = (noEnemies) ? false : true;
+            noEnemies = !noEnemies;
             typeof(CombatDirector).GetFieldValue<RoR2.ConVar.BoolConVar>("cvDirectorCombatDisable").SetBool(noEnemies);
             if (noEnemies)
             {
@@ -128,7 +131,10 @@ namespace DebugToolkit.Commands
             if (TextSerialization.TryParseInvariant(args[0], out float scale))
             {
                 Time.timeScale = scale;
-                DebugToolkit.TimeScaleNetwork.Invoke(scale);
+                
+                // todo: check if its really that bad to spawn like this multiple time the GameObject (it doesnt seem to be duplicated in the scene)
+                NetworkServer.Spawn(DebugToolkit.DebugToolKitComponents);
+                timescaleNet.Invoke(scale);
             }
             else
             {
@@ -295,15 +301,26 @@ namespace DebugToolkit.Commands
 
         }
 
-        internal static void HandleTimeScale(float newTimeScale)
-        {
-            Time.timeScale = newTimeScale;
-            Log.Message("Timescale set to: " + newTimeScale + ". ");
-        }
-
         private static void ResetEnemyTeamLevel()
         {
             TeamManager.instance.SetTeamLevel(TeamIndex.Monster, 1);
+        }
+    }
+
+    // ReSharper disable once ClassNeverInstantiated.Global
+    // ReSharper disable once MemberCanBeMadeStatic.Local
+    internal class TimescaleNet : NetworkBehaviour
+    {
+        internal void Invoke(float scale)
+        {
+            RpcApplyTimescale(scale);
+        }
+        
+        [ClientRpc]
+        private void RpcApplyTimescale(float scale)
+        {
+            Time.timeScale = scale;
+            Message("Timescale set to: " + scale + ". ");
         }
     }
 }
