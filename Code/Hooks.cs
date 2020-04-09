@@ -15,7 +15,7 @@ using Console = RoR2.Console;
 
 namespace DebugToolkit
 {
-    [R2APISubmoduleDependency("CommandHelper")]
+    [R2APISubmoduleDependency(nameof(CommandHelper))]
     internal sealed class Hooks
     {
         private const ConVarFlags AllFlagsNoCheat = ConVarFlags.None | ConVarFlags.Archive | ConVarFlags.Engine | ConVarFlags.ExecuteOnServer | ConVarFlags.SenderMustBeServer;
