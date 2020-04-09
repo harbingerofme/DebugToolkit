@@ -6,6 +6,5 @@
     "dependencies": [
 	"bbepis-BepInExPack-3.2.0",
 	"tristanmcpherson-R2API-2.4.10",
-	"wildbook-MiniRpcLib-0.0.1"
     ]
 }
