@@ -315,15 +315,31 @@ namespace DebugToolkit
 
         public static bool TryGetEnumFromPartial<TEnum>(string name, out TEnum result)
         {
-            if (int.TryParse(name, out int index))
+            if (typeof(TEnum).GetEnumUnderlyingType() == typeof(int))
             {
-                if (Enum.IsDefined(typeof(TEnum),index))
+                if (int.TryParse(name, out int index))
                 {
-                    result = (TEnum) Enum.ToObject(typeof(TEnum), index);
-                    return true;
+                    if (Enum.IsDefined(typeof(TEnum), index))
+                    {
+                        result = (TEnum)Enum.ToObject(typeof(TEnum), index);
+                        return true;
+                    }
+                    result = default;
+                    return false;
                 }
-                result = default;
-                return false;
+            }
+            else if(typeof(TEnum).GetEnumUnderlyingType() == typeof(sbyte))
+            {
+                if(sbyte.TryParse(name, out sbyte index))
+                {
+                    if (Enum.IsDefined(typeof(TEnum), index))
+                    {
+                        result = (TEnum)Enum.ToObject(typeof(TEnum), index);
+                        return true;
+                    }
+                    result = default;
+                    return false;
+                }
             }
 
             var array = Enum.GetValues(typeof(TEnum));
