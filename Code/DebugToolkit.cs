@@ -7,13 +7,14 @@ using System.Reflection;
 using System.Collections.Generic;
 using System.Linq;
 using R2API;
+using R2API.Utils;
 using UnityEngine;
 using UnityEngine.Networking;
 
 namespace DebugToolkit
 {
     [BepInDependency("com.bepis.r2api")]
-    [BepInDependency("dev.wildbook.libminirpc")]
+    [R2APISubmoduleDependency(nameof(PrefabAPI))]
     [BepInPlugin(GUID, modname, modver)]
     public class DebugToolkit : BaseUnityPlugin
     {
