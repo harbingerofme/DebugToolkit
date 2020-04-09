@@ -62,14 +62,10 @@
     <None Remove="manifest.template" />
     <None Remove="README.md" />
     <None Remove="readmetest.zip" />
-    <None Remove="Resources\Microsoft.CSharp.dll" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Resources\CurrentCommit">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Resources\Microsoft.CSharp.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>
@@ -178,14 +174,17 @@
     <None Update="libs\BepInEx.dll">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
+    <None Update="Resources\Microsoft.CSharp.dll">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="robocopy $(TargetDir) $(ProjectDir)\NetworkWeaver $(TargetFileName) &gt; $(TargetDir)Robocopy&#xD;&#xA;cd $(ProjectDir)\NetworkWeaver&#xD;&#xA;Unity.UNetWeaver.exe &quot;..\libs\UnityEngine.CoreModule.dll&quot; &quot;..\libs\UnityEngine.Networking.dll&quot; &quot;Patched/&quot;  &quot;DebugToolkit.dll&quot; &quot;..\libs&quot;&#xD;&#xA;ren &quot;DebugToolkit.dll&quot; &quot;DebugToolkit.dll.prepatch&quot;&#xD;&#xA;cd Patched&#xD;&#xA;robocopy . $(ProjectDir) &gt; $(TargetDir)Robocopy&#xD;&#xA;del $(TargetDir)Robocopy" />
+    <Exec Command="robocopy $(TargetDir) $(ProjectDir)\NetworkWeaver $(TargetFileName) &gt; $(TargetDir)Robocopy&#xD;&#xA;cd $(ProjectDir)\NetworkWeaver&#xD;&#xA;Unity.UNetWeaver.exe &quot;..\libs\UnityEngine.CoreModule.dll&quot; &quot;..\libs\UnityEngine.Networking.dll&quot; &quot;Patched/&quot;  $(TargetFileName) &quot;$(ProjectDir)\libs&quot;&#xD;&#xA;del  $(TargetFileName).prepatch&#xD;&#xA;ren $(TargetFileName) $(TargetFileName).prepatch&#xD;&#xA;cd Patched&#xD;&#xA;robocopy . $(ProjectDir)  $(TargetFileName) &gt; $(TargetDir)Robocopy&#xD;&#xA;del  $(TargetFileName)&#xD;&#xA;del $(TargetDir)Robocopy" />
   </Target>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="git rev-parse --verify HEAD &gt; Resources\CurrentCommit&#xD;&#xA;robocopy %25userprofile%25\.nuget\packages\microsoft.csharp\4.7.0\lib\netstandard2.0 $(ProjectDir)Resources Microsoft.CSharp.dll &gt; $(TargetDir)Robocopy&#xD;&#xA;" />
+    <Exec Command="git rev-parse --verify HEAD &gt; Resources\CurrentCommit&#xD;&#xA;" />
   </Target>
 
 </Project>
