@@ -105,10 +105,6 @@
       <HintPath>libs\Microsoft.CSharp.dll</HintPath>
       <Private>true</Private>
     </Reference>
-    <Reference Include="MiniRpcLib">
-      <HintPath>libs\MiniRpcLib.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
     <Reference Include="MMHOOK_Assembly-CSharp">
       <HintPath>libs\MMHOOK_Assembly-CSharp.dll</HintPath>
       <Private>false</Private>
@@ -185,7 +181,7 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="robocopy $(TargetDir) $(ProjectDir) $(TargetFileName) &gt; $(TargetDir)Robocopy&#xD;&#xA;del $(TargetDir)Robocopy" />
+    <Exec Command="robocopy $(TargetDir) $(ProjectDir)\NetworkWeaver $(TargetFileName) &gt; $(TargetDir)Robocopy&#xD;&#xA;cd $(ProjectDir)\NetworkWeaver&#xD;&#xA;Unity.UNetWeaver.exe &quot;..\libs\UnityEngine.CoreModule.dll&quot; &quot;..\libs\UnityEngine.Networking.dll&quot; &quot;Patched/&quot;  &quot;DebugToolkit.dll&quot; &quot;..\libs&quot;&#xD;&#xA;ren &quot;DebugToolkit.dll&quot; &quot;DebugToolkit.dll.prepatch&quot;&#xD;&#xA;cd Patched&#xD;&#xA;robocopy . $(ProjectDir) &gt; $(TargetDir)Robocopy&#xD;&#xA;del $(TargetDir)Robocopy" />
   </Target>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">

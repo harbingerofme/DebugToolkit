@@ -355,3 +355,7 @@ MigrationBackup/
 DebugToolkit.dll
 DebugToolkit.zip
 CurrentCommit
+
+NetworkWeaver/
+
+Resources/Microsoft.CSharp.dll
