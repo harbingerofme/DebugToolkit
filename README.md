@@ -98,6 +98,7 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
 
 * "Artifacts"
 * **General**
+    * **3.3.1** Removed minirpclib as a dependency. [Learn how for your own mod here](https://github.com/risk-of-thunder/R2Wiki/wiki/Networking-with-Weaver---The-Unity-Way)
     * Updated for artifacts.
     * `give_money` is now compatible with ShareSuite's money sharing.
     * We did a lot of cleanup behind the scenes. You won't notice this (hopefully), but it makes everything easier to maintain.
@@ -108,6 +109,8 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
     * `midgame` and `lategame` allow you to test your mod in a typical mid/endgame scenario. The presets come from HopooGames.
     * `dtzoom` gives you some items to make you move around the map faster. This is a macro that was present in the original release of RoR2.
 * **Fixes**
+    * **3.3.1** Fix incorrect parsing on some arguments in commands. Thank you Violet for reporting these!
+    * **3.3.1** Removed double embbeded dependency. This shaves off about half the file size!
     * Fix a faulty ILHook in CCSetScene
     * Fix `spawn_as`.
 
