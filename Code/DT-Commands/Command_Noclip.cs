@@ -3,6 +3,7 @@ using UnityEngine;
 using KinematicCharacterController;
 using MonoMod.RuntimeDetour;
 using UnityEngine.Networking;
+
 // ReSharper disable UnusedMember.Local
 // ReSharper disable InconsistentNaming
 
@@ -24,11 +25,9 @@ namespace DebugToolkit.Commands
         private static CharacterBody _currentBody;
         private static int _collidableLayersCached;
 
-        internal static NoclipNet noclipNet;
-
         internal static void InitRPC()
         {
-            noclipNet = DebugToolkit.DebugToolKitComponents.AddComponent<NoclipNet>();
+            Code.NetworkManager.DebugToolKitComponents.AddComponent<NoclipNet>();
         }
 
         internal static void InternalToggle()
@@ -181,9 +180,16 @@ namespace DebugToolkit.Commands
     // ReSharper disable once UnusedParameter.Local
     internal class NoclipNet : NetworkBehaviour
     {
-        internal void Invoke(NetworkUser argsSender)
+        private static NoclipNet _instance;
+
+        private void Awake()
         {
-            TargetToggle(argsSender.connectionToClient);
+            _instance = this;
+        }
+
+        internal static void Invoke(NetworkUser argsSender)
+        {
+            _instance.TargetToggle(argsSender.connectionToClient);
         }
 
         [TargetRpc]

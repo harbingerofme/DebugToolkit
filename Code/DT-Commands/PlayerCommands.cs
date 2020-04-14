@@ -35,8 +35,7 @@ namespace DebugToolkit.Commands
             }
             if (Run.instance)
             {
-                NetworkServer.Spawn(DebugToolkit.DebugToolKitComponents);
-                Command_Noclip.noclipNet.Invoke(args.sender); // callback
+                NoclipNet.Invoke(args.sender); // callback
             }
             else
             {
@@ -54,8 +53,7 @@ namespace DebugToolkit.Commands
             }
             if (Run.instance && args.senderBody)
             {
-                NetworkServer.Spawn(DebugToolkit.DebugToolKitComponents);
-                Command_Teleport.teleportNet.Invoke(args.sender); // callback
+                TeleportNet.Invoke(args.sender); // callback
             }
             else
             {

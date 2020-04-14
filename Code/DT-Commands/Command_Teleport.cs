@@ -2,6 +2,7 @@
 using RoR2;
 using UnityEngine;
 using UnityEngine.Networking;
+using NetworkManager = DebugToolkit.Code.NetworkManager;
 
 // ReSharper disable InconsistentNaming
 
@@ -11,11 +12,9 @@ namespace DebugToolkit.Commands
     {
         private static CharacterBody _currentBody;
 
-        internal static TeleportNet teleportNet;
-
         internal static void InitRPC()
         {
-            teleportNet = DebugToolkit.DebugToolKitComponents.AddComponent<TeleportNet>();
+            NetworkManager.DebugToolKitComponents.AddComponent<TeleportNet>();
         }
 
         internal static void InternalActivation()
@@ -36,11 +35,19 @@ namespace DebugToolkit.Commands
     // ReSharper disable once ClassNeverInstantiated.Global
     // ReSharper disable once MemberCanBeMadeStatic.Local
     // ReSharper disable once UnusedParameter.Local
+    // ReSharper disable once UnusedMember.Local
     internal class TeleportNet : NetworkBehaviour
     {
-        internal void Invoke(NetworkUser argsSender)
+        private static TeleportNet _instance;
+
+        private void Awake()
         {
-            TargetToggle(argsSender.connectionToClient);
+            _instance = this;
+        }
+
+        internal static void Invoke(NetworkUser argsSender)
+        {
+            _instance.TargetToggle(argsSender.connectionToClient);
         }
 
         [TargetRpc]

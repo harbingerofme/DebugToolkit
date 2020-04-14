@@ -4,6 +4,7 @@ using RoR2;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.Networking;
+using NetworkManager = DebugToolkit.Code.NetworkManager;
 
 namespace DebugToolkit
 {
@@ -15,7 +16,6 @@ namespace DebugToolkit
         private const int NetworkEnum = 69;
 
         private static ManualLogSource logger;
-        private static LogNet logNet;
 
         /** <summary>Unless added to the game and modified by the user, this convar is equivalent to #if DEBUG</summary>
          */
@@ -33,7 +33,11 @@ namespace DebugToolkit
         public Log(ManualLogSource bepLogger)
         {
             logger = bepLogger;
-            logNet = DebugToolkit.DebugToolKitComponents.AddComponent<LogNet>();
+        }
+
+        internal static void InitRPC()
+        {
+            NetworkManager.DebugToolKitComponents.AddComponent<LogNet>();
         }
 
         /** <summary>Sends a message to a console.</summary>
@@ -102,8 +106,8 @@ namespace DebugToolkit
             {
                 return;
             }
-
-            logNet.Invoke(networkUser, input, (int)level);
+            
+            LogNet.Invoke(networkUser, input, (int)level);
         }
 
         /** <summary>Sends a warning to a console.</summary>
@@ -204,11 +208,19 @@ namespace DebugToolkit
     // ReSharper disable once ClassNeverInstantiated.Global
     // ReSharper disable once MemberCanBeMadeStatic.Local
     // ReSharper disable once UnusedParameter.Local
+    // ReSharper disable once UnusedMember.Local
     internal class LogNet : NetworkBehaviour
     {
-        public void Invoke(NetworkUser networkUser, string msg, int level)
+        private static LogNet _instance;
+
+        private void Awake()
         {
-            TargetLog(networkUser.connectionToClient, msg, level);
+            _instance = this;
+        }
+
+        internal static void Invoke(NetworkUser networkUser, string msg, int level)
+        {
+            _instance.TargetLog(networkUser.connectionToClient, msg, level);
         }
         
         [TargetRpc]

@@ -20,8 +20,6 @@ namespace DebugToolkit.Commands
         internal static int nextBossCount = 1;
         internal static EliteIndex nextBossElite = EliteIndex.None;
 
-        internal static TimescaleNet timescaleNet;
-
         [ConCommand(commandName = "add_portal", flags = ConVarFlags.ExecuteOnServer, helpText = "Add a portal to the current Teleporter on completion. " + Lang.ADDPORTAL_ARGS)]
         private static void CCAddPortal(ConCommandArgs args)
         {
@@ -132,9 +130,7 @@ namespace DebugToolkit.Commands
             {
                 Time.timeScale = scale;
                 
-                // todo: check if its really that bad to spawn like this multiple time the GameObject (it doesnt seem to be duplicated in the scene)
-                NetworkServer.Spawn(DebugToolkit.DebugToolKitComponents);
-                timescaleNet.Invoke(scale);
+                TimescaleNet.Invoke(scale);
             }
             else
             {
@@ -309,11 +305,19 @@ namespace DebugToolkit.Commands
 
     // ReSharper disable once ClassNeverInstantiated.Global
     // ReSharper disable once MemberCanBeMadeStatic.Local
+    // ReSharper disable once UnusedMember.Local
     internal class TimescaleNet : NetworkBehaviour
     {
-        internal void Invoke(float scale)
+        private static TimescaleNet _instance;
+        
+        private void Awake()
         {
-            RpcApplyTimescale(scale);
+            _instance = this;
+        }
+
+        internal static void Invoke(float scale)
+        {
+            _instance.RpcApplyTimescale(scale);
         }
         
         [ClientRpc]

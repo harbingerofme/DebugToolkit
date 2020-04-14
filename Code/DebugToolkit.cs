@@ -8,8 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using R2API;
 using R2API.Utils;
-using UnityEngine;
-using UnityEngine.Networking;
+using NetworkManager = DebugToolkit.Code.NetworkManager;
 
 namespace DebugToolkit
 {
@@ -25,15 +24,9 @@ namespace DebugToolkit
 
         internal static ConfigFile Configuration;
 
-        internal static GameObject DebugToolKitComponents;
-
         private void Awake()
         {
             Configuration = base.Config;
-
-            DebugToolKitComponents = new GameObject("dtcn");
-            DebugToolKitComponents.AddComponent<NetworkIdentity>();
-            DebugToolKitComponents = DebugToolKitComponents.InstantiateClone("DebugToolKitComponentsNetworked");
 
             new Log(Logger);
 
@@ -61,9 +54,7 @@ namespace DebugToolkit
 
             PermissionSystem.Init();
             Hooks.InitializeHooks();
-            Command_Noclip.InitRPC();
-            Command_Teleport.InitRPC();
-            CurrentRun.timescaleNet = DebugToolKitComponents.AddComponent<TimescaleNet>();
+            NetworkManager.Init();
 
             RunCmdMethod = typeof(Console).GetMethod("RunCmd", BindingFlags.Instance | BindingFlags.NonPublic);
         }
