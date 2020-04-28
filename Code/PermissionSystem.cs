@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using BepInEx.Configuration;
 using RoR2;
+using UnityEngine;
 
 namespace DebugToolkit
 {
@@ -18,6 +19,13 @@ namespace DebugToolkit
         }
     }
 
+    internal enum PermissionLevel
+    {
+        None,
+        SubAdmin,
+        Admin
+    }
+
     internal static class PermissionSystem
     {
         internal static ConfigEntry<bool> IsEnabled;
@@ -25,14 +33,15 @@ namespace DebugToolkit
         private static ConfigEntry<string> _adminList;
         private static ConfigEntry<string> _subAdminList;
 
+        private static ConfigEntry<bool> _roR2CommandsNeedPermission;
+
         private static ConfigEntry<PermissionLevel> _defaultPermissionLevel;
         private static readonly Dictionary<string, ConfigEntry<PermissionLevel>> AdminCommands = new Dictionary<string, ConfigEntry<PermissionLevel>>();
 
-        internal static void Init(object _ = null, EventArgs __ = null)
+        internal static void Init()
         {
             IsEnabled = DebugToolkit.Configuration.Bind("Permission System", "1. Enable", false,
                 "Is the Permission System enabled.");
-            IsEnabled.SettingChanged += Init;
 
             if (!IsEnabled.Value)
                 return;
@@ -45,34 +54,41 @@ namespace DebugToolkit
             _defaultPermissionLevel = DebugToolkit.Configuration.Bind("Permission System", "4. Default Permission Level", PermissionLevel.SubAdmin,
                 "What is the default permission level to use DebugToolkit commands, available levels : None (0), SubAdmin (1), Admin (2)");
 
+            _roR2CommandsNeedPermission = DebugToolkit.Configuration.Bind("Permission System",
+                "5. RoR2 Console Commands use the Permission System", false,
+                "When enabled, all the RoR2 Console Commands will be added to this config file and will only be fired if the permission check says so.");
+
             AdminCommands.Clear();
 
             AddPermissionCheckToConCommands();
+
+            if (_roR2CommandsNeedPermission.Value)
+                AddPermissionCheckToConCommands(typeof(RoR2Application).Assembly);
         }
 
+        // If no specific assembly is specified,
+        // the assembly that calls this method will see their methods
+        // being added to the permission system config file
+        // and the permission will be checked if enabled.
+        //
         // ReSharper disable once MemberCanBePrivate.Global
-        public static void AddPermissionCheckToConCommands()
+        public static void AddPermissionCheckToConCommands(Assembly assembly = null)
         {
-            foreach (var methodInfo in Assembly.GetCallingAssembly().GetTypes().SelectMany(x => x.GetMethods(BindingFlags.NonPublic | BindingFlags.Static)))
+            if (assembly == null)
+                assembly = Assembly.GetCallingAssembly();
+
+            foreach (var methodInfo in assembly.GetTypes().SelectMany(x => x.GetMethods(BindingFlags.NonPublic | BindingFlags.Static)))
             {
                 var adminCommandAttribute = methodInfo.GetCustomAttribute<RequiredPermissionLevel>(false);
                 var conCommandAttribute = (ConCommandAttribute)methodInfo.GetCustomAttributes(false).FirstOrDefault(x => x is ConCommandAttribute);
                 if (conCommandAttribute != null)
                 {
-                    if (adminCommandAttribute != null)
-                    {
-                        var overrideConfigEntry = DebugToolkit.Configuration.Bind("Permission System", $"Override: {conCommandAttribute.commandName}", adminCommandAttribute.Level,
-                            $"Override Required Permission Level for the {conCommandAttribute.commandName} command");
+                    var usedPermissionLevel = adminCommandAttribute?.Level ?? _defaultPermissionLevel.Value;
 
-                        AdminCommands.Add(conCommandAttribute.commandName, overrideConfigEntry);
-                    }
-                    else
-                    {
-                        var overrideConfigEntry = DebugToolkit.Configuration.Bind("Permission System", $"Override: {conCommandAttribute.commandName}", _defaultPermissionLevel.Value,
-                            $"Override Required Permission Level for the {conCommandAttribute.commandName} command");
+                    var overrideConfigEntry = DebugToolkit.Configuration.Bind("Permission System", $"Override: {conCommandAttribute.commandName}", usedPermissionLevel,
+                        $"Override Required Permission Level for the {conCommandAttribute.commandName} command");
 
-                        AdminCommands.Add(conCommandAttribute.commandName, overrideConfigEntry);
-                    }
+                    AdminCommands.Add(conCommandAttribute.commandName, overrideConfigEntry);
                 }
             }
         }
@@ -99,8 +115,11 @@ namespace DebugToolkit
                 IsEnabled.Value = args.GetArgBool(0);
             }
 
-            var res = IsEnabled.Value ? "enabled" : "disabled";
-            Log.MessageNetworked($"Permission System is {res}", args, Log.LogLevel.Info);
+            var res = IsEnabled.Value ? "enabled. Saving and reloading the permission system" : "disabled";
+            Log.MessageNetworked($"Permission System is {res}.", args, Log.LogLevel.Info);
+
+            DebugToolkit.Configuration.Save();
+            Init();
         }
 
         [ConCommand(commandName = "perm_mod", flags = ConVarFlags.ExecuteOnServer, helpText = "Change the permission level of the specified playerid/username" + Lang.PERM_MOD_ARGS)]
@@ -202,12 +221,5 @@ namespace DebugToolkit
 
             return PermissionLevel.None;
         }
-    }
-
-    internal enum PermissionLevel
-    {
-        None,
-        SubAdmin,
-        Admin
     }
 }
