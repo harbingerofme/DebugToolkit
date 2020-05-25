@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -105,10 +105,6 @@
       <HintPath>libs\MMHOOK_Assembly-CSharp.dll</HintPath>
       <Private>false</Private>
     </Reference>
-    <Reference Include="MonoMod">
-      <HintPath>libs\MonoMod.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
     <Reference Include="MonoMod.RuntimeDetour">
       <HintPath>libs\MonoMod.RuntimeDetour.dll</HintPath>
       <Private>false</Private>
@@ -131,6 +127,7 @@
     </Reference>
     <Reference Include="ShareSuite">
       <HintPath>libs\ShareSuite.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="Unity.TextMeshPro">
       <HintPath>libs\Unity.TextMeshPro.dll</HintPath>
