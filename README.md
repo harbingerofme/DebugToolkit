@@ -98,17 +98,20 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
 
 * "Artifacts"
 * **General**
+    * **3.3.2** Improved networking
     * **3.3.1** Removed minirpclib as a dependency. [Learn how for your own mod here](https://github.com/risk-of-thunder/R2Wiki/wiki/Networking-with-Weaver---The-Unity-Way)
     * Updated for artifacts.
     * `give_money` is now compatible with ShareSuite's money sharing.
     * We did a lot of cleanup behind the scenes. You won't notice this (hopefully), but it makes everything easier to maintain.
     * We've added some predefined macros for testing. We still recommend the macro plugins linked in our description if you want to define your own macros.
 * **Additions**
+    * **3.3.2** Permission System can now be enabled on the RoR2 Assembly Console Commands.
     * `random_items` generates an inventory of items for you.
     * `give_equip random` now gives you a random equipment from your available drop pool.
     * `midgame` and `lategame` allow you to test your mod in a typical mid/endgame scenario. The presets come from HopooGames.
     * `dtzoom` gives you some items to make you move around the map faster. This is a macro that was present in the original release of RoR2.
 * **Fixes**
+    * **3.3.2** Fix noclip failing to work in any subsequent run after it was activated.
     * **3.3.1** Fix incorrect parsing on some arguments in commands. Thank you Violet for reporting these!
     * **3.3.1** Removed double embbeded dependency. This shaves off about half the file size!
     * Fix a faulty ILHook in CCSetScene
