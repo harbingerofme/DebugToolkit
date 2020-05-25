@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -7,7 +7,7 @@
     <Authors>Harbingerofme; Paddywan; iDeathHD</Authors>
     <Description>DebugToolkit is an expansive list of console commands for Risk of Rain 2, intended to make forcing specific situation easier. This is supposed to help with testing of interactions, mods, and what else.</Description>
     <RepositoryUrl>https://github.com/harbingerofme/DebugToolkit</RepositoryUrl>
-    <Configurations>Debug;Release;BLEEDING-EDGE</Configurations>
+    <Configurations>Debug;Release;BLEEDING-EDGE;NO-UNET;NO-DYNAMICS;BARE</Configurations>
     <PackageIconUrl></PackageIconUrl>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <ApplicationIcon>Resources\icon.ico</ApplicationIcon>
@@ -25,8 +25,22 @@
     <DefineConstants>BLEEDING;</DefineConstants>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='NO-DYNAMICS|AnyCPU'">
+    <LangVersion>7.1</LangVersion>
+    <DefineConstants>BLEEDING;NODYN;</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='BARE|AnyCPU'">
+    <LangVersion>7.1</LangVersion>
+    <DefineConstants>BLEEDING;NODYN;NONETWORK</DefineConstants>
+  </PropertyGroup>
+
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <LangVersion>7.1</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='NO-UNET|AnyCPU'">
+    <DefineConstants>BLEEDING;NONETWORK;</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
@@ -78,13 +92,16 @@
 
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+    <PackageReference Include="Mono.Cecil" Version="0.11.1" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(Configuration)|$(Platform)'!='NO-DYNAMICS|AnyCPU' and '$(Configuration)|$(Platform)'!='BARE|AnyCPU'">
     <PackageReference Include="Costura.Fody" Version="3.2.1" />
     <PackageReference Include="Fody" Version="3.3.3">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-    <PackageReference Include="Mono.Cecil" Version="0.11.1" />
   </ItemGroup>
 
 
@@ -167,17 +184,22 @@
     </Reference>
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="libs\BepInEx.dll">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
 
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="robocopy $(TargetDir) $(ProjectDir)\NetworkWeaver $(TargetFileName) &gt; $(TargetDir)Robocopy&#xD;&#xA;cd $(ProjectDir)\NetworkWeaver&#xD;&#xA;Unity.UNetWeaver.exe &quot;..\libs\UnityEngine.CoreModule.dll&quot; &quot;..\libs\UnityEngine.Networking.dll&quot; &quot;Patched/&quot;  $(TargetFileName) &quot;$(ProjectDir)\libs&quot;&#xD;&#xA;del  $(TargetFileName).prepatch&#xD;&#xA;ren $(TargetFileName) $(TargetFileName).prepatch&#xD;&#xA;cd Patched&#xD;&#xA;robocopy . $(ProjectDir)  $(TargetFileName) &gt; $(TargetDir)Robocopy&#xD;&#xA;del  $(TargetFileName)&#xD;&#xA;del $(TargetDir)Robocopy" />
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(Configuration)|$(Platform)'!='NO-UNET|AnyCPU' and '$(Configuration)|$(Platform)'!='BARE|AnyCPU'">
+    <Exec Command="robocopy $(TargetDir) $(ProjectDir)NetworkWeaver\ $(TargetFileName) &gt; $(TargetDir)Robocopy" IgnoreExitCode="true" />
+    <Exec Command="$(ProjectDir)NetworkWeaver\Unity.UNetWeaver.exe &quot;$(ProjectDir)\libs\UnityEngine.CoreModule.dll&quot; &quot;$(ProjectDir)\libs\UnityEngine.Networking.dll&quot; &quot;$(ProjectDir)\NetworkWeaver\Patched/&quot;  $(TargetFileName) &quot;$(ProjectDir)\libs&quot;" />
+    <Exec Command="del $(ProjectDir)NetworkWeaver\$(TargetFileName).prepatch" />
+    <Exec Command="ren $(TargetFileName) $(TargetFileName).prepatch" IgnoreExitCode="true" />
+    <Exec Command="robocopy $(ProjectDir)NetworkWeaver\Patched $(ProjectDir) $(TargetFileName) &gt; $(TargetDir)Robocopy" IgnoreExitCode="true" />
+    <Exec Command="del  $(ProjectDir)NetworkWeaver\Patched\$(TargetFileName)" />
+    <Exec Command="del $(TargetDir)Robocopy" />
   </Target>
 
-  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(Configuration)|$(Platform)'=='NO-UNET|AnyCPU' or '$(Configuration)|$(Platform)'=='BARE|AnyCPU'">
+    <Exec Command="robocopy $(TargetDir) $(ProjectDir) $(TargetFileName) &gt; $(TargetDir)Robocopy" IgnoreExitCode="true" />
+  </Target>
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent" Condition="'$(Configuration)|$(Platform)'!='Release|AnyCPU'">
     <Exec Command="git rev-parse --verify HEAD &gt; Resources\CurrentCommit&#xD;&#xA;" />
   </Target>
 
