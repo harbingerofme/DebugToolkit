@@ -359,3 +359,5 @@ CurrentCommit
 NetworkWeaver/
 
 Resources/Microsoft.CSharp.dll
+
+*.prepatch

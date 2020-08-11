@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -93,12 +93,14 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-    <PackageReference Include="Mono.Cecil" Version="0.11.1" />
+    <PackageReference Include="Mono.Cecil" Version="0.11.2" />
+    <PackageReference Include="MonoMod.RuntimeDetour" Version="20.8.3.5" />
+    <PackageReference Include="MonoMod.Utils" Version="20.8.3.5" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(Configuration)|$(Platform)'!='NO-DYNAMICS|AnyCPU' and '$(Configuration)|$(Platform)'!='BARE|AnyCPU'">
-    <PackageReference Include="Costura.Fody" Version="3.2.1" />
-    <PackageReference Include="Fody" Version="3.3.3">
+    <PackageReference Include="Costura.Fody" Version="3.3.3" />
+    <PackageReference Include="Fody" Version="4.2.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
@@ -185,21 +187,27 @@
   </ItemGroup>
 
 
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(Configuration)|$(Platform)'!='NO-UNET|AnyCPU' and '$(Configuration)|$(Platform)'!='BARE|AnyCPU'">
+  <Target Name="Weave" AfterTargets="PostBuildEvent" Condition="'$(Configuration)|$(Platform)'!='NO-UNET|AnyCPU' and '$(Configuration)|$(Platform)'!='BARE|AnyCPU'">
     <Exec Command="robocopy $(TargetDir) $(ProjectDir)NetworkWeaver\ $(TargetFileName) &gt; $(TargetDir)Robocopy" IgnoreExitCode="true" />
+    <Exec Command="echo moved to NetworkWeaver" />
     <Exec Command="$(ProjectDir)NetworkWeaver\Unity.UNetWeaver.exe &quot;$(ProjectDir)\libs\UnityEngine.CoreModule.dll&quot; &quot;$(ProjectDir)\libs\UnityEngine.Networking.dll&quot; &quot;$(ProjectDir)\NetworkWeaver\Patched/&quot;  $(TargetFileName) &quot;$(ProjectDir)\libs&quot;" />
+    <Exec Command="echo weaved" />
     <Exec Command="del $(ProjectDir)NetworkWeaver\$(TargetFileName).prepatch" />
+    <Exec Command="echo removed old prenetwork file from netweave folder" />
     <Exec Command="ren $(TargetFileName) $(TargetFileName).prepatch" IgnoreExitCode="true" />
+    <Exec Command="echo renamed prenetwork file to prepatch for backup" />
     <Exec Command="robocopy $(ProjectDir)NetworkWeaver\Patched $(ProjectDir) $(TargetFileName) &gt; $(TargetDir)Robocopy" IgnoreExitCode="true" />
+    <Exec Command="echo moved patched file to project folder" />
     <Exec Command="del  $(ProjectDir)NetworkWeaver\Patched\$(TargetFileName)" />
     <Exec Command="del $(TargetDir)Robocopy" />
+    <Exec Command="echo Cleaned up temp files." />
   </Target>
 
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(Configuration)|$(Platform)'=='NO-UNET|AnyCPU' or '$(Configuration)|$(Platform)'=='BARE|AnyCPU'">
+  <Target Name="CopyToOut" AfterTargets="PostBuildEvent" Condition="'$(Configuration)|$(Platform)'=='NO-UNET|AnyCPU' or '$(Configuration)|$(Platform)'=='BARE|AnyCPU'">
     <Exec Command="robocopy $(TargetDir) $(ProjectDir) $(TargetFileName) &gt; $(TargetDir)Robocopy" IgnoreExitCode="true" />
   </Target>
 
-  <Target Name="PreBuild" BeforeTargets="PreBuildEvent" Condition="'$(Configuration)|$(Platform)'!='Release|AnyCPU'">
+  <Target Name="getGitCommit" BeforeTargets="PreBuildEvent" Condition="'$(Configuration)|$(Platform)'!='Release|AnyCPU'">
     <Exec Command="git rev-parse --verify HEAD &gt; Resources\CurrentCommit&#xD;&#xA;" />
   </Target>
 
