@@ -79,9 +79,10 @@ namespace DebugToolkit
 
         public static void InvokeCMD(NetworkUser user, string commandname, params string[] arguments)
         {
-            List<string> args = arguments.ToList<string>(); 
+            List<string> args = arguments.ToList<string>();
+            var consoleUser = new Console.CmdSender(user);
             if (Console.instance)
-                RunCmdMethod.Invoke(Console.instance, new object []  { user, commandname, args});
+                RunCmdMethod.Invoke(Console.instance, new object []  { consoleUser, commandname, args});
             else
                 Log.Message($"InvokeCMD called whilst no console instance exists.",LogLevel.Error,Log.Target.Bepinex);
         }
