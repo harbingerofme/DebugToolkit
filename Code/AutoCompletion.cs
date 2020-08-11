@@ -111,18 +111,14 @@ namespace DebugToolkit
                         }
                         else
                         {
-                            var languageDictionaries = typeof(Language).GetFieldValue<Dictionary<string, Dictionary<string, string>>>("languageDictionaries");
-                            if (languageDictionaries.TryGetValue(Language.currentLanguage, out var dictionary))
+                            var dictionary = Language.currentLanguage.GetFieldValue<Dictionary<string, string>>("stringsByToken");
+                            foreach (var tokenAndInvar in dictionary)
                             {
-                                foreach (var tokenAndInvar in dictionary)
+                                if (tokenAndInvar.Key.Contains(itemString.ToUpper()) && IsToken(tokenAndInvar.Key))
                                 {
-                                    if (tokenAndInvar.Key.Contains(itemString.ToUpper()) &&
-                                        IsToken(tokenAndInvar.Key))
+                                    if (!IsToken(tokenAndInvar.Value))
                                     {
-                                        if (!IsToken(tokenAndInvar.Value))
-                                        {
-                                            toFill.Add(commandName + StringFinder.RemoveSpacesAndAlike(tokenAndInvar.Value));
-                                        }
+                                        toFill.Add(commandName + StringFinder.RemoveSpacesAndAlike(tokenAndInvar.Value));
                                     }
                                 }
                             }

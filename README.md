@@ -94,6 +94,12 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
 
 ## Changelog ##
 
+### 3.4 ###
+
+* "Full Release"
+* **General
+    * Updated for game Release.
+
 ### 3.3 ###
 
 * "Artifacts"

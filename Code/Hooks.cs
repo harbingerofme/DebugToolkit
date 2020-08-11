@@ -96,14 +96,14 @@ namespace DebugToolkit
         }
 
         // ReSharper disable once UnusedMember.Local
-        private static void LogNetworkCommandsAndCheckPermissions(Console self, NetworkUser sender, string concommandName, List<string> userArgs)
+        private static void LogNetworkCommandsAndCheckPermissions(Console self, Console.CmdSender sender, string concommandName, List<string> userArgs)
         {
             StringBuilder s = new StringBuilder();
             userArgs.ForEach((str) => s.AppendLine(str));
 
-            if (sender != null && sender.isLocalPlayer == false)
+            if (sender.networkUser != null && sender.localUser == null)
             {
-                Log.Message(string.Format(Lang.NETWORKING_OTHERPLAYER_4, sender.userName, sender.id.value, concommandName, s.ToString()));
+                Log.Message(string.Format(Lang.NETWORKING_OTHERPLAYER_4, sender.networkUser.userName, sender.networkUser.id.value, concommandName, s.ToString()));
             }
             else if (Application.isBatchMode)
             {
@@ -112,9 +112,9 @@ namespace DebugToolkit
 
             var canExecute = true;
 
-            if (sender != null && !sender.isLocalPlayer && PermissionSystem.IsEnabled.Value)
+            if (sender.networkUser != null && sender.localUser == null && PermissionSystem.IsEnabled.Value)
             {
-                canExecute = PermissionSystem.CanUserExecute(sender, concommandName, userArgs);
+                canExecute = PermissionSystem.CanUserExecute(sender.networkUser, concommandName, userArgs);
             }
 
             if (canExecute)

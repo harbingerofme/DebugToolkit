@@ -37,15 +37,17 @@ namespace DebugToolkit.Commands
                 if (IsActivated)
                 {
                     if (_collidableLayersCached != 0)
+                    {
                         _currentBody.GetComponent<KinematicCharacterMotor>().CollidableLayers = _collidableLayersCached;
-                    _currentBody.characterMotor.useGravity = true;
+                    }
+                    _currentBody.characterMotor.setUseGravity(true);
                     UndoHooks();
                 }
                 else
                 {
                     _collidableLayersCached = _currentBody.GetComponent<KinematicCharacterMotor>().CollidableLayers;
                     _currentBody.GetComponent<KinematicCharacterMotor>().CollidableLayers = 0;
-                    _currentBody.characterMotor.useGravity = false;
+                    _currentBody.characterMotor.setUseGravity(false);
                     ApplyHooks();
                 }
 
@@ -156,7 +158,7 @@ namespace DebugToolkit.Commands
                 if (_currentBody)
                 {
                     _currentBody.GetComponent<KinematicCharacterMotor>().CollidableLayers = _collidableLayersCached;
-                    _currentBody.characterMotor.useGravity = !_currentBody.characterMotor.useGravity;
+                    _currentBody.characterMotor.setUseGravity(!_currentBody.characterMotor.useGravity);
                 }
 
                 IsActivated = !IsActivated;
@@ -173,7 +175,13 @@ namespace DebugToolkit.Commands
             if (!characterBody.isPlayerControlled)
                 orig(self, characterBody);
         }
+
+        public static void setUseGravity(this CharacterMotor motor, bool value)
+        {
+            typeof(CharacterMotor).GetProperty(nameof(CharacterMotor.useGravity)).GetSetMethod(true).Invoke(motor, new object[] { value });
+        }
     }
+
 
     // ReSharper disable once ClassNeverInstantiated.Global
     // ReSharper disable once MemberCanBeMadeStatic.Local
