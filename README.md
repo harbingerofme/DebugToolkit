@@ -19,7 +19,6 @@ Mods recommended for combined use:
 
 * [KeyBindForConsole](https://thunderstore.io/package/kristiansja/KeyBindForConsole/) for easier enabling of the console. Especially useful for non-US keyboard layouts.
 * [SimpleMacros](https://thunderstore.io/package/recursiveGecko/SimpleMacros/) for binding console commands to keys.
-* [MacroCommands](https://thunderstore.io/package/JackPendarvesRead/MacroCommands/) for binding console commands to keys.
 * [R2DSE](https://thunderstore.io/package/Harb/R2DSEssentials/) for running DT on dedicated servers.
 
 You may contact us at any time through [issues on GitHub](https://github.com/harbingerofme/DebugToolkit/issues/new/choose), the [dedicated discord server]((https://discord.gg/yTfsMWP) or through the [Risk of Rain 2 modding Discord](https://discord.gg/5MbXZvd) found at the top of the Thunderstore website. 
@@ -45,6 +44,9 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
 * **list_player** - Shows list of players with their ID
 * **list_body** - List all Bodies and their language invariants.
 * **list_ai** - List all Masters and their language invariants
+* **list_item** - List all items and if they are in the current drop pool.
+* **list_equip** - List all equipment and if they are in the current drop pool.
+    
 
 * **give_item** - Give item directly to the player's inventory: `give_item {localised_object_name} [count def 1] [player def *you]`
 * **random_items** - Generate random items from the available droptables. `random_items {Count} [player def *you]`
@@ -97,8 +99,12 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
 ### 3.4 ###
 
 * "Full Release"
-* **General
-    * Updated for game Release.
+* **General**
+    * Updated for game version `1.0.0.X`.
+    * We are considering adding macros and keybinds to the base mod. [We would like your input on this.](https://github.com/harbingerofme/DebugToolkit/issues/101)
+* **Additions**
+    * `list_item` When we removed this command, we forgot that people can forget. As the game now counts over 100 items, there's value in adding these lists back. They have been improved for more user readability.
+    * `list_equip` (see list_item)
 
 ### 3.3 ###
 
