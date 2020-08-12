@@ -190,10 +190,10 @@
   <Target Name="Weave" AfterTargets="PostBuildEvent" Condition="'$(Configuration)|$(Platform)'!='NO-UNET|AnyCPU' and '$(Configuration)|$(Platform)'!='BARE|AnyCPU'">
     <Exec Command="robocopy $(TargetDir) $(ProjectDir)NetworkWeaver\ $(TargetFileName) &gt; $(TargetDir)Robocopy" IgnoreExitCode="true" />
     <Exec Command="echo moved to NetworkWeaver" />
-    <Exec Command="$(ProjectDir)NetworkWeaver\Unity.UNetWeaver.exe &quot;$(ProjectDir)\libs\UnityEngine.CoreModule.dll&quot; &quot;$(ProjectDir)\libs\UnityEngine.Networking.dll&quot; &quot;$(ProjectDir)\NetworkWeaver\Patched/&quot;  $(TargetFileName) &quot;$(ProjectDir)\libs&quot;" />
+    <Exec Command="$(ProjectDir)NetworkWeaver\Unity.UNetWeaver.exe &quot;$(ProjectDir)\libs\UnityEngine.CoreModule.dll&quot; &quot;$(ProjectDir)\libs\UnityEngine.Networking.dll&quot; &quot;$(ProjectDir)\NetworkWeaver\Patched/&quot; &quot;$(ProjectDir)NetworkWeaver\$(TargetFileName)&quot; &quot;$(ProjectDir)\libs&quot;" />
     <Exec Command="echo weaved" />
-    <Exec Command="del $(ProjectDir)NetworkWeaver\$(TargetFileName).prepatch" />
-    <Exec Command="echo removed old prenetwork file from netweave folder" />
+    <Exec Command="del $(ProjectDir)$(TargetFileName).prepatch" />
+    <Exec Command="echo removed old prenetwork file" />
     <Exec Command="ren $(TargetFileName) $(TargetFileName).prepatch" IgnoreExitCode="true" />
     <Exec Command="echo renamed prenetwork file to prepatch for backup" />
     <Exec Command="robocopy $(ProjectDir)NetworkWeaver\Patched $(ProjectDir) $(TargetFileName) &gt; $(TargetDir)Robocopy" IgnoreExitCode="true" />
