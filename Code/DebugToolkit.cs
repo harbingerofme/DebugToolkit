@@ -13,6 +13,7 @@ using NetworkManager = DebugToolkit.Code.NetworkManager;
 namespace DebugToolkit
 {
     [BepInDependency("com.bepis.r2api")]
+    [NetworkCompatibility(CompatibilityLevel.NoNeedForSync)]
     [R2APISubmoduleDependency(nameof(PrefabAPI))]
     [BepInPlugin(GUID, modname, modver)]
     public class DebugToolkit : BaseUnityPlugin
