@@ -231,29 +231,14 @@ namespace DebugToolkit
             }
         }
 
-        internal static void ForceFamilyEvent(ILContext il)
+        internal static void ForceFamilyEvent(On.RoR2.ClassicStageInfo.orig_RebuildCards orig, ClassicStageInfo self)
         {
-            ILCursor c = new ILCursor(il);
-            c.GotoNext(
-                x => x.MatchCallOrCallvirt<Xoroshiro128Plus>("get_nextNormalizedFloat"),
-                x => x.MatchLdcR4(0.02f),
-                x => x.MatchBgtUn(out _)
-                );
-            c.Next.Next.OpCode = OpCodes.Nop;
-            c.Index++;
-            c.EmitDelegate<Func<float>>(() =>
-            {
-                return 1.0f;
-            });
-        }
-
-        internal static void RemoveFamilyEvent(On.RoR2.Stage.orig_Start orig, Stage self)
-        {
+            var originalVal = ClassicStageInfo.monsterFamilyChance;
+            ClassicStageInfo.monsterFamilyChance = 1;
             orig(self);
-            IL.RoR2.ClassicStageInfo.Awake -= ForceFamilyEvent;
-            On.RoR2.Stage.Start -= RemoveFamilyEvent;
+            ClassicStageInfo.monsterFamilyChance = originalVal;
+            On.RoR2.ClassicStageInfo.RebuildCards -= ForceFamilyEvent;
         }
-
 
         internal static void CombatDirector_SetNextSpawnAsBoss(On.RoR2.CombatDirector.orig_SetNextSpawnAsBoss orig, CombatDirector self)
         {

@@ -141,8 +141,7 @@ namespace DebugToolkit.Commands
         [ConCommand(commandName = "force_family_event", flags = ConVarFlags.ExecuteOnServer, helpText = "Forces a family event to occur during the next stage. " + Lang.FAMILYEVENT_ARGS)]
         private static void CCFamilyEvent(ConCommandArgs args)
         {
-            IL.RoR2.ClassicStageInfo.Awake += Hooks.ForceFamilyEvent;
-            On.RoR2.Stage.Start += Hooks.RemoveFamilyEvent;
+            On.RoR2.ClassicStageInfo.RebuildCards += Hooks.ForceFamilyEvent;
             Log.MessageNetworked("The next stage will contain a family event!", args);
         }
 
