@@ -1,8 +1,10 @@
 ﻿using DebugToolkit.Commands;
 using R2API;
 using RoR2;
+using System;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityObject = UnityEngine.Object;
 
 namespace DebugToolkit.Code
 {
@@ -16,7 +18,7 @@ namespace DebugToolkit.Code
             var dtcn = new GameObject("dtcn");
             dtcn.AddComponent<NetworkIdentity>();
             DebugToolKitComponents = dtcn.InstantiateClone("DebugToolKitComponentsNetworked");
-            Object.Destroy(dtcn);
+            UnityObject.Destroy(dtcn);
 
             Log.InitRPC();
             Command_Noclip.InitRPC();
@@ -28,22 +30,31 @@ namespace DebugToolkit.Code
 
         private static void ApplyHook()
         {
-            SceneDirector.onPostPopulateSceneServer += EnsureDTNetwork;
+            On.RoR2.SceneDirector.Start += EnsureDTNetwork;
         }
 
         // ReSharper disable once UnusedMember.Global
         internal static void UndoHook()
         {
-            SceneDirector.onPostPopulateSceneServer -= EnsureDTNetwork;
+            On.RoR2.SceneDirector.Start -= EnsureDTNetwork;
         }
 
         // ReSharper disable once InconsistentNaming
-        private static void EnsureDTNetwork(SceneDirector _)
+        private static void EnsureDTNetwork(On.RoR2.SceneDirector.orig_Start orig, SceneDirector self)
         {
+            try
+            {
+                orig(self);
+            }
+            catch (Exception e)
+            {
+                Log.Message($"Vanilla Exception : {e}", Log.LogLevel.Warning, Log.Target.Bepinex);
+            }
+
             if (!_debugToolKitComponentsSpawned)
             {
                 _debugToolKitComponentsSpawned =
-                    Object.Instantiate(DebugToolKitComponents);
+                    UnityObject.Instantiate(DebugToolKitComponents);
 
                 NetworkServer.Spawn(_debugToolKitComponentsSpawned);
             }
