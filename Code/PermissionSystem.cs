@@ -6,27 +6,27 @@ using BepInEx.Configuration;
 using RoR2;
 using UnityEngine;
 
-namespace DebugToolkit
+namespace DebugToolkit.Permissions
 {
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-    internal class RequiredPermissionLevel : Attribute
+    public class RequiredLevel : Attribute
     {
-        internal readonly PermissionLevel Level;
+        internal readonly Level Level;
 
-        public RequiredPermissionLevel(PermissionLevel level = PermissionLevel.SubAdmin)
+        public RequiredLevel(Level level = Level.SubAdmin)
         {
             Level = level;
         }
     }
 
-    internal enum PermissionLevel
+    public enum Level
     {
         None,
         SubAdmin,
         Admin
     }
 
-    internal static class PermissionSystem
+    public static class PermissionSystem
     {
         internal static ConfigEntry<bool> IsEnabled;
 
@@ -35,8 +35,8 @@ namespace DebugToolkit
 
         private static ConfigEntry<bool> _roR2CommandsNeedPermission;
 
-        private static ConfigEntry<PermissionLevel> _defaultPermissionLevel;
-        private static readonly Dictionary<string, ConfigEntry<PermissionLevel>> AdminCommands = new Dictionary<string, ConfigEntry<PermissionLevel>>();
+        private static ConfigEntry<Level> _defaultPermissionLevel;
+        private static readonly Dictionary<string, ConfigEntry<Level>> AdminCommands = new Dictionary<string, ConfigEntry<Level>>();
 
         internal static void Init()
         {
@@ -51,7 +51,7 @@ namespace DebugToolkit
             _subAdminList = DebugToolkit.Configuration.Bind("Permission System", "3. Sub Admin List", "76561197960265730, 76561197960265731",
                 "Who is/are the sub admin(s).");
 
-            _defaultPermissionLevel = DebugToolkit.Configuration.Bind("Permission System", "4. Default Permission Level", PermissionLevel.SubAdmin,
+            _defaultPermissionLevel = DebugToolkit.Configuration.Bind("Permission System", "4. Default Permission Level", Level.SubAdmin,
                 "What is the default permission level to use DebugToolkit commands, available levels : None (0), SubAdmin (1), Admin (2)");
 
             _roR2CommandsNeedPermission = DebugToolkit.Configuration.Bind("Permission System",
@@ -79,7 +79,7 @@ namespace DebugToolkit
 
             foreach (var methodInfo in assembly.GetTypes().SelectMany(x => x.GetMethods(BindingFlags.NonPublic | BindingFlags.Static)))
             {
-                var adminCommandAttribute = methodInfo.GetCustomAttribute<RequiredPermissionLevel>(false);
+                var adminCommandAttribute = methodInfo.GetCustomAttribute<RequiredLevel>(false);
                 var conCommandAttribute = (ConCommandAttribute)methodInfo.GetCustomAttributes(false).FirstOrDefault(x => x is ConCommandAttribute);
                 if (conCommandAttribute != null)
                 {
@@ -94,7 +94,7 @@ namespace DebugToolkit
         }
 
         [ConCommand(commandName = "perm_reload", flags = ConVarFlags.ExecuteOnServer, helpText = "Reload the permission system, updates user and commands permissions.")]
-        [RequiredPermissionLevel(PermissionLevel.Admin)]
+        [RequiredLevel(Level.Admin)]
         private static void CCReloadPermissionSystem(ConCommandArgs args)
         {
             DebugToolkit.Configuration.Reload();
@@ -103,7 +103,7 @@ namespace DebugToolkit
         }
 
         [ConCommand(commandName = "perm_enable", flags = ConVarFlags.ExecuteOnServer, helpText = "Enable or disable the permission system." + Lang.PERM_ENABLE_ARGS)]
-        [RequiredPermissionLevel(PermissionLevel.Admin)]
+        [RequiredLevel(Level.Admin)]
         private static void CCPermissionEnable(ConCommandArgs args)
         {
             if (args.Count == 0)
@@ -123,7 +123,7 @@ namespace DebugToolkit
         }
 
         [ConCommand(commandName = "perm_mod", flags = ConVarFlags.ExecuteOnServer, helpText = "Change the permission level of the specified playerid/username" + Lang.PERM_MOD_ARGS)]
-        [RequiredPermissionLevel(PermissionLevel.Admin)]
+        [RequiredLevel(Level.Admin)]
         private static void CCPermissionAddUser(ConCommandArgs args)
         {
             if (args.Count == 0)
@@ -137,7 +137,7 @@ namespace DebugToolkit
 
                 if (IsEnabled.Value)
                 {
-                    if (Enum.TryParse(args[0], out PermissionLevel level))
+                    if (Enum.TryParse(args[0], out Level level))
                     {
                         // TODO: finish that lol
                         Log.MessageNetworked("Please edit the users permissions through the config file for now and reload using perm_reload in the console", args, Log.LogLevel.Error);
@@ -162,12 +162,10 @@ namespace DebugToolkit
         {
             if (AdminCommands.TryGetValue(conCommandName, out var requiredLevel))
             {
-                var userLevel = GetPermissionLevel(networkUser);
+                var userLevel = networkUser.GetPermissionLevel();
 
                 if (userLevel >= requiredLevel.Value)
-                {
                     return true;
-                }
 
                 var conCommandArgs = new ConCommandArgs
                 {
@@ -185,7 +183,7 @@ namespace DebugToolkit
 
         public static bool HasMorePerm(NetworkUser sender, NetworkUser target, ConCommandArgs args)
         {
-            var senderElevationLevel = sender ? sender.GetPermissionLevel() : PermissionLevel.Admin + 1; // +1 for server console
+            var senderElevationLevel = sender ? sender.GetPermissionLevel() : Level.Admin + 1; // +1 for server console
             var targetElevationLevel = target.GetPermissionLevel();
 
             if (senderElevationLevel < targetElevationLevel)
@@ -203,23 +201,19 @@ namespace DebugToolkit
             return true;
         }
 
-        private static PermissionLevel GetPermissionLevel(this NetworkUser networkUser)
+        private static Level GetPermissionLevel(this NetworkUser networkUser)
         {
             var adminList = _adminList.Value.Split(',');
 
             if (adminList.Contains(networkUser.GetNetworkPlayerName().steamId.value.ToString()))
-            {
-                return PermissionLevel.Admin;
-            }
+                return Level.Admin;
 
             var subAdminList = _subAdminList.Value.Split(',');
 
             if (subAdminList.Contains(networkUser.GetNetworkPlayerName().steamId.value.ToString()))
-            {
-                return PermissionLevel.SubAdmin;
-            }
+                return Level.SubAdmin;
 
-            return PermissionLevel.None;
+            return Level.None;
         }
     }
 }

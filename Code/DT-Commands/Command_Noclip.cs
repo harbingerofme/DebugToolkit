@@ -12,10 +12,10 @@ namespace DebugToolkit.Commands
     // ReSharper disable once UnusedMember.Global
     internal static class Command_Noclip
     {
-        internal delegate void d_ServerChangeScene(NetworkManager instance, string newSceneName);
+        internal delegate void d_ServerChangeScene(UnityEngine.Networking.NetworkManager instance, string newSceneName);
         internal static d_ServerChangeScene origServerChangeScene;
         internal static Hook OnServerChangeSceneHook;
-        internal delegate void d_ClientChangeScene(NetworkManager instance, string newSceneName, bool forceReload);
+        internal delegate void d_ClientChangeScene(UnityEngine.Networking.NetworkManager instance, string newSceneName, bool forceReload);
         internal static d_ClientChangeScene origClientChangeScene;
         internal static Hook OnClientChangeSceneHook;
 
@@ -27,7 +27,8 @@ namespace DebugToolkit.Commands
 
         internal static void InitRPC()
         {
-            Code.NetworkManager.DebugToolKitComponents.AddComponent<NoclipNet>();
+            
+            NetworkManager.DebugToolKitComponents.AddComponent<NoclipNet>();
         }
 
         internal static void InternalToggle()
@@ -40,14 +41,14 @@ namespace DebugToolkit.Commands
                     {
                         _currentBody.GetComponent<KinematicCharacterMotor>().CollidableLayers = _collidableLayersCached;
                     }
-                    _currentBody.characterMotor.setUseGravity(true);
+                    _currentBody.characterMotor.SetUseGravity(true);
                     UndoHooks();
                 }
                 else
                 {
                     _collidableLayersCached = _currentBody.GetComponent<KinematicCharacterMotor>().CollidableLayers;
                     _currentBody.GetComponent<KinematicCharacterMotor>().CollidableLayers = 0;
-                    _currentBody.characterMotor.setUseGravity(false);
+                    _currentBody.characterMotor.SetUseGravity(false);
                     ApplyHooks();
                 }
 
@@ -106,12 +107,7 @@ namespace DebugToolkit.Commands
                 _currentBody.characterMotor.velocity = forwardDirection * 100f;
                 if (isStrafing)
                 {
-                    if (isForward)
-                        _currentBody.characterMotor.velocity.y = aimDirection.y * 100f;
-                    else
-                    {
-                        _currentBody.characterMotor.velocity.y = aimDirection.y * -100f;
-                    }
+                    _currentBody.characterMotor.velocity.y = aimDirection.y *  (isForward ? 100f :  -100f);
                 }
 
             }
@@ -120,13 +116,7 @@ namespace DebugToolkit.Commands
                 _currentBody.characterMotor.velocity = forwardDirection * 50;
                 if (isStrafing)
                 {
-                    if (isForward)
-                        _currentBody.characterMotor.velocity.y = aimDirection.y * 50;
-                    else
-                    {
-                        _currentBody.characterMotor.velocity.y = aimDirection.y * -50;
-                    }
-
+                    _currentBody.characterMotor.velocity.y = aimDirection.y * (isForward ? 50 : -50);
                 }
             }
 
@@ -135,7 +125,7 @@ namespace DebugToolkit.Commands
                 _currentBody.characterMotor.velocity.y = 50f;
         }
 
-        private static void DisableOnServerSceneChange(NetworkManager instance, string newSceneName)
+        private static void DisableOnServerSceneChange(UnityEngine.Networking.NetworkManager instance, string newSceneName)
         {
             if (IsActivated)
                 Console.instance.SubmitCmd(LocalUserManager.GetFirstLocalUser().currentNetworkUser, "noclip");
@@ -143,7 +133,7 @@ namespace DebugToolkit.Commands
             origServerChangeScene(instance, newSceneName);
         }
 
-        private static void DisableOnClientSceneChange(NetworkManager instance, string newSceneName, bool forceReload)
+        private static void DisableOnClientSceneChange(UnityEngine.Networking.NetworkManager instance, string newSceneName, bool forceReload)
         {
             if (IsActivated)
                 Console.instance.SubmitCmd(LocalUserManager.GetFirstLocalUser().currentNetworkUser, "noclip");
@@ -158,7 +148,7 @@ namespace DebugToolkit.Commands
                 if (_currentBody)
                 {
                     _currentBody.GetComponent<KinematicCharacterMotor>().CollidableLayers = _collidableLayersCached;
-                    _currentBody.characterMotor.setUseGravity(!_currentBody.characterMotor.useGravity);
+                    _currentBody.characterMotor.SetUseGravity(!_currentBody.characterMotor.useGravity);
                 }
 
                 IsActivated = !IsActivated;
@@ -176,7 +166,7 @@ namespace DebugToolkit.Commands
                 orig(self, characterBody);
         }
 
-        public static void setUseGravity(this CharacterMotor motor, bool value)
+        public static void SetUseGravity(this CharacterMotor motor, bool value)
         {
             typeof(CharacterMotor).GetProperty(nameof(CharacterMotor.useGravity)).GetSetMethod(true).Invoke(motor, new object[] { value });
         }
@@ -201,7 +191,7 @@ namespace DebugToolkit.Commands
         }
 
         [TargetRpc]
-        private void TargetToggle(NetworkConnection target)
+        private void TargetToggle(NetworkConnection _)
         {
             Command_Noclip.InternalToggle();
         }

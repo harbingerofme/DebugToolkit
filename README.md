@@ -100,6 +100,7 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
 
 * "Full Release"
 * **General**
+    * **3.4.1** Made some internal classes public.
     * Updated for game version `1.0`.
     * We are considering adding macros and keybinds to the base mod. [We would like your input on this.](https://github.com/harbingerofme/DebugToolkit/issues/101)
 * **Additions**

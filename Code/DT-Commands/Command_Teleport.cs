@@ -2,13 +2,12 @@
 using RoR2;
 using UnityEngine;
 using UnityEngine.Networking;
-using NetworkManager = DebugToolkit.Code.NetworkManager;
 
 // ReSharper disable InconsistentNaming
 
 namespace DebugToolkit.Commands
 {
-    internal static class Command_Teleport
+    public static class Command_Teleport
     {
         private static CharacterBody _currentBody;
 
@@ -51,7 +50,7 @@ namespace DebugToolkit.Commands
         }
 
         [TargetRpc]
-        private void TargetToggle(NetworkConnection target)
+        private void TargetToggle(NetworkConnection _)
         {
             Command_Teleport.InternalActivation();
         }

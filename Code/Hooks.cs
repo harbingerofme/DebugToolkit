@@ -1,4 +1,5 @@
 using DebugToolkit.Commands;
+using DebugToolkit.Permissions;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
@@ -16,7 +17,7 @@ using Console = RoR2.Console;
 namespace DebugToolkit
 {
     [R2APISubmoduleDependency(nameof(CommandHelper))]
-    internal sealed class Hooks
+    public sealed class Hooks
     {
         private const ConVarFlags AllFlagsNoCheat = ConVarFlags.None | ConVarFlags.Archive | ConVarFlags.Engine | ConVarFlags.ExecuteOnServer | ConVarFlags.SenderMustBeServer;
 

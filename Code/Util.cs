@@ -3,7 +3,7 @@ using RoR2;
 
 namespace DebugToolkit
 {
-    internal static class Util
+    public static class Util
     {
         /// <summary>
         /// Returns a matched NetworkUser when provided to a player.
@@ -64,7 +64,7 @@ namespace DebugToolkit
             }
             if (int.TryParse(input, out int val))
             {
-                result = val > 0 ? true : false;
+                result = val > 0;
                 return true;
             }
             return false;

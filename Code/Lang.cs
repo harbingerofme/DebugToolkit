@@ -1,9 +1,9 @@
 ﻿namespace DebugToolkit
 {
-    internal static class Lang
+    public static class Lang
     {
         //() denotes a list of specifc choices. : denotes a default. [] denotes a collection, and {} denotes freeform
-        internal const string
+        public const string
             ADDPORTAL_ARGS = "Requires 1 argument: add_portal (all|blue|celestial|gold)",
             BAN_ARGS = "Requires 1 argument: ({PlayerID:self}|{Playername})",
             CHANGETEAM_ARGS = "Requires 1 argument: change_team {TeamIndex:0/Neutral} ({PlayerID:self}|{Playername})",
@@ -37,7 +37,7 @@
             TRUEKILL_ARGS = "Requires 0 arguments: true_kill ({PlayerID:self}|{Playername})"
             ;
 
-        internal const string
+        public const string
             LISTITEM_ARGS = "List all item names and their IDs",
             LISTEQUIP_ARGS = "List all equipment items and their IDs",
             LISTAI_ARGS = "List all Masters and their language invariants",
@@ -45,7 +45,7 @@
             LISTPLAYER_ARGS = "List all players and their ID"
             ;
 
-        internal const string
+        public const string
             CREATEPICKUP_AMBIGIOUS_2 = "Could not choose between {0} and {1}, please be more precise. Consider using 'equip' or 'item' as the second argument.",
             CREATEPICKUP_NOTFOUND = "Could not find any item nor equipment with that name. It's not a coin either.",
             CREATEPICKUP_SUCCES_1 = "Succesfully created the pickup {0}.",
@@ -72,21 +72,17 @@
             ALL = "ALL"
             ;
 
-        internal const string
+        public const string
             PS_ARGUSER_HAS_MORE_PERM = "Specified user {0} has a greater permission level than you.",
             PS_ARGUSER_HAS_SAME_PERM = "Specified user {0} has the same permission level as you.",
             PS_NO_REQUIRED_LEVEL = "You don't have the required permission {0} to use this command."
             ;
 
-        internal const string
+        public const string
             DS_REQUIREFULLQUALIFY = "Command must be fully qualified on dedicated servers.",
             DS_NOTAVAILABLE = "This command doesn't make sense to run from a dedicated server.",
             DS_NOTYETIMPLEMENTED = "This command has not yet been implemented to be run from a dedicated server,"
             ;
         
-    }
-    internal static class Number
-    {
-
     }
 }

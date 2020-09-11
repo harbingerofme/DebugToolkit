@@ -10,7 +10,7 @@ using static DebugToolkit.Log;
 
 namespace DebugToolkit.Commands
 {
-    internal static class CurrentRun
+    public static class CurrentRun
     {
 
         internal static bool noEnemies = false;
@@ -305,7 +305,7 @@ namespace DebugToolkit.Commands
     // ReSharper disable once ClassNeverInstantiated.Global
     // ReSharper disable once MemberCanBeMadeStatic.Local
     // ReSharper disable once UnusedMember.Local
-    internal class TimescaleNet : NetworkBehaviour
+    public class TimescaleNet : NetworkBehaviour
     {
         private static TimescaleNet _instance;
         

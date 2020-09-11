@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using R2API;
 using R2API.Utils;
-using NetworkManager = DebugToolkit.Code.NetworkManager;
+using DebugToolkit.Permissions;
 
 namespace DebugToolkit
 {

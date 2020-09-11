@@ -9,7 +9,10 @@ using R2API.Utils;
 
 namespace DebugToolkit
 {
-    internal sealed class StringFinder
+    /// <summary>
+    /// DO NOT INSTANTIATE THIS CLASS YOURSELF! Instead use the static Instance property.
+    /// </summary>
+    public sealed class StringFinder
     {
         private static readonly Dictionary<string, string[]> BodyAlias = new Dictionary<string, string[]>();
         private static readonly Dictionary<string, string[]> MasterAlias = new Dictionary<string, string[]>();

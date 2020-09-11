@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityObject = UnityEngine.Object;
 
-namespace DebugToolkit.Code
+namespace DebugToolkit
 {
     internal static class NetworkManager
     {

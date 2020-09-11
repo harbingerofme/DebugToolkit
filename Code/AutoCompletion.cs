@@ -22,7 +22,7 @@ namespace DebugToolkit
         }
     }
 
-    internal static class ArgsAutoCompletion
+    public static class ArgsAutoCompletion
     {
         private static readonly Dictionary<string, AutoCompletionAttribute[]> Commands;
         internal static HashSet<string> CommandsWithStaticArgs = new HashSet<string>();
