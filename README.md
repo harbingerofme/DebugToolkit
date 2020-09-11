@@ -100,7 +100,7 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
 
 * "Full Release"
 * **General**
-    * Updated for game version `1.0.0.X`.
+    * Updated for game version `1.0`.
     * We are considering adding macros and keybinds to the base mod. [We would like your input on this.](https://github.com/harbingerofme/DebugToolkit/issues/101)
 * **Additions**
     * `list_item` When we removed this command, we forgot that people can forget. As the game now counts over 100 items, there's value in adding these lists back. They have been improved for more user readability.
