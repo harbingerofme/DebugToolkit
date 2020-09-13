@@ -4,7 +4,7 @@ using RoR2;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.Networking;
-using NetworkManager = DebugToolkit.Code.NetworkManager;
+using NetworkManager = DebugToolkit.NetworkManager;
 
 namespace DebugToolkit
 {
@@ -224,7 +224,7 @@ namespace DebugToolkit
         }
         
         [TargetRpc]
-        private void TargetLog(NetworkConnection target, string msg, int level)
+        private void TargetLog(NetworkConnection _, string msg, int level)
         {
             Log.Message(msg, (Log.LogLevel)level);
             Hooks.ScrollConsoleDown();

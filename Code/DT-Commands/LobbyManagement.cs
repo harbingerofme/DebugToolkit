@@ -11,7 +11,7 @@ namespace DebugToolkit.Commands
     class LobbyManagement
     {
         [ConCommand(commandName = "kick", flags = ConVarFlags.ExecuteOnServer, helpText = "Kicks the specified player from the session. " + Lang.KICK_ARGS)]
-        [RequiredPermissionLevel]
+        [RequiredLevel]
         private static void CCKick(ConCommandArgs args)
         {
             if (args.Count == 0)
@@ -70,7 +70,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "ban", flags = ConVarFlags.ExecuteOnServer, helpText = "Bans the specified player from the session. " + Lang.BAN_ARGS)]
-        [RequiredPermissionLevel]
+        [RequiredLevel]
         private static void CCBan(ConCommandArgs args)
         {
             if (args.Count == 0)
