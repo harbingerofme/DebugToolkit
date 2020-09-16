@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using R2API.Utils;
 using RoR2;
@@ -200,6 +201,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "next_stage", flags = ConVarFlags.ExecuteOnServer, helpText = "Forces a stage change to the specified stage. " + Lang.NEXTSTAGE_ARGS)]
+        [AutoCompletion(typeof(SceneCatalog), "indexToSceneDef", "<baseSceneName>k__BackingField")]
         private static void CCNextStage(ConCommandArgs args)
         {
             if (args.Count == 0)
@@ -210,24 +212,19 @@ namespace DebugToolkit.Commands
             }
 
             string stageString = args[0];
-            List<string> array = new List<string>();
-            for (int i = 0; i < SceneManager.sceneCountInBuildSettings; i++)
-            {
-                array.Add(SceneUtility.GetScenePathByBuildIndex(i).Replace("Assets/RoR2/Scenes/", "").Replace(".unity", ""));
-            }
+            var sceneNames = SceneCatalog.allSceneDefs.Select(sceneDef => sceneDef.baseSceneName).ToList();
 
-            if (array.Contains(stageString))
+            if (sceneNames.Contains(stageString))
             {
                 Run.instance.AdvanceStage(SceneCatalog.GetSceneDefFromSceneName(stageString));
                 Log.MessageNetworked($"Stage advanced to {stageString}.", args);
-                return;
             }
             else
             {
-                StringBuilder s = new StringBuilder();
-                s.AppendLine(Lang.NEXTROUND_STAGE);
-                array.ForEach((string str) => { s.AppendLine(str); });
-                Log.MessageNetworked(s.ToString(), args);
+                var sb = new StringBuilder();
+                sb.AppendLine(Lang.NEXTROUND_STAGE);
+                sceneNames.ForEach(str => sb.AppendLine(str));
+                Log.MessageNetworked(sb.ToString(), args);
             }
         }
 
