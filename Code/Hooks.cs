@@ -11,10 +11,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 using UnityEngine;
-using UnityEngine.Networking;
 using Console = RoR2.Console;
 
-namespace DebugToolkit
+namespace DebugToolkit.Code
 {
     [R2APISubmoduleDependency(nameof(CommandHelper))]
     public sealed class Hooks
@@ -38,11 +37,11 @@ namespace DebugToolkit
             IL.RoR2.Networking.GameNetworkManager.CCSetScene += EnableCheatsInCCSetScene;
 
             // Noclip hooks
-            var hookConfig = new HookConfig() { ManualApply = true };
-            Command_Noclip.OnServerChangeSceneHook = new Hook(typeof(NetworkManager).GetMethodCached("ServerChangeScene"),
+            var hookConfig = new HookConfig { ManualApply = true };
+            Command_Noclip.OnServerChangeSceneHook = new Hook(typeof(UnityEngine.Networking.NetworkManager).GetMethodCached("ServerChangeScene"),
     typeof(Command_Noclip).GetMethodCached("DisableOnServerSceneChange"),hookConfig);
             Command_Noclip.origServerChangeScene = Command_Noclip.OnServerChangeSceneHook.GenerateTrampoline<Command_Noclip.d_ServerChangeScene>();
-            Command_Noclip.OnClientChangeSceneHook = new Hook(typeof(NetworkManager).GetMethodCached("ClientChangeScene"),
+            Command_Noclip.OnClientChangeSceneHook = new Hook(typeof(UnityEngine.Networking.NetworkManager).GetMethodCached("ClientChangeScene"),
                 typeof(Command_Noclip).GetMethodCached("DisableOnClientSceneChange"),hookConfig);
             Command_Noclip.origClientChangeScene = Command_Noclip.OnClientChangeSceneHook.GenerateTrampoline<Command_Noclip.d_ClientChangeScene>();
         }
@@ -63,7 +62,7 @@ namespace DebugToolkit
                 x => x.MatchCastclass(typeof(ConCommandAttribute))
                 );
             c.EmitDelegate<Func<ConCommandAttribute, ConCommandAttribute>>(
-                (conAttr) =>
+                (conAttr) => 
                 {
                     conAttr.flags &= AllFlagsNoCheat;
                     if (conAttr.commandName == "run_set_stages_cleared")
@@ -74,23 +73,27 @@ namespace DebugToolkit
                 });
         }
 		
-		private static void InitCommandsAndFreeConvars(On.RoR2.Console.orig_InitConVars orig, RoR2.Console self)
+		private static void InitCommandsAndFreeConvars(On.RoR2.Console.orig_InitConVars orig, Console self)
         {
-            void removeCheatFlag (BaseConVar cv)
+            void RemoveCheatFlag (BaseConVar cv)
             {
                 cv.flags &= AllFlagsNoCheat;
             }
+
             orig(self);
-            removeCheatFlag(self.FindConVar("sv_time_transmit_interval"));
-            removeCheatFlag(self.FindConVar("run_scene_override"));
-            removeCheatFlag(self.FindConVar("stage1_pod"));
+
+            RemoveCheatFlag(self.FindConVar("sv_time_transmit_interval"));
+            RemoveCheatFlag(self.FindConVar("run_scene_override"));
+            RemoveCheatFlag(self.FindConVar("stage1_pod"));
+
             self.FindConVar("timescale").helpText += " Use time_scale instead!";
             self.FindConVar("director_combat_disable").helpText += " Use no_enemies instead!";
             self.FindConVar("timestep").helpText += " Let the DebugToolkit team know if you need this convar.";
             self.FindConVar("cmotor_safe_collision_step_threshold").helpText += " Let the DebugToolkit team know if you need this convar.";
             self.FindConVar("cheats").helpText += " But you already have the DebugToolkit mod installed...";
-            IntConVar mmConvar = (IntConVar) self.FindConVar("max_messages");
-            if(mmConvar.value == 25)
+
+            var mmConvar = (IntConVar) self.FindConVar("max_messages");
+            if (mmConvar.value == 25)
             {
                 mmConvar.SetString("100");
             }
@@ -99,16 +102,16 @@ namespace DebugToolkit
         // ReSharper disable once UnusedMember.Local
         private static void LogNetworkCommandsAndCheckPermissions(Console self, Console.CmdSender sender, string concommandName, List<string> userArgs)
         {
-            StringBuilder s = new StringBuilder();
-            userArgs.ForEach((str) => s.AppendLine(str));
+            var sb = new StringBuilder();
+            userArgs.ForEach((str) => sb.AppendLine(str));
 
             if (sender.networkUser != null && sender.localUser == null)
             {
-                Log.Message(string.Format(Lang.NETWORKING_OTHERPLAYER_4, sender.networkUser.userName, sender.networkUser.id.value, concommandName, s.ToString()));
+                Log.Message(string.Format(Lang.NETWORKING_OTHERPLAYER_4, sender.networkUser.userName, sender.networkUser.id.value, concommandName, sb));
             }
             else if (Application.isBatchMode)
             {
-                Log.Message(string.Format(Lang.NETWORKING_OTHERPLAYER_4, "Server", 0, concommandName, s.ToString()));
+                Log.Message(string.Format(Lang.NETWORKING_OTHERPLAYER_4, "Server", 0, concommandName, sb));
             }
 
             var canExecute = true;
@@ -133,7 +136,7 @@ namespace DebugToolkit
             }
         }
 		
-		private static bool BetterAutoCompletion(On.RoR2.Console.AutoComplete.orig_SetSearchString orig, RoR2.Console.AutoComplete self, string newSearchString)
+		private static bool BetterAutoCompletion(On.RoR2.Console.AutoComplete.orig_SetSearchString orig, Console.AutoComplete self, string newSearchString)
         {
             var searchString = self.GetFieldValue<string>("searchString");
             var searchableStrings = self.GetFieldValue<List<string>>("searchableStrings");
@@ -171,7 +174,7 @@ namespace DebugToolkit
             return true;
         }
 
-        private static void CommandArgsAutoCompletion(On.RoR2.Console.AutoComplete.orig_ctor orig, RoR2.Console.AutoComplete self, RoR2.Console console)
+        private static void CommandArgsAutoCompletion(On.RoR2.Console.AutoComplete.orig_ctor orig, Console.AutoComplete self, Console console)
         {
             orig(self, console);
 
