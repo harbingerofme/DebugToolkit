@@ -2,9 +2,9 @@
 using RoR2.ConVar;
 using RoR2;
 using System.Reflection;
+using DebugToolkit.Code;
 using UnityEngine;
 using UnityEngine.Networking;
-using NetworkManager = DebugToolkit.NetworkManager;
 
 namespace DebugToolkit
 {
