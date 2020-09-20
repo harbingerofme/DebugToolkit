@@ -6,6 +6,8 @@
         public const string
             ADDPORTAL_ARGS = "Requires 1 argument: add_portal (all|blue|celestial|gold)",
             BAN_ARGS = "Requires 1 argument: ({PlayerID:self}|{Playername})",
+            BIND_ARGS = "Requires 2 arguments: {Key} {ConsoleCommands}",
+            BIND_DELETE_ARGS = "Requires 1 argument: {Key}",
             CHANGETEAM_ARGS = "Requires 1 argument: change_team {TeamIndex:0/Neutral} ({PlayerID:self}|{Playername})",
             CREATEPICKUP_ARGS = "Requires 1 argument: create_pickup (\"coin\"|{localised_object_name}) (\"item\"|\"equip\")",
             FAMILYEVENT_ARGS = "Requires 0 arguments: force_family_event",

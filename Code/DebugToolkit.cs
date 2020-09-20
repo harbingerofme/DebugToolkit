@@ -4,8 +4,8 @@ using BepInEx.Configuration;
 using LogLevel = DebugToolkit.Log.LogLevel;
 using DebugToolkit.Commands;
 using System.Reflection;
-using System.Collections.Generic;
 using System.Linq;
+using DebugToolkit.Code;
 using R2API;
 using R2API.Utils;
 using DebugToolkit.Permissions;
@@ -57,6 +57,7 @@ namespace DebugToolkit
 
             Log.Message("Created by Harb, iDeathHD and . Based on RoR2Cheats by Morris1927.", LogLevel.Info, Log.Target.Bepinex);
 
+            MacroSystem.Init();
             PermissionSystem.Init();
             Hooks.InitializeHooks();
             NetworkManager.Init();
@@ -72,20 +73,22 @@ namespace DebugToolkit
 
         private void Update()
         {
+            MacroSystem.Update();
+
             if (Run.instance && Command_Noclip.IsActivated)
             {
                 Command_Noclip.Update();
             }
         }
 
-        public static void InvokeCMD(NetworkUser user, string commandname, params string[] arguments)
+        public static void InvokeCMD(NetworkUser user, string commandName, params string[] arguments)
         {
-            List<string> args = arguments.ToList<string>();
+            var args = arguments.ToList();
             var consoleUser = new Console.CmdSender(user);
             if (Console.instance)
-                RunCmdMethod.Invoke(Console.instance, new object []  { consoleUser, commandname, args});
+                RunCmdMethod.Invoke(Console.instance, new object []  { consoleUser, commandName, args});
             else
-                Log.Message($"InvokeCMD called whilst no console instance exists.",LogLevel.Error,Log.Target.Bepinex);
+                Log.Message("InvokeCMD called whilst no console instance exists.", LogLevel.Error, Log.Target.Bepinex);
         }
 
 
