@@ -13,7 +13,7 @@ using System.Text;
 using UnityEngine;
 using Console = RoR2.Console;
 
-namespace DebugToolkit.Code
+namespace DebugToolkit
 {
     [R2APISubmoduleDependency(nameof(CommandHelper))]
     public sealed class Hooks
