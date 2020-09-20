@@ -10,32 +10,37 @@ namespace DebugToolkit.Code
 {
     internal static class MacroSystem
     {
-        private class BindCmd
+        private class MacroConfigEntry
         {
-            internal string Value { get; }
-            private readonly string[] _array;
+            internal ConfigEntry<string> ConfigEntry { get; }
+            private string[] BlobArray { get; }
 
             internal string KeyBind { get; private set; }
-            internal string[] ConsoleCommands { get; private set; }
+            internal string[] ConsoleCommands { get; set; }
             private string _consoleCommandsBlob;
 
-            internal BindCmd(string bindCmdBlob)
+            internal MacroConfigEntry(ConfigEntry<string> configEntry)
             {
-                Value = bindCmdBlob;
-                _array = bindCmdBlob.Split(new[] {' '}, 3, StringSplitOptions.RemoveEmptyEntries);
+                BlobArray = SplitBindCmd(configEntry.Value);
+                ConfigEntry = configEntry;
+            }
+
+            private static string[] SplitBindCmd(string bindCmdBlob)
+            {
+                return bindCmdBlob.Split(new[] {' '}, 3, StringSplitOptions.RemoveEmptyEntries);
             }
 
             internal bool IsCorrectlyFormatted()
             {
-                if (_array.Length < 3)
+                if (BlobArray.Length < 3)
                 {
-                    Log.Message("Missing parameters.", Log.LogLevel.ErrorClientOnly);
+                    Log.Message($"Missing parameters for macro config entry called {ConfigEntry.Definition.Key}.", Log.LogLevel.ErrorClientOnly);
                     return false;
                 }
 
-                KeyBind = _array[1];
-                _consoleCommandsBlob = _array[2];
-                ConsoleCommands = _consoleCommandsBlob.Split(new[] { DEFAULT_COMMAND_SEPARATOR }, StringSplitOptions.RemoveEmptyEntries);
+                KeyBind = BlobArray[1];
+                _consoleCommandsBlob = BlobArray[2];
+                ConsoleCommands = SplitConsoleCommandsBlob(_consoleCommandsBlob);
 
                 try
                 {
@@ -51,8 +56,7 @@ namespace DebugToolkit.Code
             }
         }
 
-        private static readonly Dictionary<string, string[]> KeysToMacros = new Dictionary<string, string[]>();
-        private static readonly Dictionary<string, ConfigEntry<string>> MacroConfigEntries = new Dictionary<string, ConfigEntry<string>>();
+        private static readonly Dictionary<string, MacroConfigEntry> MacroConfigEntries = new Dictionary<string, MacroConfigEntry>();
 
         private static readonly System.Reflection.PropertyInfo OrphanedEntriesProperty =
             typeof(ConfigFile).GetProperty("OrphanedEntries",
@@ -62,81 +66,121 @@ namespace DebugToolkit.Code
             (Dictionary<ConfigDefinition, string>) OrphanedEntriesProperty.GetValue(DebugToolkit.Configuration);
 
         private const string MACRO_SECTION_NAME = "Macros";
+        private const string DEFAULT_MACRO_NAME = "Do not remove this example macro";
+        private const string DEFAULT_MACRO_KEYBIND = "f15";
+        private const string DEFAULT_MACRO_VALUE = "bind " + DEFAULT_MACRO_KEYBIND + " help";
         private const string DEFAULT_MACRO_DESCRIPTION = "Custom keybind for executing console commands.";
-        private const string DEFAULT_MACRO_KEYBIND = "x";
-        private const string DEFAULT_MACRO_EXAMPLE = "bind " + DEFAULT_MACRO_KEYBIND + " noclip;time_scale 1";
         private const char DEFAULT_COMMAND_SEPARATOR = ';';
 
         private const string MACRO_MINI_TUTORIAL = 
-            "\nMust start with bind {Key} {ConsoleCommands}.\n" + 
+            "\nMust start with bind {KeyBind} {ConsoleCommands}.\n" + 
             "Example : bind x noclip;kill_all\n" + 
             "When you'll press x key on keyboard it'll activate noclip and kill every monsters.\n" + 
-            "For adding new macros, just add new lines formatted like this :\n" + 
+            "For adding new macros, just add new lines under the example, must be formatted like this :\n" + 
             "Macro 2 = bind z no_enemies;give_item hoof 10\n" + 
-            "Macro 3 = bind z give_item dagger 5;give_item syringe 10\n" + 
-            "Or use the in-game console and use the bind console command : bind b give_item dio 1";
+            "Macro 3 = bind x give_item dagger 5;give_item syringe 10\n" + 
+            "Or use the in-game console and use the bind console command.\n" +
+            "When doing it from the in game console, don't forget to use double quotes, especially when chaining commands !\n" + 
+            "bind b \"give_item dio 1;spawn_ai 1 beetle\"\n" + 
+            "You can also delete existing bind like this:\n" + 
+            "bind_delete {KeyBind}";
 
         internal static void Init()
         {
-            var firstMacroEntry = DebugToolkit.Configuration.Bind("Macros", "Macro 1",
-                DEFAULT_MACRO_EXAMPLE, DEFAULT_MACRO_DESCRIPTION + MACRO_MINI_TUTORIAL);
-            MacroConfigEntries.Add(DEFAULT_MACRO_KEYBIND, firstMacroEntry);
+            Reload();
 
-            GetMacrosFromConfigFile();
+            DebugToolkit.Configuration.SettingChanged += OnMacroSettingChanged;
         }
 
-        private static void GetMacrosFromConfigFile()
+        private static void OnMacroSettingChanged(object sender, SettingChangedEventArgs e)
         {
-            FixOrphanedMacroEntries();
-
-            foreach (var (keyBind, macroEntry) in MacroConfigEntries)
+            if (e.ChangedSetting.Definition.Section == MACRO_SECTION_NAME)
             {
-                var bindCmd = new BindCmd(macroEntry.Value);
-                if (bindCmd.IsCorrectlyFormatted())
+                Reload();
+            }
+        }
+
+        private static void Reload()
+        {
+            MacroConfigEntries.Clear();
+            DebugToolkit.Configuration.Reload();
+
+            BindExampleMacro();
+
+            BindExistingEntries();
+            RetrieveOrphanedMacroEntries();
+        }
+
+        private static void BindExampleMacro()
+        {
+            AddMacroFromConfigEntry(DebugToolkit.Configuration.Bind(MACRO_SECTION_NAME, DEFAULT_MACRO_NAME,
+                DEFAULT_MACRO_VALUE, DEFAULT_MACRO_DESCRIPTION + MACRO_MINI_TUTORIAL));
+        }
+
+        private static void BindExistingEntries()
+        {
+            foreach (var configDef in DebugToolkit.Configuration.Keys)
+            {
+                if (configDef.Section == MACRO_SECTION_NAME && configDef.Key != DEFAULT_MACRO_NAME)
                 {
-                    AddMacro(keyBind, bindCmd.ConsoleCommands);
-                }
-                else
-                {
-                    Log.Message("Bind command not correctly formatted. Example usage : " + DEFAULT_MACRO_EXAMPLE,
-                        Log.LogLevel.ErrorClientOnly);
+                    AddMacroFromConfigEntry(DebugToolkit.Configuration.Bind(configDef, DEFAULT_MACRO_VALUE, new ConfigDescription(DEFAULT_MACRO_DESCRIPTION)));
                 }
             }
         }
 
-        private static void FixOrphanedMacroEntries()
+        private static void RetrieveOrphanedMacroEntries()
         {
             var orphanedEntries = OrphanedEntries;
-            var newEntries = new Dictionary<ConfigDefinition, string>();
+            var newEntries = new List<(ConfigDefinition, string)>();
 
             foreach (var (configDef, value) in orphanedEntries)
             {
                 if (configDef.Section == MACRO_SECTION_NAME && !string.IsNullOrEmpty(value))
                 {
-                    newEntries.Add(configDef, value);
+                    newEntries.Add((configDef, value));
                 }
             }
 
             foreach (var (configDef, value) in newEntries)
             {
                 orphanedEntries.Remove(configDef);
-                var bindCmd = new BindCmd(value);
-                if (bindCmd.IsCorrectlyFormatted())
-                {
-                    AddMacroToConfigFile(bindCmd);
-                }
+
+                AddMacroFromConfigEntry(BindNewConfigEntry(value));
             }
+        }
+
+        private static ConfigEntry<string> BindNewConfigEntry(string customValue)
+        {
+            var configEntry = DebugToolkit.Configuration.Bind(MACRO_SECTION_NAME,
+                "Macro " + (MacroConfigEntries.Count + 1), DEFAULT_MACRO_VALUE, DEFAULT_MACRO_DESCRIPTION);
+            configEntry.Value = customValue;
+
+            return configEntry;
+        }
+
+        private static void AddMacroFromConfigEntry(ConfigEntry<string> macroEntry)
+        {
+            var macroConfigEntry = new MacroConfigEntry(macroEntry);
+            if (macroConfigEntry.IsCorrectlyFormatted())
+            {
+                MacroConfigEntries[macroConfigEntry.KeyBind] = macroConfigEntry;
+            }
+        }
+
+        private static string[] SplitConsoleCommandsBlob(string consoleCommandsBlob)
+        {
+            return consoleCommandsBlob.Split(new[] { DEFAULT_COMMAND_SEPARATOR }, StringSplitOptions.RemoveEmptyEntries);
         }
 
         internal static void Update()
         {
             if (!RoR2.UI.ConsoleWindow.instance)
             {
-                foreach (var (keyBind, consoleCommands) in KeysToMacros)
+                foreach (var (keyBind, macroConfigEntry) in MacroConfigEntries)
                 {
                     if (Input.GetKeyDown(keyBind))
                     {
-                        foreach (var consoleCommand in consoleCommands)
+                        foreach (var consoleCommand in macroConfigEntry.ConsoleCommands)
                         {
                             RoR2.Console.instance.SubmitCmd(NetworkUser.readOnlyLocalPlayersList.FirstOrDefault(), consoleCommand);
                         }
@@ -145,39 +189,34 @@ namespace DebugToolkit.Code
             }
         }
 
-        private static void AddMacroToConfigFile(BindCmd bindCmd, string macroDescription = null)
-        {
-            if (MacroConfigEntries.TryGetValue(bindCmd.KeyBind, out var existingMacro))
-            {
-                existingMacro.Value = bindCmd.Value;
-            }
-            else
-            {
-                var macroEntry = DebugToolkit.Configuration.Bind(MACRO_SECTION_NAME,
-                    "Macro " + (MacroConfigEntries.Count + 1), DEFAULT_MACRO_EXAMPLE, 
-                    macroDescription ?? DEFAULT_MACRO_DESCRIPTION);
-                macroEntry.Value = bindCmd.Value;
-                MacroConfigEntries.Add(bindCmd.KeyBind, macroEntry);   
-            }
-        }
-
-        private static void AddMacro(string keyBind, string[] consoleCommands)
-        {
-            KeysToMacros[keyBind] = consoleCommands;
-        }
-
         [ConCommand(commandName = "bind", flags = ConVarFlags.None,
             helpText = "Bind a key to execute specific commands." + Lang.BIND_ARGS)]
         private static void CCBindMacro(ConCommandArgs args)
         {
-            // We only want 2 substrings. (the key bind, and the console commands)
-            var bindCmdBlob = "bind " + string.Join(" ", args.userArgs);
-            var bindCmd = new BindCmd(bindCmdBlob);
-
-            if (bindCmd.IsCorrectlyFormatted())
+            if (args.Count == 2)
             {
-                AddMacroToConfigFile(bindCmd);
-                AddMacro(bindCmd.KeyBind, bindCmd.ConsoleCommands);
+                BindExampleMacro();
+
+                // We only want 2 substrings. (the key bind, and the console commands)
+                var bindCmdBlob = "bind " + string.Join(" ", args.userArgs);
+
+                var keyBind = args[0];
+                var consoleCommandsBlob = args[1];
+                if (MacroConfigEntries.TryGetValue(keyBind, out var existingMacro))
+                {
+                    existingMacro.ConfigEntry.Value = bindCmdBlob;
+                    existingMacro.ConsoleCommands = SplitConsoleCommandsBlob(consoleCommandsBlob);
+                }
+                else
+                {
+                    AddMacroFromConfigEntry(BindNewConfigEntry(bindCmdBlob));
+                }
+            }
+            else if (args.Count == 1)
+            {
+                Log.Message(MacroConfigEntries.TryGetValue(args[0], out var existingMacro)
+                    ? existingMacro.ConfigEntry.Value
+                    : "This key has no macro associated to it.");
             }
             else
             {
@@ -192,10 +231,18 @@ namespace DebugToolkit.Code
             if (args.Count == 1)
             {
                 var keyBind = args[0];
+
+                if (keyBind == DEFAULT_MACRO_KEYBIND)
+                {
+                    Log.Message("You can't delete the default macro.", Log.LogLevel.ErrorClientOnly);
+                    return;
+                }
+
                 if (MacroConfigEntries.TryGetValue(keyBind, out var macroEntry))
                 {
-                    macroEntry.BoxedValue = null;
-                    KeysToMacros.Remove(keyBind);
+                    DebugToolkit.Configuration.Remove(macroEntry.ConfigEntry.Definition);
+                    DebugToolkit.Configuration.Save();
+                    MacroConfigEntries.Remove(keyBind);
                 }
             }
             else
@@ -206,10 +253,9 @@ namespace DebugToolkit.Code
 
         [ConCommand(commandName = "bind_reload", flags = ConVarFlags.None,
             helpText = "Reload the macro system of DebugToolkit." + Lang.BIND_DELETE_ARGS)]
-        private static void CCBindReloadMacro(ConCommandArgs args)
+        private static void CCBindReloadMacro(ConCommandArgs _)
         {
-            DebugToolkit.Configuration.Reload();
-            GetMacrosFromConfigFile();
+            Reload();
         }
     }
 }
