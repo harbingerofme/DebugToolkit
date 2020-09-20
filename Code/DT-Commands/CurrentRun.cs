@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using DebugToolkit.Code;
 using R2API.Utils;
 using RoR2;
 using UnityEngine;
 using UnityEngine.Networking;
-using UnityEngine.SceneManagement;
 using static DebugToolkit.Log;
 
 namespace DebugToolkit.Commands
