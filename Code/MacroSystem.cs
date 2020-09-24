@@ -68,7 +68,7 @@ namespace DebugToolkit.Code
         private const string MACRO_SECTION_NAME = "Macros";
         private const string DEFAULT_MACRO_NAME = "Do not remove this example macro";
         private const string DEFAULT_MACRO_KEYBIND = "f15";
-        private const string DEFAULT_MACRO_VALUE = "bind " + DEFAULT_MACRO_KEYBIND + " help";
+        private const string DEFAULT_MACRO_VALUE = "dt_bind " + DEFAULT_MACRO_KEYBIND + " help";
         private const string DEFAULT_MACRO_DESCRIPTION = "Custom keybind for executing console commands.";
         private const char DEFAULT_COMMAND_SEPARATOR = ';';
 
