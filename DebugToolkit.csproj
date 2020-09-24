@@ -66,6 +66,7 @@
     <None Remove=".gitignore" />
     <None Remove=".gitmodules" />
     <None Remove=".markdownlint.json" />
+    <None Remove="BUILDING.MD" />
     <None Remove="CurrentCommit" />
     <None Remove="DebugToolkit.dll" />
     <None Remove="DebugToolkit.zip" />
