@@ -73,17 +73,17 @@ namespace DebugToolkit.Code
         private const char DEFAULT_COMMAND_SEPARATOR = ';';
 
         private const string MACRO_MINI_TUTORIAL = 
-            "\nMust start with bind {KeyBind} {ConsoleCommands}.\n" + 
-            "Example : bind x noclip;kill_all\n" + 
+            "\nMust start with dt_bind {KeyBind} {ConsoleCommands}.\n" + 
+            "Example : dt_bind x noclip;kill_all\n" + 
             "When you'll press x key on keyboard it'll activate noclip and kill every monsters.\n" + 
             "For adding new macros, just add new lines under the example, must be formatted like this :\n" + 
-            "Macro 2 = bind z no_enemies;give_item hoof 10\n" + 
-            "Macro 3 = bind x give_item dagger 5;give_item syringe 10\n" + 
-            "Or use the in-game console and use the bind console command.\n" +
+            "Macro 2 = dt_bind z no_enemies;give_item hoof 10\n" + 
+            "Macro 3 = dt_bind x give_item dagger 5;give_item syringe 10\n" + 
+            "Or use the in-game console and use the dt_bind console command.\n" +
             "When doing it from the in game console, don't forget to use double quotes, especially when chaining commands !\n" + 
-            "bind b \"give_item dio 1;spawn_ai 1 beetle\"\n" + 
+            "dt_bind b \"give_item dio 1;spawn_ai 1 beetle\"\n" + 
             "You can also delete existing bind like this:\n" + 
-            "bind_delete {KeyBind}";
+            "dt_bind_delete {KeyBind}";
 
         internal static void Init()
         {
@@ -189,7 +189,7 @@ namespace DebugToolkit.Code
             }
         }
 
-        [ConCommand(commandName = "bind", flags = ConVarFlags.None,
+        [ConCommand(commandName = "dt_bind", flags = ConVarFlags.None,
             helpText = "Bind a key to execute specific commands." + Lang.BIND_ARGS)]
         private static void CCBindMacro(ConCommandArgs args)
         {
@@ -198,7 +198,7 @@ namespace DebugToolkit.Code
                 BindExampleMacro();
 
                 // We only want 2 substrings. (the key bind, and the console commands)
-                var bindCmdBlob = "bind " + string.Join(" ", args.userArgs);
+                var bindCmdBlob = "dt_bind " + string.Join(" ", args.userArgs);
 
                 var keyBind = args[0];
                 var consoleCommandsBlob = args[1];
@@ -224,7 +224,7 @@ namespace DebugToolkit.Code
             }
         }
 
-        [ConCommand(commandName = "bind_delete", flags = ConVarFlags.None,
+        [ConCommand(commandName = "dt_bind_delete", flags = ConVarFlags.None,
             helpText = "Remove a custom bind from the macro system of DebugToolkit." + Lang.BIND_DELETE_ARGS)]
         private static void CCBindDeleteMacro(ConCommandArgs args)
         {
@@ -251,7 +251,7 @@ namespace DebugToolkit.Code
             }
         }
 
-        [ConCommand(commandName = "bind_reload", flags = ConVarFlags.None,
+        [ConCommand(commandName = "dt_bind_reload", flags = ConVarFlags.None,
             helpText = "Reload the macro system of DebugToolkit." + Lang.BIND_DELETE_ARGS)]
         private static void CCBindReloadMacro(ConCommandArgs _)
         {
