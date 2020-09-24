@@ -1,6 +1,7 @@
 ﻿
 using RoR2;
 using System;
+using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using static DebugToolkit.Log;
@@ -12,37 +13,37 @@ namespace DebugToolkit.Commands
         [ConCommand(commandName = "list_item", flags = ConVarFlags.None, helpText ="List all items and their availability.")]
         private static void CCListItem(ConCommandArgs _)
         {
-            StringBuilder s = new StringBuilder();
-            foreach(var itemIndex in ItemCatalog.allItems)
+            var sb = new StringBuilder();
+            foreach (var itemIndex in (IEnumerable<ItemIndex>)ItemCatalog.allItems)
             {
                 var definition = ItemCatalog.GetItemDef(itemIndex);
                 string enabled = false.ToString();
-                var realname = Language.currentLanguage.GetLocalizedStringByToken(definition.nameToken);
+                var realName = Language.currentLanguage.GetLocalizedStringByToken(definition.nameToken);
                 if (Run.instance)
                 {
                     enabled = Run.instance.IsItemAvailable(itemIndex).ToString();
                 }
-                s.AppendLine($"[{(int) itemIndex}]: {definition.name} \"{realname}\" (enabled={enabled})");
+                sb.AppendLine($"[{(int) itemIndex}]: {definition.name} \"{realName}\" (enabled={enabled})");
             }
-            Log.Message(s.ToString());
+            Log.Message(sb.ToString());
         }
 
         [ConCommand(commandName = "list_equip", flags = ConVarFlags.None, helpText = "List all items and their availability.")]
         private static void CCListEquip(ConCommandArgs _)
         {
-            StringBuilder s = new StringBuilder();
-            foreach (var equipmentIndex in EquipmentCatalog.allEquipment)
+            var sb = new StringBuilder();
+            foreach (var equipmentIndex in (IEnumerable<EquipmentIndex>)EquipmentCatalog.allEquipment)
             {
                 var definition = EquipmentCatalog.GetEquipmentDef(equipmentIndex);
                 string enabled = false.ToString();
-                var realname = Language.currentLanguage.GetLocalizedStringByToken(definition.nameToken);
+                var realName = Language.currentLanguage.GetLocalizedStringByToken(definition.nameToken);
                 if (Run.instance)
                 {
                     enabled = Run.instance.IsEquipmentAvailable(equipmentIndex).ToString();
                 }
-                s.AppendLine($"[{(int) equipmentIndex}]: {definition.name} \"{realname}\"  (enabled={enabled})");
+                sb.AppendLine($"[{(int) equipmentIndex}]: {definition.name} \"{realName}\"  (enabled={enabled})");
             }
-            Log.Message(s.ToString());
+            Log.Message(sb.ToString());
         }
 
 
