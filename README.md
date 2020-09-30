@@ -18,7 +18,6 @@ Some vanilla console functions you might not know:
 Mods recommended for combined use:
 
 * [KeyBindForConsole](https://thunderstore.io/package/kristiansja/KeyBindForConsole/) for easier enabling of the console. Especially useful for non-US keyboard layouts.
-* [SimpleMacros](https://thunderstore.io/package/recursiveGecko/SimpleMacros/) for binding console commands to keys.
 * [R2DSE](https://thunderstore.io/package/Harb/R2DSEssentials/) for running DT on dedicated servers.
 
 You may contact us at any time through [issues on GitHub](https://github.com/harbingerofme/DebugToolkit/issues/new/choose), the [dedicated discord server]((https://discord.gg/yTfsMWP) or through the [Risk of Rain 2 modding Discord](https://discord.gg/5MbXZvd) found at the top of the Thunderstore website. 
@@ -67,6 +66,10 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
 * **god** - Toggles HealthComponent.TakeDamage for all players. AKA: you can't take damage.
 * **noclip** - Toggles noclip. Allow you to fly and going through objects. Sprinting will double the speed.
 
+* **dt_bind** - Bind a key to execute specific commands. `dt_bind {key} {consolecommands seperated by ;}`
+* **dt_bind_delete** Remove a custom bind. `dt_bind_delete {key}`
+* **dt_bind_reload** Reload the macro system from file. `dt_bind_reload` 
+
 * **kick** - Kicks the specified Player Name/ID from the game.
 * **ban** - Session bans the specified Player Name/ID from the game.
 
@@ -101,11 +104,17 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
 * "Full Release"
 * **General**
     * **3.4.1** Made some internal classes public.
+    * **3.4.1** Now supports custom stages too.
+    * **3.4.1** Now has keybinds and macros.
+    * **3.4.1** We are considering moving the permissions module to it's own seperate mod. Please give your feedback.
     * Updated for game version `1.0`.
-    * We are considering adding macros and keybinds to the base mod. [We would like your input on this.](https://github.com/harbingerofme/DebugToolkit/issues/101)
+    * ~~We are considering adding macros and keybinds to the base mod. [We would like your input on this.](https://github.com/harbingerofme/DebugToolkit/issues/101)~~
 * **Additions**
+    * **3.4.1** `dt_bind` You can now bind keys to macros. 
     * `list_item` When we removed this command, we forgot that people can forget. As the game now counts over 100 items, there's value in adding these lists back. They have been improved for more user readability.
     * `list_equip` (see list_item)
+* **Fixes**
+    * **3.4.1** Fixed an issue introduced in Gameversion 1.0.1 where `list_item` and `list_equip` wouldn't work.
 
 ### 3.3 ###
 
