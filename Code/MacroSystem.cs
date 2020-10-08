@@ -87,6 +87,7 @@ namespace DebugToolkit.Code
 
         internal static void Init()
         {
+            DebugToolkit.Configuration.Save();
             Reload();
 
             DebugToolkit.Configuration.SettingChanged += OnMacroSettingChanged;
