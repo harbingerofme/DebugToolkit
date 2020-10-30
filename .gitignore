@@ -361,3 +361,7 @@ NetworkWeaver/
 Resources/Microsoft.CSharp.dll
 
 *.prepatch
+
+Thunderstore/contents/Microsoft.CSharp.dll
+
+Thunderstore/contents/README.md

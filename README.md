@@ -107,6 +107,7 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
     * **3.4.1** Now supports custom stages too.
     * **3.4.1** Now has keybinds and macros.
     * **3.4.1** We are considering moving the permissions module to it's own seperate mod. Please give your feedback.
+    * **3.4.2** Harb was a dumb dumb and didn't put the Microsoft assembly in the zip.
     * Updated for game version `1.0`.
     * ~~We are considering adding macros and keybinds to the base mod. [We would like your input on this.](https://github.com/harbingerofme/DebugToolkit/issues/101)~~
 * **Additions**
@@ -115,6 +116,8 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
     * `list_equip` (see list_item)
 * **Fixes**
     * **3.4.1** Fixed an issue introduced in Gameversion 1.0.1 where `list_item` and `list_equip` wouldn't work.
+    * **3.4.2** Fixed needing to have a config file so a config file could be generated.
+    * **3.4.2** Fixed not having the Microsoft assembly in the zip.
 
 ### 3.3 ###
 
