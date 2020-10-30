@@ -33,10 +33,18 @@ namespace DebugToolkit.Permissions
         private static ConfigEntry<string> _adminList;
         private static ConfigEntry<string> _subAdminList;
 
+        private static readonly HashSet<ulong> AdminSteamIdList = new HashSet<ulong>(); 
+        private static readonly HashSet<ulong> SubAdminSteamIdList = new HashSet<ulong>(); 
+
         private static ConfigEntry<bool> _roR2CommandsNeedPermission;
 
         private static ConfigEntry<Level> _defaultPermissionLevel;
         private static readonly Dictionary<string, ConfigEntry<Level>> AdminCommands = new Dictionary<string, ConfigEntry<Level>>();
+
+        public const string PERMISSION_SYSTEM_CONFIG_SECTION = "Permission System";
+        public const char PERMISSION_SYSTEM_ADMIN_LIST_SEPARATOR = ',';
+        public const string ADMIN_LIST_CONFIG_NAME = "2. Admin";
+        public const string SUBADMIN_LIST_CONFIG_NAME = "3. Sub Admin List";
 
         internal static void Init()
         {
@@ -46,9 +54,9 @@ namespace DebugToolkit.Permissions
             if (!IsEnabled.Value)
                 return;
 
-            _adminList = DebugToolkit.Configuration.Bind("Permission System", "2. Admin", "76561197960265728, 76561197960265729",
+            _adminList = DebugToolkit.Configuration.Bind("Permission System", ADMIN_LIST_CONFIG_NAME, "76561197960265728, 76561197960265729",
                 "Who is/are the admin(s). They are identified using their STEAM64 ID, the ID can be seen when the player connects to the server.");
-            _subAdminList = DebugToolkit.Configuration.Bind("Permission System", "3. Sub Admin List", "76561197960265730, 76561197960265731",
+            _subAdminList = DebugToolkit.Configuration.Bind("Permission System", SUBADMIN_LIST_CONFIG_NAME, "76561197960265730, 76561197960265731",
                 "Who is/are the sub admin(s).");
 
             _defaultPermissionLevel = DebugToolkit.Configuration.Bind("Permission System", "4. Default Permission Level", Level.SubAdmin,
@@ -58,12 +66,69 @@ namespace DebugToolkit.Permissions
                 "5. RoR2 Console Commands use the Permission System", false,
                 "When enabled, all the RoR2 Console Commands will be added to this config file and will only be fired if the permission check says so.");
 
+            UpdateAdminListCache();
+            UpdateSubAdminListCache();
+            DebugToolkit.Configuration.SettingChanged += UpdateAdminListCacheOnConfigChange;
+
             AdminCommands.Clear();
 
             AddPermissionCheckToConCommands();
 
             if (_roR2CommandsNeedPermission.Value)
                 AddPermissionCheckToConCommands(typeof(RoR2Application).Assembly);
+        }
+
+        private static void UpdateAdminListCache()
+        {
+            var adminSteamIds = _adminList.Value.Split(PERMISSION_SYSTEM_ADMIN_LIST_SEPARATOR).Select(s => s.Trim()).ToList();
+
+            AdminSteamIdList.Clear();
+            foreach (var steamId in adminSteamIds)
+            {
+                if (ulong.TryParse(steamId, out var steamIdULong))
+                {
+                    AdminSteamIdList.Add(steamIdULong);
+                }
+                else
+                {
+                    Log.Message($"Can't parse correctly the given STEAMID64 : ${steamId} for admins", Log.LogLevel.Error);
+                }
+            }
+        }
+
+        private static void UpdateSubAdminListCache()
+        {
+            var subAdminSteamIds = _subAdminList.Value.Split(PERMISSION_SYSTEM_ADMIN_LIST_SEPARATOR).Select(s => s.Trim()).ToList();
+
+            SubAdminSteamIdList.Clear();
+            foreach (var steamId in subAdminSteamIds)
+            {
+                if (ulong.TryParse(steamId, out var steamIdULong))
+                {
+                    SubAdminSteamIdList.Add(steamIdULong);
+                }
+                else
+                {
+                    Log.Message($"Can't parse correctly the given STEAMID64 : ${steamId} for sub admins", Log.LogLevel.Error);
+                }
+            }
+        }
+
+        private static void UpdateAdminListCacheOnConfigChange(object _, SettingChangedEventArgs settingChangedEventArgs)
+        {
+            var changedSetting= settingChangedEventArgs.ChangedSetting;
+
+            if (changedSetting.Definition.Section == PERMISSION_SYSTEM_CONFIG_SECTION)
+            {
+                if (changedSetting.Definition.Key == ADMIN_LIST_CONFIG_NAME)
+                {
+                    UpdateAdminListCache();
+                }
+                else if (changedSetting.Definition.Key == SUBADMIN_LIST_CONFIG_NAME)
+                {
+                    UpdateSubAdminListCache();
+                }
+            }
         }
 
         // If no specific assembly is specified,
@@ -203,14 +268,12 @@ namespace DebugToolkit.Permissions
 
         private static Level GetPermissionLevel(this NetworkUser networkUser)
         {
-            var adminList = _adminList.Value.Split(',');
+            var userSteamId = networkUser.GetNetworkPlayerName().steamId.value;
 
-            if (adminList.Contains(networkUser.GetNetworkPlayerName().steamId.value.ToString()))
+            if (AdminSteamIdList.Contains(userSteamId))
                 return Level.Admin;
 
-            var subAdminList = _subAdminList.Value.Split(',');
-
-            if (subAdminList.Contains(networkUser.GetNetworkPlayerName().steamId.value.ToString()))
+            if (SubAdminSteamIdList.Contains(userSteamId))
                 return Level.SubAdmin;
 
             return Level.None;
