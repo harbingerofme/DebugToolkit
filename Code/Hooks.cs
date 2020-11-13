@@ -247,10 +247,8 @@ namespace DebugToolkit
         internal static void CombatDirector_SetNextSpawnAsBoss(On.RoR2.CombatDirector.orig_SetNextSpawnAsBoss orig, CombatDirector self)
         {
             orig(self);
-            self.monsterCredit *= 100; 
             var selected = CurrentRun.nextBoss;
-            //todo: fix this line.
-            // selected.cost = (int)((self.monsterCredit / DebugToolkit.nextBossCount) / DebugToolkit.GetTierDef(DebugToolkit.nextBossElite).costMultiplier);
+            selected.spawnCard.directorCreditCost = (int)((self.monsterCredit / CurrentRun.nextBossCount) / Spawners.GetTierDef(CurrentRun.nextBossElite).costMultiplier);
             self.OverrideCurrentMonsterCard(selected);
             self.SetFieldValue<CombatDirector.EliteTierDef>("currentActiveEliteTier", Spawners.GetTierDef(CurrentRun.nextBossElite));
             self.SetFieldValue<EliteIndex>("currentActiveEliteIndex", CurrentRun.nextBossElite);
