@@ -119,6 +119,9 @@
       <HintPath>libs\BepInEx.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="HGCSharpUtils">
+      <HintPath>libs\HGCSharpUtils.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp">
       <HintPath>libs\Microsoft.CSharp.dll</HintPath>
       <Private>true</Private>
