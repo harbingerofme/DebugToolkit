@@ -149,7 +149,7 @@ namespace DebugToolkit.Commands
             }
 
             Transform spawnPoint = Stage.instance.GetPlayerSpawnTransform();
-            master.Respawn(spawnPoint.position, spawnPoint.rotation, false);
+            master.Respawn(spawnPoint.position, spawnPoint.rotation);
             Log.MessageNetworked(string.Format(Lang.SPAWN_ATTEMPT_1, master.name), args);
         }
 

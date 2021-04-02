@@ -1,10 +1,11 @@
 ﻿using System;
 using RoR2;
-using R2API.Utils;
 using UnityEngine;
 using UnityEngine.Networking;
 using static DebugToolkit.Log;
 using RoR2.CharacterAI;
+using System.Linq;
+using System.Globalization;
 
 namespace DebugToolkit.Commands
 {
@@ -84,16 +85,27 @@ namespace DebugToolkit.Commands
                 var bodyGameObject = UnityEngine.Object.Instantiate<GameObject>(masterprefab, location, Quaternion.identity);
                 CharacterMaster master = bodyGameObject.GetComponent<CharacterMaster>();
                 NetworkServer.Spawn(bodyGameObject);
-                master.SpawnBody(body, args.sender.master.GetBody().transform.position, Quaternion.identity);
+                master.bodyPrefab = body;
+                master.SpawnBody(args.sender.master.GetBody().transform.position, Quaternion.identity);
 
                 if (args.Count > 2)
                 {
-                    var eliteIndex = StringFinder.GetEnumFromPartial<EliteIndex>(args[2]);
-                    if (eliteIndex != EliteIndex.None)
+                    var eliteDef = int.TryParse(args[2], out var eliteIndex) ?
+                        EliteCatalog.GetEliteDef((EliteIndex)eliteIndex) :
+                        EliteCatalog.eliteDefs.FirstOrDefault(d => d.name.ToLower().Contains(args[2].ToLower(CultureInfo.InvariantCulture)));
+                    if (eliteDef)
                     {
-                        master.inventory.SetEquipmentIndex(EliteCatalog.GetEliteDef(eliteIndex).eliteEquipmentIndex);
-                        master.inventory.GiveItem(ItemIndex.BoostHp, Mathf.RoundToInt((GetTierDef(eliteIndex).healthBoostCoefficient - 1) * 10));
-                        master.inventory.GiveItem(ItemIndex.BoostDamage, Mathf.RoundToInt((GetTierDef(eliteIndex).damageBoostCoefficient - 1) * 10));
+                        master.inventory.SetEquipmentIndex(eliteDef.eliteEquipmentDef.equipmentIndex);
+                        var eliteTierDef = GetTierDef(eliteDef.eliteIndex);
+                        if (eliteTierDef != null)
+                        {
+                            master.inventory.GiveItem(RoR2Content.Items.BoostHp, Mathf.RoundToInt((eliteTierDef.healthBoostCoefficient - 1) * 10));
+                            master.inventory.GiveItem(RoR2Content.Items.BoostDamage, Mathf.RoundToInt((GetTierDef(eliteDef.eliteIndex).damageBoostCoefficient - 1) * 10));
+                        }
+                        else
+                        {
+                            Debug.LogWarning($"That eliteDef {eliteDef.name} is not properly registered by the game");
+                        }
                     }
                 }
 
@@ -147,19 +159,24 @@ namespace DebugToolkit.Commands
 
         internal static CombatDirector.EliteTierDef GetTierDef(EliteIndex index)
         {
-            int tier = 0;
-            CombatDirector.EliteTierDef[] tierdefs = typeof(CombatDirector).GetFieldValue<CombatDirector.EliteTierDef[]>("eliteTiers");
-            if ((int)index > (int)EliteIndex.None && (int)index < (int)EliteIndex.Count)
+            foreach (var eliteTier in CombatDirector.eliteTiers)
             {
-                for (int i = 0; i < tierdefs.Length; i++)
+                if (eliteTier != null)
                 {
-                    for (int j = 0; j < tierdefs[i].eliteTypes.Length; j++)
+                    foreach (var eliteDef in eliteTier.eliteTypes)
                     {
-                        if (tierdefs[i].eliteTypes[j] == (index)) { tier = i; }
+                        if (eliteDef)
+                        {
+                            if (eliteDef.eliteIndex == index)
+                            {
+                                return eliteTier;
+                            }
+                        }
                     }
                 }
             }
-            return tierdefs[tier];
+
+            return null;
         }
     }
 }

@@ -31,7 +31,7 @@
             REMOVEEQUIP_ARGS = "Requires 0 arguments: remove_equip ({PlayerID:self}|{Playername})",
             RESPAWN_ARGS = "Requires 0 arguments: respawn ({PlayerID:self}|{Playername})",
             SEED_ARGS = "Requires no or 1 argument: seed [new seed]",
-            SPAWNAI_ARGS = "Requires 1 argument: spawn_ai {localised_objectname} [Count:1] [EliteIndex:-1/None] [Braindead:0/false(0|1)] [TeamIndex:2/Monster]",
+            SPAWNAI_ARGS = "Requires 1 argument: spawn_ai {localised_objectname} [Count:1] [EliteIndex: Number(start at 0 or Name) : Fire / Gold / Haunted / Ice / Lightning / Lunar / Poison] [Braindead:0/false(0|1)] [TeamIndex:2/Monster]",
             SPAWNAS_ARGS = "Requires 1 argument: spawn_as {localised_objectname} ({PlayerID:self}|{Playername})",
             SPAWNBODY_ARGS = "Requires 1 argument: spawn_body {localised_objectname}",
             SPAWNINTERACTABLE_ARGS = "Requires 1 argument: spawn_interactable {InteractableSpawnCard}",
