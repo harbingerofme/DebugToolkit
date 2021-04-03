@@ -61,7 +61,7 @@ namespace DebugToolkit
                 {
                     spawnCard = csc,
                     allowAmbushSpawn = true,
-                    forbiddenUnlockable = "",
+                    forbiddenUnlockableDef = null,
                     minimumStageCompletions = 0,
                     preventOverhead = true,
                     spawnDistance = DirectorCore.MonsterSpawnDistance.Standard,
