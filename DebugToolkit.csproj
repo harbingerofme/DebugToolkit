@@ -121,6 +121,7 @@
     </Reference>
     <Reference Include="HGCSharpUtils">
       <HintPath>libs\HGCSharpUtils.dll</HintPath>
+       <Private>false</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp">
       <HintPath>libs\Microsoft.CSharp.dll</HintPath>

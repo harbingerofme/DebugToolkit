@@ -6,6 +6,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DebugToolkit", "DebugToolki
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Items", "Items", "{841CDF50-F197-4B30-AE96-270AE80E6032}"
 	ProjectSection(SolutionItems) = preProject
+		.gitattributes = .gitattributes
+		.gitignore = .gitignore
+		.gitmodules = .gitmodules
 		BUILDING.MD = BUILDING.MD
 		FodyWeavers.xml = FodyWeavers.xml
 		LICENSE = LICENSE
