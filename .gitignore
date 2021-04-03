@@ -9,8 +9,6 @@
 *.user
 *.userosscache
 *.sln.docstates
-libs/*.dll
-libs/*.xml
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
@@ -365,3 +363,7 @@ Resources/Microsoft.CSharp.dll
 Thunderstore/contents/Microsoft.CSharp.dll
 
 Thunderstore/contents/README.md
+
+libs/*/*.dll
+libs/*/*.xml
+libs/*.dll
