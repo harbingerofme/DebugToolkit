@@ -200,7 +200,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "next_stage", flags = ConVarFlags.ExecuteOnServer, helpText = "Forces a stage change to the specified stage. " + Lang.NEXTSTAGE_ARGS)]
-        [AutoCompletion(typeof(SceneCatalog), "indexToSceneDef", "<baseSceneName>k__BackingField")]
+        [AutoCompletion(typeof(SceneCatalog), "indexToSceneDef", "_cachedName")]
         private static void CCNextStage(ConCommandArgs args)
         {
             if (args.Count == 0)
