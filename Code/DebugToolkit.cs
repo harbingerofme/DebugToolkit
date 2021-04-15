@@ -18,8 +18,8 @@ namespace DebugToolkit
     [BepInPlugin(GUID, modname, modver)]
     public class DebugToolkit : BaseUnityPlugin
     {
-        public const string modname = "DebugToolkit", modver = "3.4.0";
-        public const string GUID = "com.harbingerofme." + modname;
+        public const string modname = "DebugToolkit", modver = "3.5.0";
+        public const string GUID = "iHarbHD." + modname;
 
         private static MethodInfo RunCmdMethod;
 
