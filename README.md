@@ -99,6 +99,13 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
 
 ## Changelog ##
 
+### 3.5 ###
+
+* "Anniversary Update"
+*  **Fixes**
+    * Updated for anniversary update.
+    * **3.5.1** Updated for the update to the anniversary update.
+
 ### 3.4 ###
 
 * "Full Release"
