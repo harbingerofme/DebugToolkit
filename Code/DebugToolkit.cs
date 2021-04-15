@@ -68,7 +68,6 @@ namespace DebugToolkit
         private void Start()
         {
             var _ = StringFinder.Instance;
-            ArgsAutoCompletion.GatherCommandsAndFillStaticArgs();
         }
 
         private void Update()

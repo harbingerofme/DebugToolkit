@@ -33,6 +33,7 @@ namespace DebugToolkit
             
             On.RoR2.Console.AutoComplete.SetSearchString += BetterAutoCompletion;
             On.RoR2.Console.AutoComplete.ctor += CommandArgsAutoCompletion;
+            RoR2Application.onLoad += ArgsAutoCompletion.GatherCommandsAndFillStaticArgs;
             IL.RoR2.UI.ConsoleWindow.Update += SmoothDropDownSuggestionNavigation;
             IL.RoR2.Networking.GameNetworkManager.CCSetScene += EnableCheatsInCCSetScene;
 
