@@ -8,7 +8,7 @@ using RoR2;
 namespace DebugToolkit
 {
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-    internal class AutoCompletionAttribute : Attribute
+    public class AutoCompletionAttribute : Attribute
     {
         internal readonly dynamic Catalog;
         internal readonly string NestedField;
