@@ -10,13 +10,13 @@ namespace DebugToolkit
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
     internal class AutoCompletionAttribute : Attribute
     {
-        internal readonly dynamic Catalog;
+        internal readonly IEnumerable<object> Catalog;
         internal readonly string NestedField;
         internal readonly bool Dynamic;
 
         public AutoCompletionAttribute(Type classType, string catalogName, string nestedField = "", bool dynamic = false)
         {
-            Catalog = classType.GetFieldValue<dynamic>(catalogName);
+            Catalog = classType.GetFieldValue<IEnumerable<object>>(catalogName);
             NestedField = nestedField;
             Dynamic = dynamic;
         }
