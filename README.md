@@ -19,8 +19,16 @@ Mods recommended for combined use:
 
 * [KeyBindForConsole](https://thunderstore.io/package/kristiansja/KeyBindForConsole/) for easier enabling of the console. Especially useful for non-US keyboard layouts.
 * [R2DSE](https://thunderstore.io/package/Harb/R2DSEssentials/) for running DT on dedicated servers.
+* [MidRunArtifacts](https://thunderstore.io/package/KingEnderBrine/MidRunArtifacts/) for enabling and disabling artifacts during a run.
 
 You may contact us at any time through [issues on GitHub](https://github.com/harbingerofme/DebugToolkit/issues/new/choose), the [dedicated discord server]((https://discord.gg/yTfsMWP) or through the [Risk of Rain 2 modding Discord](https://discord.gg/5MbXZvd) found at the top of the Thunderstore website. 
+
+---
+
+## Additional Contributors ##
+
+* [DestroyedClone](https://thunderstore.io/package/DestroyedClone/) ([Github](https://github.com/DestroyedClone))
+* [Rays](https://github.com/SuperRayss)
 
 ---
 
@@ -64,6 +72,7 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
 
 * **no_enemies** - Toggles enemy spawns.
 * **god** - Toggles HealthComponent.TakeDamage for all players. AKA: you can't take damage.
+* **lock_exp** - Prevents EXP gain for the player team.
 * **noclip** - Toggles noclip. Allow you to fly and going through objects. Sprinting will double the speed.
 
 * **dt_bind** - Bind a key to execute specific commands. `dt_bind {key} {consolecommands seperated by ;}`
@@ -106,7 +115,8 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
     * Microsoft.CSharp.dll dependency is gone.
 * **Additions**
     * `spawn_interactable` Now support custom interactables.
-    * `spawn_interactible` Do the same as `spawn_interactable`.
+    * `spawn_interactible` Does the same as `spawn_interactable`.
+    * `lock_exp` toggles EXP gain, note that this applies to all players. Thank you [DestroyedClone](https://thunderstore.io/package/DestroyedClone/)!
 *  **Fixes**
     * Description of `add_portal` now mention the null portal, also you can now spawn it in teleporter-less stages.
 
@@ -260,6 +270,7 @@ This mod hooks the following methods when prompted:
 
 * `On.RoR2.PreGameController.Awake` - We use this to change the seed if needed.
 * `On.RoR2.CombatDirector.SetNextSpawnAsBoss` - We use this for `set_boss`.
+* `On.RoR2.ExperienceManager.AwardExperience` - We use this for `lock_exp`.
 * `On.RoR2.Stage.Start` - We hook this to remove the IL hook on ClassicStageInfo.
 * `IL.RoR2.ClassicStageInfo.Awake` - We hook this to set a family event.
 * NoClip requires 3 hooks:
