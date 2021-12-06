@@ -32,7 +32,7 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
 * **force_family_event** - Forces a Family Event to happen in the next stage, take no arguments. `family_event`
 * **next_boss** - Sets the teleporter boss to the specified boss. `({localised_object_name}|{DirectorCard}) [count def 1] [EliteIndex def -1/None]`
 * **fixed_time** - Sets the time that has progressed in the run. Affects difficulty. `fixed_time [time]`. If no time is supplied, prints the current time to console.
-* **add_portal** - Teleporter will attempt to spawn a blue, gold, or celestial portal: `add_portal (blue|gold|celestial|all)`
+* **add_portal** - Teleporter will attempt to spawn a blue, gold, null, or celestial portal: `add_portal (blue|gold|celestial|null|all)`
 * **seed** - Set the seed for all next runs this session. `seed [new seed]`. Use `0` to specify the game should generate its own seed. If used without argument, it's equivalent to the vanilla `run_get_seed`.
 * **kill_all** - Kills all members of a specified team. `kill_all [teamindex def 2]` Team indexes: 0=neutral,1=player,2=monster. 
 * **true_kill** - Truly kill a player, ignoring revival effects `true_kill [player def *you]`

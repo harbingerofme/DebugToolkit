@@ -4,7 +4,7 @@
     {
         //() denotes a list of specifc choices. : denotes a default. [] denotes a collection, and {} denotes freeform
         public const string
-            ADDPORTAL_ARGS = "Requires 1 argument: add_portal (all|blue|celestial|gold)",
+            ADDPORTAL_ARGS = "Requires 1 argument: add_portal (all|blue|celestial|gold|null)",
             BAN_ARGS = "Requires 1 argument: ({PlayerID:self}|{Playername})",
             BIND_ARGS = "Requires 2 arguments: {Key} {ConsoleCommands}",
             BIND_DELETE_ARGS = "Requires 1 argument: {Key}",
