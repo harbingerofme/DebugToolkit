@@ -25,23 +25,28 @@ namespace DebugToolkit
     public static class ArgsAutoCompletion
     {
         private static readonly Dictionary<string, AutoCompletionAttribute[]> Commands;
+        private static readonly Dictionary<string, AutoCompletionAttribute[]> DynamicCommands;
         internal static HashSet<string> CommandsWithStaticArgs = new HashSet<string>();
 
         static ArgsAutoCompletion()
         {
             Commands = new Dictionary<string, AutoCompletionAttribute[]>();
+            DynamicCommands = new Dictionary<string, AutoCompletionAttribute[]>();
         }
 
         internal static void GatherCommandsAndFillStaticArgs()
         {
             foreach (var methodInfo in Assembly.GetExecutingAssembly().GetTypes().SelectMany(x => x.GetMethods(BindingFlags.NonPublic | BindingFlags.Static)))
             {
-                var autoCompletionAttribute = methodInfo.GetCustomAttributes(false).OfType<AutoCompletionAttribute>().ToArray();
+                var autoCompletionAttributes = methodInfo.GetCustomAttributes(false).OfType<AutoCompletionAttribute>().ToArray();
                 var conCommandAttribute = (ConCommandAttribute)methodInfo.GetCustomAttributes(false).FirstOrDefault(x => x is ConCommandAttribute);
 
-                if (autoCompletionAttribute.Length > 0 && conCommandAttribute != null)
+                if (autoCompletionAttributes.Length > 0 && conCommandAttribute != null)
                 {
-                    Commands.Add(conCommandAttribute.commandName + " ", autoCompletionAttribute);
+                    var nonDynamicAutoCompletionAttributes = autoCompletionAttributes.Where(x => !x.Dynamic).ToArray();
+                    var dynamicAutoCompletionAttributes = autoCompletionAttributes.Where(x => x.Dynamic).ToArray();
+                    Commands.Add(conCommandAttribute.commandName + " ", nonDynamicAutoCompletionAttributes);
+                    DynamicCommands.Add(conCommandAttribute.commandName + " ", dynamicAutoCompletionAttributes);
                 }
             }
 
@@ -50,7 +55,7 @@ namespace DebugToolkit
 
         internal static HashSet<string> CommandsWithDynamicArgs()
         {
-            RetrieveCommandsArgs(out var commandsWithDynamicArgs, Commands.Where(x => x.Value.Any(i => i.Dynamic)));
+            RetrieveCommandsArgs(out var commandsWithDynamicArgs, DynamicCommands);
 
             return commandsWithDynamicArgs;
         }
