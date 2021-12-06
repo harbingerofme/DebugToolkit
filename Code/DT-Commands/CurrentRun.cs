@@ -14,6 +14,7 @@ namespace DebugToolkit.Commands
     {
 
         internal static bool noEnemies = false;
+        internal static bool lockExp = false;
         internal static ulong seed;
 
         internal static DirectorCard nextBoss;
@@ -81,6 +82,21 @@ namespace DebugToolkit.Commands
                 SceneDirector.onPrePopulateSceneServer -= Hooks.OnPrePopulateSetMonsterCreditZero;
             }
             Log.MessageNetworked("No_enemies set to " + CurrentRun.noEnemies, args);
+        }
+
+        [ConCommand(commandName = "lock_exp", flags = ConVarFlags.ExecuteOnServer, helpText = "Toggle Experience gain. " + Lang.LOCKEXP_ARGS)]
+        private static void CCLockExperience(ConCommandArgs args)
+        {
+            lockExp = !lockExp;
+            if (lockExp)
+            {
+                On.RoR2.ExperienceManager.AwardExperience += Hooks.DenyExperience;
+            } 
+            else
+            {
+                On.RoR2.ExperienceManager.AwardExperience -= Hooks.DenyExperience;
+            }
+            Log.MessageNetworked("lock_exp set to " + CurrentRun.lockExp, args);
         }
 
         [ConCommand(commandName = "kill_all", flags = ConVarFlags.ExecuteOnServer, helpText = "Kill all entities on the specified team. " + Lang.KILLALL_ARGS)]

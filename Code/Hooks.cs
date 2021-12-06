@@ -273,5 +273,10 @@ namespace DebugToolkit
             //Note that this is not a hook, but an event subscription.
             director.SetFieldValue("monsterCredit", 0);
         }
+
+        internal static void DenyExperience(On.RoR2.ExperienceManager.orig_AwardExperience orig, ExperienceManager self, Vector3 origin, CharacterBody body, ulong amount)
+        {
+            return;
+        }
     }
 }
