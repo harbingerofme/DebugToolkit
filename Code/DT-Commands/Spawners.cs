@@ -43,6 +43,13 @@ namespace DebugToolkit.Commands
             }
         }
 
+        [ConCommand(commandName = "spawn_interactible", flags = ConVarFlags.ExecuteOnServer, helpText = "Spawns the specified interactable. List_Interactable for options. " + Lang.SPAWNINTERACTABLE_ARGS)]
+        [AutoCompletion(typeof(StringFinder), "interactableSpawnCards", "", true)]
+        private static void CCSpawnInteractible(ConCommandArgs args)
+        {
+            CCSpawnInteractable(args);
+        }
+
         [ConCommand(commandName = "spawn_ai", flags = ConVarFlags.ExecuteOnServer, helpText = "Spawns the specified CharacterMaster. " + Lang.SPAWNAI_ARGS)]
         [AutoCompletion(typeof(MasterCatalog), "aiMasterPrefabs")]
         private static void CCSpawnAI(ConCommandArgs args)
