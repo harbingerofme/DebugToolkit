@@ -20,7 +20,4 @@ Here's how to get started:
         * BLEEDING-EDGE: The same as Release, save that it contains a warning that the build is not final.
         * Debug: Contains additional commands for debugging other commands.
         * NO-UNET: Skips the network weaving post-build step.
-        * NO-DYNAMICS: Skips packing the Microsoft.CSharp.dll into the final file. This means you will need to manually place that dll in your plugins folder.
-            * You can find it in your nuget folders. [This site contains their locations for various platforms](https://lastexitcode.com/projects/NuGet/FileLocations/)
-        * BARE: Combines NO-UNET and NO-DYNAMICS
 5. Press build! The file should appear in the main project directory.

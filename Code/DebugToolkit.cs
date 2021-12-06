@@ -45,8 +45,6 @@ namespace DebugToolkit
                 $"This is a debug build!"
 #elif NONETWORK
                 $"This is a non-networked build!"
-#elif NODYN
-                $"This is a build without Microsoft.CSharp.dll included. Please put that file manually in your /plugins/ folder."
 #elif BLEEDING  
                 $"This is a Bleeding-Edge build!"
 #endif          
