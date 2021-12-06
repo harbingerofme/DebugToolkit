@@ -56,7 +56,7 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
 * **remove_equip** - Sets the equipment of a player to 'None'. `remove_equip {localised_object_name} [player def *you]`
 * **create_pickup** - Creates a pickup in front of the issuing player. Pickups are items, equipment and lunar coins. Additionally 'item' or 'equip' may be specified to only search that list. `create_pickup (localized_object_name| "coin") [('item'|'equip') def *both]`
 
-* **spawn_interactible** - Spawns an interactible in front of the player. `spawn_interactable {InteractableSpawnCard}`
+* **spawn_interactable** - Spawns an interactible in front of the player. `spawn_interactable {InteractableSpawnCard}`
 * **spawn_ai** - Spawn an AI: `Requires 1 argument: spawn_ai {localised_objectname} [Count:1] [EliteIndex:-1/None] [Braindead:0/false(0|1)] [TeamIndex:2/Monster]`. Elite indexes: -1=None, 0=Fire,1=Overloading,2=Ice,3=Malachite,4=Celestine. Team indexes: 0=neutral,1=player,2=monster. 
 * **spawn_as** - Spawn as a new character. Type body_list for a full list of characters: `spawn_as {localised_objectname} {playername}`
 * **spawn_body** - Spawns a CharacterBody: `spawn_body {localised_objectname}`
@@ -98,6 +98,16 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
 ---
 
 ## Changelog ##
+
+### 3.6 ###
+
+* "DebugToolkit"
+* **General**
+    * Microsoft.CSharp.dll dependency is gone.
+* **Additions**
+    * `spawn_interactable` Now support custom interactables.
+*  **Fixes**
+    * Description of `add_portal` now mention the null portal, also you can now spawn it in teleporter-less stages.
 
 ### 3.5 ###
 
