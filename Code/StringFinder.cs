@@ -52,7 +52,6 @@ namespace DebugToolkit
 
             ItemAlias.Add("Syringe", new string[] { "drugs" });
 
-
             var allCSC = Resources.LoadAll<CharacterSpawnCard>("SpawnCards/CharacterSpawnCards");
             Log.MessageInfo($"Loading all CSC's: {allCSC.Length}", Log.Target.Bepinex);
             foreach (CharacterSpawnCard csc in allCSC)
@@ -68,9 +67,25 @@ namespace DebugToolkit
                 };
                 characterSpawnCard.Add(dCard);
             }
-            var allISC = Resources.LoadAll<InteractableSpawnCard>("SpawnCards/InteractableSpawnCard");
-            Log.MessageInfo($"Loading all ISC's: {allISC.Length}", Log.Target.Bepinex);
-            interactableSpawnCards = allISC.OfType<InteractableSpawnCard>().ToList();
+
+            var vanillaIscs = Resources.LoadAll<InteractableSpawnCard>("SpawnCards/InteractableSpawnCard");
+            Log.MessageInfo($"Loading all vanilla ISC's: {vanillaIscs.Length}", Log.Target.Bepinex);
+            interactableSpawnCards = vanillaIscs.OfType<InteractableSpawnCard>().ToList();
+            On.RoR2.ClassicStageInfo.Start += AddCurrentStageIscsToCache;
+        }
+
+        // There is no real good way to query for all custom iscs afaik
+        // So let's lazily add them as the player encounter stages
+        private void AddCurrentStageIscsToCache(On.RoR2.ClassicStageInfo.orig_Start orig, ClassicStageInfo self)
+        {
+            orig(self);
+            var iscsOfCurrentStage =
+                self.interactableCategories.categories.
+                SelectMany(category => category.cards).
+                Select(directorCard => directorCard.spawnCard).
+                Where(spawnCard => interactableSpawnCards.All(existingIsc => existingIsc.name != spawnCard.name)).
+                Cast<InteractableSpawnCard>();
+            interactableSpawnCards.AddRange(iscsOfCurrentStage);
         }
 
         /// <summary>
@@ -206,7 +221,8 @@ namespace DebugToolkit
                     return isc;
                 }
             }
-            throw new Exception($"InteractableSpawnCard {name} not found.");
+
+            return null;
         }
 
         /// <summary>

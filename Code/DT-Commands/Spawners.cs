@@ -13,7 +13,7 @@ namespace DebugToolkit.Commands
     {
 
         [ConCommand(commandName = "spawn_interactable", flags = ConVarFlags.ExecuteOnServer, helpText = "Spawns the specified interactable. List_Interactable for options. " + Lang.SPAWNINTERACTABLE_ARGS)]
-        [AutoCompletion(typeof(StringFinder), "interactableSpawnCards")]
+        [AutoCompletion(typeof(StringFinder), "interactableSpawnCards", "", true)]
         private static void CCSpawnInteractable(ConCommandArgs args)
         {
             if (args.Count == 0)
