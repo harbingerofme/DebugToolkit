@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Version>3.5.1</Version>
+    <Version>3.6.0</Version>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <Authors>Harbingerofme; Paddywan; iDeathHD</Authors>
     <Description>DebugToolkit is an expansive list of console commands for Risk of Rain 2, intended to make forcing specific situation easier. This is supposed to help with testing of interactions, mods, and what else.</Description>
@@ -13,9 +13,9 @@
     <ApplicationIcon>Resources\icon.ico</ApplicationIcon>
     <SignAssembly>false</SignAssembly>
     <PackageIcon>icon.png</PackageIcon>
-    <Copyright>2020 Harbingerofme; Paddywan; iDeathHD</Copyright>
-    <AssemblyVersion>3.5.1.0</AssemblyVersion>
-    <FileVersion>3.5.1.0</FileVersion>
+    <Copyright>2021 Harbingerofme; Paddywan; iDeathHD</Copyright>
+    <AssemblyVersion>3.6.0.0</AssemblyVersion>
+    <FileVersion>3.6.0.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
