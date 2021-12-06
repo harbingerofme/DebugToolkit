@@ -123,10 +123,6 @@
       <HintPath>libs\HGCSharpUtils.dll</HintPath>
        <Private>false</Private>
     </Reference>
-    <Reference Include="Microsoft.CSharp">
-      <HintPath>libs\Microsoft.CSharp.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
     <Reference Include="MMHOOK_Assembly-CSharp">
       <HintPath>libs\MMHOOK_Assembly-CSharp.dll</HintPath>
       <Private>false</Private>
