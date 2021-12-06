@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29306.81
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31912.275
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DebugToolkit", "DebugToolkit.csproj", "{38FD0DD5-5D4F-424B-9590-2DB309099D17}"
 EndProject
@@ -18,22 +18,16 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Items", "Items", "{841CDF50
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		BARE|Any CPU = BARE|Any CPU
 		BLEEDING-EDGE|Any CPU = BLEEDING-EDGE|Any CPU
 		Debug|Any CPU = Debug|Any CPU
-		NO-DYNAMICS|Any CPU = NO-DYNAMICS|Any CPU
 		NO-UNET|Any CPU = NO-UNET|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{38FD0DD5-5D4F-424B-9590-2DB309099D17}.BARE|Any CPU.ActiveCfg = BARE|Any CPU
-		{38FD0DD5-5D4F-424B-9590-2DB309099D17}.BARE|Any CPU.Build.0 = BARE|Any CPU
 		{38FD0DD5-5D4F-424B-9590-2DB309099D17}.BLEEDING-EDGE|Any CPU.ActiveCfg = BLEEDING-EDGE|Any CPU
 		{38FD0DD5-5D4F-424B-9590-2DB309099D17}.BLEEDING-EDGE|Any CPU.Build.0 = BLEEDING-EDGE|Any CPU
 		{38FD0DD5-5D4F-424B-9590-2DB309099D17}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{38FD0DD5-5D4F-424B-9590-2DB309099D17}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{38FD0DD5-5D4F-424B-9590-2DB309099D17}.NO-DYNAMICS|Any CPU.ActiveCfg = NO-DYNAMICS|Any CPU
-		{38FD0DD5-5D4F-424B-9590-2DB309099D17}.NO-DYNAMICS|Any CPU.Build.0 = NO-DYNAMICS|Any CPU
 		{38FD0DD5-5D4F-424B-9590-2DB309099D17}.NO-UNET|Any CPU.ActiveCfg = NO-UNET|Any CPU
 		{38FD0DD5-5D4F-424B-9590-2DB309099D17}.NO-UNET|Any CPU.Build.0 = NO-UNET|Any CPU
 		{38FD0DD5-5D4F-424B-9590-2DB309099D17}.Release|Any CPU.ActiveCfg = Release|Any CPU
