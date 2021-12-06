@@ -24,46 +24,49 @@ namespace DebugToolkit.Commands
         [ConCommand(commandName = "add_portal", flags = ConVarFlags.ExecuteOnServer, helpText = "Add a portal to the current Teleporter on completion. " + Lang.ADDPORTAL_ARGS)]
         private static void CCAddPortal(ConCommandArgs args)
         {
-            if (TeleporterInteraction.instance)
+            var portalName = args[0].ToLower();
+            var teleporterInteraction = TeleporterInteraction.instance;
+            if (!teleporterInteraction)
             {
-                var TP = TeleporterInteraction.instance;
-                switch (args[0].ToLower())
+                if (portalName != "arena" && portalName != "null" && portalName != "void")
                 {
-                    case "blue":
-                        TP.shouldAttemptToSpawnShopPortal = true;
-                        break;
-                    case "gold":
-                        TP.shouldAttemptToSpawnGoldshoresPortal = true;
-                        break;
-                    case "celestial":
-                        TP.shouldAttemptToSpawnMSPortal = true;
-                        break;
-                    case "arena":
-                    case "null":
-                    case "void":
-                        spawnArenaPortal();
-                        break;
-                    case "all":
-                        TP.shouldAttemptToSpawnGoldshoresPortal = true;
-                        TP.shouldAttemptToSpawnShopPortal = true;
-                        TP.shouldAttemptToSpawnMSPortal = true;
-                        spawnArenaPortal();
-                        break;
-                    default:
-                        Log.MessageNetworked(Lang.PORTAL_NOTFOUND, args, LogLevel.MessageClientOnly);
-                        return;
-                }
-
-                void spawnArenaPortal()
-                {
-                    var arenaPortal = UnityEngine.Object.Instantiate(Resources.Load<GameObject>("prefabs\\networkedobjects\\portalarena"), args.senderBody.corePosition, Quaternion.identity);
-                    arenaPortal.GetComponent<SceneExitController>().useRunNextStageScene = false;
-                    NetworkServer.Spawn(arenaPortal);
+                    Log.MessageNetworked("No teleporter interaction instance! Can only spawn null portal", args, LogLevel.WarningClientOnly);
+                    return;
                 }
             }
-            else
+
+            switch (portalName)
             {
-                Log.MessageNetworked("No teleporter instance!", args, LogLevel.WarningClientOnly);
+                case "blue":
+                    teleporterInteraction.shouldAttemptToSpawnShopPortal = true;
+                    break;
+                case "gold":
+                    teleporterInteraction.shouldAttemptToSpawnGoldshoresPortal = true;
+                    break;
+                case "celestial":
+                    teleporterInteraction.shouldAttemptToSpawnMSPortal = true;
+                    break;
+                case "arena":
+                case "null":
+                case "void":
+                    SpawnAreaPortal();
+                    break;
+                case "all":
+                    teleporterInteraction.shouldAttemptToSpawnGoldshoresPortal = true;
+                    teleporterInteraction.shouldAttemptToSpawnShopPortal = true;
+                    teleporterInteraction.shouldAttemptToSpawnMSPortal = true;
+                    SpawnAreaPortal();
+                    break;
+                default:
+                    Log.MessageNetworked(Lang.PORTAL_NOTFOUND, args, LogLevel.MessageClientOnly);
+                    return;
+            }
+
+            void SpawnAreaPortal()
+            {
+                var arenaPortal = UnityEngine.Object.Instantiate(Resources.Load<GameObject>("prefabs\\networkedobjects\\portalarena"), args.senderBody.corePosition, Quaternion.identity);
+                arenaPortal.GetComponent<SceneExitController>().useRunNextStageScene = false;
+                NetworkServer.Spawn(arenaPortal);
             }
         }
 
