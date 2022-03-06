@@ -108,6 +108,12 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
 
 ## Changelog ##
 
+### 3.7 ###
+
+* "Survivors of the Void"
+* **General**
+    * Updated to work with the new game update.
+
 ### 3.6 ###
 
 * "DebugToolkit"
