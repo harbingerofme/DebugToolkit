@@ -92,12 +92,6 @@ namespace DebugToolkit
             self.FindConVar("timestep").helpText += " Let the DebugToolkit team know if you need this convar.";
             self.FindConVar("cmotor_safe_collision_step_threshold").helpText += " Let the DebugToolkit team know if you need this convar.";
             self.FindConVar("cheats").helpText += " But you already have the DebugToolkit mod installed...";
-
-            var mmConvar = (IntConVar) self.FindConVar("max_messages");
-            if (mmConvar.value == 25)
-            {
-                mmConvar.SetString("100");
-            }
         }
 
         // ReSharper disable once UnusedMember.Local
