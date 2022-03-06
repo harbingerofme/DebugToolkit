@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -268,7 +268,7 @@ namespace DebugToolkit.Permissions
 
         private static Level GetPermissionLevel(this NetworkUser networkUser)
         {
-            var userSteamId = networkUser.GetNetworkPlayerName().steamId.value;
+            var userSteamId = (ulong) networkUser.GetNetworkPlayerName().steamId.value;
 
             if (AdminSteamIdList.Contains(userSteamId))
                 return Level.Admin;
