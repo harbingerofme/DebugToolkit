@@ -146,7 +146,7 @@ namespace DebugToolkit.Commands
             var a = args.TryGetArgInt(0);
             if (a.HasValue && a.Value > 0)
             {
-                inventory.GiveRandomItems(a.Value);
+                inventory.GiveRandomItems(a.Value, false, false);
                 Log.MessageNetworked($"Generated {a.Value} items!", args);
             }
             else

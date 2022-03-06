@@ -354,12 +354,9 @@ DebugToolkit.dll
 DebugToolkit.zip
 CurrentCommit
 
-NetworkWeaver/
+NetworkWeaver/*
+!NetworkWeaver/Unity.UNetWeaver.exe
 
 *.prepatch
 
 Thunderstore/contents/README.md
-
-libs/*/*.dll
-libs/*/*.xml
-libs/*.dll

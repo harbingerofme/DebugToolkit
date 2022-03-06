@@ -55,8 +55,8 @@ namespace DebugToolkit.Commands
 
                 if (client != null)
                 {
-                    var reason = new GameNetworkManager.SimpleLocalizedKickReason("KICK_REASON_KICK");
-                    GameNetworkManager.singleton.InvokeMethod("ServerKickClient", client,reason);
+                    var reason = new NetworkManagerSystem.SimpleLocalizedKickReason("KICK_REASON_KICK");
+                    NetworkManagerSystem.singleton.ServerKickClient(client, reason);
                 }
                 else
                 {
@@ -114,8 +114,7 @@ namespace DebugToolkit.Commands
 
                 if (client != null)
                 {
-                    var reason = new GameNetworkManager.SimpleLocalizedKickReason("KICK_REASON_BAN");
-                    GameNetworkManager.singleton.InvokeMethod("ServerKickClient", client, reason);
+                    NetworkManagerSystem.singleton.ServerBanClient(client);
                 }
                 else
                 {

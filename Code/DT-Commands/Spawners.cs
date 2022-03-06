@@ -103,16 +103,8 @@ namespace DebugToolkit.Commands
                     if (eliteDef)
                     {
                         master.inventory.SetEquipmentIndex(eliteDef.eliteEquipmentDef.equipmentIndex);
-                        var eliteTierDef = GetTierDef(eliteDef.eliteIndex);
-                        if (eliteTierDef != null)
-                        {
-                            master.inventory.GiveItem(RoR2Content.Items.BoostHp, Mathf.RoundToInt((eliteTierDef.healthBoostCoefficient - 1) * 10));
-                            master.inventory.GiveItem(RoR2Content.Items.BoostDamage, Mathf.RoundToInt((GetTierDef(eliteDef.eliteIndex).damageBoostCoefficient - 1) * 10));
-                        }
-                        else
-                        {
-                            Debug.LogWarning($"That eliteDef {eliteDef.name} is not properly registered by the game");
-                        }
+                        master.inventory.GiveItem(RoR2Content.Items.BoostHp, Mathf.RoundToInt((eliteDef.healthBoostCoefficient - 1) * 10));
+                        master.inventory.GiveItem(RoR2Content.Items.BoostDamage, Mathf.RoundToInt(eliteDef.damageBoostCoefficient - 1) * 10);
                     }
                 }
 

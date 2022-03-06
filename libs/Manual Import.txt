@@ -1,0 +1,1 @@
+You must acquire your own copy of `KinematicCharacterController.dll` as we can't ascertain the license of this file.
