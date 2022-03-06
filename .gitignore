@@ -359,7 +359,3 @@ NetworkWeaver/
 *.prepatch
 
 Thunderstore/contents/README.md
-
-libs/*/*.dll
-libs/*/*.xml
-libs/*.dll
