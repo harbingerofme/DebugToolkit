@@ -1,4 +1,4 @@
-﻿using RoR2;
+using RoR2;
 using UnityEngine;
 using KinematicCharacterController;
 using MonoMod.RuntimeDetour;
@@ -63,7 +63,7 @@ namespace DebugToolkit.Commands
             {
                 OnServerChangeSceneHook.Apply();
                 OnClientChangeSceneHook.Apply();
-                On.RoR2.Networking.GameNetworkManager.Disconnect += DisableOnDisconnect;
+                On.RoR2.Networking.NetworkManagerSystem.Disconnect += DisableOnDisconnect;
                 On.RoR2.MapZone.TeleportBody += DisableOOBCheck;
             }
         }
@@ -74,7 +74,7 @@ namespace DebugToolkit.Commands
             {
                 OnServerChangeSceneHook.Undo();
                 OnClientChangeSceneHook.Undo();
-                On.RoR2.Networking.GameNetworkManager.Disconnect -= DisableOnDisconnect;
+                On.RoR2.Networking.NetworkManagerSystem.Disconnect -= DisableOnDisconnect;
                 On.RoR2.MapZone.TeleportBody -= DisableOOBCheck;
             }
         }
@@ -141,7 +141,7 @@ namespace DebugToolkit.Commands
             origClientChangeScene(instance, newSceneName, forceReload);
         }
 
-        private static void DisableOnDisconnect(On.RoR2.Networking.GameNetworkManager.orig_Disconnect orig, RoR2.Networking.GameNetworkManager self)
+        private static void DisableOnDisconnect(On.RoR2.Networking.NetworkManagerSystem.orig_Disconnect orig, RoR2.Networking.NetworkManagerSystem self)
         {
             if (IsActivated)
             {
