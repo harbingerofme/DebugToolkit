@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -117,8 +117,8 @@
   <Target Name="Weave" AfterTargets="PostBuildEvent" Condition="'$(Configuration)|$(Platform)'!='NO-UNET|AnyCPU' and '$(Configuration)|$(Platform)'!='AnyCPU'">
     <Exec Command="robocopy $(TargetDir) $(ProjectDir)NetworkWeaver\ $(TargetFileName) &gt; $(TargetDir)Robocopy" IgnoreExitCode="true" />
     <Exec Command="echo moved to NetworkWeaver" />
-    <Exec Command="$(ProjectDir)NetworkWeaver\Unity.UNetWeaver.exe &quot;$(ProjectDir)\libs\UnityEngine.CoreModule.dll&quot; &quot;$(ProjectDir)\libs\UnityEngine.Networking.dll&quot; &quot;$(ProjectDir)\NetworkWeaver\Patched/&quot; &quot;$(ProjectDir)NetworkWeaver\$(TargetFileName)&quot; &quot;$(ProjectDir)\libs&quot;" />
-    <Exec Command="echo weaved" />
+    <Exec Command="$(ProjectDir)NetworkWeaver\Unity.UNetWeaver.exe &quot;$(PkgUnityEngine_Modules)\lib\netstandard2.0\UnityEngine.CoreModule.dll&quot; &quot;$(PkgRiskOfRain2_GameLibs)\lib\netstandard2.0\com.unity.multiplayer-hlapi.Runtime.dll&quot; &quot;$(ProjectDir)\NetworkWeaver\Patched/&quot; &quot;$(ProjectDir)NetworkWeaver\$(TargetFileName)&quot;  &quot;$(ProjectDir)\libs&quot;  &quot;$(PkgUnityEngine_Modules)\lib\netstandard2.0&quot; &quot;$(PkgRiskOfRain2_GameLibs)\lib\netstandard2.0\s&quot;"/>
+	<Exec Command="echo weaved" />
     <Exec Command="del $(ProjectDir)$(TargetFileName).prepatch" />
     <Exec Command="echo removed old prenetwork file" />
     <Exec Command="ren $(TargetFileName) $(TargetFileName).prepatch" IgnoreExitCode="true" />

@@ -354,7 +354,8 @@ DebugToolkit.dll
 DebugToolkit.zip
 CurrentCommit
 
-NetworkWeaver/
+NetworkWeaver/*
+!NetworkWeaver/Unity.UNetWeaver.exe
 
 *.prepatch
 
