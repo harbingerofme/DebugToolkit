@@ -62,8 +62,12 @@ namespace DebugToolkit
         private static void EnableCheatsInCCSetScene(ILContext il)
         {
             ILCursor c = new ILCursor(il);
-            c.Goto(4);
-            c.RemoveRange(2);
+            var method = typeof(SceneCatalog).GetMethodCached(nameof(SceneCatalog.GetSceneDefFromSceneName));
+            var newMethod = typeof(Hooks).GetMethodCached(nameof(BetterSceneDefFinder));
+            c.GotoNext(MoveType.After,
+                x => x.MatchCallOrCallvirt<RoR2.Console.CheatsConVar>("get_boolValue")
+                );
+            c.Emit(OpCodes.Pop);
             c.Emit(OpCodes.Ldc_I4_1);
         }
 
