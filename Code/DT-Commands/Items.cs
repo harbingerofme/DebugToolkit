@@ -362,7 +362,9 @@ namespace DebugToolkit.Commands
 
                 if (inventory)
                 {
-                    inventory.CopyItemsFrom(new GameObject().AddComponent<Inventory>());
+                    var tempObj = new GameObject();
+                    inventory.CopyItemsFrom(tempObj.AddComponent<Inventory>());
+                    UnityEngine.Object.Destroy(tempObj);
                     Log.MessageNetworked("Removing inventory", args);
                 }
 
