@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Text;
 using DebugToolkit.Code;
@@ -100,7 +100,7 @@ namespace DebugToolkit.Commands
                 }
             }
 
-            //Can't be queued, unless you want to make an arena portal spawn card
+            //Can't be queued, unless an arena portal spawn card is made
             void SpawnArenaPortal()
             {
                 var arenaPortal = UnityEngine.Object.Instantiate(LegacyResourcesAPI.Load<GameObject>("Prefabs/NetworkedObjects/PortalArena"), args.senderBody.corePosition, Quaternion.identity);
@@ -113,8 +113,6 @@ namespace DebugToolkit.Commands
                 PortalSpawner[] array = teleporterInteraction.portalSpawners;
                 for (int i = 0; i < array.Length; i++)
                 {
-                    /* 
-                     */
                     if (array[i].portalSpawnCard != LegacyResourcesAPI.Load<InteractableSpawnCard>("SpawnCards/InteractableSpawnCard/iscDeepVoidPortal"))
                     {
                         var list = teleporterInteraction.portalSpawners.ToList();
@@ -123,7 +121,6 @@ namespace DebugToolkit.Commands
                         deepVoidPortalSpawner.maxSpawnDistance = teleporterInteraction.portalSpawners[0].maxSpawnDistance;
                         deepVoidPortalSpawner.minSpawnDistance = teleporterInteraction.portalSpawners[0].minSpawnDistance;
                         deepVoidPortalSpawner.minStagesCleared = 0;
-                        //deepVoidPortalSpawner.modelChildLocator = teleporterInteraction.portalSpawners[0].modelChildLocator;
                         deepVoidPortalSpawner.portalSpawnCard = LegacyResourcesAPI.Load<InteractableSpawnCard>("SpawnCards/InteractableSpawnCard/iscDeepVoidPortal");
                         deepVoidPortalSpawner.previewChild = null;
                         deepVoidPortalSpawner.previewChildName = null;
@@ -132,20 +129,12 @@ namespace DebugToolkit.Commands
                         deepVoidPortalSpawner.spawnChance = 1;
                         deepVoidPortalSpawner.spawnMessageToken = "PORTAL_DEEPVOID_OPEN";
                         deepVoidPortalSpawner.spawnPreviewMessageToken = "PORTAL_DEEPVOID_WILL_OPEN";
-                        //deepVoidPortalSpawner.Start();
                         list.Add(deepVoidPortalSpawner);
 
                         teleporterInteraction.portalSpawners = list.ToArray();
                         break;
                     }
                 }
-            }
-
-            // Another route you could go.
-            void SpawnDeepVoidPortal()
-            {
-                //if (NetworkServer.active)
-                    //teleporterInteraction.AttemptSpawnPortal(LegacyResourcesAPI.Load<SpawnCard>("SpawnCards/InteractableSpawnCard/iscDeepVoidPortal"), 10, 40, "");
             }
         }
 
