@@ -306,8 +306,7 @@ namespace DebugToolkit.Commands
             }
             else
             {
-                var sb = new StringBuilder();
-                sb.AppendLine(Lang.NEXTROUND_STAGE);
+                Log.MessageNetworked(Lang.NEXTROUND_STAGE, args, LogLevel.WarningClientOnly);
                 DebugToolkit.InvokeCMD(args.sender, "scene_list");
             }
         }
