@@ -8,6 +8,7 @@ using RoR2;
 using RoR2.ConVar;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Globalization;
 using System.Text;
 using UnityEngine;
@@ -51,9 +52,9 @@ namespace DebugToolkit
         private static void OverrideVanillaSceneList(On.RoR2.Networking.NetworkManagerSystem.orig_CCSceneList orig, ConCommandArgs args)
         {
             StringBuilder stringBuilder = new StringBuilder();
-            foreach (var sceneDef in SceneCatalog.allSceneDefs)
+            foreach (var sceneDef in SceneCatalog.allSceneDefs.Where((def) => !Run.instance || !def.requiredExpansion || Run.instance.IsExpansionEnabled(def.requiredExpansion)))
             {
-                stringBuilder.AppendLine($"[{sceneDef.sceneDefIndex}] - {sceneDef.baseSceneName}");
+                stringBuilder.AppendLine($"[{sceneDef.sceneDefIndex}] - {sceneDef.cachedName} ");
             }
             Log.Message(stringBuilder, Log.LogLevel.MessageClientOnly);
         }
