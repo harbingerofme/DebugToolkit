@@ -115,7 +115,7 @@
   <Target Name="Weave" AfterTargets="PostBuildEvent" Condition="'$(Configuration)|$(Platform)'!='NO-UNET|AnyCPU' and '$(Configuration)|$(Platform)'!='AnyCPU'">
     <Exec Command="robocopy $(TargetDir) $(ProjectDir)NetworkWeaver\ $(TargetFileName) &gt; $(TargetDir)Robocopy" IgnoreExitCode="true" />
     <Exec Command="echo moved to NetworkWeaver" />
-    <Exec Command="$(ProjectDir)NetworkWeaver\Unity.UNetWeaver.exe &quot;$(PkgUnityEngine_Modules)\lib\netstandard2.0\UnityEngine.CoreModule.dll&quot; &quot;$(PkgRiskOfRain2_GameLibs)\lib\netstandard2.0\com.unity.multiplayer-hlapi.Runtime.dll&quot; &quot;$(ProjectDir)\NetworkWeaver\Patched/&quot; &quot;$(ProjectDir)NetworkWeaver\$(TargetFileName)&quot;  &quot;$(ProjectDir)\libs&quot;  &quot;$(PkgUnityEngine_Modules)\lib\netstandard2.0&quot; &quot;$(PkgRiskOfRain2_GameLibs)\lib\netstandard2.0\s&quot;"/>
+    <Exec Command="$(ProjectDir)NetworkWeaver\Unity.UNetWeaver.exe &quot;$(PkgUnityEngine_Modules)\lib\netstandard2.0\UnityEngine.CoreModule.dll&quot; &quot;$(PkgRiskOfRain2_GameLibs)\lib\netstandard2.0\com.unity.multiplayer-hlapi.Runtime.dll&quot; &quot;$(ProjectDir)\NetworkWeaver\Patched/&quot; &quot;$(ProjectDir)NetworkWeaver\$(TargetFileName)&quot;  &quot;$(ProjectDir)\libs&quot;  &quot;$(PkgUnityEngine_Modules)\lib\netstandard2.0&quot; &quot;$(PkgRiskOfRain2_GameLibs)\lib\netstandard2.0\s&quot;" />
 	<Exec Command="echo weaved" />
     <Exec Command="del $(ProjectDir)$(TargetFileName).prepatch" />
     <Exec Command="echo removed old prenetwork file" />
@@ -135,5 +135,7 @@
   <Target Name="getGitCommit" BeforeTargets="PreBuildEvent" Condition="'$(Configuration)|$(Platform)'!='Release|AnyCPU'">
     <Exec Command="git rev-parse --verify HEAD &gt; Resources\CurrentCommit&#xD;&#xA;" />
   </Target>
+
+  <ProjectExtensions><VisualStudio><UserProperties thunderstore_4contents_4manifest_1json__JsonSchema="" /></VisualStudio></ProjectExtensions>
 
 </Project>
