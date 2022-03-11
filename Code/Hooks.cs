@@ -64,11 +64,48 @@ namespace DebugToolkit
             ILCursor c = new ILCursor(il);
             var method = typeof(SceneCatalog).GetMethodCached(nameof(SceneCatalog.GetSceneDefFromSceneName));
             var newMethod = typeof(Hooks).GetMethodCached(nameof(BetterSceneDefFinder));
+            c.GotoNext(MoveType.Before,
+                x => x.MatchCallOrCallvirt(method)
+                );
+            c.Remove();
+            c.Emit(OpCodes.Call, newMethod);
+
             c.GotoNext(MoveType.After,
                 x => x.MatchCallOrCallvirt<RoR2.Console.CheatsConVar>("get_boolValue")
                 );
             c.Emit(OpCodes.Pop);
             c.Emit(OpCodes.Ldc_I4_1);
+        }
+
+        public static SceneDef BetterSceneDefFinder(string sceneName)
+        {           
+            int index = -1;
+            if (int.TryParse(sceneName, out index))
+            {
+                if (index > -1 && index < SceneCatalog.allSceneDefs.Length)
+                {
+                    return SceneCatalog.allSceneDefs[index];
+                }
+            }
+
+            var scenes = SceneCatalog.allSceneDefs.Where((def) => def.cachedName == sceneName);
+            if (!scenes.Any())
+            {
+                return null;
+            }
+            if (Run.instance)
+            {
+                //Sorry :/
+                scenes = scenes.Where((def) => !def.requiredExpansion || Run.instance.IsExpansionEnabled(def.requiredExpansion));
+            }
+
+            var matchedNetworkScenes = scenes.Where((def) => RoR2.Networking.NetworkManagerSystem.singleton && UnityEngine.Networking.NetworkManager.singleton.isNetworkActive != def.isOfflineScene);
+            if (matchedNetworkScenes.Any())
+            {
+                return matchedNetworkScenes.First();
+            }
+
+            return scenes.First();
         }
 
         private static void UnlockConsole(ILContext il)
