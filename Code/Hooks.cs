@@ -85,7 +85,7 @@ namespace DebugToolkit
                 if (index > -1 && index < SceneCatalog.allSceneDefs.Length)
                 {
                     var def = SceneCatalog.allSceneDefs[index];
-                    if (!Run.instance || !def.requiredExpansion || Run.instance.IsExpansionEnabled(def.requiredExpansion))) {
+                    if (!Run.instance || !def.requiredExpansion || Run.instance.IsExpansionEnabled(def.requiredExpansion)) {
                         return def;
                     }
                 }
