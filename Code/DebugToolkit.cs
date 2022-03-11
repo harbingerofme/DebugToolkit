@@ -21,8 +21,6 @@ namespace DebugToolkit
         public const string modname = "DebugToolkit", modver = "3.7.1";
         public const string GUID = "iHarbHD." + modname;
 
-        private static MethodInfo RunCmdMethod;
-
         internal static ConfigFile Configuration;
 
         private void Awake()
@@ -59,8 +57,6 @@ namespace DebugToolkit
             PermissionSystem.Init();
             Hooks.InitializeHooks();
             NetworkManager.Init();
-
-            RunCmdMethod = typeof(Console).GetMethod("RunCmd", BindingFlags.Instance | BindingFlags.NonPublic);
         }
 
         private void Start()
@@ -83,7 +79,7 @@ namespace DebugToolkit
             var args = arguments.ToList();
             var consoleUser = new Console.CmdSender(user);
             if (Console.instance)
-                RunCmdMethod.Invoke(Console.instance, new object []  { consoleUser, commandName, args});
+                Console.instance.RunCmd(consoleUser, commandName, args);
             else
                 Log.Message("InvokeCMD called whilst no console instance exists.", LogLevel.Error, Log.Target.Bepinex);
         }

@@ -12,11 +12,10 @@ namespace DebugToolkit.Commands
         [ConCommand(commandName = "god", flags = ConVarFlags.ExecuteOnServer, helpText = "Become invincible. " + Lang.GOD_ARGS)]
         private static void CCGodModeToggle(ConCommandArgs args)
         {
-            var godToggleMethod = typeof(CharacterMaster).GetMethodCached("ToggleGod");
             bool hasNotYetRun = true;
             foreach (var playerInstance in PlayerCharacterMasterController.instances)
             {
-                godToggleMethod.Invoke(playerInstance.master, null);
+                playerInstance.master.ToggleGod();
                 if (hasNotYetRun)
                 {
                     Log.MessageNetworked($"God mode {(playerInstance.master.GetBody().healthComponent.godMode ? "enabled" : "disabled")}.", args);
