@@ -360,3 +360,4 @@ NetworkWeaver/*
 *.prepatch
 
 Thunderstore/contents/README.md
+Thunderstore/contents/*.zip
