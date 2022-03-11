@@ -50,10 +50,12 @@ namespace DebugToolkit
 
         private static void NetworkManagerSystem_CCSceneList(On.RoR2.Networking.NetworkManagerSystem.orig_CCSceneList orig, ConCommandArgs args)
         {
+            StringBuilder stringBuilder = new StringBuilder();
             foreach (var sceneDef in SceneCatalog.allSceneDefs)
             {
-                Debug.Log($"[{sceneDef.sceneDefIndex}] - {sceneDef.baseSceneName}");
+                stringBuilder.Append($"[{sceneDef.sceneDefIndex}] - {sceneDef.baseSceneName}{Environment.NewLine}");
             }
+            Log.Message(stringBuilder);
         }
 
         private static void EnableCheatsInCCSetScene(ILContext il)
