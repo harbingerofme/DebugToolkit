@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -90,7 +90,7 @@
     <PackageReference Include="BepInEx.Core" Version="5.4.19">
       <GeneratePathProperty>True</GeneratePathProperty>
     </PackageReference>
-    <PackageReference Include="RiskOfRain2.GameLibs" Version="1.2.1-r.0">
+    <PackageReference Include="RiskOfRain2.GameLibs" Version="1.2.1-r.1">
       <GeneratePathProperty>True</GeneratePathProperty>
     </PackageReference>
 	<PackageReference Include="UnityEngine.Modules" Version="2019.4.26">
