@@ -46,30 +46,108 @@ namespace DebugToolkit.Commands
                 case "celestial":
                     teleporterInteraction.shouldAttemptToSpawnMSPortal = true;
                     break;
+                case "deepvoid":
+                    QueueDeepVoidPortal();
+                    break;
+                case "void":
+                    QueueVoidPortal();
+                    break;
                 case "arena":
                 case "null":
-                case "void":
-                    SpawnAreaPortal();
+                    SpawnArenaPortal();
                     break;
                 case "all":
                     teleporterInteraction.shouldAttemptToSpawnGoldshoresPortal = true;
                     teleporterInteraction.shouldAttemptToSpawnShopPortal = true;
                     teleporterInteraction.shouldAttemptToSpawnMSPortal = true;
-                    SpawnAreaPortal();
+                    SpawnArenaPortal();
+                    QueueDeepVoidPortal();
+                    QueueVoidPortal();
                     break;
                 default:
                     Log.MessageNetworked(Lang.PORTAL_NOTFOUND, args, LogLevel.MessageClientOnly);
                     return;
             }
 
-            void SpawnAreaPortal()
+            //the preview child offset will be inside of MSorb's, making it seem like it hasnt spawned.
+            //see teleporter base mesh/builtineffects (or however its called) and change the orb position from here.
+            void QueueVoidPortal() //the charging stage
             {
-                var arenaPortal = UnityEngine.Object.Instantiate(Resources.Load<GameObject>("prefabs\\networkedobjects\\portalarena"), args.senderBody.corePosition, Quaternion.identity);
+                PortalSpawner[] array = teleporterInteraction.portalSpawners;
+                for (int i = 0; i < array.Length; i++)
+                {
+                    /* TBH: The portalSpawnCard check can likely be omitted because the teleporterInteraction seems
+                     * to *always* spawn with the first PortalSpawner set to the void charging stage
+                     * 
+                     */
+                    if (array[i].portalSpawnCard == LegacyResourcesAPI.Load<InteractableSpawnCard>("SpawnCards/InteractableSpawnCard/iscVoidPortal")
+                        && array[i].previewChild
+                        && array[i].previewChild.activeSelf == false) //False to make it not double run
+                    {
+                        var cachedSpawnChance = array[i].spawnChance;
+                        var cachedMinStagesCleared = array[i].minStagesCleared;
+
+                        array[i].spawnChance = 1;
+                        array[i].minStagesCleared = 0;
+
+                        array[i].Start();
+
+                        // Does it even matter if I cache them?
+                        array[i].spawnChance = cachedSpawnChance;
+                        array[i].minStagesCleared = cachedMinStagesCleared;
+                        break;
+                    }
+                }
+            }
+
+            //Can't be queued, unless you want to make an arena portal spawn card
+            void SpawnArenaPortal()
+            {
+                var arenaPortal = UnityEngine.Object.Instantiate(LegacyResourcesAPI.Load<GameObject>("Prefabs/NetworkedObjects/PortalArena"), args.senderBody.corePosition, Quaternion.identity);
                 arenaPortal.GetComponent<SceneExitController>().useRunNextStageScene = false;
                 NetworkServer.Spawn(arenaPortal);
             }
-        }
 
+            void QueueDeepVoidPortal()
+            {
+                PortalSpawner[] array = teleporterInteraction.portalSpawners;
+                for (int i = 0; i < array.Length; i++)
+                {
+                    /* 
+                     */
+                    if (array[i].portalSpawnCard != LegacyResourcesAPI.Load<InteractableSpawnCard>("SpawnCards/InteractableSpawnCard/iscDeepVoidPortal"))
+                    {
+                        var list = teleporterInteraction.portalSpawners.ToList();
+
+                        var deepVoidPortalSpawner = teleporterInteraction.gameObject.AddComponent<PortalSpawner>();
+                        deepVoidPortalSpawner.maxSpawnDistance = teleporterInteraction.portalSpawners[0].maxSpawnDistance;
+                        deepVoidPortalSpawner.minSpawnDistance = teleporterInteraction.portalSpawners[0].minSpawnDistance;
+                        deepVoidPortalSpawner.minStagesCleared = 0;
+                        //deepVoidPortalSpawner.modelChildLocator = teleporterInteraction.portalSpawners[0].modelChildLocator;
+                        deepVoidPortalSpawner.portalSpawnCard = LegacyResourcesAPI.Load<InteractableSpawnCard>("SpawnCards/InteractableSpawnCard/iscDeepVoidPortal");
+                        deepVoidPortalSpawner.previewChild = null;
+                        deepVoidPortalSpawner.previewChildName = null;
+                        deepVoidPortalSpawner.requiredExpansion = teleporterInteraction.portalSpawners[0].requiredExpansion;
+                        deepVoidPortalSpawner.rng = teleporterInteraction.portalSpawners[0].rng;
+                        deepVoidPortalSpawner.spawnChance = 1;
+                        deepVoidPortalSpawner.spawnMessageToken = "PORTAL_DEEPVOID_OPEN";
+                        deepVoidPortalSpawner.spawnPreviewMessageToken = "PORTAL_DEEPVOID_WILL_OPEN";
+                        //deepVoidPortalSpawner.Start();
+                        list.Add(deepVoidPortalSpawner);
+
+                        teleporterInteraction.portalSpawners = list.ToArray();
+                        break;
+                    }
+                }
+            }
+
+            // Another route you could go.
+            void SpawnDeepVoidPortal()
+            {
+                //if (NetworkServer.active)
+                    //teleporterInteraction.AttemptSpawnPortal(LegacyResourcesAPI.Load<SpawnCard>("SpawnCards/InteractableSpawnCard/iscDeepVoidPortal"), 10, 40, "");
+            }
+        }
 
         [ConCommand(commandName = "no_enemies", flags = ConVarFlags.ExecuteOnServer, helpText = "Toggle Monster spawning. " + Lang.NOENEMIES_ARGS)]
         private static void CCNoEnemies(ConCommandArgs args)
