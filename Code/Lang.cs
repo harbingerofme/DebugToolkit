@@ -4,7 +4,7 @@
     {
         //() denotes a list of specifc choices. : denotes a default. [] denotes a collection, and {} denotes freeform
         public const string
-            ADDPORTAL_ARGS = "Requires 1 argument: add_portal (all|blue|celestial|gold|null)",
+            ADDPORTAL_ARGS = "Requires 1 argument: add_portal (all|blue|celestial|gold|null|void|deepvoid)",
             BAN_ARGS = "Requires 1 argument: ({PlayerID:self}|{Playername})",
             BIND_ARGS = "Requires 2 arguments: {Key} {ConsoleCommands}",
             BIND_DELETE_ARGS = "Requires 1 argument: {Key}",
@@ -66,7 +66,7 @@
             PARTIALIMPLEMENTATION_WARNING = "WARNING: PARTIAL IMPLEMENTATION. WIP.",
             PLAYER_DEADRESPAWN = "Player is dead and cannot respawn.",
             PLAYER_NOTFOUND = "Specified player does not exist",
-            PORTAL_NOTFOUND = "The specified portal could not be found. Valid portals: 'blue','gold','celestial','null','all'",
+            PORTAL_NOTFOUND = "The specified portal could not be found. Valid portals: 'blue','gold','celestial','null','void','deepvoid','all'",
             RUNSETSTAGESCLEARED_HELP = "Sets the amount of stages cleared. This does not change the current stage.",
             SPAWN_ATTEMPT_1 = "Attempting to spawn: {0}",
             SPAWN_ATTEMPT_2 = "Attempting to spawn {0}: {1}",
