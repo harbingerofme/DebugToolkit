@@ -64,7 +64,7 @@
             NOMESSAGE = "Yell at the modmakers if you see this message!",
             NOCLIP_TOGGLE = "Noclip toggled to {0}",
             PARTIALIMPLEMENTATION_WARNING = "WARNING: PARTIAL IMPLEMENTATION. WIP.",
-            PLAYER_DEADRESPAWN = "Player is dead and cannot respawn.",
+            PLAYER_DEADRESPAWN = "Player is will spawn as the specified body next round. (Use 'respawn' to skip the wait)",
             PLAYER_NOTFOUND = "Specified player does not exist",
             PORTAL_NOTFOUND = "The specified portal could not be found. Valid portals: 'blue','gold','celestial','null','void','deepvoid','all'",
             RUNSETSTAGESCLEARED_HELP = "Sets the amount of stages cleared. This does not change the current stage.",

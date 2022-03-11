@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using R2API.Utils;
 using RoR2;
 using UnityEngine;
@@ -100,15 +100,16 @@ namespace DebugToolkit.Commands
                 }
             }
 
+            master.bodyPrefab = newBody;
+            Log.MessageNetworked(args.sender.userName + " is spawning as " + character, args);
+
             if (!master.GetBody())
             {
                 Log.MessageNetworked(Lang.PLAYER_DEADRESPAWN, args, LogLevel.MessageClientOnly);
                 return;
             }
 
-            master.bodyPrefab = newBody;
-            Log.MessageNetworked(args.sender.userName + " is spawning as " + character, args);
-            RoR2.ConVar.BoolConVar stage1pod = ((RoR2.ConVar.BoolConVar)(typeof(Stage)).GetFieldCached("stage1PodConVar").GetValue(null));
+            RoR2.ConVar.BoolConVar stage1pod = Stage.stage1PodConVar;
             bool oldVal = stage1pod.value;
             stage1pod.SetBool(false);
             master.Respawn(master.GetBody().transform.position, master.GetBody().transform.rotation);
