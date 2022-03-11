@@ -297,19 +297,18 @@ namespace DebugToolkit.Commands
             }
 
             string stageString = args[0];
-            var sceneNames = SceneCatalog.allSceneDefs.Select(sceneDef => sceneDef.baseSceneName).ToList();
+            var def = Hooks.BetterSceneDefFinder(stageString);
 
-            if (sceneNames.Contains(stageString))
+            if (def)
             {
-                Run.instance.AdvanceStage(SceneCatalog.GetSceneDefFromSceneName(stageString));
+                Run.instance.AdvanceStage(def);
                 Log.MessageNetworked($"Stage advanced to {stageString}.", args);
             }
             else
             {
                 var sb = new StringBuilder();
                 sb.AppendLine(Lang.NEXTROUND_STAGE);
-                sceneNames.ForEach(str => sb.AppendLine(str));
-                Log.MessageNetworked(sb.ToString(), args);
+                DebugToolkit.InvokeCMD(args.sender, "scene_list");
             }
         }
 
