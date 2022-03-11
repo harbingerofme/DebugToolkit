@@ -36,7 +36,7 @@ namespace DebugToolkit
             RoR2Application.onLoad += ArgsAutoCompletion.GatherCommandsAndFillStaticArgs;
             IL.RoR2.UI.ConsoleWindow.Update += SmoothDropDownSuggestionNavigation;
             IL.RoR2.Networking.NetworkManagerSystem.CCSetScene += EnableCheatsInCCSetScene;
-            On.RoR2.Networking.NetworkManagerSystem.CCSceneList += NetworkManagerSystem_CCSceneList;
+            On.RoR2.Networking.NetworkManagerSystem.CCSceneList += OverrideVanillaSceneList;
 
             // Noclip hooks
             var hookConfig = new HookConfig { ManualApply = true };
@@ -48,14 +48,14 @@ namespace DebugToolkit
             Command_Noclip.origClientChangeScene = Command_Noclip.OnClientChangeSceneHook.GenerateTrampoline<Command_Noclip.d_ClientChangeScene>();
         }
 
-        private static void NetworkManagerSystem_CCSceneList(On.RoR2.Networking.NetworkManagerSystem.orig_CCSceneList orig, ConCommandArgs args)
+        private static void OverrideVanillaSceneList(On.RoR2.Networking.NetworkManagerSystem.orig_CCSceneList orig, ConCommandArgs args)
         {
             StringBuilder stringBuilder = new StringBuilder();
             foreach (var sceneDef in SceneCatalog.allSceneDefs)
             {
-                stringBuilder.Append($"[{sceneDef.sceneDefIndex}] - {sceneDef.baseSceneName}{Environment.NewLine}");
+                stringBuilder.AppendLine($"[{sceneDef.sceneDefIndex}] - {sceneDef.baseSceneName}");
             }
-            Log.Message(stringBuilder);
+            Log.Message(stringBuilder, Log.LogLevel.MessageClientOnly);
         }
 
         private static void EnableCheatsInCCSetScene(ILContext il)
