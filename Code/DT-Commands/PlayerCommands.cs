@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using R2API.Utils;
 using RoR2;
 using UnityEngine;
@@ -61,11 +61,6 @@ namespace DebugToolkit.Commands
             }
         }
 
-
-
-
-
-
         [ConCommand(commandName = "spawn_as", flags = ConVarFlags.ExecuteOnServer, helpText = "Respawn the specified player using the specified body prefab. " + Lang.SPAWNAS_ARGS)]
         [AutoCompletion(typeof(BodyCatalog), "bodyPrefabBodyComponents", "baseNameToken")]
         private static void CCSpawnAs(ConCommandArgs args)
@@ -116,7 +111,6 @@ namespace DebugToolkit.Commands
             RoR2.ConVar.BoolConVar stage1pod = ((RoR2.ConVar.BoolConVar)(typeof(Stage)).GetFieldCached("stage1PodConVar").GetValue(null));
             bool oldVal = stage1pod.value;
             stage1pod.SetBool(false);
-
             master.Respawn(master.GetBody().transform.position, master.GetBody().transform.rotation);
             stage1pod.SetBool(oldVal);
         }
