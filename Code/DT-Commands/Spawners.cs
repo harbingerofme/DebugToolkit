@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using RoR2;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -117,6 +117,10 @@ namespace DebugToolkit.Commands
                 if (args.Count > 4)
                 {
                     StringFinder.TryGetEnumFromPartial(args[4], out teamIndex);
+                } else
+                {
+                    string teamName = Enum.GetNames(typeof(TeamIndex)).FirstOrDefault(tname => master.GetBody().baseNameToken.StartsWith(tname, StringComparison.InvariantCultureIgnoreCase));
+                    Enum.TryParse(teamName, out teamIndex);
                 }
 
                 if (teamIndex >= TeamIndex.None && teamIndex < TeamIndex.Count)
