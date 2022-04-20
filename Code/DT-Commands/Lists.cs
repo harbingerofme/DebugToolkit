@@ -104,7 +104,7 @@ namespace DebugToolkit.Commands
                                 continue;
                             skinDefs.Add(skin);
                             var langInvar = StringFinder.GetLangInvar(skin.nameToken);
-                            sb.AppendLine($"\t[{skin.skinIndex}] {skin.name}={langInvar}");
+                            sb.AppendLine($"[{skin.skinIndex}] {skin.name}={langInvar}");
                         }
                         break;
                     default:
