@@ -2,6 +2,7 @@
 using System.Text;
 using static DebugToolkit.Log;
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace DebugToolkit.Commands
 {
@@ -73,31 +74,41 @@ namespace DebugToolkit.Commands
             Log.Message(sb);
         }
 
-        [ConCommand(commandName = "list_skin", flags = ConVarFlags.None, helpText = "List all bodies with skins" + Lang.LISTBODY_ARGS)]
+        [ConCommand(commandName = "list_skin", flags = ConVarFlags.None, helpText = "List all bodies with skins. " + Lang.LISTSKIN_ARGS)]
         private static void CCListSkin(ConCommandArgs args)
         {
-            string langInvar;
+            //string langInvar;
             StringBuilder sb = new StringBuilder();
-            string bodyName = null;
             if (args.Count == 0)
             {
                 args.userArgs.Add(Lang.ALL); //simple
             }
             if (args.Count >= 1)
             {
-                bodyName = args.GetArgString(0);
+                string bodyName = args.GetArgString(0);
                 string upperBodyName = bodyName.ToUpperInvariant();
 
                 switch (upperBodyName)
                 {
-                    case Lang.ALL:
+                    case "BODY":
                         foreach (var bodyComponent in BodyCatalog.allBodyPrefabBodyBodyComponents)
                         {
                             AppendSkinIndices(ref sb, bodyComponent);
                         }
                         break;
+                    case Lang.ALL:
+                        HashSet<SkinDef> skinDefs = new HashSet<SkinDef>();
+                        foreach (var skin in SkinCatalog.allSkinDefs)
+                        {
+                            if (skinDefs.Contains(skin))
+                                continue;
+                            skinDefs.Add(skin);
+                            var langInvar = StringFinder.GetLangInvar(skin.nameToken);
+                            sb.AppendLine($"\t[{skin.skinIndex}] {skin.name}={langInvar}");
+                        }
+                        break;
                     default:
-                        CharacterBody body = null;
+                        CharacterBody body;
                         if (upperBodyName == "SELF")
                         {
                             if (args.sender == null)
@@ -159,7 +170,7 @@ namespace DebugToolkit.Commands
                 foreach (var skinDef in skins)
                 {
                     langInvar = StringFinder.GetLangInvar(skinDef.nameToken);
-                    stringBuilder.AppendLine($"-[{i}={skinDef.skinIndex}] {skinDef.name}={langInvar}");
+                    stringBuilder.AppendLine($"\t[{i}={skinDef.skinIndex}] {skinDef.name}={langInvar}");
                     i++;
                 }
             }
