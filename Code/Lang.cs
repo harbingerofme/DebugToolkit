@@ -19,7 +19,7 @@
             GOD_ARGS = "Requires 0 arguments: god",
             NOCLIP_ARGS = "Requires 0 arguments: noclip",
             CURSORTELEPORT_ARGS = "Requires 0 arguments: teleport_on_cursor",
-            LOADOUTSKIN_ARGS = "Requires 2 argument: loadout_set_skin_variant {skinIndex} {localised_objectname|self}",
+            LOADOUTSKIN_ARGS = "Requires 2 argument: loadout_set_skin_variant {localised_objectname|self} {skinIndex}",
             LOCKEXP_ARGS = "Requires 0 arguments: lock_exp",
             KICK_ARGS = "Requires 1 argument: ({PlayerID:self}|{Playername})",
             KILLALL_ARGS = "Requires 0 arguments: kill_all {TeamIndex:2/Monster}",
