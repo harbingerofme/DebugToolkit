@@ -19,7 +19,7 @@
             GOD_ARGS = "Requires 0 arguments: god",
             NOCLIP_ARGS = "Requires 0 arguments: noclip",
             CURSORTELEPORT_ARGS = "Requires 0 arguments: teleport_on_cursor",
-            LOADOUTSKIN_ARGS = "Requires 1 argument: loadout_set_skin_variant {skinIndex} {localised_objectname:self}",
+            LOADOUTSKIN_ARGS = "Requires 2 argument: loadout_set_skin_variant {skinIndex} {localised_objectname|self}",
             LOCKEXP_ARGS = "Requires 0 arguments: lock_exp",
             KICK_ARGS = "Requires 1 argument: ({PlayerID:self}|{Playername})",
             KILLALL_ARGS = "Requires 0 arguments: kill_all {TeamIndex:2/Monster}",
@@ -47,7 +47,7 @@
             LISTAI_ARGS = "List all Masters and their language invariants",
             LISTBODY_ARGS  = "List all Bodies and their language invariants",
             LISTPLAYER_ARGS = "List all players and their ID",
-            LISTSKIN_ARGS  = "Requires 0 arguments: list_skin ({localised_objectname}|\"all\"|\"self\"|:\"all\"})"
+            LISTSKIN_ARGS  = "Requires 0 arguments: list_skin ({localised_objectname}|\"all\"|\"body\" (separated by body)|\"self\"|:\"all\"})"
             ;
 
         public const string
