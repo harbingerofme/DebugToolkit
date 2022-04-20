@@ -203,43 +203,57 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            CharacterBody body = args.senderBody;
-            UserProfile userProfile = args.GetSenderLocalUser().userProfile;
-            if (args.Count == 0)
+            if (args.Count != 2)
             {
-                if (body)
-                {
-                    Debug.Log($"Skin Index: {userProfile.loadout.bodyLoadoutManager.GetSkinIndex(body.bodyIndex)}");
-                } else
-                {
-                    Debug.Log($"Skin Index: {userProfile.loadout.bodyLoadoutManager.GetSkinIndex(body.bodyIndex)}");
-                }
+                Log.Message(Lang.LOADOUTSKIN_ARGS, LogLevel.MessageClientOnly);
                 return;
             }
 
-            if (args.Count == 1)
-            {
-                Debug.Log($"Skin Index: {userProfile.loadout.bodyLoadoutManager.GetSkinIndex(body.bodyIndex)}");
-                return;
-            }
-
-            string requestedBodyName = StringFinder.Instance.GetBodyName(args[0]);
-
-            BodyIndex argBodyIndex = args.GetSenderBody().bodyIndex;
+            BodyIndex argBodyIndex = BodyIndex.None;
             bool bodyIsSelf = false;
 
             if (args.Count > 0)
             {
-                if (args.TryGetArgString(0).ToLower() != "self")
+                if (args.GetArgString(0).ToUpperInvariant() == "SELF")
                 {
                     bodyIsSelf = true;
-                    argBodyIndex = args.GetArgBodyIndex(0);
+                    if (args.sender == null)
+                    {
+                        Log.Message("Can't choose self if not in-game!", LogLevel.Error);
+                        return;
+                    }
+                    if (args.senderBody)
+                    {
+                        argBodyIndex = args.senderBody.bodyIndex;
+                    }
+                    else
+                    {
+                        if (args.senderMaster && args.senderMaster.bodyPrefab)
+                        {
+                            argBodyIndex = args.senderMaster.bodyPrefab.GetComponent<CharacterBody>().bodyIndex;
+                        }
+                        else
+                        {
+                            argBodyIndex = args.sender.bodyIndexPreference;
+                        }
+                    }
+                }
+                else
+                {
+                    string requestedBodyName = StringFinder.Instance.GetBodyName(args[0]);
+                    if (requestedBodyName != null)
+                    {
+                        argBodyIndex = BodyCatalog.FindBodyIndex(requestedBodyName);
+                    }
                 }
             }
-            int argInt = args.GetArgInt(1);
+
+            int requestedSkinIndexChange = args.GetArgInt(1);
+
             Loadout loadout = new Loadout();
+            UserProfile userProfile = args.GetSenderLocalUser().userProfile;
             userProfile.loadout.Copy(loadout);
-            loadout.bodyLoadoutManager.SetSkinIndex(argBodyIndex, (uint)argInt);
+            loadout.bodyLoadoutManager.SetSkinIndex(argBodyIndex, (uint)requestedSkinIndexChange);
             userProfile.SetLoadout(loadout);
             if (args.senderMaster)
             {
@@ -253,7 +267,7 @@ namespace DebugToolkit.Commands
                     var modelSkinController = args.senderBody.modelLocator.modelTransform.GetComponent<ModelSkinController>();
                     if (modelSkinController)
                     {
-                        modelSkinController.ApplySkin(argInt);
+                        modelSkinController.ApplySkin(requestedSkinIndexChange);
                     }
                 }
             }
