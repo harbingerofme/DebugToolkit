@@ -194,6 +194,76 @@ namespace DebugToolkit.Commands
 
         }
 
+        [ConCommand(commandName = "loadout_set_skin_variant", flags = ConVarFlags.None, helpText = "Change your loadout's skin,  " + Lang.LOADOUTSKIN_ARGS)]
+        public static void CCLoadoutSetSkinVariant(ConCommandArgs args)
+        {
+            if (args.sender == null)
+            {
+                Log.Message(Lang.DS_REQUIREFULLQUALIFY, LogLevel.Error);
+                return;
+            }
+
+            CharacterBody body = args.senderBody;
+            UserProfile userProfile = args.GetSenderLocalUser().userProfile;
+            if (args.Count == 0)
+            {
+                if (body)
+                {
+                    Debug.Log($"Skin Index: {userProfile.loadout.bodyLoadoutManager.GetSkinIndex(body.bodyIndex)}");
+                } else
+                {
+                    Debug.Log($"Skin Index: {userProfile.loadout.bodyLoadoutManager.GetSkinIndex(body.bodyIndex)}");
+                }
+                return;
+            }
+
+            if (args.Count == 1)
+            {
+                Debug.Log($"Skin Index: {userProfile.loadout.bodyLoadoutManager.GetSkinIndex(body.bodyIndex)}");
+                return;
+            }
+
+            string requestedBodyName = StringFinder.Instance.GetBodyName(args[0]);
+
+            BodyIndex argBodyIndex = args.GetSenderBody().bodyIndex;
+            bool bodyIsSelf = false;
+
+            if (args.Count > 0)
+            {
+                if (args.TryGetArgString(0).ToLower() != "self")
+                {
+                    bodyIsSelf = true;
+                    argBodyIndex = args.GetArgBodyIndex(0);
+                }
+            }
+            int argInt = args.GetArgInt(1);
+            Loadout loadout = new Loadout();
+            userProfile.loadout.Copy(loadout);
+            loadout.bodyLoadoutManager.SetSkinIndex(argBodyIndex, (uint)argInt);
+            userProfile.SetLoadout(loadout);
+            if (args.senderMaster)
+            {
+                args.senderMaster.SetLoadoutServer(loadout);
+            }
+            if (args.senderBody)
+            {
+                args.senderBody.SetLoadoutServer(loadout);
+                if (args.senderBody.modelLocator && args.senderBody.modelLocator.modelTransform)
+                {
+                    var modelSkinController = args.senderBody.modelLocator.modelTransform.GetComponent<ModelSkinController>();
+                    if (modelSkinController)
+                    {
+                        modelSkinController.ApplySkin(argInt);
+                    }
+                }
+            }
+
+            if (bodyIsSelf && !args.senderBody)
+            {
+                Log.MessageNetworked(Lang.PLAYER_SKINCHANGERESPAWN, args, LogLevel.MessageClientOnly);
+            }
+        }
+
 
 
         internal static bool UpdateCurrentPlayerBody(out NetworkUser networkUser, out CharacterBody characterBody)

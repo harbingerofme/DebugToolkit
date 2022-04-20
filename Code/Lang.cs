@@ -19,6 +19,7 @@
             GOD_ARGS = "Requires 0 arguments: god",
             NOCLIP_ARGS = "Requires 0 arguments: noclip",
             CURSORTELEPORT_ARGS = "Requires 0 arguments: teleport_on_cursor",
+            LOADOUTSKIN_ARGS = "Requires 1 argument: loadout_set_skin_variant {skinIndex} {localised_objectname:self}",
             LOCKEXP_ARGS = "Requires 0 arguments: lock_exp",
             KICK_ARGS = "Requires 1 argument: ({PlayerID:self}|{Playername})",
             KILLALL_ARGS = "Requires 0 arguments: kill_all {TeamIndex:2/Monster}",
@@ -45,7 +46,8 @@
             LISTEQUIP_ARGS = "List all equipment items and their IDs",
             LISTAI_ARGS = "List all Masters and their language invariants",
             LISTBODY_ARGS  = "List all Bodies and their language invariants",
-            LISTPLAYER_ARGS = "List all players and their ID"
+            LISTPLAYER_ARGS = "List all players and their ID",
+            LISTSKIN_ARGS  = "Requires 0 arguments: list_skin ({localised_objectname}|\"all\"|\"self\"|:\"all\"})"
             ;
 
         public const string
@@ -65,6 +67,7 @@
             NOCLIP_TOGGLE = "Noclip toggled to {0}",
             PARTIALIMPLEMENTATION_WARNING = "WARNING: PARTIAL IMPLEMENTATION. WIP.",
             PLAYER_DEADRESPAWN = "Player is will spawn as the specified body next round. (Use 'respawn' to skip the wait)",
+            PLAYER_SKINCHANGERESPAWN = "Player will spawn with the specified skin next round. (Use 'respawn' to skip the wait)",
             PLAYER_NOTFOUND = "Specified player does not exist",
             PORTAL_NOTFOUND = "The specified portal could not be found. Valid portals: 'blue','gold','celestial','null','void','deepvoid','all'",
             RUNSETSTAGESCLEARED_HELP = "Sets the amount of stages cleared. This does not change the current stage.",
