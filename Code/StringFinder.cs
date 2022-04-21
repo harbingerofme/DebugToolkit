@@ -189,14 +189,14 @@ namespace DebugToolkit
         public SkinIndex GetSkinFromPartial(string name)
         {
             string langInvar;
+            string nameUpperInvar = name.ToUpperInvariant();
             foreach (KeyValuePair<string, string[]> dictEnt in SkinAlias)
             {
                 foreach (string alias in dictEnt.Value)
                 {
-                    if (alias.ToUpper().Equals(name.ToUpper()))
+                    if (alias.ToUpperInvariant().Equals(nameUpperInvar))
                     {
                         name = dictEnt.Key;
-
                     }
                 }
             }
@@ -207,8 +207,9 @@ namespace DebugToolkit
 
             foreach (var skin in typeof(SkinCatalog).GetFieldValue<SkinDef[]>("allSkinDefs"))
             {
-                langInvar = GetLangInvar(skin.nameToken.ToUpper());
-                if (skin.name.ToUpper().Contains(name.ToUpper()) || langInvar.ToUpper().Contains(name.ToUpper()) || langInvar.ToUpper().Contains(RemoveSpacesAndAlike(name.ToUpper())))
+                langInvar = GetLangInvar(skin.nameToken.ToUpperInvariant());
+                var langInvarUpper = langInvar.ToUpperInvariant();
+                if (skin.name.ToUpperInvariant().Contains(nameUpperInvar) || langInvarUpper.Contains(nameUpperInvar) || langInvarUpper.Contains(RemoveSpacesAndAlike(nameUpperInvar)))
                 {
                     return skin.skinIndex;
                 }
