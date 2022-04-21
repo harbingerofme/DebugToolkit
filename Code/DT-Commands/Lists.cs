@@ -93,7 +93,7 @@ namespace DebugToolkit.Commands
                     case "BODY":
                         foreach (var bodyComponent in BodyCatalog.allBodyPrefabBodyBodyComponents)
                         {
-                            AppendSkinIndices(ref sb, bodyComponent);
+                            AppendSkinIndices(sb, bodyComponent);
                         }
                         break;
                     case Lang.ALL:
@@ -146,7 +146,7 @@ namespace DebugToolkit.Commands
                         }
                         if (body)
                         {
-                            AppendSkinIndices(ref sb, body);
+                            AppendSkinIndices(sb, body);
                         } else
                         {
                             Log.MessageNetworked("Please use list_body to print CharacterBodies", args, LogLevel.MessageClientOnly);
@@ -159,7 +159,7 @@ namespace DebugToolkit.Commands
             Log.Message(sb);
         }
 
-        private static void AppendSkinIndices(ref StringBuilder stringBuilder, CharacterBody body)
+        private static void AppendSkinIndices(StringBuilder stringBuilder, CharacterBody body)
         {
             var skins = BodyCatalog.GetBodySkins(body.bodyIndex);
             if (skins.Length > 0)
