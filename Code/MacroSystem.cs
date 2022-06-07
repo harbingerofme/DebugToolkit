@@ -4,6 +4,7 @@ using System.Linq;
 using BepInEx.Configuration;
 using R2API.MiscHelpers;
 using RoR2;
+using RoR2.UI;
 using UnityEngine;
 
 namespace DebugToolkit.Code
@@ -91,6 +92,14 @@ namespace DebugToolkit.Code
             Reload();
 
             DebugToolkit.Configuration.SettingChanged += OnMacroSettingChanged;
+            Run.onRunStartGlobal += Run_onRunStartGlobal;
+        }
+
+        private static IEnumerable<ChatBox> chatboxes = null;
+
+        private static void Run_onRunStartGlobal(Run obj)
+        {
+            chatboxes = HUD.readOnlyInstanceList.Select(hud => hud.GetComponent<ChatBox>());
         }
 
         private static void OnMacroSettingChanged(object sender, SettingChangedEventArgs e)
@@ -175,7 +184,9 @@ namespace DebugToolkit.Code
 
         internal static void Update()
         {
-            if (!RoR2.UI.ConsoleWindow.instance)
+            var anyChatInputActive = chatboxes?.Any(chat => chat && chat.inputField && chat.inputField.isActiveAndEnabled) ?? false;
+
+            if (!ConsoleWindow.instance && !anyChatInputActive)
             {
                 foreach (var (keyBind, macroConfigEntry) in MacroConfigEntries)
                 {
