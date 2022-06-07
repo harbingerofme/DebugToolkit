@@ -18,6 +18,7 @@ namespace DebugToolkit
         private static readonly Dictionary<string, string[]> MasterAlias = new Dictionary<string, string[]>();
         private static readonly Dictionary<string, string[]> ItemAlias = new Dictionary<string, string[]>();
         private static readonly Dictionary<string, string[]> EquipAlias = new Dictionary<string, string[]>();
+        private static readonly Dictionary<string, string[]> SkinAlias = new Dictionary<string, string[]>();
         private static StringFinder instance;
         private static readonly List<DirectorCard> characterSpawnCard = new List<DirectorCard>();
         private static List<InteractableSpawnCard> interactableSpawnCards = new List<InteractableSpawnCard>();
@@ -178,6 +179,42 @@ namespace DebugToolkit
                 }
             }
             return ItemIndex.None;
+        }
+
+        /// <summary>
+        /// Returns an SkinIndex when provided with a partial/invariant.
+        /// </summary>
+        /// <param name="name">Matches in order: (int)Index, Exact Alias, Exact Index, Partial Index, Partial Invariant</param>
+        /// <returns>Returns the SkinIndex if a match is found, or returns SkinIndex.None</returns>
+        public SkinIndex GetSkinFromPartial(string name)
+        {
+            string langInvar;
+            string nameUpperInvar = name.ToUpperInvariant();
+            foreach (KeyValuePair<string, string[]> dictEnt in SkinAlias)
+            {
+                foreach (string alias in dictEnt.Value)
+                {
+                    if (alias.ToUpperInvariant().Equals(nameUpperInvar))
+                    {
+                        name = dictEnt.Key;
+                    }
+                }
+            }
+            if (Enum.TryParse(name, true, out SkinIndex foundSkin) && foundSkin < (SkinIndex)SkinCatalog.skinCount)
+            {
+                return foundSkin;
+            }
+
+            foreach (var skin in typeof(SkinCatalog).GetFieldValue<SkinDef[]>("allSkinDefs"))
+            {
+                langInvar = GetLangInvar(skin.nameToken.ToUpperInvariant());
+                var langInvarUpper = langInvar.ToUpperInvariant();
+                if (skin.name.ToUpperInvariant().Contains(nameUpperInvar) || langInvarUpper.Contains(nameUpperInvar) || langInvarUpper.Contains(RemoveSpacesAndAlike(nameUpperInvar)))
+                {
+                    return skin.skinIndex;
+                }
+            }
+            return SkinIndex.None;
         }
 
         /// <summary>

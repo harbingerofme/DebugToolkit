@@ -194,6 +194,90 @@ namespace DebugToolkit.Commands
 
         }
 
+        [ConCommand(commandName = "loadout_set_skin_variant", flags = ConVarFlags.None, helpText = "Change your loadout's skin,  " + Lang.LOADOUTSKIN_ARGS)]
+        public static void CCLoadoutSetSkinVariant(ConCommandArgs args)
+        {
+            if (args.sender == null)
+            {
+                Log.Message(Lang.DS_REQUIREFULLQUALIFY, LogLevel.Error);
+                return;
+            }
+
+            if (args.Count != 2)
+            {
+                Log.Message(Lang.LOADOUTSKIN_ARGS, LogLevel.MessageClientOnly);
+                return;
+            }
+
+            BodyIndex argBodyIndex = BodyIndex.None;
+            bool bodyIsSelf = false;
+
+            if (args.Count > 0)
+            {
+                if (args.GetArgString(0).ToUpperInvariant() == "SELF")
+                {
+                    bodyIsSelf = true;
+                    if (args.sender == null)
+                    {
+                        Log.Message("Can't choose self if not in-game!", LogLevel.Error);
+                        return;
+                    }
+                    if (args.senderBody)
+                    {
+                        argBodyIndex = args.senderBody.bodyIndex;
+                    }
+                    else
+                    {
+                        if (args.senderMaster && args.senderMaster.bodyPrefab)
+                        {
+                            argBodyIndex = args.senderMaster.bodyPrefab.GetComponent<CharacterBody>().bodyIndex;
+                        }
+                        else
+                        {
+                            argBodyIndex = args.sender.bodyIndexPreference;
+                        }
+                    }
+                }
+                else
+                {
+                    string requestedBodyName = StringFinder.Instance.GetBodyName(args[0]);
+                    if (requestedBodyName != null)
+                    {
+                        argBodyIndex = BodyCatalog.FindBodyIndex(requestedBodyName);
+                    }
+                }
+            }
+
+            int requestedSkinIndexChange = args.GetArgInt(1);
+
+            Loadout loadout = new Loadout();
+            UserProfile userProfile = args.GetSenderLocalUser().userProfile;
+            userProfile.loadout.Copy(loadout);
+            loadout.bodyLoadoutManager.SetSkinIndex(argBodyIndex, (uint)requestedSkinIndexChange);
+            userProfile.SetLoadout(loadout);
+            if (args.senderMaster)
+            {
+                args.senderMaster.SetLoadoutServer(loadout);
+            }
+            if (args.senderBody)
+            {
+                args.senderBody.SetLoadoutServer(loadout);
+                if (args.senderBody.modelLocator && args.senderBody.modelLocator.modelTransform)
+                {
+                    var modelSkinController = args.senderBody.modelLocator.modelTransform.GetComponent<ModelSkinController>();
+                    if (modelSkinController)
+                    {
+                        modelSkinController.ApplySkin(requestedSkinIndexChange);
+                    }
+                }
+            }
+
+            if (bodyIsSelf && !args.senderBody)
+            {
+                Log.MessageNetworked(Lang.PLAYER_SKINCHANGERESPAWN, args, LogLevel.MessageClientOnly);
+            }
+        }
+
 
 
         internal static bool UpdateCurrentPlayerBody(out NetworkUser networkUser, out CharacterBody characterBody)

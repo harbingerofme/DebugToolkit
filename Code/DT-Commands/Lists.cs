@@ -1,6 +1,8 @@
 ﻿using RoR2;
 using System.Text;
 using static DebugToolkit.Log;
+using UnityEngine;
+using System.Collections.Generic;
 
 namespace DebugToolkit.Commands
 {
@@ -70,6 +72,108 @@ namespace DebugToolkit.Commands
                 sb.AppendLine($"{card.spawnCard.name}");
             }
             Log.Message(sb);
+        }
+
+        [ConCommand(commandName = "list_skin", flags = ConVarFlags.None, helpText = "List all bodies with skins. " + Lang.LISTSKIN_ARGS)]
+        private static void CCListSkin(ConCommandArgs args)
+        {
+            //string langInvar;
+            StringBuilder sb = new StringBuilder();
+            if (args.Count == 0)
+            {
+                args.userArgs.Add(Lang.ALL); //simple
+            }
+            if (args.Count >= 1)
+            {
+                string bodyName = args.GetArgString(0);
+                string upperBodyName = bodyName.ToUpperInvariant();
+
+                switch (upperBodyName)
+                {
+                    case "BODY":
+                        foreach (var bodyComponent in BodyCatalog.allBodyPrefabBodyBodyComponents)
+                        {
+                            AppendSkinIndices(sb, bodyComponent);
+                        }
+                        break;
+                    case Lang.ALL:
+                        HashSet<SkinDef> skinDefs = new HashSet<SkinDef>();
+                        foreach (var skin in SkinCatalog.allSkinDefs)
+                        {
+                            if (skinDefs.Contains(skin))
+                                continue;
+                            skinDefs.Add(skin);
+                            var langInvar = StringFinder.GetLangInvar(skin.nameToken);
+                            sb.AppendLine($"[{skin.skinIndex}] {skin.name}={langInvar}");
+                        }
+                        break;
+                    default:
+                        CharacterBody body;
+                        if (upperBodyName == "SELF")
+                        {
+                            if (args.sender == null)
+                            {
+                                Log.Message("Can't choose self if not in-game!", LogLevel.Error);
+                                return;
+                            }
+                            if (args.senderBody)
+                            {
+                                body = args.senderBody;
+                            }
+                            else
+                            {
+                                if (args.senderMaster && args.senderMaster.bodyPrefab)
+                                {
+                                    body = args.senderMaster.bodyPrefab.GetComponent<CharacterBody>();
+                                }
+                                else
+                                {
+                                    body = BodyCatalog.GetBodyPrefabBodyComponent(args.sender.bodyIndexPreference);
+                                    // a little redundant
+                                }
+                            }
+                        }
+                        else
+                        {
+                            string requestedBodyName = StringFinder.Instance.GetBodyName(args[0]);
+                            if (requestedBodyName == null)
+                            {
+                                Log.MessageNetworked("Please use list_body to print CharacterBodies", args, LogLevel.MessageClientOnly);
+                                return;
+                            }
+                            GameObject newBody = BodyCatalog.FindBodyPrefab(requestedBodyName);
+                            body = newBody.GetComponent<CharacterBody>();
+                        }
+                        if (body)
+                        {
+                            AppendSkinIndices(sb, body);
+                        } else
+                        {
+                            Log.MessageNetworked("Please use list_body to print CharacterBodies", args, LogLevel.MessageClientOnly);
+                            return;
+                        }
+                        break;
+                }
+            }
+
+            Log.Message(sb);
+        }
+
+        private static void AppendSkinIndices(StringBuilder stringBuilder, CharacterBody body)
+        {
+            var skins = BodyCatalog.GetBodySkins(body.bodyIndex);
+            if (skins.Length > 0)
+            {
+                var langInvar = StringFinder.GetLangInvar(body.baseNameToken);
+                stringBuilder.AppendLine($"[{body.bodyIndex}]{body.name}={langInvar}");
+                int i = 0;
+                foreach (var skinDef in skins)
+                {
+                    langInvar = StringFinder.GetLangInvar(skinDef.nameToken);
+                    stringBuilder.AppendLine($"\t[{i}={skinDef.skinIndex}] {skinDef.name}={langInvar}");
+                    i++;
+                }
+            }
         }
     }
 }
