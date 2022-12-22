@@ -6,7 +6,6 @@ using DebugToolkit.Commands;
 using System.Reflection;
 using System.Linq;
 using DebugToolkit.Code;
-using R2API;
 using R2API.Utils;
 using DebugToolkit.Permissions;
 
@@ -14,7 +13,6 @@ namespace DebugToolkit
 {
     [BepInDependency("com.bepis.r2api")]
     [NetworkCompatibility(CompatibilityLevel.NoNeedForSync)]
-    [R2APISubmoduleDependency(nameof(PrefabAPI))]
     [BepInPlugin(GUID, modname, modver)]
     public class DebugToolkit : BaseUnityPlugin
     {
@@ -57,6 +55,7 @@ namespace DebugToolkit
             PermissionSystem.Init();
             Hooks.InitializeHooks();
             NetworkManager.Init();
+            StringFinder.Instance.PopulateIscInfo();
         }
 
         private void Start()

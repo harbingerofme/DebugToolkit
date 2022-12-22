@@ -6,6 +6,10 @@ using System;
 using System.Text;
 using System.Linq;
 using R2API.Utils;
+using UnityEngine.AddressableAssets;
+using UnityEngine.AddressableAssets.ResourceLocators;
+using UnityEngine.ResourceManagement.ResourceLocations;
+using System.IO;
 
 namespace DebugToolkit
 {
@@ -68,12 +72,31 @@ namespace DebugToolkit
                 characterSpawnCard.Add(dCard);
             }
 
-            var vanillaIscs = Resources.LoadAll<InteractableSpawnCard>("SpawnCards/InteractableSpawnCard");
-            Log.MessageInfo($"Loading all vanilla ISC's: {vanillaIscs.Length}", Log.Target.Bepinex);
-            interactableSpawnCards = vanillaIscs.OfType<InteractableSpawnCard>().ToList();
+
+            
+            interactableSpawnCards = vanillaIscs;
+            
             On.RoR2.ClassicStageInfo.Start += AddCurrentStageIscsToCache;
         }
 
+        string[] cachedFiles = new string[0];
+        List<InteractableSpawnCard> vanillaIscs = new List<InteractableSpawnCard>();
+        public void PopulateIscInfo()
+        {
+            string assetpath = System.IO.Path.Combine(BepInEx.Paths.GameRootPath, "Risk of Rain 2_Data/StreamingAssets/aa/catalog.json");
+            cachedFiles = File.ReadAllLines(assetpath);
+            for(int i = 0; i > cachedFiles.Length; i++)
+            {
+                if(cachedFiles[i].Contains("/isc"))
+                {
+                   vanillaIscs.Add(JsonUtility.FromJson<InteractableSpawnCard>(cachedFiles[i]));
+                   
+                }
+            }
+            Log.MessageInfo($"Interactables Loaded!");
+        }
+
+        
         // There is no real good way to query for all custom iscs afaik
         // So let's lazily add them as the player encounter stages
         private void AddCurrentStageIscsToCache(On.RoR2.ClassicStageInfo.orig_Start orig, ClassicStageInfo self)
