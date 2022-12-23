@@ -11,7 +11,9 @@ using DebugToolkit.Permissions;
 
 namespace DebugToolkit
 {
-    [BepInDependency("com.bepis.r2api")]
+    [BepInDependency(R2API.Networking.NetworkingAPI.PluginGUID)]
+    [BepInDependency(R2API.PrefabAPI.PluginGUID)]
+    [BepInDependency(R2API.ContentManagement.R2APIContentManager.PluginGUID)]
     [NetworkCompatibility(CompatibilityLevel.NoNeedForSync)]
     [BepInPlugin(GUID, modname, modver)]
     public class DebugToolkit : BaseUnityPlugin
