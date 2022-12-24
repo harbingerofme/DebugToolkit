@@ -1,4 +1,5 @@
-﻿using R2API.Utils;
+﻿using Newtonsoft.Json.Linq;
+using R2API.Utils;
 using RoR2;
 using System;
 using System.Collections.Generic;
@@ -7,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 
 namespace DebugToolkit
 {
@@ -69,29 +71,32 @@ namespace DebugToolkit
                 characterSpawnCard.Add(dCard);
             }
 
-
-
-            interactableSpawnCards = vanillaIscs;
+            PopulateIscInfo();
 
             On.RoR2.ClassicStageInfo.Start += AddCurrentStageIscsToCache;
         }
 
-        string[] cachedFiles = new string[0];
-        List<InteractableSpawnCard> vanillaIscs = new List<InteractableSpawnCard>();
+
         public void PopulateIscInfo()
         {
-            string assetpath = System.IO.Path.Combine(BepInEx.Paths.GameRootPath, "Risk of Rain 2_Data/StreamingAssets/aa/catalog.json");
-            cachedFiles = File.ReadAllLines(assetpath);
-            for (int i = 0; i > cachedFiles.Length; i++)
+            using (var stream = System.Reflection.Assembly.GetExecutingAssembly()
+                .GetManifestResourceStream($"{this.GetType().Namespace}.Resources.VanillaISC"))
             {
-                if (cachedFiles[i].Contains("/isc"))
+                using (StreamReader reader = new StreamReader(stream))
                 {
-                    vanillaIscs.Add(JsonUtility.FromJson<InteractableSpawnCard>(cachedFiles[i]));
-
+                    var lines = reader.ReadToEnd().Split('\n');
+                    foreach (var line in lines)
+                    {
+                        Addressables.LoadAssetAsync<InteractableSpawnCard>(line).Completed += (iscLoad) =>
+                        {
+                            var isc = iscLoad.Result;
+                            interactableSpawnCards.Add(isc);
+                        };
+                    }
                 }
             }
-            Log.MessageInfo($"Interactables Loaded!");
         }
+
 
 
         // There is no real good way to query for all custom iscs afaik

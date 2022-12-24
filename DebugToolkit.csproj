@@ -71,12 +71,14 @@
     <None Remove="manifest.template" />
     <None Remove="README.md" />
     <None Remove="readmetest.zip" />
+    <None Remove="Resources\VanillaISC" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Resources\CurrentCommit">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
+    <EmbeddedResource Include="Resources\VanillaISC" />
   </ItemGroup>
 
 
@@ -91,6 +93,7 @@
       <GeneratePathProperty>True</GeneratePathProperty>
     </PackageReference>
     <PackageReference Include="MMHOOK.RoR2" Version="2022.9.20" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="RiskOfRain2.GameLibs" Version="1.2.4-r.0">
       <GeneratePathProperty>True</GeneratePathProperty>
     </PackageReference>

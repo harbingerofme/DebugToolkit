@@ -131,6 +131,10 @@ namespace DebugToolkit
         {
             switch (level)
             {
+                case LogLevel.Debug:
+                    //No debugconvar checking. This message was intended to be visible!
+                    Debug.Log(input);
+                    break;
                 case LogLevel.Info:
                 case LogLevel.InfoClientOnly:
                     if (DebugConvar.value)
@@ -161,6 +165,9 @@ namespace DebugToolkit
             }
             switch (level)
             {
+                case LogLevel.Debug:
+                    logger.LogDebug(input);
+                    break;
                 case LogLevel.Info:
                 case LogLevel.InfoClientOnly:
                     if (BepinexInfoAlwaysLogs || DebugConvar.value)
@@ -187,6 +194,7 @@ namespace DebugToolkit
 
         public enum LogLevel
         {
+            Debug = -1,
             Info = 0,
             Message = 1,
             Warning = 2,
@@ -219,12 +227,24 @@ namespace DebugToolkit
 
         internal static void Invoke(NetworkUser networkUser, string msg, int level)
         {
+            if (level == (int) LogLevel.Debug)
+            {
+                // DebugMessages may not be networked
+                return;
+            }
+
             _instance.TargetLog(networkUser.connectionToClient, msg, level);
         }
 
         [TargetRpc]
         private void TargetLog(NetworkConnection _, string msg, int level)
         {
+            if (level == (int) LogLevel.Debug)
+            {
+                // DebugMessages may not be networked
+                return;
+            }
+
             Log.Message(msg, (Log.LogLevel)level);
             Hooks.ScrollConsoleDown();
         }

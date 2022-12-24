@@ -69,5 +69,34 @@ namespace DebugToolkit
             }
             return false;
         }
+
+        // Return -1 when the string is not found, or asked for a nonpositive nth occurence.
+        internal static int NthIndexOf(this string input, string value, int startIndex, int nth)
+        {
+            if (nth < 1)
+                return -1;
+            if (nth == 1)
+                return input.IndexOf(value, startIndex);
+            var idx = input.IndexOf(value, startIndex);
+            if (idx == -1)
+                return -1;
+            return input.NthIndexOf(value, idx + 1, --nth);
+        }
+
+
+        // Reminder that the search starts BACKWARDS from the startIndex
+        internal static int LastNthIndexOf(this string input, string value, int startIndex, int nth)
+        {
+            if (nth < 1)
+                return -1;
+            if (nth == 1)
+                return input.LastIndexOf(value, startIndex);
+            var idx = input.LastIndexOf(value, startIndex);
+            if (idx == -1)
+                return -1;
+            return input.LastNthIndexOf(value, idx - 1, --nth);
+        }
+
+
     }
 }
