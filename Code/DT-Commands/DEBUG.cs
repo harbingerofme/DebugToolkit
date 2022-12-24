@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using RoR2;
 using System.Text;
-using RoR2;
 
 namespace DebugToolkit.Commands
 {

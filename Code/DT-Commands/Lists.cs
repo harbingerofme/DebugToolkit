@@ -1,8 +1,8 @@
 ﻿using RoR2;
-using System.Text;
-using static DebugToolkit.Log;
-using UnityEngine;
 using System.Collections.Generic;
+using System.Text;
+using UnityEngine;
+using static DebugToolkit.Log;
 
 namespace DebugToolkit.Commands
 {
@@ -147,7 +147,8 @@ namespace DebugToolkit.Commands
                         if (body)
                         {
                             AppendSkinIndices(sb, body);
-                        } else
+                        }
+                        else
                         {
                             Log.MessageNetworked("Please use list_body to print CharacterBodies", args, LogLevel.MessageClientOnly);
                             return;

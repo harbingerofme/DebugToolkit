@@ -1,9 +1,9 @@
-﻿using System;
+﻿using R2API.Utils;
+using RoR2;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using R2API.Utils;
-using RoR2;
 
 namespace DebugToolkit
 {

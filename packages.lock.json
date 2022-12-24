@@ -4,13 +4,19 @@
     ".NETStandard,Version=v2.0": {
       "BepInEx.Core": {
         "type": "Direct",
-        "requested": "[5.4.19, )",
-        "resolved": "5.4.19",
-        "contentHash": "2/eY1qT2LaVO36G91LWo2yNLwmEEODKoC8IpePyA5WP2eGrrMvGxxLC9v4OPmX3IT8q1G4SYzKDL3ziZRQVUWg==",
+        "requested": "[5.4.21, )",
+        "resolved": "5.4.21",
+        "contentHash": "NMUPlbHTTfJ+qIQCI90uIvjuUQ4wnwt4cpRsK3ItBh1DhsWFzAHXNiZjBxZkPysljEKQ2iu89sxMTga4bxBXVQ==",
         "dependencies": {
-          "BepInEx.BaseLib": "5.4.19",
+          "BepInEx.BaseLib": "5.4.20",
           "HarmonyX": "2.7.0"
         }
+      },
+      "MMHOOK.RoR2": {
+        "type": "Direct",
+        "requested": "[2022.9.20, )",
+        "resolved": "2022.9.20",
+        "contentHash": "4zXYtgP9DxGF5DZ3Az8h7E3hapSF1TipyaTceqoJY5LYK2rSbsiEEuXnYnXCuq13H9rs7oTzT4oVE4GpoIvLbg=="
       },
       "NETStandard.Library": {
         "type": "Direct",
@@ -21,11 +27,51 @@
           "Microsoft.NETCore.Platforms": "1.1.0"
         }
       },
+      "R2API.ContentManagement": {
+        "type": "Direct",
+        "requested": "[1.0.0, )",
+        "resolved": "1.0.0",
+        "contentHash": "7E5dYAOBX+mnj+vWLCPQ3C9TOGrlNmen+TPks1i+wt8UJk/k4ctGY1TS6CLV92I9TquZIlNRaKbhwWJm+J61wA==",
+        "dependencies": {
+          "BepInEx.Core": "5.4.19",
+          "MMHOOK.RoR2": "2022.4.19",
+          "R2API.Core": "1.0.0",
+          "RiskOfRain2.GameLibs": "1.2.4-r.0",
+          "UnityEngine.Modules": "2019.4.26"
+        }
+      },
+      "R2API.Networking": {
+        "type": "Direct",
+        "requested": "[1.0.0, )",
+        "resolved": "1.0.0",
+        "contentHash": "qJSn7gJMVYdk3zU6Nn7qeR+xUpnWSAk4Yoyiz1szJwwpl8LEJhy6OHadsW7vWKPbvgDx0k8bOZcg702LBvaGOQ==",
+        "dependencies": {
+          "BepInEx.Core": "5.4.19",
+          "MMHOOK.RoR2": "2022.4.19",
+          "R2API.Core": "1.0.0",
+          "RiskOfRain2.GameLibs": "1.2.4-r.0",
+          "UnityEngine.Modules": "2019.4.26"
+        }
+      },
+      "R2API.Prefab": {
+        "type": "Direct",
+        "requested": "[1.0.0, )",
+        "resolved": "1.0.0",
+        "contentHash": "LN37Xc12RHx787AljAzAND5EfYG9vTDZh0ffPon0fgYrFtoHGdb7TOyRw4r9NLmhY4ZV6HPwuZIpwFjQwdC6oA==",
+        "dependencies": {
+          "BepInEx.Core": "5.4.19",
+          "MMHOOK.RoR2": "2022.4.19",
+          "R2API.ContentManagement": "1.0.0",
+          "R2API.Core": "1.0.0",
+          "RiskOfRain2.GameLibs": "1.2.4-r.0",
+          "UnityEngine.Modules": "2019.4.26"
+        }
+      },
       "RiskOfRain2.GameLibs": {
         "type": "Direct",
-        "requested": "[1.2.1-r.1, )",
-        "resolved": "1.2.1-r.1",
-        "contentHash": "lKMsvDsOlZo99hNc8ppjXFz5/iu8S2VGs6bnTjps+PEKyMF0AGWfv3q6Tv1VYY/wz1CGfdEnf9hBCBFtY7yHXQ=="
+        "requested": "[1.2.4-r.0, )",
+        "resolved": "1.2.4-r.0",
+        "contentHash": "mzNQPEy8zlJY3yJMmfalXL7cgZJBgZkpe7wwZygLT7szj2dHhIlsm3FcGYL3tSYVYD2bcO5U2qxnRBaMj7qhCA=="
       },
       "UnityEngine.Modules": {
         "type": "Direct",
@@ -35,8 +81,8 @@
       },
       "BepInEx.BaseLib": {
         "type": "Transitive",
-        "resolved": "5.4.19",
-        "contentHash": "gwP3NK0WL5E+U/L0FMrygiDDNzEL4TYnezy+S7ocbUUhkhty3ueG5BRsKdKdra/2R3vWopf42CoA+MnnEmSY+w=="
+        "resolved": "5.4.20",
+        "contentHash": "0bXgYxbCEN2Ixp3kiFEhyw+RASeFQeg/ww+lbMt7if6XMeVS60eg6epNsMA8Jbx57dmNOzNevkKKw8mP8SUMqw=="
       },
       "HarmonyX": {
         "type": "Transitive",
@@ -89,6 +135,17 @@
           "System.Reflection.Emit.ILGeneration": "4.7.0",
           "System.Reflection.Emit.Lightweight": "4.7.0",
           "System.Reflection.TypeExtensions": "4.7.0"
+        }
+      },
+      "R2API.Core": {
+        "type": "Transitive",
+        "resolved": "5.0.0",
+        "contentHash": "89XZPH5apttU1YzYiNSq2gNxwPvHHu+0s8ftTl8gynqvfwPQDj8ZCByo4YGvr7ivtAGKFVtwoft2hnEQFJts+Q==",
+        "dependencies": {
+          "BepInEx.Core": "5.4.19",
+          "MMHOOK.RoR2": "2022.4.19",
+          "RiskOfRain2.GameLibs": "1.2.4-r.0",
+          "UnityEngine.Modules": "2019.4.26"
         }
       },
       "System.Collections": {

@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using R2API.Utils;
 using RoR2;
-using System.Text.RegularExpressions;
 using System;
-using System.Text;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using R2API.Utils;
+using System.Text;
+using System.Text.RegularExpressions;
+using UnityEngine;
 
 namespace DebugToolkit
 {
@@ -68,11 +69,30 @@ namespace DebugToolkit
                 characterSpawnCard.Add(dCard);
             }
 
-            var vanillaIscs = Resources.LoadAll<InteractableSpawnCard>("SpawnCards/InteractableSpawnCard");
-            Log.MessageInfo($"Loading all vanilla ISC's: {vanillaIscs.Length}", Log.Target.Bepinex);
-            interactableSpawnCards = vanillaIscs.OfType<InteractableSpawnCard>().ToList();
+
+
+            interactableSpawnCards = vanillaIscs;
+
             On.RoR2.ClassicStageInfo.Start += AddCurrentStageIscsToCache;
         }
+
+        string[] cachedFiles = new string[0];
+        List<InteractableSpawnCard> vanillaIscs = new List<InteractableSpawnCard>();
+        public void PopulateIscInfo()
+        {
+            string assetpath = System.IO.Path.Combine(BepInEx.Paths.GameRootPath, "Risk of Rain 2_Data/StreamingAssets/aa/catalog.json");
+            cachedFiles = File.ReadAllLines(assetpath);
+            for (int i = 0; i > cachedFiles.Length; i++)
+            {
+                if (cachedFiles[i].Contains("/isc"))
+                {
+                    vanillaIscs.Add(JsonUtility.FromJson<InteractableSpawnCard>(cachedFiles[i]));
+
+                }
+            }
+            Log.MessageInfo($"Interactables Loaded!");
+        }
+
 
         // There is no real good way to query for all custom iscs afaik
         // So let's lazily add them as the player encounter stages
@@ -383,9 +403,9 @@ namespace DebugToolkit
                     return false;
                 }
             }
-            else if(typeof(TEnum).GetEnumUnderlyingType() == typeof(sbyte))
+            else if (typeof(TEnum).GetEnumUnderlyingType() == typeof(sbyte))
             {
-                if(sbyte.TryParse(name, out sbyte index))
+                if (sbyte.TryParse(name, out sbyte index))
                 {
                     if (Enum.IsDefined(typeof(TEnum), index))
                     {

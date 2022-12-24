@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using BepInEx.Configuration;
+﻿using BepInEx.Configuration;
 using R2API.MiscHelpers;
 using RoR2;
 using RoR2.UI;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace DebugToolkit.Code
@@ -28,7 +28,7 @@ namespace DebugToolkit.Code
 
             private static string[] SplitBindCmd(string bindCmdBlob)
             {
-                return bindCmdBlob.Split(new[] {' '}, 3, StringSplitOptions.RemoveEmptyEntries);
+                return bindCmdBlob.Split(new[] { ' ' }, 3, StringSplitOptions.RemoveEmptyEntries);
             }
 
             internal bool IsCorrectlyFormatted()
@@ -64,7 +64,7 @@ namespace DebugToolkit.Code
                 System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
 
         private static Dictionary<ConfigDefinition, string> OrphanedEntries =>
-            (Dictionary<ConfigDefinition, string>) OrphanedEntriesProperty.GetValue(DebugToolkit.Configuration);
+            (Dictionary<ConfigDefinition, string>)OrphanedEntriesProperty.GetValue(DebugToolkit.Configuration);
 
         private const string MACRO_SECTION_NAME = "Macros";
         private const string DEFAULT_MACRO_NAME = "Do not remove this example macro";
@@ -73,17 +73,17 @@ namespace DebugToolkit.Code
         private const string DEFAULT_MACRO_DESCRIPTION = "Custom keybind for executing console commands.";
         private const char DEFAULT_COMMAND_SEPARATOR = ';';
 
-        private const string MACRO_MINI_TUTORIAL = 
-            "\nMust start with dt_bind {KeyBind} {ConsoleCommands}.\n" + 
-            "Example : dt_bind x noclip;kill_all\n" + 
-            "When you'll press x key on keyboard it'll activate noclip and kill every monsters.\n" + 
-            "For adding new macros, just add new lines under the example, must be formatted like this :\n" + 
-            "Macro 2 = dt_bind z no_enemies;give_item hoof 10\n" + 
-            "Macro 3 = dt_bind x give_item dagger 5;give_item syringe 10\n" + 
+        private const string MACRO_MINI_TUTORIAL =
+            "\nMust start with dt_bind {KeyBind} {ConsoleCommands}.\n" +
+            "Example : dt_bind x noclip;kill_all\n" +
+            "When you'll press x key on keyboard it'll activate noclip and kill every monsters.\n" +
+            "For adding new macros, just add new lines under the example, must be formatted like this :\n" +
+            "Macro 2 = dt_bind z no_enemies;give_item hoof 10\n" +
+            "Macro 3 = dt_bind x give_item dagger 5;give_item syringe 10\n" +
             "Or use the in-game console and use the dt_bind console command.\n" +
-            "When doing it from the in game console, don't forget to use double quotes, especially when chaining commands !\n" + 
-            "dt_bind b \"give_item dio 1;spawn_ai 1 beetle\"\n" + 
-            "You can also delete existing bind like this:\n" + 
+            "When doing it from the in game console, don't forget to use double quotes, especially when chaining commands !\n" +
+            "dt_bind b \"give_item dio 1;spawn_ai 1 beetle\"\n" +
+            "You can also delete existing bind like this:\n" +
             "dt_bind_delete {KeyBind}";
 
         internal static void Init()
