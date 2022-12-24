@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using RoR2;
+﻿using RoR2;
+using System.Collections.Generic;
 
 namespace DebugToolkit
 {
@@ -43,7 +43,7 @@ namespace DebugToolkit
                         return n;
                     }
                 }
-                
+
                 return null;
             }
 
@@ -58,7 +58,7 @@ namespace DebugToolkit
         /// <returns>True if the string was parsed correctly. False otherwise</returns>
         internal static bool TryParseBool(string input, out bool result)
         {
-            if(bool.TryParse(input,out result))
+            if (bool.TryParse(input, out result))
             {
                 return true;
             }

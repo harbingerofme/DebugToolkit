@@ -1,11 +1,11 @@
-﻿using System;
-using RoR2;
+﻿using RoR2;
+using RoR2.CharacterAI;
+using System;
+using System.Globalization;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
 using static DebugToolkit.Log;
-using RoR2.CharacterAI;
-using System.Linq;
-using System.Globalization;
 
 namespace DebugToolkit.Commands
 {

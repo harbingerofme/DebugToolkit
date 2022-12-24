@@ -8,8 +8,8 @@ using RoR2;
 using RoR2.ConVar;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 using UnityEngine;
 using Console = RoR2.Console;
@@ -29,7 +29,7 @@ namespace DebugToolkit
             var runCmdHook = new Hook(typeof(Console).GetMethodCached("RunCmd"),
                 typeof(Hooks).GetMethodCached(nameof(LogNetworkCommandsAndCheckPermissions)), new HookConfig { Priority = 1 });
             _origRunCmd = runCmdHook.GenerateTrampoline<On.RoR2.Console.orig_RunCmd>();
-            
+
             On.RoR2.Console.AutoComplete.SetSearchString += BetterAutoCompletion;
             On.RoR2.Console.AutoComplete.ctor += CommandArgsAutoCompletion;
             RoR2Application.onLoad += ArgsAutoCompletion.GatherCommandsAndFillStaticArgs;
@@ -40,10 +40,10 @@ namespace DebugToolkit
             // Noclip hooks
             var hookConfig = new HookConfig { ManualApply = true };
             Command_Noclip.OnServerChangeSceneHook = new Hook(typeof(UnityEngine.Networking.NetworkManager).GetMethodCached("ServerChangeScene"),
-    typeof(Command_Noclip).GetMethodCached("DisableOnServerSceneChange"),hookConfig);
+    typeof(Command_Noclip).GetMethodCached("DisableOnServerSceneChange"), hookConfig);
             Command_Noclip.origServerChangeScene = Command_Noclip.OnServerChangeSceneHook.GenerateTrampoline<Command_Noclip.d_ServerChangeScene>();
             Command_Noclip.OnClientChangeSceneHook = new Hook(typeof(UnityEngine.Networking.NetworkManager).GetMethodCached("ClientChangeScene"),
-                typeof(Command_Noclip).GetMethodCached("DisableOnClientSceneChange"),hookConfig);
+                typeof(Command_Noclip).GetMethodCached("DisableOnClientSceneChange"), hookConfig);
             Command_Noclip.origClientChangeScene = Command_Noclip.OnClientChangeSceneHook.GenerateTrampoline<Command_Noclip.d_ClientChangeScene>();
         }
 
@@ -76,14 +76,15 @@ namespace DebugToolkit
         }
 
         public static SceneDef BetterSceneDefFinder(string sceneName)
-        {           
+        {
             int index = -1;
             if (int.TryParse(sceneName, out index))
             {
                 if (index > -1 && index < SceneCatalog.allSceneDefs.Length)
                 {
                     var def = SceneCatalog.allSceneDefs[index];
-                    if (!Run.instance || !def.requiredExpansion || Run.instance.IsExpansionEnabled(def.requiredExpansion)) {
+                    if (!Run.instance || !def.requiredExpansion || Run.instance.IsExpansionEnabled(def.requiredExpansion))
+                    {
                         return def;
                     }
                 }
@@ -117,7 +118,7 @@ namespace DebugToolkit
                 x => x.MatchCastclass(typeof(ConCommandAttribute))
                 );
             c.EmitDelegate<Func<ConCommandAttribute, ConCommandAttribute>>(
-                (conAttr) => 
+                (conAttr) =>
                 {
                     conAttr.flags &= AllFlagsNoCheat;
                     if (conAttr.commandName == "run_set_stages_cleared")
@@ -127,10 +128,10 @@ namespace DebugToolkit
                     return conAttr;
                 });
         }
-		
-		private static void InitCommandsAndFreeConvars(On.RoR2.Console.orig_InitConVars orig, Console self)
+
+        private static void InitCommandsAndFreeConvars(On.RoR2.Console.orig_InitConVars orig, Console self)
         {
-            void RemoveCheatFlag (BaseConVar cv)
+            void RemoveCheatFlag(BaseConVar cv)
             {
                 cv.flags &= AllFlagsNoCheat;
             }
@@ -184,8 +185,8 @@ namespace DebugToolkit
                 RoR2.UI.ConsoleWindow.instance.outputField.verticalScrollbar.value = 1f;
             }
         }
-		
-		private static bool BetterAutoCompletion(On.RoR2.Console.AutoComplete.orig_SetSearchString orig, Console.AutoComplete self, string newSearchString)
+
+        private static bool BetterAutoCompletion(On.RoR2.Console.AutoComplete.orig_SetSearchString orig, Console.AutoComplete self, string newSearchString)
         {
             var searchString = self.GetFieldValue<string>("searchString");
             var searchableStrings = self.GetFieldValue<List<string>>("searchableStrings");
@@ -245,8 +246,8 @@ namespace DebugToolkit
         {
             var cursor = new ILCursor(il);
 
-            var getKey = il.Import(typeof(Input).GetMethodCached("GetKey", new []{ typeof(KeyCode) }));
-            
+            var getKey = il.Import(typeof(Input).GetMethodCached("GetKey", new[] { typeof(KeyCode) }));
+
             cursor.GotoNext(
                 MoveType.After,
                 x => x.MatchLdcI4(0x111),
@@ -301,7 +302,7 @@ namespace DebugToolkit
             self.OverrideCurrentMonsterCard(selected);
             self.SetFieldValue<CombatDirector.EliteTierDef>("currentActiveEliteTier", Spawners.GetTierDef(CurrentRun.nextBossElite));
             self.SetFieldValue<EliteIndex>("currentActiveEliteIndex", CurrentRun.nextBossElite);
-            Log.Message($"{selected.spawnCard.name} cost has been set to {selected.cost} for {CurrentRun.nextBossCount} {CurrentRun.nextBossElite} bosses with available credit: {self.monsterCredit}",Log.LogLevel.Info);
+            Log.Message($"{selected.spawnCard.name} cost has been set to {selected.cost} for {CurrentRun.nextBossCount} {CurrentRun.nextBossElite} bosses with available credit: {self.monsterCredit}", Log.LogLevel.Info);
             CurrentRun.nextBossCount = 1;
             CurrentRun.nextBossElite = EliteIndex.None;
             On.RoR2.CombatDirector.SetNextSpawnAsBoss -= CombatDirector_SetNextSpawnAsBoss;

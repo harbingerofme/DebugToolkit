@@ -1,9 +1,8 @@
+using R2API.Utils;
+using RoR2;
 using System;
 using System.Linq;
 using System.Text;
-using DebugToolkit.Code;
-using R2API.Utils;
-using RoR2;
 using UnityEngine;
 using UnityEngine.Networking;
 using static DebugToolkit.Log;
@@ -161,7 +160,7 @@ namespace DebugToolkit.Commands
             if (lockExp)
             {
                 On.RoR2.ExperienceManager.AwardExperience += Hooks.DenyExperience;
-            } 
+            }
             else
             {
                 On.RoR2.ExperienceManager.AwardExperience -= Hooks.DenyExperience;
@@ -215,7 +214,7 @@ namespace DebugToolkit.Commands
             if (TextSerialization.TryParseInvariant(args[0], out float scale))
             {
                 Time.timeScale = scale;
-                
+
                 TimescaleNet.Invoke(scale);
             }
             else
@@ -388,7 +387,7 @@ namespace DebugToolkit.Commands
     public class TimescaleNet : NetworkBehaviour
     {
         private static TimescaleNet _instance;
-        
+
         private void Awake()
         {
             _instance = this;
@@ -398,7 +397,7 @@ namespace DebugToolkit.Commands
         {
             _instance.RpcApplyTimescale(scale);
         }
-        
+
         [ClientRpc]
         private void RpcApplyTimescale(float scale)
         {

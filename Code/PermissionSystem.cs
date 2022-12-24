@@ -1,10 +1,9 @@
-﻿using System;
+﻿using BepInEx.Configuration;
+using RoR2;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using BepInEx.Configuration;
-using RoR2;
-using UnityEngine;
 
 namespace DebugToolkit.Permissions
 {
@@ -33,8 +32,8 @@ namespace DebugToolkit.Permissions
         private static ConfigEntry<string> _adminList;
         private static ConfigEntry<string> _subAdminList;
 
-        private static readonly HashSet<ulong> AdminSteamIdList = new HashSet<ulong>(); 
-        private static readonly HashSet<ulong> SubAdminSteamIdList = new HashSet<ulong>(); 
+        private static readonly HashSet<ulong> AdminSteamIdList = new HashSet<ulong>();
+        private static readonly HashSet<ulong> SubAdminSteamIdList = new HashSet<ulong>();
 
         private static ConfigEntry<bool> _roR2CommandsNeedPermission;
 
@@ -116,7 +115,7 @@ namespace DebugToolkit.Permissions
 
         private static void UpdateAdminListCacheOnConfigChange(object _, SettingChangedEventArgs settingChangedEventArgs)
         {
-            var changedSetting= settingChangedEventArgs.ChangedSetting;
+            var changedSetting = settingChangedEventArgs.ChangedSetting;
 
             if (changedSetting.Definition.Section == PERMISSION_SYSTEM_CONFIG_SECTION)
             {
@@ -268,7 +267,7 @@ namespace DebugToolkit.Permissions
 
         private static Level GetPermissionLevel(this NetworkUser networkUser)
         {
-            var userSteamId = (ulong) networkUser.GetNetworkPlayerName().steamId.value;
+            var userSteamId = (ulong)networkUser.GetNetworkPlayerName().steamId.value;
 
             if (AdminSteamIdList.Contains(userSteamId))
                 return Level.Admin;

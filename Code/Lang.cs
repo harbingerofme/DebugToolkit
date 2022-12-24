@@ -45,9 +45,9 @@
             LISTITEM_ARGS = "List all item names and their IDs",
             LISTEQUIP_ARGS = "List all equipment items and their IDs",
             LISTAI_ARGS = "List all Masters and their language invariants",
-            LISTBODY_ARGS  = "List all Bodies and their language invariants",
+            LISTBODY_ARGS = "List all Bodies and their language invariants",
             LISTPLAYER_ARGS = "List all players and their ID",
-            LISTSKIN_ARGS  = "Requires 0 arguments: list_skin ({localised_objectname}|\"all\"|\"body\" (separated by body)|\"self\"|:\"all\"})"
+            LISTSKIN_ARGS = "Requires 0 arguments: list_skin ({localised_objectname}|\"all\"|\"body\" (separated by body)|\"self\"|:\"all\"})"
             ;
 
         public const string
@@ -55,7 +55,7 @@
             CREATEPICKUP_NOTFOUND = "Could not find any item nor equipment with that name. It's not a coin either.",
             CREATEPICKUP_SUCCES_1 = "Succesfully created the pickup {0}.",
             COUNTISNUMERIC = "Count must be numeric!",
-            
+
             GIVELUNAR_2 = "{0} {1} lunar coin(s).",
             GIVEOBJECT = "Gave {0} {1}",
             INTEGER_EXPECTED = "Argument must be a whole number.",
@@ -89,6 +89,6 @@
             DS_NOTAVAILABLE = "This command doesn't make sense to run from a dedicated server.",
             DS_NOTYETIMPLEMENTED = "This command has not yet been implemented to be run from a dedicated server,"
             ;
-        
+
     }
 }

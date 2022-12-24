@@ -1,8 +1,6 @@
-﻿using System;
-using R2API.Utils;
-using RoR2;
+﻿using RoR2;
+using System;
 using UnityEngine;
-using UnityEngine.Networking;
 using static DebugToolkit.Log;
 
 namespace DebugToolkit.Commands

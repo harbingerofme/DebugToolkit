@@ -1,13 +1,12 @@
 using BepInEx;
-using RoR2;
 using BepInEx.Configuration;
-using LogLevel = DebugToolkit.Log.LogLevel;
-using DebugToolkit.Commands;
-using System.Reflection;
-using System.Linq;
 using DebugToolkit.Code;
-using R2API.Utils;
+using DebugToolkit.Commands;
 using DebugToolkit.Permissions;
+using R2API.Utils;
+using RoR2;
+using System.Linq;
+using LogLevel = DebugToolkit.Log.LogLevel;
 
 namespace DebugToolkit
 {
@@ -36,7 +35,7 @@ namespace DebugToolkit
                     .GetManifestResourceStream($"{this.GetType().Namespace}.Resources.CurrentCommit"))
             using (System.IO.StreamReader reader = new System.IO.StreamReader(stream))
             {
-                gitVersion= reader.ReadToEnd();
+                gitVersion = reader.ReadToEnd();
             }
             Log.MessageWarning(
 #if DEBUG       
@@ -46,8 +45,8 @@ namespace DebugToolkit
 #elif BLEEDING  
                 $"This is a Bleeding-Edge build!"
 #endif          
-                ,Log.Target.Bepinex);
-            Log.MessageWarning($"Commit: {gitVersion.Trim()}",Log.Target.Bepinex);
+                , Log.Target.Bepinex);
+            Log.MessageWarning($"Commit: {gitVersion.Trim()}", Log.Target.Bepinex);
 #endif
             #endregion
 

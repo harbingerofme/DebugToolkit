@@ -10,7 +10,7 @@ namespace DebugToolkit.Commands
 {
     class Items
     {
-        [ConCommand(commandName = "list_item", flags = ConVarFlags.None, helpText ="List all items and their availability.")]
+        [ConCommand(commandName = "list_item", flags = ConVarFlags.None, helpText = "List all items and their availability.")]
         private static void CCListItem(ConCommandArgs _)
         {
             var sb = new StringBuilder();
@@ -23,7 +23,7 @@ namespace DebugToolkit.Commands
                 {
                     enabled = Run.instance.IsItemAvailable(itemIndex).ToString();
                 }
-                sb.AppendLine($"[{(int) itemIndex}]: {definition.name} \"{realName}\" (enabled={enabled})");
+                sb.AppendLine($"[{(int)itemIndex}]: {definition.name} \"{realName}\" (enabled={enabled})");
             }
             Log.Message(sb.ToString());
         }
@@ -41,7 +41,7 @@ namespace DebugToolkit.Commands
                 {
                     enabled = Run.instance.IsEquipmentAvailable(equipmentIndex).ToString();
                 }
-                sb.AppendLine($"[{(int) equipmentIndex}]: {definition.name} \"{realName}\"  (enabled={enabled})");
+                sb.AppendLine($"[{(int)equipmentIndex}]: {definition.name} \"{realName}\"  (enabled={enabled})");
             }
             Log.Message(sb.ToString());
         }

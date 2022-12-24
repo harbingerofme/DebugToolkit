@@ -1,7 +1,7 @@
-using RoR2;
-using UnityEngine;
 using KinematicCharacterController;
 using MonoMod.RuntimeDetour;
+using RoR2;
+using UnityEngine;
 using UnityEngine.Networking;
 
 // ReSharper disable UnusedMember.Local
@@ -27,7 +27,7 @@ namespace DebugToolkit.Commands
 
         internal static void InitRPC()
         {
-            
+
             NetworkManager.DebugToolKitComponents.AddComponent<NoclipNet>();
         }
 
@@ -107,7 +107,7 @@ namespace DebugToolkit.Commands
                 _currentBody.characterMotor.velocity = forwardDirection * 100f;
                 if (isStrafing)
                 {
-                    _currentBody.characterMotor.velocity.y = aimDirection.y *  (isForward ? 100f :  -100f);
+                    _currentBody.characterMotor.velocity.y = aimDirection.y * (isForward ? 100f : -100f);
                 }
 
             }

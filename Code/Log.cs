@@ -1,8 +1,7 @@
 ﻿using BepInEx.Logging;
-using RoR2.ConVar;
 using RoR2;
+using RoR2.ConVar;
 using System.Reflection;
-using DebugToolkit.Code;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -57,16 +56,16 @@ namespace DebugToolkit
                     break;
                 default:
                     int targetNr = (int)target;
-                    if (NetworkUser.readOnlyInstancesList.Count-1>= targetNr && targetNr>=0)
+                    if (NetworkUser.readOnlyInstancesList.Count - 1 >= targetNr && targetNr >= 0)
                     {
-                        if(input.GetType() != typeof(string))
+                        if (input.GetType() != typeof(string))
                         {
                             Message($"Couldn't send network message because the message was not a string: {input}.", LogLevel.Error, Target.Bepinex);
                             return;
                         }
                         NetworkUser user = NetworkUser.readOnlyInstancesList[targetNr];
-                        MessageInfo($"Send a network message to {targetNr}, length={((string) input).Length}");
-                        Message((string) input, user, level);
+                        MessageInfo($"Send a network message to {targetNr}, length={((string)input).Length}");
+                        Message((string)input, user, level);
                     }
                     else
                     {
@@ -87,13 +86,13 @@ namespace DebugToolkit
             {
                 Message(input, args.sender, level);
             }
-            if ((int) level < NetworkEnum || args.sender == null || args.sender.isLocalPlayer)
+            if ((int)level < NetworkEnum || args.sender == null || args.sender.isLocalPlayer)
             {
                 Message(input, level);
             }
 
         }
-            
+
 
         /** <summary></summary>
          *  <param name="input">The string to send</param>
@@ -106,7 +105,7 @@ namespace DebugToolkit
             {
                 return;
             }
-            
+
             LogNet.Invoke(networkUser, input, (int)level);
         }
 
@@ -156,7 +155,7 @@ namespace DebugToolkit
 
         private static void BepinexLog(object input, LogLevel level)
         {
-            if(logger == null)
+            if (logger == null)
             {
                 throw new System.NullReferenceException("Log Class in " + Assembly.GetExecutingAssembly().GetName().Name + " not initialized prior to message call!");
             }
@@ -181,21 +180,21 @@ namespace DebugToolkit
                 case LogLevel.ErrorClientOnly:
                     logger.LogError(input);
                     break;
-                
+
 
             }
         }
 
         public enum LogLevel
         {
-            Info    = 0,
+            Info = 0,
             Message = 1,
             Warning = 2,
-            Error   = 3,
-            InfoClientOnly = NetworkEnum+Info,
-            MessageClientOnly = NetworkEnum+Message,
-            WarningClientOnly = NetworkEnum+Warning,
-            ErrorClientOnly = NetworkEnum+Error
+            Error = 3,
+            InfoClientOnly = NetworkEnum + Info,
+            MessageClientOnly = NetworkEnum + Message,
+            WarningClientOnly = NetworkEnum + Warning,
+            ErrorClientOnly = NetworkEnum + Error
         }
 
         public enum Target
@@ -222,7 +221,7 @@ namespace DebugToolkit
         {
             _instance.TargetLog(networkUser.connectionToClient, msg, level);
         }
-        
+
         [TargetRpc]
         private void TargetLog(NetworkConnection _, string msg, int level)
         {

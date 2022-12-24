@@ -1,7 +1,4 @@
 ﻿using RoR2;
-using static DebugToolkit.Log;
-using DebugToolkit;
-using System;
 
 namespace DebugToolkit.Commands
 {
@@ -13,7 +10,7 @@ namespace DebugToolkit.Commands
             NetworkUser a = args.sender;
             Invoke(a, "fixed_time", "1325");
             Invoke(a, "run_set_stages_cleared", "5");
-            Invoke(a, "team_set_level", "1" ,"15");
+            Invoke(a, "team_set_level", "1", "15");
             foreach (NetworkUser user in NetworkUser.readOnlyInstancesList)
             {
                 Invoke(a, "remove_item", Lang.ALL, user.userName);
@@ -29,11 +26,11 @@ namespace DebugToolkit.Commands
             NetworkUser a = args.sender;
             Invoke(a, "fixed_time", "3420");
             Invoke(a, "run_set_stages_cleared", "8");
-            Invoke(a, "team_set_level", "1", "24" );
+            Invoke(a, "team_set_level", "1", "24");
             foreach (NetworkUser user in NetworkUser.readOnlyInstancesList)
             {
                 Invoke(a, "remove_item", Lang.ALL, user.userName);
-                Invoke(a, "random_items", "75" , user.userName);
+                Invoke(a, "random_items", "75", user.userName);
                 Invoke(a, "give_equip", "random", user.userName);
             }
             Invoke(a, "set_scene", "bazaar");

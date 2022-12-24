@@ -28,7 +28,7 @@ namespace DebugToolkit.Commands
                 }
             }
 
-                if (args.sender != null && args.Count < 2 || args[1].ToLower() != "all")
+            if (args.sender != null && args.Count < 2 || args[1].ToLower() != "all")
             {
                 CharacterMaster master = args.sender?.master;
                 if (args.Count >= 2)
@@ -73,7 +73,7 @@ namespace DebugToolkit.Commands
         [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
         private static void ShareSuiteGive(uint amount)
         {
-            ShareSuite.MoneySharingHooks.AddMoneyExternal((int) amount);
+            ShareSuite.MoneySharingHooks.AddMoneyExternal((int)amount);
         }
 
         [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
