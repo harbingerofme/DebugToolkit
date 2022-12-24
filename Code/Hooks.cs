@@ -16,7 +16,6 @@ using Console = RoR2.Console;
 
 namespace DebugToolkit
 {
-    [R2APISubmoduleDependency(nameof(CommandHelper))]
     public sealed class Hooks
     {
         private const ConVarFlags AllFlagsNoCheat = ConVarFlags.None | ConVarFlags.Archive | ConVarFlags.Engine | ConVarFlags.ExecuteOnServer | ConVarFlags.SenderMustBeServer;
@@ -26,7 +25,6 @@ namespace DebugToolkit
         {
             IL.RoR2.Console.Awake += UnlockConsole;
             On.RoR2.Console.InitConVars += InitCommandsAndFreeConvars;
-            CommandHelper.AddToConsoleWhenReady();
 
             var runCmdHook = new Hook(typeof(Console).GetMethodCached("RunCmd"),
                 typeof(Hooks).GetMethodCached(nameof(LogNetworkCommandsAndCheckPermissions)), new HookConfig { Priority = 1 });
