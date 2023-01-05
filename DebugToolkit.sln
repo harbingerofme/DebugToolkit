@@ -10,6 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Items", "Items", "{841CDF50
 		.gitignore = .gitignore
 		.gitmodules = .gitmodules
 		BUILDING.MD = BUILDING.MD
+		CHANGELOG.md = CHANGELOG.md
 		FodyWeavers.xml = FodyWeavers.xml
 		LICENSE = LICENSE
 		README.md = README.md
