@@ -1,9 +1,12 @@
 {
     "name": "DebugToolkit",
-    "version_number": "3.7.1",
+    "version_number": "3.7.2",
     "website_url": "https://github.com/harbingerofme/DebugToolkit",
     "description": "Adds console command for debugging mods.",
     "dependencies": [
-      "tristanmcpherson-R2API-4.0.11"
+      "RiskofThunder-R2API_ContentManagement-1.0.1",
+      "RiskofThunder-R2API_Networking-1.0.2",
+      "RiskofThunder-R2API_Prefab-1.0.1",
+      "RiskofThunder-R2API_Core-5.0.4",
     ]
 }
