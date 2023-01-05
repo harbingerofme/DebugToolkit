@@ -80,6 +80,7 @@ namespace DebugToolkit
         List<InteractableSpawnCard> vanillaIscs = new List<InteractableSpawnCard>();
         public void PopulateIscInfo()
         {
+            /*
             string assetpath = System.IO.Path.Combine(BepInEx.Paths.GameRootPath, "Risk of Rain 2_Data/StreamingAssets/aa/catalog.json");
             cachedFiles = File.ReadAllLines(assetpath);
             for (int i = 0; i > cachedFiles.Length; i++)
@@ -91,6 +92,7 @@ namespace DebugToolkit
                 }
             }
             Log.MessageInfo($"Interactables Loaded!");
+            */
         }
 
 
