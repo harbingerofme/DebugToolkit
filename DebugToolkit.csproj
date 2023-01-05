@@ -13,9 +13,9 @@
     <ApplicationIcon>Resources\icon.ico</ApplicationIcon>
     <SignAssembly>false</SignAssembly>
     <PackageIcon>icon.png</PackageIcon>
-    <Copyright>2022 Harbingerofme; Paddywan; iDeathHD; Heyimnoop</Copyright>
-    <AssemblyVersion>3.7.1.0</AssemblyVersion>
-    <FileVersion>3.7.1.0</FileVersion>
+    <Copyright>2023 Harbingerofme; Paddywan; iDeathHD</Copyright>
+    <AssemblyVersion>3.7.2.0</AssemblyVersion>
+    <FileVersion>3.7.2.0</FileVersion>
 	<RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
   </PropertyGroup>
 
@@ -109,9 +109,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="MMHOOK_RoR2">
-      <HintPath>libs\MMHOOK_RoR2.dll</HintPath>
-    </Reference>
     <Reference Include="ShareSuite">
       <HintPath>libs\ShareSuite.dll</HintPath>
     </Reference>
