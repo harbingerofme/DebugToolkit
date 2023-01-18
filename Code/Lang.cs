@@ -47,7 +47,8 @@
             LISTAI_ARGS = "List all Masters and their language invariants",
             LISTBODY_ARGS = "List all Bodies and their language invariants",
             LISTPLAYER_ARGS = "List all players and their ID",
-            LISTSKIN_ARGS = "Requires 0 arguments: list_skin ({localised_objectname}|\"all\"|\"body\" (separated by body)|\"self\"|:\"all\"})"
+            LISTSKIN_ARGS = "Requires 0 arguments: list_skin ({localised_objectname}|\"all\"|\"body\" (separated by body)|\"self\"|:\"all\"})",
+            LISTINTERACTABLE_ARGS = "Requires 0 argument: list_interactables {localised_object_name}"
             ;
 
         public const string

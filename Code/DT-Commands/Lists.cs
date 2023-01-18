@@ -1,6 +1,8 @@
 ﻿using RoR2;
+using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Xml.Linq;
 using UnityEngine;
 using static DebugToolkit.Log;
 
@@ -8,13 +10,35 @@ namespace DebugToolkit.Commands
 {
     class Lists
     {
-        [ConCommand(commandName = "list_interactables", flags = ConVarFlags.None, helpText = "Lists all interactables.")]
-        private static void CCList_interactables(ConCommandArgs _)
+        [ConCommand(commandName = "list_interactables", flags = ConVarFlags.None, helpText = "Lists all interactables. "+Lang.LISTINTERACTABLE_ARGS)]
+        private static void CCList_interactables(ConCommandArgs args)
         {
+            //edits based on StringFinder.GetInteractableSpawnCard()
             StringBuilder s = new StringBuilder();
-            foreach (InteractableSpawnCard isc in StringFinder.Instance.InteractableSpawnCards)
+            int resultCount = 0;
+            if (args.Count > 0)
             {
-                s.AppendLine(isc.name.Replace("isc", string.Empty));
+                string name = args.GetArgString(0);
+                // s.AppendLine($"Checking for: ");
+                foreach (InteractableSpawnCard isc in StringFinder.Instance.InteractableSpawnCards)
+                {
+                    var iscName = isc.name.ToUpper().Replace("ISC", string.Empty);
+                    if (iscName.Equals(name.ToUpper().Replace("ISC", string.Empty)) || iscName.Contains(name.ToUpper()))
+                    {
+                        resultCount++;
+                        s.AppendLine(isc.name.Replace("isc", string.Empty));
+                    }
+                }
+                if (resultCount == 0)
+                {
+                    s.AppendLine($"No interactables found that match \"{name}\".");
+                }
+            } else
+            {
+                foreach (InteractableSpawnCard isc in StringFinder.Instance.InteractableSpawnCards)
+                {
+                    s.AppendLine(isc.name.Replace("isc", string.Empty));
+                }
             }
             Log.Message(s.ToString(), LogLevel.MessageClientOnly);
         }
