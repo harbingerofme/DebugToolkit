@@ -42,8 +42,8 @@
             ;
 
         public const string
-            LISTITEM_ARGS = "List all item names and their IDs. Requires 0 argument: list_ai {query}",
-            LISTEQUIP_ARGS = "List all equipment items and their IDs. Requires 0 argument: list_ai {query}",
+            LISTITEM_ARGS = "List all item names and their IDs. Requires 0 argument: list_item {query}",
+            LISTEQUIP_ARGS = "List all equipment items and their IDs. Requires 0 argument: list_equip {query}",
             LISTAI_ARGS = "List all Masters and their language invariants. Requires 0 argument: list_ai {query}",
             LISTBODY_ARGS = "List all Bodies and their language invariants. Requires 0 argument: list_body {query}",
             LISTPLAYER_ARGS = "List all players and their ID",
