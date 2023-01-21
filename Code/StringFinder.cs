@@ -184,14 +184,14 @@ namespace DebugToolkit
                     if (alias.ToUpper().Equals(name.ToUpper()))
                     {
                         name = dictEnt.Key;
+                        if (Enum.TryParse(name, true, out EquipmentIndex foundEquip) && EquipmentCatalog.IsIndexValid(foundEquip))
+                        {
+                            set.Add(foundEquip);
+                        }
                     }
                 }
             }
 
-            if (Enum.TryParse(name, true, out EquipmentIndex foundEquip) && EquipmentCatalog.IsIndexValid(foundEquip))
-            {
-                set.Add(foundEquip);
-            }
 
             foreach (var equip in typeof(EquipmentCatalog).GetFieldValue<EquipmentDef[]>("equipmentDefs"))
             {
@@ -201,7 +201,7 @@ namespace DebugToolkit
                     set.Add(equip.equipmentIndex);
                 }
             }
-            if (set.Count == 0) set.Add(EquipmentIndex.None);
+            //if (set.Count == 0) set.Add(EquipmentIndex.None);
             return set.ToArray();
         }
 
@@ -256,13 +256,12 @@ namespace DebugToolkit
                     if (alias.ToUpper().Equals(name.ToUpper()))
                     {
                         name = dictEnt.Key;
-
+                        if (Enum.TryParse(name, true, out ItemIndex foundItem) && ItemCatalog.IsIndexValid(foundItem))
+                        {
+                            set.Add(foundItem);
+                        }
                     }
                 }
-            }
-            if (Enum.TryParse(name, true, out ItemIndex foundItem) && ItemCatalog.IsIndexValid(foundItem))
-            {
-                set.Add(foundItem);
             }
 
             foreach (var item in typeof(ItemCatalog).GetFieldValue<ItemDef[]>("itemDefs"))
@@ -273,7 +272,7 @@ namespace DebugToolkit
                     set.Add(item.itemIndex);
                 }
             }
-            if (set.Count == 0) set.Add(ItemIndex.None);
+            //if (set.Count == 0) set.Add(ItemIndex.None);
             return set.ToArray();
         }
 
@@ -355,6 +354,25 @@ namespace DebugToolkit
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Returns an array of InteractableSpawnCards given a partial spawncard name
+        /// </summary>
+        /// <param name="name">Matches a specific spawncard prior to matching a partial.</param>
+        /// <returns>Returns a InteractableSpawncard or throws exception.</returns>
+        public InteractableSpawnCard[] GetInteractableSpawnCards(string name)
+        {
+            HashSet<InteractableSpawnCard> set = new HashSet<InteractableSpawnCard>();
+            foreach (InteractableSpawnCard isc in interactableSpawnCards)
+            {
+                if (isc.name.ToUpper().Replace("ISC", String.Empty).Equals(name.ToUpper().Replace("ISC", string.Empty)) || isc.name.ToUpper().Replace("isc", String.Empty).Contains(name.ToUpper()))
+                {
+                    set.Add(isc);
+                }
+            }
+
+            return set.ToArray();
         }
 
         /// <summary>

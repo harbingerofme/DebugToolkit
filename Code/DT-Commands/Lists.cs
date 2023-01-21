@@ -1,6 +1,7 @@
 ﻿using RoR2;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Xml.Linq;
 using UnityEngine;
@@ -15,30 +16,21 @@ namespace DebugToolkit.Commands
         {
             //edits based on StringFinder.GetInteractableSpawnCard()
             StringBuilder s = new StringBuilder();
-            int resultCount = 0;
+            IEnumerable<InteractableSpawnCard> list;
             if (args.Count > 0)
             {
-                string name = args.GetArgString(0);
-                // s.AppendLine($"Checking for: ");
-                foreach (InteractableSpawnCard isc in StringFinder.Instance.InteractableSpawnCards)
-                {
-                    var iscName = isc.name.ToUpper().Replace("ISC", string.Empty);
-                    if (iscName.Equals(name.ToUpper().Replace("ISC", string.Empty)) || iscName.Contains(name.ToUpper()))
-                    {
-                        resultCount++;
-                        s.AppendLine(isc.name.Replace("isc", string.Empty));
-                    }
-                }
-                if (resultCount == 0)
-                {
-                    s.AppendLine($"No interactables found that match \"{name}\".");
-                }
+                list = StringFinder.Instance.GetInteractableSpawnCards(args.GetArgString(0));
+
+                if (list.Count() == 0)
+                    s.AppendLine($"No interactables found that match \"{args.GetArgString(0)}\".");
             } else
             {
-                foreach (InteractableSpawnCard isc in StringFinder.Instance.InteractableSpawnCards)
-                {
-                    s.AppendLine(isc.name.Replace("isc", string.Empty));
-                }
+                list = StringFinder.Instance.InteractableSpawnCards;
+            }
+
+            foreach (InteractableSpawnCard isc in list)
+            {
+                s.AppendLine(isc.name.Replace("isc", string.Empty));
             }
             Log.Message(s.ToString(), LogLevel.MessageClientOnly);
         }

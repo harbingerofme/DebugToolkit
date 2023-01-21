@@ -19,7 +19,7 @@ namespace DebugToolkit.Commands
             if (args.Count > 0)
             {
                 itemList = (IEnumerable<ItemIndex>)StringFinder.Instance.GetItemsFromPartial(args.GetArgString(0));
-                if (itemList.Count() == 0 || itemList.First() == ItemIndex.None) sb.AppendLine($"No item that matches \"{args.GetArgString(0)}\".");
+                if (itemList.Count() == 0) sb.AppendLine($"No item that matches \"{args.GetArgString(0)}\".");
             } else
             {
                 itemList = (IEnumerable<ItemIndex>)ItemCatalog.allItems;
@@ -46,7 +46,7 @@ namespace DebugToolkit.Commands
             if (args.Count > 0)
             {
                 list = StringFinder.Instance.GetEquipsFromPartial(args.GetArgString(0));
-                    if (list.Count() == 0 || list.First() == EquipmentIndex.None) sb.AppendLine($"No equipment that matches \"{args.GetArgString(0)}\".");
+                    if (list.Count() == 0) sb.AppendLine($"No equipment that matches \"{args.GetArgString(0)}\".");
             }
             else
             {
