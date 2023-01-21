@@ -11,7 +11,7 @@ namespace DebugToolkit.Commands
 {
     class Items
     {
-        [ConCommand(commandName = "list_item", flags = ConVarFlags.None, helpText = "List all items and their availability.")]
+        [ConCommand(commandName = "list_item", flags = ConVarFlags.None, helpText = "List all items and their availability. "+ Lang.LISTITEM_ARGS)]
         private static void CCListItem(ConCommandArgs args)
         {
             var sb = new StringBuilder();
@@ -38,7 +38,7 @@ namespace DebugToolkit.Commands
             Log.Message(sb.ToString());
         }
 
-        [ConCommand(commandName = "list_equip", flags = ConVarFlags.None, helpText = "List all items and their availability.")]
+        [ConCommand(commandName = "list_equip", flags = ConVarFlags.None, helpText = "List all equipment and their availability. " + Lang.LISTEQUIP_ARGS)]
         private static void CCListEquip(ConCommandArgs args)
         {
             var sb = new StringBuilder();
