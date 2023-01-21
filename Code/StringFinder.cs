@@ -169,6 +169,43 @@ namespace DebugToolkit
         }
 
         /// <summary>
+        /// Returns an array of EquipmentIndex's when provided with a partial/invariant.
+        /// </summary>
+        /// <param name="name">Matches in order: (int)Index, Exact Alias, Exact Index, Partial Index, Partial Invariant</param>
+        /// <returns>Returns the EquiptmentIndex if a match is found, or returns EquiptmentIndex.None</returns>
+        public EquipmentIndex[] GetEquipsFromPartial(string name)
+        {
+            var set = new HashSet<EquipmentIndex>();
+            string langInvar;
+            foreach (KeyValuePair<string, string[]> dictEnt in EquipAlias)
+            {
+                foreach (string alias in dictEnt.Value)
+                {
+                    if (alias.ToUpper().Equals(name.ToUpper()))
+                    {
+                        name = dictEnt.Key;
+                    }
+                }
+            }
+
+            if (Enum.TryParse(name, true, out EquipmentIndex foundEquip) && EquipmentCatalog.IsIndexValid(foundEquip))
+            {
+                set.Add(foundEquip);
+            }
+
+            foreach (var equip in typeof(EquipmentCatalog).GetFieldValue<EquipmentDef[]>("equipmentDefs"))
+            {
+                langInvar = GetLangInvar(equip.nameToken.ToUpper());
+                if (equip.name.ToUpper().Contains(name.ToUpper()) || langInvar.ToUpper().Contains(name.ToUpper()) || langInvar.ToUpper().Contains(RemoveSpacesAndAlike(name.ToUpper())))
+                {
+                    set.Add(equip.equipmentIndex);
+                }
+            }
+            if (set.Count == 0) set.Add(EquipmentIndex.None);
+            return set.ToArray();
+        }
+
+        /// <summary>
         /// Returns an ItemIndex when provided with a partial/invariant.
         /// </summary>
         /// <param name="name">Matches in order: (int)Index, Exact Alias, Exact Index, Partial Index, Partial Invariant</param>
@@ -201,6 +238,43 @@ namespace DebugToolkit
                 }
             }
             return ItemIndex.None;
+        }
+
+        /// <summary>
+        /// Returns an array of ItemIndex's when provided with a partial/invariant.
+        /// </summary>
+        /// <param name="name">Matches in order: (int)Index, Exact Alias, Exact Index, Partial Index, Partial Invariant</param>
+        /// <returns>Returns the ItemIndex if a match is found, or returns ItemIndex.None</returns>
+        public ItemIndex[] GetItemsFromPartial(string name)
+        {
+            var set = new HashSet<ItemIndex>();
+            string langInvar;
+            foreach (KeyValuePair<string, string[]> dictEnt in ItemAlias)
+            {
+                foreach (string alias in dictEnt.Value)
+                {
+                    if (alias.ToUpper().Equals(name.ToUpper()))
+                    {
+                        name = dictEnt.Key;
+
+                    }
+                }
+            }
+            if (Enum.TryParse(name, true, out ItemIndex foundItem) && ItemCatalog.IsIndexValid(foundItem))
+            {
+                set.Add(foundItem);
+            }
+
+            foreach (var item in typeof(ItemCatalog).GetFieldValue<ItemDef[]>("itemDefs"))
+            {
+                langInvar = GetLangInvar(item.nameToken.ToUpper());
+                if (item.name.ToUpper().Contains(name.ToUpper()) || langInvar.ToUpper().Contains(name.ToUpper()) || langInvar.ToUpper().Contains(RemoveSpacesAndAlike(name.ToUpper())))
+                {
+                    set.Add(item.itemIndex);
+                }
+            }
+            if (set.Count == 0) set.Add(ItemIndex.None);
+            return set.ToArray();
         }
 
         /// <summary>

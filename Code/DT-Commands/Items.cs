@@ -2,6 +2,7 @@
 using RoR2;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using UnityEngine;
 using static DebugToolkit.Log;
@@ -11,10 +12,19 @@ namespace DebugToolkit.Commands
     class Items
     {
         [ConCommand(commandName = "list_item", flags = ConVarFlags.None, helpText = "List all items and their availability.")]
-        private static void CCListItem(ConCommandArgs _)
+        private static void CCListItem(ConCommandArgs args)
         {
             var sb = new StringBuilder();
-            foreach (var itemIndex in (IEnumerable<ItemIndex>)ItemCatalog.allItems)
+            IEnumerable<ItemIndex> itemList;
+            if (args.Count > 0)
+            {
+                itemList = (IEnumerable<ItemIndex>)StringFinder.Instance.GetItemsFromPartial(args.GetArgString(0));
+                if (itemList.Count() == 0 || itemList.First() == ItemIndex.None) sb.AppendLine($"No item that matches \"{args.GetArgString(0)}\".");
+            } else
+            {
+                itemList = (IEnumerable<ItemIndex>)ItemCatalog.allItems;
+            }
+            foreach (var itemIndex in itemList)
             {
                 var definition = ItemCatalog.GetItemDef(itemIndex);
                 string enabled = false.ToString();
@@ -29,10 +39,21 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "list_equip", flags = ConVarFlags.None, helpText = "List all items and their availability.")]
-        private static void CCListEquip(ConCommandArgs _)
+        private static void CCListEquip(ConCommandArgs args)
         {
             var sb = new StringBuilder();
-            foreach (var equipmentIndex in (IEnumerable<EquipmentIndex>)EquipmentCatalog.allEquipment)
+            IEnumerable<EquipmentIndex> list;
+            if (args.Count > 0)
+            {
+                list = StringFinder.Instance.GetEquipsFromPartial(args.GetArgString(0));
+                    if (list.Count() == 0 || list.First() == EquipmentIndex.None) sb.AppendLine($"No equipment that matches \"{args.GetArgString(0)}\".");
+            }
+            else
+            {
+                list = EquipmentCatalog.allEquipment;
+            }
+
+            foreach (var equipmentIndex in list)
             {
                 var definition = EquipmentCatalog.GetEquipmentDef(equipmentIndex);
                 string enabled = false.ToString();
