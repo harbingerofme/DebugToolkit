@@ -347,7 +347,7 @@ namespace DebugToolkit
         {
             foreach (InteractableSpawnCard isc in interactableSpawnCards)
             {
-                if (isc.name.ToUpper().Replace("ISC", String.Empty).Equals(name.ToUpper().Replace("ISC", string.Empty)) || isc.name.ToUpper().Replace("isc", String.Empty).Contains(name.ToUpper()))
+                if (isc.name.ToUpper().Replace("ISC", String.Empty).Equals(name.ToUpper().Replace("ISC", string.Empty)) || isc.name.ToUpper().Replace("ISC", String.Empty).Contains(name.ToUpper()))
                 {
                     return isc;
                 }
@@ -366,7 +366,7 @@ namespace DebugToolkit
             HashSet<InteractableSpawnCard> set = new HashSet<InteractableSpawnCard>();
             foreach (InteractableSpawnCard isc in interactableSpawnCards)
             {
-                if (isc.name.ToUpper().Replace("ISC", String.Empty).Equals(name.ToUpper().Replace("ISC", string.Empty)) || isc.name.ToUpper().Replace("isc", String.Empty).Contains(name.ToUpper()))
+                if (isc.name.ToUpper().Replace("ISC", String.Empty).Equals(name.ToUpper().Replace("ISC", string.Empty)) || isc.name.ToUpper().Replace("ISC", String.Empty).Contains(name.ToUpper()))
                 {
                     set.Add(isc);
                 }
