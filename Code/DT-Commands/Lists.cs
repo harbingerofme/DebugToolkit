@@ -1,6 +1,9 @@
 ﻿using RoR2;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Xml.Linq;
 using UnityEngine;
 using static DebugToolkit.Log;
 
@@ -8,11 +11,24 @@ namespace DebugToolkit.Commands
 {
     class Lists
     {
-        [ConCommand(commandName = "list_interactables", flags = ConVarFlags.None, helpText = "Lists all interactables.")]
-        private static void CCList_interactables(ConCommandArgs _)
+        [ConCommand(commandName = "list_interactables", flags = ConVarFlags.None, helpText = Lang.LISTINTERACTABLE_ARGS)]
+        private static void CCList_interactables(ConCommandArgs args)
         {
+            //edits based on StringFinder.GetInteractableSpawnCard()
             StringBuilder s = new StringBuilder();
-            foreach (InteractableSpawnCard isc in StringFinder.Instance.InteractableSpawnCards)
+            IEnumerable<InteractableSpawnCard> list;
+            if (args.Count > 0)
+            {
+                list = StringFinder.Instance.GetInteractableSpawnCards(args.GetArgString(0));
+
+                if (list.Count() == 0)
+                    s.AppendLine($"No interactables found that match \"{args.GetArgString(0)}\".");
+            } else
+            {
+                list = StringFinder.Instance.InteractableSpawnCards;
+            }
+
+            foreach (InteractableSpawnCard isc in list)
             {
                 s.AppendLine(isc.name.Replace("isc", string.Empty));
             }
@@ -34,31 +50,78 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "list_AI", flags = ConVarFlags.None, helpText = Lang.LISTAI_ARGS)]
-        private static void CCListAI(ConCommandArgs _)
+        private static void CCListAI(ConCommandArgs args)
         {
             string langInvar;
             int i = 0;
             StringBuilder sb = new StringBuilder();
-            foreach (var master in MasterCatalog.allAiMasters)
+            int resultCount = 0;
+            if (args.Count > 0)
             {
-                langInvar = StringFinder.GetLangInvar(master.bodyPrefab.GetComponent<CharacterBody>().baseNameToken);
-                sb.AppendLine($"[{i}]{master.name}={langInvar}");
-                i++;
+                string name = args.GetArgString(0);
+                foreach (var master in MasterCatalog.allAiMasters)
+                {
+                    var masterName = master.name.ToUpper();
+                    if (int.TryParse(name, out int iName) && i == iName || masterName.Equals(name.ToUpper().Replace("MASTER", string.Empty)) || masterName.Contains(name.ToUpper()))
+                    {
+                        resultCount++;
+                        langInvar = StringFinder.GetLangInvar(master.bodyPrefab.GetComponent<CharacterBody>().baseNameToken);
+                        sb.AppendLine($"[{i}]{master.name}={langInvar}");
+                    }
+                    i++;
+                }
+                if (resultCount == 0)
+                {
+                    sb.AppendLine($"No masters found that match \"{name}\".");
+                }
+            } else
+            {
+                foreach (var master in MasterCatalog.allAiMasters)
+                {
+                    langInvar = StringFinder.GetLangInvar(master.bodyPrefab.GetComponent<CharacterBody>().baseNameToken);
+                    sb.AppendLine($"[{i}]{master.name}={langInvar}");
+                    i++;
+                }
             }
             Log.Message(sb);
+
         }
 
         [ConCommand(commandName = "list_Body", flags = ConVarFlags.None, helpText = Lang.LISTBODY_ARGS)]
-        private static void CCListBody(ConCommandArgs _)
+        private static void CCListBody(ConCommandArgs args)
         {
-            string langInvar;
-            int i = 0;
             StringBuilder sb = new StringBuilder();
-            foreach (var body in BodyCatalog.allBodyPrefabBodyBodyComponents)
+            string langInvar;
+            int resultCount = 0;
+            int i = 0;
+
+            if (args.Count > 0)
             {
-                langInvar = StringFinder.GetLangInvar(body.baseNameToken);
-                sb.AppendLine($"[{i}]{body.name}={langInvar}");
-                i++;
+                string name = args.GetArgString(0);
+                foreach (var body in BodyCatalog.allBodyPrefabBodyBodyComponents)
+                {
+                    var upperBodyName = body.name.ToUpper();
+                    if (int.TryParse(name, out int iName) && i == iName || upperBodyName.Equals(name.ToUpper().Replace("BODY", string.Empty)) || upperBodyName.Contains(name.ToUpper()) )
+                    {
+                        langInvar = StringFinder.GetLangInvar(body.baseNameToken);
+                        sb.AppendLine($"[{i}]{body.name}={langInvar}");
+                        resultCount++;
+                    }
+                    i++;
+                }
+                if (resultCount == 0)
+                {
+                    sb.AppendLine($"No bodies found that match \"{name}\".");
+                }
+            }
+            else
+            {
+                foreach (var body in BodyCatalog.allBodyPrefabBodyBodyComponents)
+                {
+                    langInvar = StringFinder.GetLangInvar(body.baseNameToken);
+                    sb.AppendLine($"[{i}]{body.name}={langInvar}");
+                    i++;
+                }
             }
             Log.Message(sb);
         }
@@ -74,7 +137,7 @@ namespace DebugToolkit.Commands
             Log.Message(sb);
         }
 
-        [ConCommand(commandName = "list_skin", flags = ConVarFlags.None, helpText = "List all bodies with skins. " + Lang.LISTSKIN_ARGS)]
+        [ConCommand(commandName = "list_skin", flags = ConVarFlags.None, helpText = Lang.LISTSKIN_ARGS)]
         private static void CCListSkin(ConCommandArgs args)
         {
             //string langInvar;

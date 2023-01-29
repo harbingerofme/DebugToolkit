@@ -42,12 +42,13 @@
             ;
 
         public const string
-            LISTITEM_ARGS = "List all item names and their IDs",
-            LISTEQUIP_ARGS = "List all equipment items and their IDs",
-            LISTAI_ARGS = "List all Masters and their language invariants",
-            LISTBODY_ARGS = "List all Bodies and their language invariants",
+            LISTITEM_ARGS = "List all item names and their IDs. Requires 0 argument: list_item {query}",
+            LISTEQUIP_ARGS = "List all equipment items and their IDs. Requires 0 argument: list_equip {query}",
+            LISTAI_ARGS = "List all Masters and their language invariants. Requires 0 argument: list_ai {query}",
+            LISTBODY_ARGS = "List all Bodies and their language invariants. Requires 0 argument: list_body {query}",
             LISTPLAYER_ARGS = "List all players and their ID",
-            LISTSKIN_ARGS = "Requires 0 arguments: list_skin ({localised_objectname}|\"all\"|\"body\" (separated by body)|\"self\"|:\"all\"})"
+            LISTSKIN_ARGS = "List all bodies with skins. Requires 0 arguments: list_skin ({localised_objectname}|\"all\"|\"body\" (separated by body)|\"self\"|:\"all\"})",
+            LISTINTERACTABLE_ARGS = "Lists all interactables. Requires 0 argument: list_interactables {query}"
             ;
 
         public const string
