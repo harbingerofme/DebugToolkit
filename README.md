@@ -48,6 +48,7 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
 * **time_scale** -  Sets the timescale of the game. 0.5 would mean everything happens at half speed. `time_scale [time_scale]`. If no argument is supplied, gives the current timescale.
 * **post_sound_event** - Post a sound event to the AkSoundEngine (WWise) by its event name: `post_sound_event [eventName]`
 
+* All the `list_` commands support filtering, example: https://user-images.githubusercontent.com/72328339/213889205-2dbaab4f-3b88-481e-ba29-2a466a10ed53.png
 * **list_player** - Shows list of players with their ID
 * **list_body** - List all Bodies and their language invariants.
 * **list_ai** - List all Masters and their language invariants
