@@ -16,7 +16,6 @@
     <Copyright>2023 Harbingerofme; Paddywan; iDeathHD</Copyright>
     <AssemblyVersion>3.7.2.0</AssemblyVersion>
     <FileVersion>3.7.2.0</FileVersion>
-	<RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -35,6 +34,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='NO-UNET|AnyCPU'">
 	  <LangVersion>7.1</LangVersion>
     <DefineConstants>BLEEDING;NONETWORK;</DefineConstants>
+    <Optimize>True</Optimize>
   </PropertyGroup>
 
   <ItemGroup>
