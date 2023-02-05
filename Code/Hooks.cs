@@ -21,6 +21,7 @@ namespace DebugToolkit
         private const ConVarFlags AllFlagsNoCheat = ConVarFlags.None | ConVarFlags.Archive | ConVarFlags.Engine | ConVarFlags.ExecuteOnServer | ConVarFlags.SenderMustBeServer;
 
         private static On.RoR2.Console.orig_RunCmd _origRunCmd;
+        private static CharacterBody pingedBody;
         public static void InitializeHooks()
         {
             IL.RoR2.Console.Awake += UnlockConsole;
@@ -36,6 +37,7 @@ namespace DebugToolkit
             IL.RoR2.UI.ConsoleWindow.Update += SmoothDropDownSuggestionNavigation;
             IL.RoR2.Networking.NetworkManagerSystem.CCSetScene += EnableCheatsInCCSetScene;
             On.RoR2.Networking.NetworkManagerSystem.CCSceneList += OverrideVanillaSceneList;
+            On.RoR2.PingerController.RebuildPing += InterceptPing;
 
             // Noclip hooks
             var hookConfig = new HookConfig { ManualApply = true };
@@ -45,6 +47,17 @@ namespace DebugToolkit
             Command_Noclip.OnClientChangeSceneHook = new Hook(typeof(UnityEngine.Networking.NetworkManager).GetMethodCached("ClientChangeScene"),
                 typeof(Command_Noclip).GetMethodCached("DisableOnClientSceneChange"), hookConfig);
             Command_Noclip.origClientChangeScene = Command_Noclip.OnClientChangeSceneHook.GenerateTrampoline<Command_Noclip.d_ClientChangeScene>();
+        }
+
+        private static void InterceptPing(On.RoR2.PingerController.orig_RebuildPing orig, PingerController self, PingerController.PingInfo pingInfo)
+        {
+            orig(self, pingInfo);
+            if (self.pingIndicator & self.pingIndicator.pingTarget)
+            {
+                pingedBody = self.pingIndicator.pingTarget.GetComponent<CharacterBody>();
+                return;
+            }
+            pingedBody = null;
         }
 
         private static void OverrideVanillaSceneList(On.RoR2.Networking.NetworkManagerSystem.orig_CCSceneList orig, ConCommandArgs args)
@@ -326,6 +339,11 @@ namespace DebugToolkit
         internal static void DenyExperience(On.RoR2.ExperienceManager.orig_AwardExperience orig, ExperienceManager self, Vector3 origin, CharacterBody body, ulong amount)
         {
             return;
+        }
+
+        internal static CharacterBody GetPingedBody()
+        {
+            return pingedBody;
         }
     }
 }

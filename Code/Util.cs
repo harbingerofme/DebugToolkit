@@ -1,4 +1,5 @@
-﻿using RoR2;
+﻿using HG.GeneralSerializer;
+using RoR2;
 using System.Collections.Generic;
 
 namespace DebugToolkit
@@ -48,6 +49,28 @@ namespace DebugToolkit
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Try to find the CharacterBody for a matched NetworkUser when provided to a player.
+        /// </summary>
+        /// <param name="args">(string[])args array</param>
+        /// <param name="startLocation">(int)on the string array, at which index the player string starts at</param>
+        /// <param name="body">the body of the matched player</param>
+        /// <param name="playerName">the display name of the player</param>
+        /// <returns>True if the player was found. False otherwise</returns>
+        internal static bool GetBodyFromUser(List<string> args, int startLocation, out CharacterBody body, out string playerName)
+        {
+            var user = GetNetUserFromString(args, startLocation);
+            if (user != null)
+            {
+                body = user.GetCurrentBody();
+                playerName = user.masterController.GetDisplayName();
+                return true;
+            }
+            body = null;
+            playerName = null;
+            return false;
         }
 
         /// <summary>

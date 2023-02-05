@@ -12,8 +12,8 @@
             CREATEPICKUP_ARGS = "Requires 1 argument: create_pickup (\"coin\"|{localised_object_name}) (\"item\"|\"equip\")",
             FAMILYEVENT_ARGS = "Requires 0 arguments: force_family_event",
             FIXEDTIME_ARGS = "Requires 1 argument: fixed_time {NewTime}",
-            GIVEEQUIP_ARGS = "Requires 1 (2 if from server) argument: give_equip {localised_object_name} ({PlayerID:self}|{Playername})",
-            GIVEITEM_ARGS = "Requires 1 (2 if from server) argument: give_item {localised_object_name} {Count:1} ({PlayerID:self}|{Playername})",
+            GIVEEQUIP_ARGS = "Requires 1 (2 if from server) argument: give_equip {localised_object_name} ({PlayerID:self}|{Playername}|\"pinged\")",
+            GIVEITEM_ARGS = "Requires 1 (2 if from server) argument: give_item {localised_object_name} {Count:1} ({PlayerID:self}|{Playername}|\"pinged\")",
             GIVELUNAR_ARGS = "Requires 0 arguments: give_lunar {Count:1}",
             GIVEMONEY_ARGS = "Requires 1 argument: give_money {Count} ({PlayerID:self}|{Playername}|\"all\")",
             GOD_ARGS = "Requires 0 arguments: god",
@@ -29,8 +29,8 @@
             PERM_ENABLE_ARGS = "Requires 0 argument: perm_enable",
             PERM_MOD_ARGS = "Requires 2 argument: perm_mod (PermissionLevel (0, 1, 2 OR None, SubAdmin, Admin) ({PlayerID}|{Playername}) ",
             RANDOM_ITEM_ARGS = "Requires 1 argument: random_items {Count} ({PlayerID:self}|{Playername})",
-            REMOVEITEM_ARGS = "Requires 1 argument: remove_item {localised_object_name} ({Count}|\"all\") ({PlayerID:self}|{Playername})",
-            REMOVEEQUIP_ARGS = "Requires 0 arguments: remove_equip ({PlayerID:self}|{Playername})",
+            REMOVEITEM_ARGS = "Requires 1 argument: remove_item {localised_object_name} ({Count}|\"all\") ({PlayerID:self}|{Playername}|\"pinged\")",
+            REMOVEEQUIP_ARGS = "Requires 0 (1 if from server) arguments: remove_equip ({PlayerID:self}|{Playername}|\"pinged\")",
             RESPAWN_ARGS = "Requires 0 arguments: respawn ({PlayerID:self}|{Playername})",
             SEED_ARGS = "Requires no or 1 argument: seed [new seed]",
             SPAWNAI_ARGS = "Requires 1 argument: spawn_ai {localised_objectname} [Count:1] [EliteIndex: Number(start at 0 or Name) : Fire / Gold / Haunted / Ice / Lightning / Lunar / Poison] [Braindead:0/false(0|1)] [TeamIndex:2/Monster]",
@@ -70,13 +70,16 @@
             PLAYER_DEADRESPAWN = "Player is will spawn as the specified body next round. (Use 'respawn' to skip the wait)",
             PLAYER_SKINCHANGERESPAWN = "Player will spawn with the specified skin next round. (Use 'respawn' to skip the wait)",
             PLAYER_NOTFOUND = "Specified player does not exist",
+            PINGEDBODY_NOTFOUND = "Pinged target not found. Either the last ping was not a character, or it has been destroyed since.",
             PORTAL_NOTFOUND = "The specified portal could not be found. Valid portals: 'blue','gold','celestial','null','void','deepvoid','all'",
             RUNSETSTAGESCLEARED_HELP = "Sets the amount of stages cleared. This does not change the current stage.",
             SPAWN_ATTEMPT_1 = "Attempting to spawn: {0}",
             SPAWN_ATTEMPT_2 = "Attempting to spawn {0}: {1}",
             SPAWN_ERROR = "Could not spawn: ",
             NOTINARUN_ERROR = "This command only works when in a Run !",
-            ALL = "ALL"
+            INVENTORY_ERROR = "The selected target has no inventory.",
+            ALL = "ALL",
+            PINGED = "PINGED"
             ;
 
         public const string

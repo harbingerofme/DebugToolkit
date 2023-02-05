@@ -68,7 +68,7 @@ namespace DebugToolkit.Commands
         }
 
 
-        [ConCommand(commandName = "give_item", flags = ConVarFlags.ExecuteOnServer, helpText = "Gives the specified item to the player in the specified quantity. " + Lang.GIVEITEM_ARGS)]
+        [ConCommand(commandName = "give_item", flags = ConVarFlags.ExecuteOnServer, helpText = "Gives the specified item to a character. " + Lang.GIVEITEM_ARGS)]
         [AutoCompletion(typeof(ItemCatalog), "itemDefs", "nameToken")]
         private static void CCGiveItem(ConCommandArgs args)
         {
@@ -78,8 +78,10 @@ namespace DebugToolkit.Commands
                 return;
             }
 
+            bool isDedicatedServer = false;
             if (args.sender == null)
             {
+                isDedicatedServer = true;
                 if (args.Count < 2)
                 {
                     Log.Message(Lang.DS_REQUIREFULLQUALIFY, LogLevel.Error);
@@ -88,8 +90,8 @@ namespace DebugToolkit.Commands
                 }
             }
 
-            NetworkUser player = args.sender;
-            Inventory inventory = args.sender?.master.inventory;
+            CharacterBody target = args.sender?.GetCurrentBody();
+            string targetName = args.sender?.masterController.GetDisplayName();
 
             int iCount = 1; // it'll get overwritten by the TryParse...
             bool secondArgIsCount = false;
@@ -97,47 +99,84 @@ namespace DebugToolkit.Commands
             {
                 // secondArgIsCount allow to give directly the player name without specifying item count
                 secondArgIsCount = int.TryParse(args[1], out iCount);
+                bool hasTargetArg = !secondArgIsCount || args.Count >= 3;
+                int targetArgIndex = secondArgIsCount ? 2 : 1;
+                bool hasFoundPlayer = false;
 
-                var tmpPlayer = Util.GetNetUserFromString(args.userArgs, secondArgIsCount ? 2 : 1);
-                if (tmpPlayer == null)
+                if (isDedicatedServer)
                 {
-                    if (args.sender == null)
+                    if (hasTargetArg)
                     {
-                        Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
-                        return;
+                        hasFoundPlayer = Util.GetBodyFromUser(args.userArgs, targetArgIndex, out target, out targetName);
                     }
                 }
                 else
                 {
-                    player = tmpPlayer;
+                    // We default to the command caller
+                    hasFoundPlayer = true;
+                    if (hasTargetArg)
+                    {
+                        if (args[targetArgIndex].ToUpper() == Lang.PINGED)
+                        {
+                            var pingedBody = Hooks.GetPingedBody();
+                            if (pingedBody)
+                            {
+                                target = pingedBody;
+                                targetName = target.gameObject.name;
+                            }
+                            else
+                            {
+                                Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
+                                return;
+                            }
+                        }
+                        else
+                        {
+                            hasFoundPlayer = Util.GetBodyFromUser(args.userArgs, targetArgIndex, out target, out targetName);
+                        }
+                    }
                 }
 
-                inventory = player.master.inventory;
+                if (!hasFoundPlayer)
+                {
+                    Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
+                    return;
+                }
             }
 
             iCount = secondArgIsCount ? iCount : 1;
+            Inventory inventory = target.inventory;
+            if (inventory == null)
+            {
+                Log.MessageNetworked(Lang.INVENTORY_ERROR, args, LogLevel.MessageClientOnly);
+                return;
+            }
 
             var item = StringFinder.Instance.GetItemFromPartial(args[0]);
             if (item != ItemIndex.None)
             {
-                inventory?.GiveItem(item, iCount);
+                inventory.GiveItem(item, iCount);
+                Log.MessageNetworked($"Gave {iCount} {item} to {targetName}", args);
             }
             else
             {
                 Log.MessageNetworked(Lang.OBJECT_NOTFOUND + args[0] + ":" + item, args, LogLevel.MessageClientOnly);
             }
-
-            Log.MessageNetworked($"Gave {iCount} {item} to {player.masterController.GetDisplayName()}", args);
         }
 
-        [ConCommand(commandName = "random_items", flags = ConVarFlags.ExecuteOnServer, helpText = "Generates the specified amount of items for the specified player from the available item pools at random.")]
+        [ConCommand(commandName = "random_items", flags = ConVarFlags.ExecuteOnServer, helpText = "Generates the specified amount of items for a character from the available item pools at random.")]
         private static void CCRandom_items(ConCommandArgs args)
         {
-            if (args.Count < 2 && args.sender == null)
+            bool isDedicatedServer = false;
+            if (args.sender == null)
             {
-                Log.Message(Lang.DS_REQUIREFULLQUALIFY, LogLevel.Error);
-                Log.Message(Lang.RANDOM_ITEM_ARGS, LogLevel.Message);
-                return;
+                isDedicatedServer = true;
+                if (args.Count < 2)
+                {
+                    Log.Message(Lang.DS_REQUIREFULLQUALIFY, LogLevel.Error);
+                    Log.Message(Lang.RANDOM_ITEM_ARGS, LogLevel.Message);
+                    return;
+                }
             }
 
             if (args.Count < 1)
@@ -146,39 +185,67 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            NetworkUser player = args.sender;
-            Inventory inventory = player?.master.inventory;
+            CharacterBody target = args.sender?.GetCurrentBody();
+            string targetName = args.sender?.masterController.GetDisplayName();
 
             if (args.Count >= 2)
             {
-                player = Util.GetNetUserFromString(args.userArgs, 1);
-                if (player == null)
+                bool hasFoundPlayer = false;
+                if (isDedicatedServer)
                 {
-                    Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
-                    if (args.sender == null)
+                    hasFoundPlayer = Util.GetBodyFromUser(args.userArgs, 1, out target, out targetName);
+                }
+                else
+                {
+                    hasFoundPlayer = true;
+                    if (args[1].ToUpper() == Lang.PINGED)
                     {
-                        return;
+                        var pingedBody = Hooks.GetPingedBody();
+                        if (pingedBody)
+                        {
+                            target = pingedBody;
+                            targetName = target.gameObject.name;
+                        }
+                        else
+                        {
+                            Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        hasFoundPlayer = Util.GetBodyFromUser(args.userArgs, 1, out target, out targetName);
                     }
                 }
 
-                inventory = player == null ? inventory : player.master.inventory;
+                if (!hasFoundPlayer)
+                {
+                    Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
+                    return;
+                }
+            }
+
+            Inventory inventory = target.inventory;
+            if (inventory == null)
+            {
+                Log.MessageNetworked(Lang.INVENTORY_ERROR, args, LogLevel.MessageClientOnly);
+                return;
             }
 
             var a = args.TryGetArgInt(0);
             if (a.HasValue && a.Value > 0)
             {
                 inventory.GiveRandomItems(a.Value, false, false);
-                Log.MessageNetworked($"Generated {a.Value} items!", args);
+                Log.MessageNetworked($"Generated {a.Value} items for {targetName}!", args);
             }
             else
             {
                 Log.MessageNetworked(Lang.RANDOM_ITEM_ARGS, args, LogLevel.MessageClientOnly);
             }
 
-
         }
 
-        [ConCommand(commandName = "give_equip", flags = ConVarFlags.ExecuteOnServer, helpText = "Gives the specified item to the player. " + Lang.GIVEEQUIP_ARGS)]
+        [ConCommand(commandName = "give_equip", flags = ConVarFlags.ExecuteOnServer, helpText = "Gives the specified equipment to a character. " + Lang.GIVEEQUIP_ARGS)]
         [AutoCompletion(typeof(EquipmentCatalog), "equipmentDefs", "nameToken")]
         private static void CCGiveEquipment(ConCommandArgs args)
         {
@@ -188,8 +255,10 @@ namespace DebugToolkit.Commands
                 return;
             }
 
+            bool isDedicatedServer = false;
             if (args.sender == null)
             {
+                isDedicatedServer = true;
                 if (args.Count < 2)
                 {
                     Log.Message(Lang.DS_REQUIREFULLQUALIFY, LogLevel.Error);
@@ -198,40 +267,70 @@ namespace DebugToolkit.Commands
                 }
             }
 
-            NetworkUser player = args.sender;
-            Inventory inventory = args.sender?.master.inventory;
+            CharacterBody target = args.sender?.GetCurrentBody();
+            string targetName = args.sender?.masterController.GetDisplayName();
 
             if (args.Count >= 2)
             {
-                player = Util.GetNetUserFromString(args.userArgs, 1);
-                if (player == null)
+                bool hasFoundPlayer = false;
+                if (isDedicatedServer)
                 {
-                    Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
-                    if (args.sender == null)
+                    hasFoundPlayer = Util.GetBodyFromUser(args.userArgs, 1, out target, out targetName);
+                }
+                else
+                {
+                    hasFoundPlayer = true;
+                    if (args[1].ToUpper() == Lang.PINGED)
                     {
-                        return;
+                        var pingedBody = Hooks.GetPingedBody();
+                        if (pingedBody)
+                        {
+                            target = pingedBody;
+                            targetName = target.gameObject.name;
+                        }
+                        else
+                        {
+                            Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        hasFoundPlayer = Util.GetBodyFromUser(args.userArgs, 1, out target, out targetName);
                     }
                 }
 
-                inventory = player == null ? inventory : player.master.inventory;
+                if (!hasFoundPlayer)
+                {
+                    Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
+                    return;
+                }
+            }
+
+            Inventory inventory = target.inventory;
+            if (inventory == null)
+            {
+                Log.MessageNetworked(Lang.INVENTORY_ERROR, args, LogLevel.MessageClientOnly);
+                return;
             }
 
             var equip = StringFinder.Instance.GetEquipFromPartial(args[0]);
             if (equip != EquipmentIndex.None)
             {
-                inventory?.SetEquipmentIndex(equip);
+                inventory.SetEquipmentIndex(equip);
             }
             else if (args[0].ToLower() == "random")
             {
-                inventory?.GiveRandomEquipment();
+                inventory.GiveRandomEquipment();
                 equip = inventory.GetEquipmentIndex();
             }
             else
             {
                 Log.MessageNetworked(Lang.OBJECT_NOTFOUND + args[0] + ":" + equip, args, LogLevel.MessageClientOnly);
+                return;
             }
 
-            Log.MessageNetworked($"Gave {equip} to {player.masterController.GetDisplayName()}", args);
+            Log.MessageNetworked($"Gave {equip} to {targetName}", args);
         }
 
         [ConCommand(commandName = "give_lunar", flags = ConVarFlags.ExecuteOnServer, helpText = "Gives a lunar coin to you. " + Lang.GIVELUNAR_ARGS)]
@@ -339,7 +438,7 @@ namespace DebugToolkit.Commands
             PickupDropletController.CreatePickupDroplet(final, transform.position, transform.forward * 40f);
         }
 
-        [ConCommand(commandName = "remove_item", flags = ConVarFlags.ExecuteOnServer, helpText = "Removes the specified quantities of an item from a player. " + Lang.REMOVEITEM_ARGS)]
+        [ConCommand(commandName = "remove_item", flags = ConVarFlags.ExecuteOnServer, helpText = "Removes the specified quantities of an item from a character. " + Lang.REMOVEITEM_ARGS)]
         private static void CCRemoveItem(ConCommandArgs args)
         {
             NetworkUser player = args.sender;
@@ -348,34 +447,79 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(Lang.REMOVEITEM_ARGS, args, LogLevel.MessageClientOnly);
                 return;
             }
+            bool isDedicatedServer = false;
             if (args.sender == null)
             {
+                isDedicatedServer = true;
                 if (args.Count < 3)
                 {
                     Log.Message(Lang.DS_REQUIREFULLQUALIFY, LogLevel.Error);
                     return;
                 }
             }
+
+            CharacterBody target = args.sender?.GetCurrentBody();
+            string targetName = args.sender?.masterController.GetDisplayName();
+
             int iCount = 1;
+            bool secondArgIsCount = false;
             if (args.Count >= 2)
             {
-                int.TryParse(args[1], out iCount);
-            }
+                //TODO: Fix the count argument to always be the second one?
+                // Being able to write `remove_item all <target>` is convenient.
+                // However, if the target is the partial name "all", this will be considered a count argument
+                // and without a target, it will default to the command caller. Is this too much of an edge case?
+                secondArgIsCount = int.TryParse(args[1], out iCount) || args[1].ToUpper() == Lang.ALL;
+                bool hasTargetArg = !secondArgIsCount || args.Count >= 3;
+                int targetArgIndex = secondArgIsCount ? 2 : 1;
+                bool hasFoundPlayer = false;
 
-            Inventory inventory = args.sender?.master.inventory;
-            if (args.Count >= 3)
-            {
-                player = Util.GetNetUserFromString(args.userArgs, 2);
-                if (player == null)
+                if (isDedicatedServer)
                 {
-                    Log.Message(Lang.PLAYER_NOTFOUND, LogLevel.MessageClientOnly);
-                    if (args.sender == null)
+                    if (hasTargetArg)
                     {
-                        return;
+                        hasFoundPlayer = Util.GetBodyFromUser(args.userArgs, targetArgIndex, out target, out targetName);
+                    }
+                }
+                else
+                {
+                    hasFoundPlayer = true;
+                    if (hasTargetArg)
+                    {
+                        if (args[targetArgIndex].ToUpper() == Lang.PINGED)
+                        {
+                            var pingedBody = Hooks.GetPingedBody();
+                            if (pingedBody)
+                            {
+                                target = pingedBody;
+                                targetName = target.gameObject.name;
+                            }
+                            else
+                            {
+                                Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
+                                return;
+                            }
+                        }
+                        else
+                        {
+                            hasFoundPlayer = Util.GetBodyFromUser(args.userArgs, targetArgIndex, out target, out targetName);
+                        }
                     }
                 }
 
-                inventory = (player == null) ? inventory : player.master.inventory;
+                if (!hasFoundPlayer)
+                {
+                    Log.Message(Lang.PLAYER_NOTFOUND, LogLevel.MessageClientOnly);
+                    return;
+                }
+            }
+
+            iCount = secondArgIsCount ? iCount : 1;
+            Inventory inventory = target.inventory;
+            if (inventory == null)
+            {
+                Log.MessageNetworked(Lang.INVENTORY_ERROR, args, LogLevel.MessageClientOnly);
+                return;
             }
 
             if (args[0].ToUpper() == Lang.ALL)
@@ -386,7 +530,7 @@ namespace DebugToolkit.Commands
                     var tempObj = new GameObject();
                     inventory.CopyItemsFrom(tempObj.AddComponent<Inventory>());
                     UnityEngine.Object.Destroy(tempObj);
-                    Log.MessageNetworked("Removing inventory", args);
+                    Log.MessageNetworked($"Reseting inventory for {targetName}", args);
                 }
 
                 return;
@@ -394,49 +538,82 @@ namespace DebugToolkit.Commands
             var item = StringFinder.Instance.GetItemFromPartial(args[0]);
             if (item != ItemIndex.None)
             {
-                if (args[1].ToUpper() == Lang.ALL)
+                if (secondArgIsCount && args.Count >= 2 && args[1].ToUpper() == Lang.ALL)
                 {
-                    if (inventory != null)
-                    {
-                        iCount = inventory.GetItemCount(item);
-                    }
+                    iCount = inventory.GetItemCount(item);
                 }
-
-                if (inventory != null)
-                {
-                    inventory.RemoveItem(item, iCount);
-                }
+                inventory.RemoveItem(item, iCount);
+                Log.MessageNetworked($"Removed {iCount} {item} from {targetName}", args);
             }
             else
             {
                 Log.MessageNetworked(Lang.OBJECT_NOTFOUND + args[0] + ":" + item, args, LogLevel.MessageClientOnly);
             }
-
-            if (player)
-            {
-                Log.MessageNetworked($"Removed {iCount} {item} from {player.masterController.GetDisplayName()}", args);
-            }
         }
 
-        [ConCommand(commandName = "remove_equip", flags = ConVarFlags.ExecuteOnServer, helpText = "Removes the equipment from the specified player. " + Lang.REMOVEEQUIP_ARGS)]
+        [ConCommand(commandName = "remove_equip", flags = ConVarFlags.ExecuteOnServer, helpText = "Removes the equipment from a character. " + Lang.REMOVEEQUIP_ARGS)]
         private static void CCRemoveEquipment(ConCommandArgs args)
         {
-            NetworkUser player = args.sender;
-            Inventory inventory = player.master.inventory;
-            if (args.Count >= 1)
+            bool isDedicatedServer = false;
+            if (args.sender == null)
             {
-                player = Util.GetNetUserFromString(args.userArgs);
-                if (player == null)
+                isDedicatedServer = true;
+                if (args.Count < 1)
                 {
-                    Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
+                    Log.Message(Lang.DS_REQUIREFULLQUALIFY, LogLevel.Error);
                     return;
                 }
-
-                inventory = player.master.inventory;
             }
+
+            CharacterBody target = args.sender?.GetCurrentBody();
+            string targetName = args.sender?.masterController.GetDisplayName();
+
+            if (args.Count >= 1)
+            {
+                bool hasFoundPlayer = false;
+                if (isDedicatedServer)
+                {
+                    hasFoundPlayer = Util.GetBodyFromUser(args.userArgs, 0, out target, out targetName);
+                }
+                else
+                {
+                    hasFoundPlayer = true;
+                    if (args[0].ToUpper() == Lang.PINGED)
+                    {
+                        var pingedBody = Hooks.GetPingedBody();
+                        if (pingedBody)
+                        {
+                            target = pingedBody;
+                            targetName = target.gameObject.name;
+                        }
+                        else
+                        {
+                            Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        hasFoundPlayer = Util.GetBodyFromUser(args.userArgs, 0, out target, out targetName);
+                    }
+                }
+                if (!hasFoundPlayer)
+                {
+                    Log.Message(Lang.PLAYER_NOTFOUND, LogLevel.MessageClientOnly);
+                    return;
+                }
+            }
+
+            Inventory inventory = target.inventory;
+            if (inventory == null)
+            {
+                Log.MessageNetworked(Lang.INVENTORY_ERROR, args, LogLevel.MessageClientOnly);
+                return;
+            }
+
             inventory.SetEquipmentIndex(EquipmentIndex.None);
 
-            Log.MessageNetworked($"Removed current Equipment from {player.masterController.GetDisplayName()}", args);
+            Log.MessageNetworked($"Removed current Equipment from {targetName}", args);
         }
     }
 }
