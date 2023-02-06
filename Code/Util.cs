@@ -1,4 +1,5 @@
-﻿using HG.GeneralSerializer;
+﻿using EntityStates.VoidRaidCrab.Leg;
+using HG.GeneralSerializer;
 using RoR2;
 using System.Collections.Generic;
 
@@ -52,25 +53,35 @@ namespace DebugToolkit
         }
 
         /// <summary>
-        /// Try to find the CharacterBody for a matched NetworkUser when provided to a player.
+        /// Find the target CharacterBody for a matched player string or pinged entity.
         /// </summary>
         /// <param name="args">(string[])args array</param>
-        /// <param name="startLocation">(int)on the string array, at which index the player string starts at</param>
-        /// <param name="body">the body of the matched player</param>
-        /// <param name="playerName">the display name of the player</param>
-        /// <returns>True if the player was found. False otherwise</returns>
-        internal static bool GetBodyFromUser(List<string> args, int startLocation, out CharacterBody body, out string playerName)
+        /// <param name="index">(int)on the string array, at which index the target string is</param>
+        /// <param name="isDedicatedServer">whether the command has been submitted from a dedicated server</param>
+        /// <returns>Returns the found body. Null otherwise</returns>
+        internal static CharacterBody GetBodyFromArgs(List<string> args, int index, bool isDedicatedServer)
         {
-            var user = GetNetUserFromString(args, startLocation);
-            if (user != null)
+            CharacterBody target = null;
+            if (isDedicatedServer)
             {
-                body = user.GetCurrentBody();
-                playerName = user.masterController.GetDisplayName();
-                return true;
+                target = GetNetUserFromString(args, index)?.GetCurrentBody();
             }
-            body = null;
-            playerName = null;
-            return false;
+            else
+            {
+                if (args[index].ToUpper() == Lang.PINGED)
+                {
+                    var pingedBody = Hooks.GetPingedBody();
+                    if (pingedBody)
+                    {
+                        target = pingedBody;
+                    }
+                }
+                else
+                {
+                    target = GetNetUserFromString(args, index)?.GetCurrentBody();
+                }
+            }
+            return target;
         }
 
         /// <summary>

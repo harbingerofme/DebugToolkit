@@ -90,61 +90,44 @@ namespace DebugToolkit.Commands
                 }
             }
 
-            CharacterBody target = args.sender?.GetCurrentBody();
+            CharacterBody target = args.senderBody;
             string targetName = args.sender?.masterController.GetDisplayName();
 
             int iCount = 1; // it'll get overwritten by the TryParse...
-            bool secondArgIsCount = false;
             if (args.Count >= 2)
             {
-                // secondArgIsCount allow to give directly the player name without specifying item count
-                secondArgIsCount = int.TryParse(args[1], out iCount);
+                bool secondArgIsCount = int.TryParse(args[1], out iCount);
+                iCount = secondArgIsCount ? iCount : 1;
                 bool hasTargetArg = !secondArgIsCount || args.Count >= 3;
-                int targetArgIndex = secondArgIsCount ? 2 : 1;
-                bool hasFoundPlayer = false;
-
-                if (isDedicatedServer)
+                if (hasTargetArg)
                 {
-                    if (hasTargetArg)
+                    int targetArgIndex = secondArgIsCount ? 2 : 1;
+                    target = Util.GetBodyFromArgs(args.userArgs, targetArgIndex, isDedicatedServer);
+                    if (target == null)
                     {
-                        hasFoundPlayer = Util.GetBodyFromUser(args.userArgs, targetArgIndex, out target, out targetName);
+                        if (!isDedicatedServer && args[targetArgIndex] == Lang.PINGED)
+                        {
+                            Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
+                        }
+                        else
+                        {
+                            Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
+                        }
+                        return;
                     }
                 }
                 else
                 {
-                    // We default to the command caller
-                    hasFoundPlayer = true;
-                    if (hasTargetArg)
+                    if (isDedicatedServer)
                     {
-                        if (args[targetArgIndex].ToUpper() == Lang.PINGED)
-                        {
-                            var pingedBody = Hooks.GetPingedBody();
-                            if (pingedBody)
-                            {
-                                target = pingedBody;
-                                targetName = target.gameObject.name;
-                            }
-                            else
-                            {
-                                Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
-                                return;
-                            }
-                        }
-                        else
-                        {
-                            hasFoundPlayer = Util.GetBodyFromUser(args.userArgs, targetArgIndex, out target, out targetName);
-                        }
+                        Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
+                        return;
                     }
                 }
-
-                if (!hasFoundPlayer)
-                {
-                    Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
-                    return;
-                }
+                var player = RoR2.Util.LookUpBodyNetworkUser(target);
+                targetName = (player != null) ? player.masterController.GetDisplayName() : target.gameObject.name;
             }
 
-            iCount = secondArgIsCount ? iCount : 1;
             Inventory inventory = target.inventory;
             if (inventory == null)
             {
@@ -185,44 +168,26 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            CharacterBody target = args.sender?.GetCurrentBody();
+            CharacterBody target = args.senderBody;
             string targetName = args.sender?.masterController.GetDisplayName();
 
             if (args.Count >= 2)
             {
-                bool hasFoundPlayer = false;
-                if (isDedicatedServer)
+                target = Util.GetBodyFromArgs(args.userArgs, 1, isDedicatedServer);
+                if (target == null)
                 {
-                    hasFoundPlayer = Util.GetBodyFromUser(args.userArgs, 1, out target, out targetName);
-                }
-                else
-                {
-                    hasFoundPlayer = true;
-                    if (args[1].ToUpper() == Lang.PINGED)
+                    if (!isDedicatedServer && args[1] == Lang.PINGED.ToUpper())
                     {
-                        var pingedBody = Hooks.GetPingedBody();
-                        if (pingedBody)
-                        {
-                            target = pingedBody;
-                            targetName = target.gameObject.name;
-                        }
-                        else
-                        {
-                            Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
-                            return;
-                        }
+                        Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
                     }
                     else
                     {
-                        hasFoundPlayer = Util.GetBodyFromUser(args.userArgs, 1, out target, out targetName);
+                        Log.Message(Lang.PLAYER_NOTFOUND, LogLevel.MessageClientOnly);
                     }
-                }
-
-                if (!hasFoundPlayer)
-                {
-                    Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
                     return;
                 }
+                var player = RoR2.Util.LookUpBodyNetworkUser(target);
+                targetName = (player != null) ? player.masterController.GetDisplayName() : target.gameObject.name;
             }
 
             Inventory inventory = target.inventory;
@@ -267,44 +232,26 @@ namespace DebugToolkit.Commands
                 }
             }
 
-            CharacterBody target = args.sender?.GetCurrentBody();
+            CharacterBody target = args.senderBody;
             string targetName = args.sender?.masterController.GetDisplayName();
 
             if (args.Count >= 2)
             {
-                bool hasFoundPlayer = false;
-                if (isDedicatedServer)
+                target = Util.GetBodyFromArgs(args.userArgs, 1, isDedicatedServer);
+                if (target == null)
                 {
-                    hasFoundPlayer = Util.GetBodyFromUser(args.userArgs, 1, out target, out targetName);
-                }
-                else
-                {
-                    hasFoundPlayer = true;
-                    if (args[1].ToUpper() == Lang.PINGED)
+                    if (!isDedicatedServer && args[1] == Lang.PINGED.ToUpper())
                     {
-                        var pingedBody = Hooks.GetPingedBody();
-                        if (pingedBody)
-                        {
-                            target = pingedBody;
-                            targetName = target.gameObject.name;
-                        }
-                        else
-                        {
-                            Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
-                            return;
-                        }
+                        Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
                     }
                     else
                     {
-                        hasFoundPlayer = Util.GetBodyFromUser(args.userArgs, 1, out target, out targetName);
+                        Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
                     }
-                }
-
-                if (!hasFoundPlayer)
-                {
-                    Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
                     return;
                 }
+                var player = RoR2.Util.LookUpBodyNetworkUser(target);
+                targetName = (player != null) ? player.masterController.GetDisplayName() : target.gameObject.name;
             }
 
             Inventory inventory = target.inventory;
@@ -441,80 +388,61 @@ namespace DebugToolkit.Commands
         [ConCommand(commandName = "remove_item", flags = ConVarFlags.ExecuteOnServer, helpText = "Removes the specified quantities of an item from a character. " + Lang.REMOVEITEM_ARGS)]
         private static void CCRemoveItem(ConCommandArgs args)
         {
-            NetworkUser player = args.sender;
             if (args.Count == 0)
             {
                 Log.MessageNetworked(Lang.REMOVEITEM_ARGS, args, LogLevel.MessageClientOnly);
                 return;
             }
+
             bool isDedicatedServer = false;
             if (args.sender == null)
             {
                 isDedicatedServer = true;
-                if (args.Count < 3)
+                if (args.Count < 2)
                 {
                     Log.Message(Lang.DS_REQUIREFULLQUALIFY, LogLevel.Error);
                     return;
                 }
             }
 
-            CharacterBody target = args.sender?.GetCurrentBody();
+            CharacterBody target = args.senderBody;
             string targetName = args.sender?.masterController.GetDisplayName();
 
             int iCount = 1;
-            bool secondArgIsCount = false;
             if (args.Count >= 2)
             {
-                //TODO: Fix the count argument to always be the second one?
-                // Being able to write `remove_item all <target>` is convenient.
-                // However, if the target is the partial name "all", this will be considered a count argument
-                // and without a target, it will default to the command caller. Is this too much of an edge case?
-                secondArgIsCount = int.TryParse(args[1], out iCount) || args[1].ToUpper() == Lang.ALL;
+                bool secondArgIsCount = int.TryParse(args[1], out iCount);
+                iCount = secondArgIsCount ? iCount : 1;
                 bool hasTargetArg = !secondArgIsCount || args.Count >= 3;
-                int targetArgIndex = secondArgIsCount ? 2 : 1;
-                bool hasFoundPlayer = false;
-
-                if (isDedicatedServer)
+                if (hasTargetArg)
                 {
-                    if (hasTargetArg)
+                    int targetArgIndex = secondArgIsCount ? 2 : 1;
+                    target = Util.GetBodyFromArgs(args.userArgs, targetArgIndex, isDedicatedServer);
+                    if (target == null)
                     {
-                        hasFoundPlayer = Util.GetBodyFromUser(args.userArgs, targetArgIndex, out target, out targetName);
+                        if (!isDedicatedServer && args[targetArgIndex] == Lang.PINGED.ToUpper())
+                        {
+                            Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
+                        }
+                        else
+                        {
+                            Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
+                        }
+                        return;
                     }
                 }
                 else
                 {
-                    hasFoundPlayer = true;
-                    if (hasTargetArg)
+                    if (isDedicatedServer)
                     {
-                        if (args[targetArgIndex].ToUpper() == Lang.PINGED)
-                        {
-                            var pingedBody = Hooks.GetPingedBody();
-                            if (pingedBody)
-                            {
-                                target = pingedBody;
-                                targetName = target.gameObject.name;
-                            }
-                            else
-                            {
-                                Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
-                                return;
-                            }
-                        }
-                        else
-                        {
-                            hasFoundPlayer = Util.GetBodyFromUser(args.userArgs, targetArgIndex, out target, out targetName);
-                        }
+                        Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
+                        return;
                     }
                 }
-
-                if (!hasFoundPlayer)
-                {
-                    Log.Message(Lang.PLAYER_NOTFOUND, LogLevel.MessageClientOnly);
-                    return;
-                }
+                var player = RoR2.Util.LookUpBodyNetworkUser(target);
+                targetName = (player != null) ? player.masterController.GetDisplayName() : target.gameObject.name;
             }
 
-            iCount = secondArgIsCount ? iCount : 1;
             Inventory inventory = target.inventory;
             if (inventory == null)
             {
@@ -522,26 +450,9 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            if (args[0].ToUpper() == Lang.ALL)
-            {
-
-                if (inventory)
-                {
-                    var tempObj = new GameObject();
-                    inventory.CopyItemsFrom(tempObj.AddComponent<Inventory>());
-                    UnityEngine.Object.Destroy(tempObj);
-                    Log.MessageNetworked($"Reseting inventory for {targetName}", args);
-                }
-
-                return;
-            }
             var item = StringFinder.Instance.GetItemFromPartial(args[0]);
             if (item != ItemIndex.None)
             {
-                if (secondArgIsCount && args.Count >= 2 && args[1].ToUpper() == Lang.ALL)
-                {
-                    iCount = inventory.GetItemCount(item);
-                }
                 inventory.RemoveItem(item, iCount);
                 Log.MessageNetworked($"Removed {iCount} {item} from {targetName}", args);
             }
@@ -549,6 +460,117 @@ namespace DebugToolkit.Commands
             {
                 Log.MessageNetworked(Lang.OBJECT_NOTFOUND + args[0] + ":" + item, args, LogLevel.MessageClientOnly);
             }
+        }
+
+        [ConCommand(commandName = "remove_item_stacks", flags = ConVarFlags.ExecuteOnServer, helpText = "Removes all the stacks of a specified item from a character. " + Lang.REMOVEITEMSTACKS_ARGS)]
+        private static void CCRemoveItemStacks(ConCommandArgs args)
+        {
+            if (args.Count == 0)
+            {
+                Log.MessageNetworked(Lang.REMOVEITEMSTACKS_ARGS, args, LogLevel.MessageClientOnly);
+                return;
+            }
+
+            bool isDedicatedServer = false;
+            if (args.sender == null)
+            {
+                isDedicatedServer = true;
+                if (args.Count < 2)
+                {
+                    Log.Message(Lang.DS_REQUIREFULLQUALIFY, LogLevel.Error);
+                    return;
+                }
+            }
+
+            CharacterBody target = args.senderBody;
+            string targetName = args.sender?.masterController.GetDisplayName();
+
+            if (args.Count >= 2)
+            {
+                target = Util.GetBodyFromArgs(args.userArgs, 1, isDedicatedServer);
+                if (target == null)
+                {
+                    if (!isDedicatedServer && args[1] == Lang.PINGED.ToUpper())
+                    {
+                        Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
+                    }
+                    else
+                    {
+                        Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
+                    }
+                    return;
+                }
+                var player = RoR2.Util.LookUpBodyNetworkUser(target);
+                targetName = (player != null) ? player.masterController.GetDisplayName() : target.gameObject.name;
+            }
+
+            Inventory inventory = target.inventory;
+            if (inventory == null)
+            {
+                Log.MessageNetworked(Lang.INVENTORY_ERROR, args, LogLevel.MessageClientOnly);
+                return;
+            }
+
+            var item = StringFinder.Instance.GetItemFromPartial(args[0]);
+            if (item != ItemIndex.None)
+            {
+                int iCount = inventory.GetItemCount(item);
+                inventory.RemoveItem(item, iCount);
+                Log.MessageNetworked($"Removed {iCount} {item} from {targetName}", args);
+            }
+            else
+            {
+                Log.MessageNetworked(Lang.OBJECT_NOTFOUND + args[0] + ":" + item, args, LogLevel.MessageClientOnly);
+            }
+        }
+
+        [ConCommand(commandName = "remove_all_items", flags = ConVarFlags.ExecuteOnServer, helpText = "Removes all items from a character. " + Lang.REMOVEALLITEMS_ARGS)]
+        private static void CCRemoveAllItems(ConCommandArgs args)
+        {
+            bool isDedicatedServer = false;
+            if (args.sender == null)
+            {
+                isDedicatedServer = true;
+                if (args.Count < 1)
+                {
+                    Log.Message(Lang.DS_REQUIREFULLQUALIFY, LogLevel.Error);
+                    return;
+                }
+            }
+
+            CharacterBody target = args.senderBody;
+            string targetName = args.sender?.masterController.GetDisplayName();
+
+            if (args.Count >= 1)
+            {
+                target = Util.GetBodyFromArgs(args.userArgs, 0, isDedicatedServer);
+                if (target == null)
+                {
+                    if (!isDedicatedServer && args[0] == Lang.PINGED.ToUpper())
+                    {
+                        Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
+                    }
+                    else
+                    {
+                        Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
+                    }
+                    return;
+                }
+                var player = RoR2.Util.LookUpBodyNetworkUser(target);
+                targetName = (player != null) ? player.masterController.GetDisplayName() : target.gameObject.name;
+            }
+
+            Inventory inventory = target.inventory;
+            if (inventory == null)
+            {
+                Log.MessageNetworked(Lang.INVENTORY_ERROR, args, LogLevel.MessageClientOnly);
+                return;
+            }
+
+            var tempObj = new GameObject();
+            inventory.CopyItemsFrom(tempObj.AddComponent<Inventory>());
+            UnityEngine.Object.Destroy(tempObj);
+            Log.MessageNetworked($"Reseting inventory for {targetName}", args);
         }
 
         [ConCommand(commandName = "remove_equip", flags = ConVarFlags.ExecuteOnServer, helpText = "Removes the equipment from a character. " + Lang.REMOVEEQUIP_ARGS)]
@@ -565,43 +587,26 @@ namespace DebugToolkit.Commands
                 }
             }
 
-            CharacterBody target = args.sender?.GetCurrentBody();
+            CharacterBody target = args.senderBody;
             string targetName = args.sender?.masterController.GetDisplayName();
 
             if (args.Count >= 1)
             {
-                bool hasFoundPlayer = false;
-                if (isDedicatedServer)
+                target = Util.GetBodyFromArgs(args.userArgs, 0, isDedicatedServer);
+                if (target == null)
                 {
-                    hasFoundPlayer = Util.GetBodyFromUser(args.userArgs, 0, out target, out targetName);
-                }
-                else
-                {
-                    hasFoundPlayer = true;
-                    if (args[0].ToUpper() == Lang.PINGED)
+                    if (!isDedicatedServer && args[0] == Lang.PINGED.ToUpper())
                     {
-                        var pingedBody = Hooks.GetPingedBody();
-                        if (pingedBody)
-                        {
-                            target = pingedBody;
-                            targetName = target.gameObject.name;
-                        }
-                        else
-                        {
-                            Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
-                            return;
-                        }
+                        Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
                     }
                     else
                     {
-                        hasFoundPlayer = Util.GetBodyFromUser(args.userArgs, 0, out target, out targetName);
+                        Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
                     }
-                }
-                if (!hasFoundPlayer)
-                {
-                    Log.Message(Lang.PLAYER_NOTFOUND, LogLevel.MessageClientOnly);
                     return;
                 }
+                var player = RoR2.Util.LookUpBodyNetworkUser(target);
+                targetName = (player != null) ? player.masterController.GetDisplayName() : target.gameObject.name;
             }
 
             Inventory inventory = target.inventory;
