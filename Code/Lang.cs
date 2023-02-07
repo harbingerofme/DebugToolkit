@@ -81,6 +81,7 @@
             NOTINARUN_ERROR = "This command only works when in a Run !",
             INVENTORY_ERROR = "The selected target has no inventory.",
             ALL = "ALL",
+            DEFAULT_VALUE = "",
             PINGED = "PINGED"
             ;
 
