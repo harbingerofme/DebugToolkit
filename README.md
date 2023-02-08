@@ -56,12 +56,14 @@ Verbiage: if an argument is encapsulated with brackets, it means it's either `(c
 * **list_equip** - List all equipment and if they are in the current drop pool.
     
 
-* **give_item** - Give item directly to the player's inventory: `give_item {localised_object_name} [count def 1] [player def *you]`
-* **random_items** - Generate random items from the available droptables. `random_items {Count} [player def *you]`
-* **give_equip** - Give equipment directly to a player's inventory: `give_equip {localised_object_name|'random'} [player def *you]`
+* **give_item** - Give item directly to the player's inventory: `give_item {localised_object_name} [count def 1] [(player | 'pinged') def *you]`
+* **random_items** - Generate random items from the available droptables. `random_items {Count} [(player | 'pinged') def *you]`
+* **give_equip** - Give equipment directly to a player's inventory: `give_equip {localised_object_name|'random'} [(player | 'pinged') def *you]`
 * **give_money** - Gives the desired player/team money `give_money {amount} [(all | [player]) def all]`
 * **give_lunar** - Gives the specified amount of lunar coins to the issuing player. A negative count may be specified to remove that many. `give_lunar {amount def 1}`
-* **remove_item** - Removes an item from a player's inventory. `remove_item (localised_object_name | 'all') [(player | 'all') def *you]`
+* **remove_item** - Removes an item from a player's inventory. `remove_item (localised_object_name | 'all') [(player | 'pinged') def *you]`
+* **remove_item_stacks** - Removes an item from a player's inventory. `remove_item_stacks {localised_object_name} [(player | 'pinged') def *you]`
+* **remove_all_items** - Removes an item from a player's inventory. `remove_all_items [(player | 'pinged') def *you]`
 * **remove_equip** - Sets the equipment of a player to 'None'. `remove_equip {localised_object_name} [player def *you]`
 * **create_pickup** - Creates a pickup in front of the issuing player. Pickups are items, equipment and lunar coins. Additionally 'item' or 'equip' may be specified to only search that list. `create_pickup (localized_object_name| "coin") [('item'|'equip') def *both]`
 
