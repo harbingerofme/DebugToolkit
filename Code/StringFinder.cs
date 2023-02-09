@@ -2,11 +2,11 @@
 using RoR2;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace DebugToolkit
 {
@@ -54,47 +54,56 @@ namespace DebugToolkit
 
             ItemAlias.Add("Syringe", new string[] { "drugs" });
 
-            var allCSC = Resources.LoadAll<CharacterSpawnCard>("SpawnCards/CharacterSpawnCards");
-            Log.MessageInfo($"Loading all CSC's: {allCSC.Length}", Log.Target.Bepinex);
-            foreach (CharacterSpawnCard csc in allCSC)
+            GatherCSCs();
+            GatherISCs();
+        }
+
+        private static void GatherCSCs()
+        {
+            GatherAddressableAssets<CharacterSpawnCard>("/csc", (asset) =>
             {
-                var dCard = new DirectorCard
+                characterSpawnCard.Add(new DirectorCard
                 {
-                    spawnCard = csc,
+                    spawnCard = asset,
                     forbiddenUnlockableDef = null,
                     minimumStageCompletions = 0,
                     preventOverhead = true,
                     spawnDistance = DirectorCore.MonsterSpawnDistance.Standard,
-                };
-                characterSpawnCard.Add(dCard);
-            }
+                });
+            });
+        }
 
-
-
-            interactableSpawnCards = vanillaIscs;
-
+        private void GatherISCs()
+        {
+            GatherAddressableAssets<InteractableSpawnCard>("/isc", (asset) => interactableSpawnCards.Add(asset));
             On.RoR2.ClassicStageInfo.Start += AddCurrentStageIscsToCache;
         }
 
-        string[] cachedFiles = new string[0];
-        List<InteractableSpawnCard> vanillaIscs = new List<InteractableSpawnCard>();
-        public void PopulateIscInfo()
+        private static void GatherAddressableAssets<T>(string filterKey, Action<T> onAssetLoaded)
         {
-            /*
-            string assetpath = System.IO.Path.Combine(BepInEx.Paths.GameRootPath, "Risk of Rain 2_Data/StreamingAssets/aa/catalog.json");
-            cachedFiles = File.ReadAllLines(assetpath);
-            for (int i = 0; i > cachedFiles.Length; i++)
+            RoR2Application.onLoad += () =>
             {
-                if (cachedFiles[i].Contains("/isc"))
+                foreach (var resourceLocator in Addressables.ResourceLocators)
                 {
-                    vanillaIscs.Add(JsonUtility.FromJson<InteractableSpawnCard>(cachedFiles[i]));
+                    foreach (var key in resourceLocator.Keys)
+                    {
+                        var keyString = key.ToString();
+                        if (keyString.Contains(filterKey))
+                        {
+                            var iscLoadRequest = Addressables.LoadAssetAsync<T>(keyString);
 
+                            iscLoadRequest.Completed += (completedAsyncOperation) =>
+                            {
+                                if (completedAsyncOperation.Status == AsyncOperationStatus.Succeeded)
+                                {
+                                    onAssetLoaded(completedAsyncOperation.Result);
+                                }
+                            };
+                        }
+                    }
                 }
-            }
-            Log.MessageInfo($"Interactables Loaded!");
-            */
+            };
         }
-
 
         // There is no real good way to query for all custom iscs afaik
         // So let's lazily add them as the player encounter stages
@@ -335,15 +344,15 @@ namespace DebugToolkit
             if (masterName != null)
             {
                 masterNameUpper = masterName.ToUpper();
-            foreach (DirectorCard dc in characterSpawnCard)
-            {
+                foreach (DirectorCard dc in characterSpawnCard)
+                {
                     var spawnCardPrefabNameUpper = dc.spawnCard.prefab.name.ToUpperInvariant();
 
                     if (masterNameUpper == spawnCardPrefabNameUpper)
-                {
-                    return dc;
+                    {
+                        return dc;
+                    }
                 }
-            }
             }
 
             return null;
