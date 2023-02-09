@@ -298,13 +298,53 @@ namespace DebugToolkit
             }
         }
 
-        internal static void ForceFamilyEvent(On.RoR2.ClassicStageInfo.orig_RebuildCards orig, ClassicStageInfo self)
+        internal static WeightedSelection<DirectorCardCategorySelection> ForceFamilyEventForDccsPoolStages(On.RoR2.DccsPool.orig_GenerateWeightedSelection orig, DccsPool self)
         {
-            var originalVal = ClassicStageInfo.monsterFamilyChance;
+            if (ClassicStageInfo.instance.monsterDccsPool != self)
+            {
+                return orig(self);
+            }
+
+            On.RoR2.FamilyDirectorCardCategorySelection.IsAvailable += ForceFamilyDirectorCardCategorySelectionToBeAvailable;
+
+            var weightedSelection = orig(self);
+
+            On.RoR2.FamilyDirectorCardCategorySelection.IsAvailable -= ForceFamilyDirectorCardCategorySelectionToBeAvailable;
+
+            var newChoices = new List<WeightedSelection<DirectorCardCategorySelection>.ChoiceInfo>();
+            foreach (var choice in weightedSelection.choices)
+            {
+                if (choice.value && choice.value is FamilyDirectorCardCategorySelection)
+                {
+                    newChoices.Add(choice);
+                }
+            }
+
+            weightedSelection.choices = newChoices.ToArray();
+            weightedSelection.Count = newChoices.Count;
+            weightedSelection.RecalculateTotalWeight();
+
+            On.RoR2.DccsPool.GenerateWeightedSelection -= ForceFamilyEventForDccsPoolStages;
+
+            return weightedSelection;
+        }
+
+        private static bool ForceFamilyDirectorCardCategorySelectionToBeAvailable(On.RoR2.FamilyDirectorCardCategorySelection.orig_IsAvailable orig, FamilyDirectorCardCategorySelection self)
+        {
+            return true;
+        }
+
+        internal static void ForceFamilyEventForNonDccsPoolStages(On.RoR2.ClassicStageInfo.orig_RebuildCards orig, ClassicStageInfo self)
+        {
+            var originalValue = ClassicStageInfo.monsterFamilyChance;
+
             ClassicStageInfo.monsterFamilyChance = 1;
+
             orig(self);
-            ClassicStageInfo.monsterFamilyChance = originalVal;
-            On.RoR2.ClassicStageInfo.RebuildCards -= ForceFamilyEvent;
+
+            ClassicStageInfo.monsterFamilyChance = originalValue;
+
+            On.RoR2.ClassicStageInfo.RebuildCards -= ForceFamilyEventForNonDccsPoolStages;
         }
 
         internal static void CombatDirector_SetNextSpawnAsBoss(On.RoR2.CombatDirector.orig_SetNextSpawnAsBoss orig, CombatDirector self)

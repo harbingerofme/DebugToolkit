@@ -1,6 +1,7 @@
 using R2API.Utils;
 using RoR2;
 using System;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using UnityEngine;
@@ -77,7 +78,7 @@ namespace DebugToolkit.Commands
                 {
                     /* TBH: The portalSpawnCard check can likely be omitted because the teleporterInteraction seems
                      * to *always* spawn with the first PortalSpawner set to the void charging stage
-                     * 
+                     *
                      */
                     if (array[i].portalSpawnCard == LegacyResourcesAPI.Load<InteractableSpawnCard>("SpawnCards/InteractableSpawnCard/iscVoidPortal")
                         && array[i].previewChild
@@ -226,7 +227,9 @@ namespace DebugToolkit.Commands
         [ConCommand(commandName = "force_family_event", flags = ConVarFlags.ExecuteOnServer, helpText = "Forces a family event to occur during the next stage. " + Lang.FAMILYEVENT_ARGS)]
         private static void CCFamilyEvent(ConCommandArgs args)
         {
-            On.RoR2.ClassicStageInfo.RebuildCards += Hooks.ForceFamilyEvent;
+            On.RoR2.DccsPool.GenerateWeightedSelection += Hooks.ForceFamilyEventForDccsPoolStages;
+            On.RoR2.ClassicStageInfo.RebuildCards += Hooks.ForceFamilyEventForNonDccsPoolStages;
+
             Log.MessageNetworked("The next stage will contain a family event!", args);
         }
 
@@ -234,9 +237,6 @@ namespace DebugToolkit.Commands
         [AutoCompletion(typeof(StringFinder), "characterSpawnCard", "spawnCard", true)]
         private static void CCNextBoss(ConCommandArgs args)
         {
-            //Log.MessageNetworked("This feature is currently not working. We'll hopefully provide an update to this soon.", args);
-            //return;
-            Log.MessageNetworked(Lang.PARTIALIMPLEMENTATION_WARNING, args, LogLevel.MessageClientOnly);
             if (args.Count == 0)
             {
                 Log.MessageNetworked(Lang.NEXTBOSS_ARGS, args);
