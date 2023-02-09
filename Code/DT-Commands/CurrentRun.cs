@@ -172,7 +172,7 @@ namespace DebugToolkit.Commands
         private static void CCKillAll(ConCommandArgs args)
         {
             TeamIndex team;
-            if (args.Count == 0)
+            if (args.Count ==  0 || args[0] == Lang.DEFAULT_VALUE)
             {
                 team = TeamIndex.Monster;
             }

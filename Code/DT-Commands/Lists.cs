@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using UnityEngine;
 using static DebugToolkit.Log;
@@ -38,18 +39,41 @@ namespace DebugToolkit.Commands
         [ConCommand(commandName = "list_player", flags = ConVarFlags.None, helpText = Lang.LISTPLAYER_ARGS)]
         private static void CCListPlayer(ConCommandArgs args)
         {
-            NetworkUser n;
-            StringBuilder list = new StringBuilder();
-            for (int i = 0; i < NetworkUser.readOnlyInstancesList.Count; i++)
-            {
-                n = NetworkUser.readOnlyInstancesList[i];
-                list.AppendLine($"[{i}]{n.userName}");
+            StringBuilder sb = new StringBuilder();
+            int i = 0;
+            int resultCount = 0;
 
+            if (args.Count > 0)
+            {
+                string name = args[0];
+                foreach (var user in NetworkUser.readOnlyInstancesList)
+                {
+                    var userName = user.userName;
+                    if (int.TryParse(name, out int iName) && i == iName || userName.ToUpper().Contains(name.ToUpper()))
+                    {
+                        sb.AppendLine($"[{i}]{userName}");
+                        resultCount++;
+                    }
+                    i++;
+                }
+                if (resultCount == 0)
+                {
+                    sb.AppendLine($"No players found that match \"{name}\".");
+                }
             }
-            Log.MessageNetworked(list.ToString(), args, LogLevel.MessageClientOnly);
+            else
+            {
+                foreach (var user in NetworkUser.readOnlyInstancesList)
+                {
+                    sb.AppendLine($"[{i}]{user.userName}");
+                    i++;
+
+                }
+            }
+            Log.MessageNetworked(sb.ToString(), args, LogLevel.MessageClientOnly);
         }
 
-        [ConCommand(commandName = "list_AI", flags = ConVarFlags.None, helpText = Lang.LISTAI_ARGS)]
+        [ConCommand(commandName = "list_ai", flags = ConVarFlags.None, helpText = Lang.LISTAI_ARGS)]
         private static void CCListAI(ConCommandArgs args)
         {
             string langInvar;
@@ -87,7 +111,7 @@ namespace DebugToolkit.Commands
 
         }
 
-        [ConCommand(commandName = "list_Body", flags = ConVarFlags.None, helpText = Lang.LISTBODY_ARGS)]
+        [ConCommand(commandName = "list_body", flags = ConVarFlags.None, helpText = Lang.LISTBODY_ARGS)]
         private static void CCListBody(ConCommandArgs args)
         {
             StringBuilder sb = new StringBuilder();
@@ -126,7 +150,93 @@ namespace DebugToolkit.Commands
             Log.Message(sb);
         }
 
-        [ConCommand(commandName = "list_Directorcards", flags = ConVarFlags.None, helpText = Lang.NOMESSAGE)]
+        [ConCommand(commandName = "list_elite", flags = ConVarFlags.None, helpText = Lang.LISTELITE_ARGS)]
+        private static void CCListElites(ConCommandArgs args)
+        {
+            StringBuilder sb = new StringBuilder();
+            int resultCount = 0;
+            int i = 0;
+
+            if (args.Count > 0)
+            {
+                string name = args.GetArgString(0);
+                if (int.TryParse(name, out int iName) && iName == -1 || "NONE".Contains(name.ToUpper()))
+                {
+                    sb.AppendLine("[-1]None");
+                    resultCount++;
+                }
+                foreach (var elite in EliteCatalog.eliteDefs)
+                {
+                    var eliteName = Regex.Replace(elite.name, "^ed", "");
+                    if (int.TryParse(name, out iName) && i == iName || eliteName.ToUpper().Contains(name.ToUpper()))
+                    {
+                        sb.AppendLine($"[{i}][{eliteName}");
+                        resultCount++;
+                    }
+                    i++;
+                }
+                if (resultCount == 0)
+                {
+                    sb.AppendLine($"No elites found that match \"{name}\".");
+                }
+            }
+            else
+            {
+                sb.AppendLine("[-1]None");
+                foreach (var elite in EliteCatalog.eliteDefs)
+                {
+                    var eliteName = elite.name.Substring(2);
+                    sb.AppendLine($"[{i}]{eliteName}");
+                    i++;
+                }
+            }
+            Log.MessageNetworked(sb.ToString(), args, LogLevel.MessageClientOnly);
+        }
+
+        [ConCommand(commandName = "list_team", flags = ConVarFlags.None, helpText = Lang.LISTTEAM_ARGS)]
+        private static void CCListTeams(ConCommandArgs args)
+        {
+            StringBuilder sb = new StringBuilder();
+            int resultCount = 0;
+            sbyte i = 0;
+
+            if (args.Count > 0)
+            {
+                string name = args[0];
+                if (int.TryParse(name, out int iName) && iName == -1 || "NONE".Contains(name.ToUpper()))
+                {
+                    sb.AppendLine("[-1]None");
+                    resultCount++;
+                }
+                foreach (var team in TeamCatalog.teamDefs)
+                {
+                    var teamName = ((TeamIndex)i).ToString();
+                    if (int.TryParse(name, out iName) && i == iName || teamName.ToUpper().Contains(name.ToUpper()))
+                    {
+                        sb.AppendLine($"[{i}]{teamName}");
+                        resultCount++;
+                    }
+                    i++;
+                }
+                if (resultCount == 0)
+                {
+                    sb.AppendLine($"No teams found that match \"{name}\".");
+                }
+            }
+            else
+            {
+                sb.AppendLine("[-1]None");
+                foreach (var team in TeamCatalog.teamDefs)
+                {
+                    var teamName = ((TeamIndex)i).ToString();
+                    sb.AppendLine($"[{i}]{teamName}");
+                    i++;
+                }
+            }
+            Log.MessageNetworked(sb.ToString(), args, LogLevel.MessageClientOnly);
+        }
+
+        [ConCommand(commandName = "list_directorcards", flags = ConVarFlags.None, helpText = Lang.NOMESSAGE)]
         private static void CCListDirectorCards(ConCommandArgs _)
         {
             StringBuilder sb = new StringBuilder();

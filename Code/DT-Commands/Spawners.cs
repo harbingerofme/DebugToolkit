@@ -77,7 +77,7 @@ namespace DebugToolkit.Commands
             var body = masterprefab.GetComponent<CharacterMaster>().bodyPrefab;
 
             int amount = 1;
-            if (args.Count > 1)
+            if (args.Count > 1 && args[1] != Lang.DEFAULT_VALUE)
             {
                 if (int.TryParse(args[1], out amount) == false)
                 {
@@ -95,7 +95,7 @@ namespace DebugToolkit.Commands
                 master.bodyPrefab = body;
                 master.SpawnBody(args.sender.master.GetBody().transform.position, Quaternion.identity);
 
-                if (args.Count > 2)
+                if (args.Count > 2 && args[2] != Lang.DEFAULT_VALUE)
                 {
                     var eliteDef = int.TryParse(args[2], out var eliteIndex) ?
                         EliteCatalog.GetEliteDef((EliteIndex)eliteIndex) :
@@ -108,13 +108,13 @@ namespace DebugToolkit.Commands
                     }
                 }
 
-                if (args.Count > 3 && Util.TryParseBool(args[3], out bool braindead) && braindead)
+                if (args.Count > 3 && args[3] != Lang.DEFAULT_VALUE && Util.TryParseBool(args[3], out bool braindead) && braindead)
                 {
                     UnityEngine.Object.Destroy(master.GetComponent<BaseAI>());
                 }
 
                 TeamIndex teamIndex = TeamIndex.Monster;
-                if (args.Count > 4)
+                if (args.Count > 4 && args[4] != Lang.DEFAULT_VALUE)
                 {
                     StringFinder.TryGetEnumFromPartial(args[4], out teamIndex);
                 }
