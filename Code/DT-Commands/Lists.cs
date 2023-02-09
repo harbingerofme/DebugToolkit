@@ -39,15 +39,38 @@ namespace DebugToolkit.Commands
         [ConCommand(commandName = "list_player", flags = ConVarFlags.None, helpText = Lang.LISTPLAYER_ARGS)]
         private static void CCListPlayer(ConCommandArgs args)
         {
-            NetworkUser n;
-            StringBuilder list = new StringBuilder();
-            for (int i = 0; i < NetworkUser.readOnlyInstancesList.Count; i++)
-            {
-                n = NetworkUser.readOnlyInstancesList[i];
-                list.AppendLine($"[{i}]{n.userName}");
+            StringBuilder sb = new StringBuilder();
+            int i = 0;
+            int resultCount = 0;
 
+            if (args.Count > 0)
+            {
+                string name = args[0];
+                foreach (var user in NetworkUser.readOnlyInstancesList)
+                {
+                    var userName = user.userName;
+                    if (int.TryParse(name, out int iName) && i == iName || userName.ToUpper().Contains(name.ToUpper()))
+                    {
+                        sb.AppendLine($"[{i}]{userName}");
+                        resultCount++;
+                    }
+                    i++;
+                }
+                if (resultCount == 0)
+                {
+                    sb.AppendLine($"No players found that match \"{name}\".");
+                }
             }
-            Log.MessageNetworked(list.ToString(), args, LogLevel.MessageClientOnly);
+            else
+            {
+                foreach (var user in NetworkUser.readOnlyInstancesList)
+                {
+                    sb.AppendLine($"[{i}]{user.userName}");
+                    i++;
+
+                }
+            }
+            Log.MessageNetworked(sb.ToString(), args, LogLevel.MessageClientOnly);
         }
 
         [ConCommand(commandName = "list_ai", flags = ConVarFlags.None, helpText = Lang.LISTAI_ARGS)]
