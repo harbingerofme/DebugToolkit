@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <Version>3.7.1</Version>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <Authors>Harbingerofme; Paddywan; iDeathHD; Heyimnoop</Authors>
+    <Authors>DebugToolkit Contributors</Authors>
     <Description>DebugToolkit is an expansive list of console commands for Risk of Rain 2, intended to make forcing specific situation easier. This is supposed to help with testing of interactions, mods, and what else.</Description>
     <RepositoryUrl>https://github.com/harbingerofme/DebugToolkit</RepositoryUrl>
     <Configurations>Debug;Release;BLEEDING-EDGE;NO-UNET</Configurations>
@@ -13,7 +13,7 @@
     <ApplicationIcon>Resources\icon.ico</ApplicationIcon>
     <SignAssembly>false</SignAssembly>
     <PackageIcon>icon.png</PackageIcon>
-    <Copyright>2023 Harbingerofme; Paddywan; iDeathHD</Copyright>
+    <Copyright>2023 DebugToolkit Contributors</Copyright>
     <AssemblyVersion>3.7.3.0</AssemblyVersion>
     <FileVersion>3.7.3.0</FileVersion>
   </PropertyGroup>
