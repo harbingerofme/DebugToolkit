@@ -45,7 +45,7 @@ Commands:
 
 * **next_stage** - Advance to the next stage. `next_stage [specific_stage]`. If no stage is entered, the next stage in progression is selected.
 * **force_family_event** - Forces a Family Event to happen in the next stage, takes no arguments. `force_family_event`
-* **next_boss** - Sets the teleporter boss to the specified boss. `next_boss {(csc|director_card)} [count:1] [elite:None]`
+* **next_boss** - Sets the teleporter boss to the specified boss. Get a list of potential boss with `list_directorcards` `next_boss {(csc|director_card)} [count:1] [elite:None]`
 * **fixed_time** - Sets the time that has progressed in the run. Affects difficulty. `fixed_time [time]`. If no time is supplied, prints the current time to console.
 * **add_portal** - Teleporter will attempt to spawn after the teleporter completion. `add_portal {('blue'|'gold'|'celestial'|'null'|'void'|'deepvoid'|'all')}`. The `null` portal doesn't require a teleporter and will spawn in front of the player.
 * **seed** - Set the seed for all next runs this session. `seed [new_seed]`. Use `0` to specify the game should generate its own seed. If used without argument, it's equivalent to the vanilla `run_get_seed`.
@@ -66,8 +66,8 @@ List Commands:
 * **list_team** - List all Teams and their language invariants.
 * **list_item** - List all Items, their language invariants, and if they are in the current drop pool.
 * **list_equip** - List all Equipment, their language invariants, and if they are in the current drop pool.
-* **list_interactables** List all Interactables. Currently not working as expected.
-* **list_directorcards** List all Director Cards. Currently not working as expected.
+* **list_interactables** List all Interactables.
+* **list_directorcards** List all Director Cards. Mainly used for the `next_boss` command.
 * **list_skins** List all Body Skins and the language invariant of the current one in use.
 
 Item Commands:
