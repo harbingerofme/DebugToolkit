@@ -310,14 +310,23 @@ namespace DebugToolkit
         internal static void CombatDirector_SetNextSpawnAsBoss(On.RoR2.CombatDirector.orig_SetNextSpawnAsBoss orig, CombatDirector self)
         {
             orig(self);
-            var selected = CurrentRun.nextBoss;
-            selected.spawnCard.directorCreditCost = (int)((self.monsterCredit / CurrentRun.nextBossCount) / Spawners.GetTierDef(CurrentRun.nextBossElite).costMultiplier);
-            self.OverrideCurrentMonsterCard(selected);
-            self.SetFieldValue<CombatDirector.EliteTierDef>("currentActiveEliteTier", Spawners.GetTierDef(CurrentRun.nextBossElite));
-            self.SetFieldValue<EliteIndex>("currentActiveEliteIndex", CurrentRun.nextBossElite);
-            Log.Message($"{selected.spawnCard.name} cost has been set to {selected.cost} for {CurrentRun.nextBossCount} {CurrentRun.nextBossElite} bosses with available credit: {self.monsterCredit}", Log.LogLevel.Info);
+
+            var selectedBossCard = CurrentRun.nextBoss;
+
+            var eliteTierDef = Spawners.GetTierDef(CurrentRun.nextBossElite.eliteIndex);
+
+            selectedBossCard.spawnCard.directorCreditCost = (int)((self.monsterCredit / CurrentRun.nextBossCount) / eliteTierDef.costMultiplier);
+
+            self.OverrideCurrentMonsterCard(selectedBossCard);
+
+            self.currentActiveEliteTier = eliteTierDef;
+            self.currentActiveEliteDef = CurrentRun.nextBossElite;
+
+            Log.Message($"{selectedBossCard.spawnCard.name} cost has been set to {selectedBossCard.cost} for {CurrentRun.nextBossCount} {CurrentRun.nextBossElite} bosses with available credit: {self.monsterCredit}", Log.LogLevel.Info);
+
             CurrentRun.nextBossCount = 1;
-            CurrentRun.nextBossElite = EliteIndex.None;
+            CurrentRun.nextBossElite = CombatDirector.eliteTiers[0].GetRandomAvailableEliteDef(self.rng);
+
             On.RoR2.CombatDirector.SetNextSpawnAsBoss -= CombatDirector_SetNextSpawnAsBoss;
         }
 

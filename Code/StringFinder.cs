@@ -312,30 +312,41 @@ namespace DebugToolkit
             return SkinIndex.None;
         }
 
-        /// <summary>
-        /// This is probably horrible and going to break.
-        /// </summary>
-        /// <param name="name">The partial name to query, priority given to exact csc match, fails over to GetMasterName</param>
-        /// <returns>The matched DirectorCard or throws exception.</returns>
-        public DirectorCard GetDirectorCardFromPartial(string name)
+        public DirectorCard GetDirectorCardFromPartial(string masterNameUpper)
         {
+            var nameUpper = masterNameUpper.ToUpperInvariant();
 
             foreach (DirectorCard dc in characterSpawnCard)
             {
-                if (dc.spawnCard.name.ToUpper().Replace("CSC", String.Empty).Equals(name.ToUpper()))
+                var spawnCardNameUpper = dc.spawnCard.name.ToUpperInvariant();
+
+                if (nameUpper == spawnCardNameUpper)
+                {
+                    return dc;
+                }
+
+                if (spawnCardNameUpper.Replace("CSC", String.Empty).Equals(nameUpper))
                 {
                     return dc;
                 }
             }
-            name = GetMasterName(name).ToUpper();//.Replace("MASTER", string.Empty)
+
+            var masterName = GetMasterName(masterNameUpper);
+            if (masterName != null)
+            {
+                masterNameUpper = masterName.ToUpper();
             foreach (DirectorCard dc in characterSpawnCard)
             {
-                if (dc.spawnCard.prefab.name.ToUpper().Equals(name))
+                    var spawnCardPrefabNameUpper = dc.spawnCard.prefab.name.ToUpperInvariant();
+
+                    if (masterNameUpper == spawnCardPrefabNameUpper)
                 {
                     return dc;
                 }
             }
-            throw new Exception($"DirectorCard {name} not found. ");
+            }
+
+            return null;
         }
 
         /// <summary>

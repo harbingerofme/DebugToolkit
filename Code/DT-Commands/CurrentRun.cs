@@ -18,7 +18,7 @@ namespace DebugToolkit.Commands
 
         internal static DirectorCard nextBoss;
         internal static int nextBossCount = 1;
-        internal static EliteIndex nextBossElite = EliteIndex.None;
+        internal static EliteDef nextBossElite;
 
         [ConCommand(commandName = "add_portal", flags = ConVarFlags.ExecuteOnServer, helpText = "Add a portal to the current Teleporter on completion. " + Lang.ADDPORTAL_ARGS)]
         private static void CCAddPortal(ConCommandArgs args)
@@ -231,7 +231,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "next_boss", flags = ConVarFlags.ExecuteOnServer, helpText = "Sets the next teleporter instance to the specified boss. " + Lang.NEXTBOSS_ARGS)]
-        [AutoCompletion(typeof(StringFinder), "characterSpawnCard", "spawnCard/prefab")]
+        [AutoCompletion(typeof(StringFinder), "characterSpawnCard", "spawnCard", true)]
         private static void CCNextBoss(ConCommandArgs args)
         {
             //Log.MessageNetworked("This feature is currently not working. We'll hopefully provide an update to this soon.", args);
@@ -241,6 +241,7 @@ namespace DebugToolkit.Commands
             {
                 Log.MessageNetworked(Lang.NEXTBOSS_ARGS, args);
             }
+
             StringBuilder s = new StringBuilder();
             if (args.Count >= 1)
             {
@@ -265,14 +266,30 @@ namespace DebugToolkit.Commands
                             {
                                 nextBossCount = 1;
                             }
+
                             s.Append($"Count:  {nextBossCount}. ");
+
                             if (args.Count >= 3)
                             {
-                                nextBossElite = StringFinder.GetEnumFromPartial<EliteIndex>(args[2]);
-                                s.Append("Elite: " + nextBossElite.ToString());
+                                var eliteDef = int.TryParse(args[2], out var eliteIndex) ?
+                                    EliteCatalog.GetEliteDef((EliteIndex)eliteIndex) :
+                                    EliteCatalog.eliteDefs.FirstOrDefault(d => d.name.ToLowerInvariant().Contains(args[2].ToLowerInvariant()));
+                                if (eliteDef)
+                                {
+                                    nextBossElite = eliteDef;
+                                    s.Append("Elite: " + nextBossElite.name);
+                                }
+                                else
+                                {
+                                    s.Append($"Elite type {args[2]} not recognized");
+                                }
                             }
                         }
                     }
+
+                    // Unsub the last in case the user already used the command and want to change their mind.
+                    On.RoR2.CombatDirector.SetNextSpawnAsBoss -= Hooks.CombatDirector_SetNextSpawnAsBoss;
+
                     On.RoR2.CombatDirector.SetNextSpawnAsBoss += Hooks.CombatDirector_SetNextSpawnAsBoss;
                     Log.MessageNetworked(s.ToString(), args);
                 }
