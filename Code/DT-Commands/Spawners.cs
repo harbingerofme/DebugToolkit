@@ -175,7 +175,7 @@ namespace DebugToolkit.Commands
                 }
             }
 
-            return null;
+            return CombatDirector.eliteTiers[0];
         }
     }
 }

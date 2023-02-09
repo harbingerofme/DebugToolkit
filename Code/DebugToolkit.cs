@@ -56,7 +56,6 @@ namespace DebugToolkit
             PermissionSystem.Init();
             Hooks.InitializeHooks();
             NetworkManager.Init();
-            StringFinder.Instance.PopulateIscInfo();
         }
 
         private void Start()
