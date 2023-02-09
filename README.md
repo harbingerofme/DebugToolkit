@@ -39,7 +39,9 @@ Verbiage:
 - The brackets encapsulating arguments mean `{needed}`, `(choose one)`, and `[optional]`.
 - If an optional argument has a default value, it will be indicated with `:`. Any preceeding optional arguments from the one entered become necessary, but empty double quotes can be used as a placeholder for the default value. If an optional argument is required from a dedicated server, it will be preceeded by `*`.
 - Player, body, AI, item, equipment, team, elite, and interactable values can be declared by either their ID, or their string name. The latter can be written in freeform and it will be matched to the first result that contains the string. See the related `list_` commands for options and which result would take precedence if there are multiple matches.
-<br>
+
+Commands:
+
 * **next_stage** - Advance to the next stage. `next_stage [specific_stage]`. If no stage is entered, the next stage in progression is selected.
 * **force_family_event** - Forces a Family Event to happen in the next stage, takes no arguments. `force_family_event`
 * **next_boss** - Sets the teleporter boss to the specified boss. `next_boss {(csc|director_card)} [count:1] [elite:None]`
@@ -53,6 +55,8 @@ Verbiage:
 * **time_scale** -  Sets the timescale of the game. 0.5 would mean everything happens at half speed. `time_scale [time_scale]`. If no argument is supplied, gives the current timescale.
 * **post_sound_event** - Post a sound event to the AkSoundEngine (WWise) by its event name: `post_sound_event {event_name}`
 
+List Commands:
+
 * [All the `list_` commands support filtering](https://user-images.githubusercontent.com/72328339/213889205-2dbaab4f-3b88-481e-ba29-2a466a10ed53.png)
 * **list_player** - List all Players and their ID.
 * **list_body** - List all Bodies and their language invariants.
@@ -65,6 +69,8 @@ Verbiage:
 * **list_directorcards** List all Director Cards. Currently not working as expected.
 * **list_skins** List all Body Skins and the language invariant of the current one in use.
 
+Item Commands:
+
 * **give_item** - Give an item directly to a character's inventory: `give_item {item} [count:1] *[target (player|'pinged'):<self>]`
 * **random_items** - Generate random items from the available droptables. `random_items {count} *[target (player|'pinged'):<self>]`
 * **give_equip** - Give an equipment directly to a character's inventory: `give_equip {(equip|'random')} *[target (player|'pinged'):<self>]`
@@ -76,26 +82,36 @@ Verbiage:
 * **remove_equip** - Sets the equipment of a character to 'None'. `remove_equip *[target (player|'pinged'):<self>]`
 * **create_pickup** - Creates a pickup in front of the issuing player. Pickups are items, equipment, or lunar coins. Additionally 'item' or 'equip' may be specified to only search that list. `create_pickup {(object|'coin')} [search ('item'|'equip'):<both>]`
 
+Spawn Commands:
+
 * **spawn_interactable/spawn_interactible** - Spawns an interactible in front of the player. `(spawn_interactable|spawn_interactible) {interactable}`
 * **spawn_ai** - Spawn an AI. `spawn_ai {ai} [count:1] [elite:None] [braindead (0|1):0/false] [team:Monster]`.
 * **spawn_as** - Spawn as a new character. `spawn_as {body} [target player:<self>]`
 * **spawn_body** - Spawns a CharacterBody with no AI, inventory, or team alliance: `spawn_body {body}`
 * **change_team** - Change a player's team. `change_team {team} [target player:<self>]`.
 
+Cheat Commands:
+
 * **no_enemies** - Toggles enemy spawns.
 * **god** - Toggles HealthComponent.TakeDamage for all players. AKA: you can't take damage.
 * **lock_exp** - Prevents EXP gain for the player team.
 * **noclip** - Toggles noclip. Allow you to fly and going through objects. Sprinting will double the speed.
 
+Bind Commands:
+
 * **dt_bind** - Bind a key to execute specific commands. `dt_bind {key} {<consolecommands seperated by ;>}`
 * **dt_bind_delete** Remove a custom bind. `dt_bind_delete {key}`
 * **dt_bind_reload** Reload the macro system from file. `dt_bind_reload` 
+
+Server Related Commands:
 
 * **kick** - Kicks the specified Player Name/ID from the game.
 * **ban** - Session bans the specified Player Name/ID from the game.
 
 * **perm_enable** - Enable or disable the permission system.
 * **perm_mod** - Change the permission level of the specified PlayerID/Username with the specified Permission Level.
+
+Reload Commands:
 
 * **perm_reload** - Reload the permission system, updates user and commands permissions.
 * **reload_all_config** - Reload all default config files from all loaded BepinEx plugins.
