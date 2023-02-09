@@ -13,7 +13,7 @@ namespace DebugToolkit.Commands
             Invoke(a, "team_set_level", "1", "15");
             foreach (NetworkUser user in NetworkUser.readOnlyInstancesList)
             {
-                Invoke(a, "remove_item", Lang.ALL, user.userName);
+                Invoke(a, "remove_all_items", user.userName);
                 Invoke(a, "random_items", "23", user.userName);
                 Invoke(a, "give_equip", "random", user.userName);
             }
@@ -29,7 +29,7 @@ namespace DebugToolkit.Commands
             Invoke(a, "team_set_level", "1", "24");
             foreach (NetworkUser user in NetworkUser.readOnlyInstancesList)
             {
-                Invoke(a, "remove_item", Lang.ALL, user.userName);
+                Invoke(a, "remove_all_items", user.userName);
                 Invoke(a, "random_items", "75", user.userName);
                 Invoke(a, "give_equip", "random", user.userName);
             }

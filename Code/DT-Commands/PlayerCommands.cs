@@ -82,8 +82,8 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            CharacterMaster master = args.sender?.master;
-            if (args.Count > 1)
+            CharacterMaster master = args.sender.master;
+            if (args.Count > 1 && args[1] != Lang.DEFAULT_VALUE)
             {
                 NetworkUser player = Util.GetNetUserFromString(args.userArgs, 1);
                 if (player != null)
@@ -125,8 +125,8 @@ namespace DebugToolkit.Commands
                 Log.Message(Lang.DS_REQUIREFULLQUALIFY, LogLevel.Error);
                 return;
             }
-            CharacterMaster master = args.sender?.master;
-            if (args.Count > 0)
+            CharacterMaster master = args.sender.master;
+            if (args.Count > 0 && args[0] != Lang.DEFAULT_VALUE)
             {
                 NetworkUser player = Util.GetNetUserFromString(args.userArgs);
                 if (player != null)
@@ -159,8 +159,8 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            CharacterMaster master = args.sender?.master;
-            if (args.Count > 1)
+            CharacterMaster master = args.sender.master;
+            if (args.Count > 1 && args[1] != Lang.DEFAULT_VALUE)
             {
                 NetworkUser player = Util.GetNetUserFromString(args.userArgs, 1);
                 if (player != null)
@@ -188,7 +188,7 @@ namespace DebugToolkit.Commands
                 }
             }
             //Note the `return` on succesful evaluation.
-            Log.MessageNetworked("Invalid team. Please use 0,'neutral',1,'player',2, or 'monster'", args, LogLevel.MessageClientOnly);
+            Log.MessageNetworked("Invalid team. Please check list_team for options.", args, LogLevel.MessageClientOnly);
 
         }
 
