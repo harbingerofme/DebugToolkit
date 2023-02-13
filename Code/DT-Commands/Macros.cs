@@ -4,7 +4,7 @@ namespace DebugToolkit.Commands
 {
     static class Macros
     {
-        [ConCommand(commandName = "midgame", flags = ConVarFlags.ExecuteOnServer, helpText = "sets the current run to the 'midgame' as defined by HG. This command is DESTRUCTIVE.")]
+        [ConCommand(commandName = "midgame", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.MACRO_MIDGAME_HELP)]
         private static void Midgame(ConCommandArgs args)
         {
             NetworkUser a = args.sender;
@@ -20,7 +20,7 @@ namespace DebugToolkit.Commands
             Invoke(a, "set_scene", "bazaar");
         }
 
-        [ConCommand(commandName = "lategame", flags = ConVarFlags.ExecuteOnServer, helpText = "sets the current run to the 'lategame' as defined by HG. This command is DESTRUCTIVE.")]
+        [ConCommand(commandName = "lategame", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.MACRO_LATEGAME_HELP)]
         private static void LateGame(ConCommandArgs args)
         {
             NetworkUser a = args.sender;
@@ -36,7 +36,7 @@ namespace DebugToolkit.Commands
             Invoke(a, "set_scene", "bazaar");
         }
 
-        [ConCommand(commandName = "dtzoom", flags = ConVarFlags.ExecuteOnServer, helpText = "gives you 20 hooves and 200 feathers for getting around quickly.")]
+        [ConCommand(commandName = "dtzoom", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.MACRO_DTZOOM_HELP)]
         private static void Zoom(ConCommandArgs args)
         {
             Invoke(args.sender, "give_item", "hoof", "20");

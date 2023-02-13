@@ -9,66 +9,63 @@ namespace DebugToolkit.Commands
 {
     class LobbyManagement
     {
-        [ConCommand(commandName = "kick", flags = ConVarFlags.ExecuteOnServer, helpText = "Kicks the specified player from the session. " + Lang.KICK_ARGS)]
+        [ConCommand(commandName = "kick", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.KICK_HELP)]
         [RequiredLevel]
         private static void CCKick(ConCommandArgs args)
         {
             if (args.Count == 0)
             {
-                Log.MessageNetworked(Lang.KICK_ARGS, args, LogLevel.Error);
+                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.KICK_ARGS, args, LogLevel.Error);
                 return;
             }
-            try
+            NetworkUser nu = Util.GetNetUserFromString(args.userArgs);
+            if (nu == null)
             {
-                NetworkUser nu = Util.GetNetUserFromString(args.userArgs);
+                Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.Error);
+                return;
+            }
 
-                // Check if we can kick targeted user.
-                if (!Application.isBatchMode)
+            // Check if we can kick targeted user.
+            if (!Application.isBatchMode)
+            {
+                foreach (var serverLocalUsers in NetworkUser.readOnlyLocalPlayersList)
                 {
-                    foreach (var serverLocalUsers in NetworkUser.readOnlyLocalPlayersList)
+                    if (serverLocalUsers == nu)
                     {
-                        if (serverLocalUsers == nu)
-                        {
-                            Log.MessageNetworked("Specified user is hosting.", args, LogLevel.Error);
-                            return;
-                        }
-                    }
-                }
-                else if (PermissionSystem.IsEnabled.Value)
-                {
-                    if (!PermissionSystem.HasMorePerm(args.sender, nu, args))
-                    {
+                        Log.MessageNetworked("Specified user is hosting.", args, LogLevel.Error);
                         return;
                     }
                 }
-
-                NetworkConnection client = null;
-                foreach (var connection in NetworkServer.connections)
-                {
-                    if (nu.connectionToClient == connection)
-                    {
-                        client = connection;
-                        break;
-                    }
-                }
-
-                if (client != null)
-                {
-                    var reason = new NetworkManagerSystem.SimpleLocalizedKickReason("KICK_REASON_KICK");
-                    NetworkManagerSystem.singleton.ServerKickClient(client, reason);
-                }
-                else
-                {
-                    Log.MessageNetworked("Error trying to find the associated connection with the user", args, LogLevel.Error);
-                }
             }
-            catch
+            else if (PermissionSystem.IsEnabled.Value)
             {
-                Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.Error);
+                if (!PermissionSystem.HasMorePerm(args.sender, nu, args))
+                {
+                    Log.MessageNetworked("The target has a higher permission level that you.", args, LogLevel.Error);
+                    return;
+                }
             }
+
+            NetworkConnection client = null;
+            foreach (var connection in NetworkServer.connections)
+            {
+                if (nu.connectionToClient == connection)
+                {
+                    client = connection;
+                    break;
+                }
+            }
+
+            if (client == null)
+            {
+                Log.MessageNetworked("Error trying to find the associated connection with the user", args, LogLevel.Error);
+                return;
+            }
+            var reason = new NetworkManagerSystem.SimpleLocalizedKickReason("KICK_REASON_KICK");
+            NetworkManagerSystem.singleton.ServerKickClient(client, reason);
         }
 
-        [ConCommand(commandName = "ban", flags = ConVarFlags.ExecuteOnServer, helpText = "Bans the specified player from the session. " + Lang.BAN_ARGS)]
+        [ConCommand(commandName = "ban", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.BAN_HELP)]
         [RequiredLevel]
         private static void CCBan(ConCommandArgs args)
         {
@@ -77,76 +74,70 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(Lang.BAN_ARGS, args, LogLevel.Error);
                 return;
             }
-            try
+            NetworkUser nu = Util.GetNetUserFromString(args.userArgs);
+            if (nu == null)
             {
-                NetworkUser nu = Util.GetNetUserFromString(args.userArgs);
+                Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.Error);
+                return;
+            }
 
-                // Check if we can kick targeted user.
-                if (!Application.isBatchMode)
+            // Check if we can kick targeted user.
+            if (!Application.isBatchMode)
+            {
+                foreach (var serverLocalUsers in NetworkUser.readOnlyLocalPlayersList)
                 {
-                    foreach (var serverLocalUsers in NetworkUser.readOnlyLocalPlayersList)
+                    if (serverLocalUsers == nu)
                     {
-                        if (serverLocalUsers == nu)
-                        {
-                            Log.MessageNetworked("Specified user is hosting.", args, LogLevel.Error);
-                            return;
-                        }
-                    }
-                }
-                else if (PermissionSystem.IsEnabled.Value)
-                {
-                    if (!PermissionSystem.HasMorePerm(args.sender, nu, args))
-                    {
+                        Log.MessageNetworked("Specified user is hosting.", args, LogLevel.Error);
                         return;
                     }
                 }
-
-                NetworkConnection client = null;
-                foreach (var connection in NetworkServer.connections)
-                {
-                    if (nu.connectionToClient == connection)
-                    {
-                        client = connection;
-                        break;
-                    }
-                }
-
-                if (client != null)
-                {
-                    NetworkManagerSystem.singleton.ServerBanClient(client);
-                }
-                else
-                {
-                    Log.MessageNetworked("Error trying to find the associated connection with the user", args, LogLevel.Error);
-                }
             }
-            catch
+            else if (PermissionSystem.IsEnabled.Value)
             {
-                Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.Error);
+                if (!PermissionSystem.HasMorePerm(args.sender, nu, args))
+                {
+                    Log.MessageNetworked("The target has a higher permission level that you.", args, LogLevel.Error);
+                    return;
+                }
             }
+
+            NetworkConnection client = null;
+            foreach (var connection in NetworkServer.connections)
+            {
+                if (nu.connectionToClient == connection)
+                {
+                    client = connection;
+                    break;
+                }
+            }
+
+            if (client != null)
+            {
+                Log.MessageNetworked("Error trying to find the associated connection with the user", args, LogLevel.Error);
+                return;
+            }
+            NetworkManagerSystem.singleton.ServerBanClient(client);
         }
 
-        [ConCommand(commandName = "true_kill", flags = ConVarFlags.ExecuteOnServer, helpText = "Ignore Dio's and kill the entity. " + Lang.TRUEKILL_ARGS)]
+        [ConCommand(commandName = "true_kill", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.TRUEKILL_HELP)]
         private static void CCTrueKill(ConCommandArgs args)
         {
             if (args.sender == null && args.Count < 1)
             {
-                Log.Message(Lang.DS_REQUIREFULLQUALIFY, LogLevel.Error);
+                Log.Message(Lang.INSUFFICIENT_ARGS + Lang.TRUEKILL_ARGS, LogLevel.Error);
                 return;
             }
             CharacterMaster master = args.sender?.master;
             if (args.Count > 0)
             {
                 NetworkUser player = Util.GetNetUserFromString(args.userArgs);
-                if (player != null)
-                {
-                    master = player.master;
-                }
-                else
+                if (player == null)
                 {
                     Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
                     return;
                 }
+                master = player.master;
             }
 
             master.TrueKill();

@@ -157,7 +157,7 @@ namespace DebugToolkit.Permissions
             }
         }
 
-        [ConCommand(commandName = "perm_reload", flags = ConVarFlags.ExecuteOnServer, helpText = "Reload the permission system, updates user and commands permissions.")]
+        [ConCommand(commandName = "perm_reload", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.PERM_RELOAD_HELP)]
         [RequiredLevel(Level.Admin)]
         private static void CCReloadPermissionSystem(ConCommandArgs args)
         {
@@ -166,7 +166,7 @@ namespace DebugToolkit.Permissions
             Log.MessageNetworked("Config File of DebugToolkit / Permission System successfully reloaded.", args, Log.LogLevel.Info);
         }
 
-        [ConCommand(commandName = "perm_enable", flags = ConVarFlags.ExecuteOnServer, helpText = "Enable or disable the permission system." + Lang.PERM_ENABLE_ARGS)]
+        [ConCommand(commandName = "perm_enable", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.PERM_ENABLE_HELP)]
         [RequiredLevel(Level.Admin)]
         private static void CCPermissionEnable(ConCommandArgs args)
         {
@@ -176,7 +176,12 @@ namespace DebugToolkit.Permissions
             }
             else
             {
-                IsEnabled.Value = args.GetArgBool(0);
+                if (!bool.TryParse(args[0], out bool value))
+                {
+                    Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "value", "bool"), args, Log.LogLevel.ErrorClientOnly);
+                    return;
+                }
+                IsEnabled.Value = value;
             }
 
             var res = IsEnabled.Value ? "enabled. Saving and reloading the permission system" : "disabled";
@@ -186,13 +191,13 @@ namespace DebugToolkit.Permissions
             Init();
         }
 
-        [ConCommand(commandName = "perm_mod", flags = ConVarFlags.ExecuteOnServer, helpText = "Change the permission level of the specified playerid/username" + Lang.PERM_MOD_ARGS)]
+        [ConCommand(commandName = "perm_mod", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.PERM_MOD_HELP)]
         [RequiredLevel(Level.Admin)]
         private static void CCPermissionAddUser(ConCommandArgs args)
         {
             if (args.Count == 0)
             {
-                Log.MessageNetworked(Lang.PERM_MOD_ARGS, args, Log.LogLevel.Error);
+                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.PERM_MOD_ARGS, args, Log.LogLevel.Error);
                 return;
             }
             try

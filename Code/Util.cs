@@ -17,6 +17,7 @@ namespace DebugToolkit
         {
             if (args.Count > 0 && startLocation < args.Count)
             {
+                // This doesn't seem to be necessary
                 if (args[startLocation].StartsWith("\""))
                 {
                     var startString = string.Join(" ", args);
@@ -33,8 +34,6 @@ namespace DebugToolkit
                     {
                         return NetworkUser.readOnlyInstancesList[result];
                     }
-
-                    Log.Message(Lang.PLAYER_NOTFOUND);
                     return null;
                 }
 
@@ -45,10 +44,8 @@ namespace DebugToolkit
                         return n;
                     }
                 }
-
                 return null;
             }
-
             return null;
         }
 

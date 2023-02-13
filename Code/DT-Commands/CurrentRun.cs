@@ -21,9 +21,19 @@ namespace DebugToolkit.Commands
         internal static int nextBossCount = 1;
         internal static EliteDef nextBossElite;
 
-        [ConCommand(commandName = "add_portal", flags = ConVarFlags.ExecuteOnServer, helpText = "Add a portal to the current Teleporter on completion. " + Lang.ADDPORTAL_ARGS)]
+        [ConCommand(commandName = "add_portal", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.ADDPORTAL_HELP)]
         private static void CCAddPortal(ConCommandArgs args)
         {
+            if (!Run.instance)
+            {
+                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            if (args.Count == 0)
+            {
+                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.ADDPORTAL_ARGS, args, LogLevel.MessageClientOnly);
+                return;
+            }
             var portalName = args[0].ToLower();
             var teleporterInteraction = TeleporterInteraction.instance;
             if (!teleporterInteraction)
@@ -138,7 +148,7 @@ namespace DebugToolkit.Commands
             }
         }
 
-        [ConCommand(commandName = "no_enemies", flags = ConVarFlags.ExecuteOnServer, helpText = "Toggle Monster spawning. " + Lang.NOENEMIES_ARGS)]
+        [ConCommand(commandName = "no_enemies", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.NOENEMIES_HELP)]
         private static void CCNoEnemies(ConCommandArgs args)
         {
             noEnemies = !noEnemies;
@@ -151,10 +161,10 @@ namespace DebugToolkit.Commands
             {
                 SceneDirector.onPrePopulateSceneServer -= Hooks.OnPrePopulateSetMonsterCreditZero;
             }
-            Log.MessageNetworked("No_enemies set to " + CurrentRun.noEnemies, args);
+            Log.MessageNetworked("no_enemies set to " + CurrentRun.noEnemies, args);
         }
 
-        [ConCommand(commandName = "lock_exp", flags = ConVarFlags.ExecuteOnServer, helpText = "Toggle Experience gain. " + Lang.LOCKEXP_ARGS)]
+        [ConCommand(commandName = "lock_exp", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.LOCKEXP_HELP)]
         private static void CCLockExperience(ConCommandArgs args)
         {
             lockExp = !lockExp;
@@ -169,41 +179,38 @@ namespace DebugToolkit.Commands
             Log.MessageNetworked("lock_exp set to " + CurrentRun.lockExp, args);
         }
 
-        [ConCommand(commandName = "kill_all", flags = ConVarFlags.ExecuteOnServer, helpText = "Kill all entities on the specified team. " + Lang.KILLALL_ARGS)]
+        [ConCommand(commandName = "kill_all", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.KILLALL_HELP)]
         private static void CCKillAll(ConCommandArgs args)
         {
-            TeamIndex team;
-            if (args.Count ==  0 || args[0] == Lang.DEFAULT_VALUE)
+            if (!Run.instance)
             {
-                team = TeamIndex.Monster;
+                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
+                return;
             }
-            else
+            TeamIndex team = TeamIndex.Monster;
+            if (args.Count > 0 && args[0] != Lang.DEFAULT_VALUE && !StringFinder.TryGetEnumFromPartial(args[0], out team))
             {
-                team = StringFinder.GetEnumFromPartial<TeamIndex>(args[0]);
+                Log.MessageNetworked(Lang.TEAM_NOTFOUND, args, LogLevel.MessageClientOnly);
+                return;
             }
 
             int count = 0;
-
             foreach (CharacterMaster cm in UnityEngine.Object.FindObjectsOfType<CharacterMaster>())
             {
                 if (cm.teamIndex == team)
                 {
                     CharacterBody cb = cm.GetBody();
-                    if (cb)
+                    if (cb && cb.healthComponent)
                     {
-                        if (cb.healthComponent)
-                        {
-                            cb.healthComponent.Suicide(null);
-                            count++;
-                        }
+                        cb.healthComponent.Suicide(null);
+                        count++;
                     }
-
                 }
             }
-            Log.MessageNetworked("Killed " + count + " of team " + team + ".", args);
+            Log.MessageNetworked($"Killed {count} of team {team}.", args);
         }
 
-        [ConCommand(commandName = "time_scale", flags = ConVarFlags.Engine | ConVarFlags.ExecuteOnServer, helpText = "Sets the Time Delta. " + Lang.TIMESCALE_ARGS)]
+        [ConCommand(commandName = "time_scale", flags = ConVarFlags.Engine | ConVarFlags.ExecuteOnServer, helpText = Lang.TIMESCALE_HELP)]
         private static void CCTimeScale(ConCommandArgs args)
         {
             if (args.Count == 0)
@@ -212,19 +219,16 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            if (TextSerialization.TryParseInvariant(args[0], out float scale))
+            if (!TextSerialization.TryParseInvariant(args[0], out float scale))
             {
-                Time.timeScale = scale;
-
-                TimescaleNet.Invoke(scale);
+                Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "time_scale", "float"), args, LogLevel.MessageClientOnly);
+                return;
             }
-            else
-            {
-                Log.Message(Lang.TIMESCALE_ARGS, LogLevel.MessageClientOnly);
-            }
+            Time.timeScale = scale;
+            TimescaleNet.Invoke(scale);
         }
 
-        [ConCommand(commandName = "force_family_event", flags = ConVarFlags.ExecuteOnServer, helpText = "Forces a family event to occur during the next stage. " + Lang.FAMILYEVENT_ARGS)]
+        [ConCommand(commandName = "force_family_event", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.FAMILYEVENT_HELP)]
         private static void CCFamilyEvent(ConCommandArgs args)
         {
             On.RoR2.DccsPool.GenerateWeightedSelection += Hooks.ForceFamilyEventForDccsPoolStages;
@@ -233,78 +237,77 @@ namespace DebugToolkit.Commands
             Log.MessageNetworked("The next stage will contain a family event!", args);
         }
 
-        [ConCommand(commandName = "next_boss", flags = ConVarFlags.ExecuteOnServer, helpText = "Sets the next teleporter instance to the specified boss. " + Lang.NEXTBOSS_ARGS)]
+        [ConCommand(commandName = "next_boss", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.NEXTBOSS_HELP)]
         [AutoCompletion(typeof(StringFinder), "characterSpawnCard", "spawnCard", true)]
         private static void CCNextBoss(ConCommandArgs args)
         {
             if (args.Count == 0)
             {
-                Log.MessageNetworked(Lang.NEXTBOSS_ARGS, args);
+                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.NEXTBOSS_ARGS, args, LogLevel.MessageClientOnly);
+                return;
             }
 
             StringBuilder s = new StringBuilder();
-            if (args.Count >= 1)
+            nextBoss = StringFinder.Instance.GetDirectorCardFromPartial(args[0]);
+            if (nextBoss == null)
             {
-                try
+                Log.MessageNetworked(Lang.OBJECT_NOTFOUND + args[0], args, LogLevel.MessageClientOnly);
+                return;
+            }
+            s.AppendLine($"Next boss is: {nextBoss.spawnCard.name}. ");
+            if (args.Count > 1)
+            {
+                if (!TextSerialization.TryParseInvariant(args[1], out int nextBossCount))
                 {
-                    nextBoss = StringFinder.Instance.GetDirectorCardFromPartial(args[0]);
-                    s.AppendLine($"Next boss is: {nextBoss.spawnCard.name}. ");
-                    if (args.Count >= 2)
-                    {
-                        if (!int.TryParse(args[1], out nextBossCount))
-                        {
-                            Log.MessageNetworked(Lang.COUNTISNUMERIC, args, LogLevel.MessageClientOnly);
-                            nextBossCount = 1;
-                        }
-                        else
-                        {
-                            if (nextBossCount > 6)
-                            {
-                                nextBossCount = 6;
-                            }
-                            else if (nextBossCount <= 0)
-                            {
-                                nextBossCount = 1;
-                            }
-
-                            s.Append($"Count:  {nextBossCount}. ");
-
-                            if (args.Count >= 3)
-                            {
-                                var eliteDef = int.TryParse(args[2], out var eliteIndex) ?
-                                    EliteCatalog.GetEliteDef((EliteIndex)eliteIndex) :
-                                    EliteCatalog.eliteDefs.FirstOrDefault(d => d.name.ToLowerInvariant().Contains(args[2].ToLowerInvariant()));
-                                if (eliteDef)
-                                {
-                                    nextBossElite = eliteDef;
-                                    s.Append("Elite: " + nextBossElite.name);
-                                }
-                                else
-                                {
-                                    s.Append($"Elite type {args[2]} not recognized");
-                                }
-                            }
-                        }
-                    }
-
-                    // Unsub the last in case the user already used the command and want to change their mind.
-                    On.RoR2.CombatDirector.SetNextSpawnAsBoss -= Hooks.CombatDirector_SetNextSpawnAsBoss;
-
-                    On.RoR2.CombatDirector.SetNextSpawnAsBoss += Hooks.CombatDirector_SetNextSpawnAsBoss;
-                    Log.MessageNetworked(s.ToString(), args);
+                    Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "count", "int"), args, LogLevel.MessageClientOnly);
+                    return;
                 }
-                catch (Exception ex)
+                if (nextBossCount > 6)
                 {
-                    Log.MessageNetworked(Lang.OBJECT_NOTFOUND + args[0], args, LogLevel.ErrorClientOnly);
-                    Log.MessageNetworked(ex.ToString(), args, LogLevel.ErrorClientOnly);
+                    nextBossCount = 6;
+                    Log.MessageNetworked("'count' is capped at 6.", args, LogLevel.WarningClientOnly);
+                }
+                else if (nextBossCount <= 0)
+                {
+                    nextBossCount = 1;
+                    Log.MessageNetworked("'count' must be non-zero positive.", args, LogLevel.WarningClientOnly);
+                }
+                s.Append($"Count:  {nextBossCount}. ");
+
+                if (args.Count > 2 && args[2] != Lang.DEFAULT_VALUE)
+                {
+                    var eliteDef = int.TryParse(args[2], out var eliteIndex) ?
+                        EliteCatalog.GetEliteDef((EliteIndex)eliteIndex) :
+                        EliteCatalog.eliteDefs.FirstOrDefault(d => d.name.ToLowerInvariant().Contains(args[2].ToLowerInvariant()));
+                    if (eliteDef)
+                    {
+                        nextBossElite = eliteDef;
+                        s.Append("Elite: " + nextBossElite.name);
+                    }
+                    else
+                    {
+                        Log.MessageNetworked(Lang.ELITE_NOTFOUND, args, LogLevel.MessageClientOnly);
+                        return;
+                    }
                 }
             }
+
+            // Unsub the last in case the user already used the command and want to change their mind.
+            On.RoR2.CombatDirector.SetNextSpawnAsBoss -= Hooks.CombatDirector_SetNextSpawnAsBoss;
+
+            On.RoR2.CombatDirector.SetNextSpawnAsBoss += Hooks.CombatDirector_SetNextSpawnAsBoss;
+            Log.MessageNetworked(s.ToString(), args);
         }
 
-        [ConCommand(commandName = "next_stage", flags = ConVarFlags.ExecuteOnServer, helpText = "Forces a stage change to the specified stage. " + Lang.NEXTSTAGE_ARGS)]
+        [ConCommand(commandName = "next_stage", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.NEXTSTAGE_HELP)]
         [AutoCompletion(typeof(SceneCatalog), "indexToSceneDef", "_cachedName")]
         private static void CCNextStage(ConCommandArgs args)
         {
+            if (!Run.instance)
+            {
+                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
+                return;
+            }
             if (args.Count == 0)
             {
                 Run.instance.AdvanceStage(Run.instance.nextStageScene);
@@ -322,12 +325,11 @@ namespace DebugToolkit.Commands
             }
             else
             {
-                Log.MessageNetworked(Lang.NEXTROUND_STAGE, args, LogLevel.WarningClientOnly);
-                DebugToolkit.InvokeCMD(args.sender, "scene_list");
+                Log.MessageNetworked(Lang.STAGE_NOTFOUND, args, LogLevel.MessageClientOnly);
             }
         }
 
-        [ConCommand(commandName = "seed", flags = ConVarFlags.ExecuteOnServer, helpText = "Gets/Sets the game seed until game close. Use 0 to reset to vanilla generation. " + Lang.SEED_ARGS)]
+        [ConCommand(commandName = "seed", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SEED_HELP)]
         private static void CCUseSeed(ConCommandArgs args)
         {
             if (args.Count == 0)
@@ -344,10 +346,10 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(s, args, LogLevel.MessageClientOnly);
                 return;
             }
-            args.CheckArgumentCount(1);
             if (!TextSerialization.TryParseInvariant(args[0], out ulong result))
             {
-                throw new ConCommandException("Specified seed is not a parsable uint64.");
+                Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "new_seed", "ulong"), args, LogLevel.MessageClientOnly);
+                return;
             }
 
             if (PreGameController.instance)
@@ -369,27 +371,28 @@ namespace DebugToolkit.Commands
             Log.MessageNetworked($"Seed set to {((seed == 0) ? "vanilla generation" : seed.ToString())}.", args);
         }
 
-        [ConCommand(commandName = "fixed_time", flags = ConVarFlags.ExecuteOnServer, helpText = "Sets the run timer to the specified value. " + Lang.FIXEDTIME_ARGS)]
+        [ConCommand(commandName = "fixed_time", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.FIXEDTIME_HELP)]
         private static void CCSetTime(ConCommandArgs args)
         {
-
+            if (!Run.instance)
+            {
+                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
+                return;
+            }
             if (args.Count == 0)
             {
                 Log.MessageNetworked("Run time is " + Run.instance.GetRunStopwatch().ToString(), args, LogLevel.MessageClientOnly);
                 return;
             }
 
-            if (TextSerialization.TryParseInvariant(args[0], out float setTime))
+            if (!TextSerialization.TryParseInvariant(args[0], out float setTime))
             {
-                Run.instance.SetRunStopwatch(setTime);
-                ResetEnemyTeamLevel();
-                Log.MessageNetworked("Run timer set to " + setTime, args);
+                Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "time", "float"), args, LogLevel.MessageClientOnly);
+                return;
             }
-            else
-            {
-                Log.MessageNetworked(Lang.FIXEDTIME_ARGS, args, LogLevel.MessageClientOnly);
-            }
-
+            Run.instance.SetRunStopwatch(setTime);
+            ResetEnemyTeamLevel();
+            Log.MessageNetworked("Run timer set to " + setTime, args);
         }
 
         private static void ResetEnemyTeamLevel()
