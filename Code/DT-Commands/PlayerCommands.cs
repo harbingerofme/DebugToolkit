@@ -40,6 +40,11 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
                 return;
             }
+            if (!args.senderBody)
+            {
+                Log.MessageNetworked("Can't toggle noclip while you're dead. " + Lang.USE_RESPAWN, args, LogLevel.MessageClientOnly);
+                return;
+            }
             NoclipNet.Invoke(args.sender); // callback
         }
 
@@ -54,6 +59,11 @@ namespace DebugToolkit.Commands
             if (!Run.instance)
             {
                 Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            if (!args.senderBody)
+            {
+                Log.MessageNetworked("Can't toggle noclip while you're dead. " + Lang.USE_RESPAWN, args, LogLevel.MessageClientOnly);
                 return;
             }
             TeleportNet.Invoke(args.sender); // callback
@@ -100,6 +110,7 @@ namespace DebugToolkit.Commands
             if (!master.GetBody())
             {
                 Log.MessageNetworked(Lang.PLAYER_DEADRESPAWN, args);
+                return;
             }
 
             RoR2.ConVar.BoolConVar stage1pod = Stage.stage1PodConVar;
@@ -166,6 +177,11 @@ namespace DebugToolkit.Commands
                 }
                 master = player.master;
             }
+            if (!master.GetBody())
+            {
+                Log.MessageNetworked("Can't change a dead player's team. " + Lang.USE_RESPAWN, args, LogLevel.MessageClientOnly);
+                return;
+            }
 
             if (!Enum.TryParse(StringFinder.GetEnumFromPartial<TeamIndex>(args[0]).ToString(), true, out TeamIndex teamIndex))
             {
@@ -174,13 +190,9 @@ namespace DebugToolkit.Commands
             }
             if ((int)teamIndex >= (int)TeamIndex.None && (int)teamIndex < (int)TeamIndex.Count)
             {
-                if (master.GetBody())
-                {
-                    master.GetBody().teamComponent.teamIndex = teamIndex;
-                    master.teamIndex = teamIndex;
-                    Log.MessageNetworked("Changed to team " + teamIndex, args);
-                    return;
-                }
+                master.GetBody().teamComponent.teamIndex = teamIndex;
+                master.teamIndex = teamIndex;
+                Log.MessageNetworked("Changed to team " + teamIndex, args);
             }
         }
 

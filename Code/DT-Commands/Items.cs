@@ -94,17 +94,15 @@ namespace DebugToolkit.Commands
             if (args.Count > 2 && args[2] != Lang.DEFAULT_VALUE)
             {
                 target = Util.GetBodyFromArgs(args.userArgs, 2, isDedicatedServer);
+                if (target == null && !isDedicatedServer && args[2] == Lang.PINGED)
+                {
+                    Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
+                    return;
+                }
             }
             if (target == null)
             {
-                if (!isDedicatedServer && args[2].ToUpper() == Lang.PINGED)
-                {
-                    Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
-                }
-                else
-                {
-                    Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
-                }
+                Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
                 return;
             }
             NetworkUser player = RoR2.Util.LookUpBodyNetworkUser(target);
@@ -146,17 +144,15 @@ namespace DebugToolkit.Commands
             if (args.Count > 1 && args[1] != Lang.DEFAULT_VALUE)
             {
                 target = Util.GetBodyFromArgs(args.userArgs, 1, isDedicatedServer);
+                if (target == null && !isDedicatedServer && args[1] == Lang.PINGED)
+                {
+                    Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
+                    return;
+                }
             }
             if (target == null)
             {
-                if (!isDedicatedServer && args[1].ToUpper() == Lang.PINGED)
-                {
-                    Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
-                }
-                else
-                {
-                    Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
-                }
+                Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
                 return;
             }
             NetworkUser player = RoR2.Util.LookUpBodyNetworkUser(target);
@@ -205,17 +201,15 @@ namespace DebugToolkit.Commands
             if (args.Count > 1 && args[1] != Lang.DEFAULT_VALUE)
             {
                 target = Util.GetBodyFromArgs(args.userArgs, 1, isDedicatedServer);
+                if (target == null && !isDedicatedServer && args[1] == Lang.PINGED)
+                {
+                    Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
+                    return;
+                }
             }
             if (target == null)
             {
-                if (!isDedicatedServer && args[1].ToUpper() == Lang.PINGED)
-                {
-                    Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
-                }
-                else
-                {
-                    Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
-                }
+                Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
                 return;
             }
             NetworkUser player = RoR2.Util.LookUpBodyNetworkUser(target);
@@ -385,17 +379,15 @@ namespace DebugToolkit.Commands
             if (args.Count > 2 && args[2] != Lang.DEFAULT_VALUE)
             {
                 target = Util.GetBodyFromArgs(args.userArgs, 2, isDedicatedServer);
+                if (target == null && !isDedicatedServer && args[2] == Lang.PINGED)
+                {
+                    Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
+                    return;
+                }
             }
             if (target == null)
             {
-                if (!isDedicatedServer && args[2].ToUpper() == Lang.PINGED)
-                {
-                    Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
-                }
-                else
-                {
-                    Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
-                }
+                Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
                 return;
             }
             NetworkUser player = RoR2.Util.LookUpBodyNetworkUser(target);
@@ -437,17 +429,15 @@ namespace DebugToolkit.Commands
             if (args.Count > 1 && args[1] != Lang.DEFAULT_VALUE)
             {
                 target = Util.GetBodyFromArgs(args.userArgs, 1, isDedicatedServer);
+                if (target == null && !isDedicatedServer && args[1] == Lang.PINGED)
+                {
+                    Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
+                    return;
+                }
             }
             if (target == null)
             {
-                if (!isDedicatedServer && args[1].ToUpper() == Lang.PINGED)
-                {
-                    Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
-                }
-                else
-                {
-                    Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
-                }
+                Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
                 return;
             }
             NetworkUser player = RoR2.Util.LookUpBodyNetworkUser(target);
@@ -490,17 +480,15 @@ namespace DebugToolkit.Commands
             if (args.Count > 0 && args[0] != Lang.DEFAULT_VALUE)
             {
                 target = Util.GetBodyFromArgs(args.userArgs, 0, isDedicatedServer);
+                if (target == null && !isDedicatedServer && args[0] == Lang.PINGED)
+                {
+                    Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
+                    return;
+                }
             }
             if (target == null)
             {
-                if (!isDedicatedServer && args[0].ToUpper() == Lang.PINGED)
-                {
-                    Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
-                }
-                else
-                {
-                    Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
-                }
+                Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
                 return;
             }
             NetworkUser player = RoR2.Util.LookUpBodyNetworkUser(target);
@@ -538,17 +526,15 @@ namespace DebugToolkit.Commands
             if (args.Count > 0 && args[0] != Lang.DEFAULT_VALUE)
             {
                 target = Util.GetBodyFromArgs(args.userArgs, 0, isDedicatedServer);
+                if (target == null && !isDedicatedServer && args[0] == Lang.PINGED)
+                {
+                    Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
+                    return;
+                }
             }
             if (target == null)
             {
-                if (!isDedicatedServer && args[0].ToUpper() == Lang.PINGED)
-                {
-                    Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
-                }
-                else
-                {
-                    Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
-                }
+                Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
                 return;
             }
             NetworkUser player = RoR2.Util.LookUpBodyNetworkUser(target);

@@ -31,6 +31,11 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.SPAWNINTERACTABLE_ARGS, args, LogLevel.MessageClientOnly);
                 return;
             }
+            if (!args.senderBody)
+            {
+                Log.MessageNetworked("Can't spawn an object with relation to a dead target.", args, LogLevel.MessageClientOnly);
+                return;
+            }
             var isc = StringFinder.Instance.GetInteractableSpawnCard(args[0]);
             if (isc == null)
             {
@@ -81,6 +86,11 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.SPAWNAI_ARGS, args, LogLevel.MessageClientOnly);
                 return;
             }
+            if (!args.senderBody)
+            {
+                Log.MessageNetworked("Can't spawn an object with relation to a dead target.", args, LogLevel.MessageClientOnly);
+                return;
+            }
 
             string character = StringFinder.Instance.GetMasterName(args[0]);
             if (character == null)
@@ -97,7 +107,7 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "count", "int"), args, LogLevel.MessageClientOnly);
                 return;
             }
-            Vector3 location = args.sender.master.GetBody().transform.position;
+            Vector3 location = args.senderBody.transform.position;
             Log.MessageNetworked(string.Format(Lang.SPAWN_ATTEMPT_2, amount, character), args);
             for (int i = 0; i < amount; i++)
             {
@@ -169,6 +179,11 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.SPAWNBODY_ARGS, args, LogLevel.MessageClientOnly);
                 return;
             }
+            if (!args.senderBody)
+            {
+                Log.MessageNetworked("Can't spawn an object with relation to a dead target.", args, LogLevel.MessageClientOnly);
+                return;
+            }
 
             string character = StringFinder.Instance.GetBodyName(args[0]);
             if (character == null)
@@ -178,7 +193,7 @@ namespace DebugToolkit.Commands
             }
 
             GameObject body = BodyCatalog.FindBodyPrefab(character);
-            GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(body, args.sender.master.GetBody().transform.position, Quaternion.identity);
+            GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(body, args.senderBody.transform.position, Quaternion.identity);
             NetworkServer.Spawn(gameObject);
             Log.MessageNetworked(string.Format(Lang.SPAWN_ATTEMPT_1, character), args);
         }

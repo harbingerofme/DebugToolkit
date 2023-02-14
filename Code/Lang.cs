@@ -110,11 +110,12 @@
             NOMESSAGE = "Yell at the modmakers if you see this message!",
             NOCLIP_TOGGLE = "Noclip toggled to {0}",
             PARTIALIMPLEMENTATION_WARNING = "WARNING: PARTIAL IMPLEMENTATION. WIP.",
-            PLAYER_DEADRESPAWN = "Player will spawn as the specified body next round. (Use 'respawn' to skip the wait)",
-            PLAYER_SKINCHANGERESPAWN = "Player will spawn with the specified skin next round. (Use 'respawn' to skip the wait)",
+            PLAYER_DEADRESPAWN = "Player will spawn as the specified body next round. " + USE_RESPAWN,
+            PLAYER_SKINCHANGERESPAWN = "Player will spawn with the specified skin next round. " + USE_RESPAWN,
             RUNSETSTAGESCLEARED_HELP = "Sets the amount of stages cleared. This does not change the current stage.",
             SPAWN_ATTEMPT_1 = "Attempting to spawn: {0}",
-            SPAWN_ATTEMPT_2 = "Attempting to spawn {0}: {1}"
+            SPAWN_ATTEMPT_2 = "Attempting to spawn {0}: {1}",
+            USE_RESPAWN = "Use 'respawn' to skip the wait."
             ;
 
         // Errors
@@ -129,7 +130,7 @@
             OBJECT_NOTFOUND = "The requested object could not be found: ",
             PARSE_ERROR = "Unable to parse {0} to {1}.",
             PINGEDBODY_NOTFOUND = "Pinged target not found. Either the last ping was not a character, or it has been destroyed since.",
-            PLAYER_NOTFOUND = "Specified player does not exist. Please use list_player for options.",
+            PLAYER_NOTFOUND = "Specified player not found or isn't alive. Please use list_player for options.",
             PORTAL_NOTFOUND = "The specified portal could not be found. Valid portals: 'blue','gold','celestial','null','void','deepvoid','all'",
             SPAWN_ERROR = "Could not spawn: ",
             STAGE_NOTFOUND = "Stage not found. Please use scene_list for options.",
