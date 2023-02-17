@@ -21,7 +21,7 @@ namespace DebugToolkit.Commands
                 playerInstance.master.ToggleGod();
                 if (hasNotYetRun)
                 {
-                    Log.MessageNetworked($"God mode {(playerInstance.master.GetBody().healthComponent.godMode ? "enabled" : "disabled")}.", args);
+                    Log.MessageNetworked($"God mode {(playerInstance.master.godMode ? "enabled" : "disabled")}.", args);
                     hasNotYetRun = false;
                 }
             }

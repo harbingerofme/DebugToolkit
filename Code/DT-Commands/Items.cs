@@ -90,11 +90,11 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            CharacterBody target = args.senderBody;
+            CharacterMaster target = args.senderMaster;
             if (args.Count > 2 && args[2] != Lang.DEFAULT_VALUE)
             {
-                target = Util.GetBodyFromArgs(args.userArgs, 2, isDedicatedServer);
-                if (target == null && !isDedicatedServer && args[2] == Lang.PINGED)
+                target = Util.GetTargetFromArgs(args.userArgs, 2, isDedicatedServer);
+                if (target == null && !isDedicatedServer && args[2].ToUpper() == Lang.PINGED)
                 {
                     Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
                     return;
@@ -105,7 +105,7 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
                 return;
             }
-            NetworkUser player = RoR2.Util.LookUpBodyNetworkUser(target);
+            NetworkUser player = target.playerCharacterMasterController?.networkUser;
             string targetName = (player != null) ? player.masterController.GetDisplayName() : target.gameObject.name;
 
             Inventory inventory = target.inventory;
@@ -140,11 +140,11 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            CharacterBody target = args.senderBody;
+            CharacterMaster target = args.senderMaster;
             if (args.Count > 1 && args[1] != Lang.DEFAULT_VALUE)
             {
-                target = Util.GetBodyFromArgs(args.userArgs, 1, isDedicatedServer);
-                if (target == null && !isDedicatedServer && args[1] == Lang.PINGED)
+                target = Util.GetTargetFromArgs(args.userArgs, 1, isDedicatedServer);
+                if (target == null && !isDedicatedServer && args[1].ToUpper() == Lang.PINGED)
                 {
                     Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
                     return;
@@ -155,7 +155,7 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
                 return;
             }
-            NetworkUser player = RoR2.Util.LookUpBodyNetworkUser(target);
+            NetworkUser player = target.playerCharacterMasterController?.networkUser;
             string targetName = (player != null) ? player.masterController.GetDisplayName() : target.gameObject.name;
 
             Inventory inventory = target.inventory;
@@ -197,11 +197,11 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            CharacterBody target = args.senderBody;
+            CharacterMaster target = args.senderMaster;
             if (args.Count > 1 && args[1] != Lang.DEFAULT_VALUE)
             {
-                target = Util.GetBodyFromArgs(args.userArgs, 1, isDedicatedServer);
-                if (target == null && !isDedicatedServer && args[1] == Lang.PINGED)
+                target = Util.GetTargetFromArgs(args.userArgs, 1, isDedicatedServer);
+                if (target == null && !isDedicatedServer && args[1].ToUpper() == Lang.PINGED)
                 {
                     Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
                     return;
@@ -212,7 +212,7 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
                 return;
             }
-            NetworkUser player = RoR2.Util.LookUpBodyNetworkUser(target);
+            NetworkUser player = target.playerCharacterMasterController?.networkUser;
             string targetName = (player != null) ? player.masterController.GetDisplayName() : target.gameObject.name;
 
             Inventory inventory = target.inventory;
@@ -261,7 +261,7 @@ namespace DebugToolkit.Commands
                 return;
             }
             string str = "Nothing happened. Big surprise.";
-            NetworkUser target = RoR2.Util.LookUpBodyNetworkUser(args.senderBody);
+            NetworkUser target = args.sender;
             if (amount > 0)
             {
                 target.AwardLunarCoins((uint)amount);
@@ -299,7 +299,13 @@ namespace DebugToolkit.Commands
                     return;
                 }
             }
-            Transform transform = player.GetCurrentBody().gameObject.transform;
+            Transform transform = player.GetCurrentBody()?.gameObject.transform;
+            if (transform == null)
+            {
+                // We could possibly use `player.master.deathFootPosition` instead
+                Log.MessageNetworked("Can't spawn an object with relation to a dead player.", args, LogLevel.MessageClientOnly);
+                return;
+            }
 
             bool searchEquip = true, searchItem = true;
             if (args.Count > 1 && args[1] != Lang.DEFAULT_VALUE)
@@ -375,11 +381,11 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            CharacterBody target = args.senderBody;
+            CharacterMaster target = args.senderMaster;
             if (args.Count > 2 && args[2] != Lang.DEFAULT_VALUE)
             {
-                target = Util.GetBodyFromArgs(args.userArgs, 2, isDedicatedServer);
-                if (target == null && !isDedicatedServer && args[2] == Lang.PINGED)
+                target = Util.GetTargetFromArgs(args.userArgs, 2, isDedicatedServer);
+                if (target == null && !isDedicatedServer && args[2].ToUpper() == Lang.PINGED)
                 {
                     Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
                     return;
@@ -390,7 +396,7 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
                 return;
             }
-            NetworkUser player = RoR2.Util.LookUpBodyNetworkUser(target);
+            NetworkUser player = target.playerCharacterMasterController?.networkUser;
             string targetName = (player != null) ? player.masterController.GetDisplayName() : target.gameObject.name;
 
             Inventory inventory = target.inventory;
@@ -425,11 +431,11 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            CharacterBody target = args.senderBody;
+            CharacterMaster target = args.senderMaster;
             if (args.Count > 1 && args[1] != Lang.DEFAULT_VALUE)
             {
-                target = Util.GetBodyFromArgs(args.userArgs, 1, isDedicatedServer);
-                if (target == null && !isDedicatedServer && args[1] == Lang.PINGED)
+                target = Util.GetTargetFromArgs(args.userArgs, 1, isDedicatedServer);
+                if (target == null && !isDedicatedServer && args[1].ToUpper() == Lang.PINGED)
                 {
                     Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
                     return;
@@ -440,7 +446,7 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
                 return;
             }
-            NetworkUser player = RoR2.Util.LookUpBodyNetworkUser(target);
+            NetworkUser player = target.playerCharacterMasterController?.networkUser;
             string targetName = (player != null) ? player.masterController.GetDisplayName() : target.gameObject.name;
 
             Inventory inventory = target.inventory;
@@ -476,11 +482,11 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            CharacterBody target = args.senderBody;
+            CharacterMaster target = args.senderMaster;
             if (args.Count > 0 && args[0] != Lang.DEFAULT_VALUE)
             {
-                target = Util.GetBodyFromArgs(args.userArgs, 0, isDedicatedServer);
-                if (target == null && !isDedicatedServer && args[0] == Lang.PINGED)
+                target = Util.GetTargetFromArgs(args.userArgs, 0, isDedicatedServer);
+                if (target == null && !isDedicatedServer && args[0].ToUpper() == Lang.PINGED)
                 {
                     Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
                     return;
@@ -491,7 +497,7 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
                 return;
             }
-            NetworkUser player = RoR2.Util.LookUpBodyNetworkUser(target);
+            NetworkUser player = target.playerCharacterMasterController?.networkUser;
             string targetName = (player != null) ? player.masterController.GetDisplayName() : target.gameObject.name;
 
             Inventory inventory = target.inventory;
@@ -522,11 +528,11 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            CharacterBody target = args.senderBody;
+            CharacterMaster target = args.senderMaster;
             if (args.Count > 0 && args[0] != Lang.DEFAULT_VALUE)
             {
-                target = Util.GetBodyFromArgs(args.userArgs, 0, isDedicatedServer);
-                if (target == null && !isDedicatedServer && args[0] == Lang.PINGED)
+                target = Util.GetTargetFromArgs(args.userArgs, 0, isDedicatedServer);
+                if (target == null && !isDedicatedServer && args[0].ToUpper() == Lang.PINGED)
                 {
                     Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
                     return;
@@ -537,7 +543,7 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
                 return;
             }
-            NetworkUser player = RoR2.Util.LookUpBodyNetworkUser(target);
+            NetworkUser player = target.playerCharacterMasterController?.networkUser;
             string targetName = (player != null) ? player.masterController.GetDisplayName() : target.gameObject.name;
 
             Inventory inventory = target.inventory;

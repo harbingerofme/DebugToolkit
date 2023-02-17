@@ -55,28 +55,17 @@ namespace DebugToolkit
         /// <param name="args">(string[])args array</param>
         /// <param name="index">(int)on the string array, at which index the target string is</param>
         /// <param name="isDedicatedServer">whether the command has been submitted from a dedicated server</param>
-        /// <returns>Returns the found body. Null otherwise</returns>
-        internal static CharacterBody GetBodyFromArgs(List<string> args, int index, bool isDedicatedServer)
+        /// <returns>Returns the found master. Null otherwise</returns>
+        internal static CharacterMaster GetTargetFromArgs(List<string> args, int index, bool isDedicatedServer)
         {
-            CharacterBody target = null;
-            if (isDedicatedServer)
+            CharacterMaster target;
+            if (!isDedicatedServer && args[index].ToUpper() == Lang.PINGED)
             {
-                target = GetNetUserFromString(args, index)?.GetCurrentBody();
+                target = Hooks.GetPingedTarget();
             }
             else
             {
-                if (args[index].ToUpper() == Lang.PINGED)
-                {
-                    var pingedBody = Hooks.GetPingedBody();
-                    if (pingedBody)
-                    {
-                        target = pingedBody;
-                    }
-                }
-                else
-                {
-                    target = GetNetUserFromString(args, index)?.GetCurrentBody();
-                }
+                target = GetNetUserFromString(args, index)?.master;
             }
             return target;
         }
