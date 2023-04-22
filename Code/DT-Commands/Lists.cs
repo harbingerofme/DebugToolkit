@@ -12,18 +12,18 @@ namespace DebugToolkit.Commands
 {
     class Lists
     {
-        [ConCommand(commandName = "list_interactables", flags = ConVarFlags.None, helpText = Lang.LISTINTERACTABLE_ARGS)]
-        private static void CCList_interactables(ConCommandArgs args)
+        [ConCommand(commandName = "list_interactables", flags = ConVarFlags.None, helpText = Lang.LISTINTERACTABLE_HELP)]
+        private static void CCListInteractables(ConCommandArgs args)
         {
             //edits based on StringFinder.GetInteractableSpawnCard()
             StringBuilder s = new StringBuilder();
             IEnumerable<InteractableSpawnCard> list;
             if (args.Count > 0)
             {
-                list = StringFinder.Instance.GetInteractableSpawnCards(args.GetArgString(0));
+                list = StringFinder.Instance.GetInteractableSpawnCards(args[0]);
 
                 if (list.Count() == 0)
-                    s.AppendLine($"No interactables found that match \"{args.GetArgString(0)}\".");
+                    s.AppendLine($"No interactables found that match \"{args[0]}\".");
             } else
             {
                 list = StringFinder.Instance.InteractableSpawnCards;
@@ -33,10 +33,10 @@ namespace DebugToolkit.Commands
             {
                 s.AppendLine(isc.name.Replace("isc", string.Empty));
             }
-            Log.Message(s.ToString(), LogLevel.MessageClientOnly);
+            Log.MessageNetworked(s.ToString(), args, LogLevel.MessageClientOnly);
         }
 
-        [ConCommand(commandName = "list_player", flags = ConVarFlags.None, helpText = Lang.LISTPLAYER_ARGS)]
+        [ConCommand(commandName = "list_player", flags = ConVarFlags.None, helpText = Lang.LISTPLAYER_HELP)]
         private static void CCListPlayer(ConCommandArgs args)
         {
             StringBuilder sb = new StringBuilder();
@@ -73,7 +73,7 @@ namespace DebugToolkit.Commands
             Log.MessageNetworked(sb.ToString(), args, LogLevel.MessageClientOnly);
         }
 
-        [ConCommand(commandName = "list_ai", flags = ConVarFlags.None, helpText = Lang.LISTAI_ARGS)]
+        [ConCommand(commandName = "list_ai", flags = ConVarFlags.None, helpText = Lang.LISTAI_HELP)]
         private static void CCListAI(ConCommandArgs args)
         {
             string langInvar;
@@ -82,7 +82,7 @@ namespace DebugToolkit.Commands
             int resultCount = 0;
             if (args.Count > 0)
             {
-                string name = args.GetArgString(0);
+                string name = args[0];
                 foreach (var master in MasterCatalog.allAiMasters)
                 {
                     var masterName = master.name.ToUpper();
@@ -107,11 +107,10 @@ namespace DebugToolkit.Commands
                     i++;
                 }
             }
-            Log.Message(sb);
-
+            Log.MessageNetworked(sb.ToString(), args, LogLevel.MessageClientOnly);
         }
 
-        [ConCommand(commandName = "list_body", flags = ConVarFlags.None, helpText = Lang.LISTBODY_ARGS)]
+        [ConCommand(commandName = "list_body", flags = ConVarFlags.None, helpText = Lang.LISTBODY_HELP)]
         private static void CCListBody(ConCommandArgs args)
         {
             StringBuilder sb = new StringBuilder();
@@ -121,7 +120,7 @@ namespace DebugToolkit.Commands
 
             if (args.Count > 0)
             {
-                string name = args.GetArgString(0);
+                string name = args[0];
                 foreach (var body in BodyCatalog.allBodyPrefabBodyBodyComponents)
                 {
                     var upperBodyName = body.name.ToUpper();
@@ -147,10 +146,10 @@ namespace DebugToolkit.Commands
                     i++;
                 }
             }
-            Log.Message(sb);
+            Log.MessageNetworked(sb.ToString(), args, LogLevel.MessageClientOnly);
         }
 
-        [ConCommand(commandName = "list_elite", flags = ConVarFlags.None, helpText = Lang.LISTELITE_ARGS)]
+        [ConCommand(commandName = "list_elite", flags = ConVarFlags.None, helpText = Lang.LISTELITE_HELP)]
         private static void CCListElites(ConCommandArgs args)
         {
             StringBuilder sb = new StringBuilder();
@@ -159,7 +158,7 @@ namespace DebugToolkit.Commands
 
             if (args.Count > 0)
             {
-                string name = args.GetArgString(0);
+                string name = args[0];
                 if (int.TryParse(name, out int iName) && iName == -1 || "NONE".Contains(name.ToUpper()))
                 {
                     sb.AppendLine("[-1]None");
@@ -193,7 +192,7 @@ namespace DebugToolkit.Commands
             Log.MessageNetworked(sb.ToString(), args, LogLevel.MessageClientOnly);
         }
 
-        [ConCommand(commandName = "list_team", flags = ConVarFlags.None, helpText = Lang.LISTTEAM_ARGS)]
+        [ConCommand(commandName = "list_team", flags = ConVarFlags.None, helpText = Lang.LISTTEAM_HELP)]
         private static void CCListTeams(ConCommandArgs args)
         {
             StringBuilder sb = new StringBuilder();
@@ -233,21 +232,21 @@ namespace DebugToolkit.Commands
                     i++;
                 }
             }
-            Log.MessageNetworked(sb.ToString(), args, LogLevel.MessageClientOnly);
+            Log.Message(sb);
         }
 
-        [ConCommand(commandName = "list_directorcards", flags = ConVarFlags.None, helpText = Lang.NOMESSAGE)]
-        private static void CCListDirectorCards(ConCommandArgs _)
+        [ConCommand(commandName = "list_directorcards", flags = ConVarFlags.None, helpText = Lang.LISTDIRECTORCARDS_HELP)]
+        private static void CCListDirectorCards(ConCommandArgs args)
         {
             StringBuilder sb = new StringBuilder();
             foreach (var card in StringFinder.Instance.DirectorCards)
             {
                 sb.AppendLine($"{card.spawnCard.name}");
             }
-            Log.Message(sb);
+            Log.MessageNetworked(sb.ToString(), args, LogLevel.MessageClientOnly);
         }
 
-        [ConCommand(commandName = "list_skin", flags = ConVarFlags.None, helpText = Lang.LISTSKIN_ARGS)]
+        [ConCommand(commandName = "list_skin", flags = ConVarFlags.None, helpText = Lang.LISTSKIN_HELP)]
         private static void CCListSkin(ConCommandArgs args)
         {
             //string langInvar;
@@ -258,7 +257,7 @@ namespace DebugToolkit.Commands
             }
             if (args.Count >= 1)
             {
-                string bodyName = args.GetArgString(0);
+                string bodyName = args[0];
                 string upperBodyName = bodyName.ToUpperInvariant();
 
                 switch (upperBodyName)
@@ -330,7 +329,7 @@ namespace DebugToolkit.Commands
                 }
             }
 
-            Log.Message(sb);
+            Log.MessageNetworked(sb.ToString(), args, LogLevel.MessageClientOnly);
         }
 
         private static void AppendSkinIndices(StringBuilder stringBuilder, CharacterBody body)

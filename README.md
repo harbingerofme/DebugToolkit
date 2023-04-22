@@ -39,19 +39,19 @@ You may contact us at any time through [issues on GitHub](https://github.com/har
 Verbiage:
 - The brackets encapsulating arguments mean `{needed}`, `(choose one)`, and `[optional]`.
 - If an optional argument has a default value, it will be indicated with `:`. Any preceeding optional arguments from the one entered become necessary, but empty double quotes can be used as a placeholder for the default value. If an optional argument is required from a dedicated server, it will be preceeded by `*`.
-- Player, body, AI, item, equipment, team, elite, and interactable values can be declared by either their ID, or their string name. The latter can be written in freeform and it will be matched to the first result that contains the string. See the related `list_` commands for options and which result would take precedence if there are multiple matches.
+- Player, body, AI, item, equipment, team, elite, interactable, and director card values can be declared by either their ID, or their string name. The latter can be written in freeform and it will be matched to the first result that contains the string. See the related `list_` commands for options and which result would take precedence if there are multiple matches.
 
 Commands:
 
 * **next_stage** - Advance to the next stage. `next_stage [specific_stage]`. If no stage is entered, the next stage in progression is selected.
 * **force_family_event** - Forces a Family Event to happen in the next stage, takes no arguments. `force_family_event`
-* **next_boss** - Sets the teleporter boss to the specified boss. Get a list of potential boss with `list_directorcards` `next_boss {(csc|director_card)} [count:1] [elite:None]`
+* **next_boss** - Sets the teleporter boss to the specified boss. Get a list of potential boss with `list_directorcards`. `next_boss {director_card} [count:1] [elite:None]`
 * **fixed_time** - Sets the time that has progressed in the run. Affects difficulty. `fixed_time [time]`. If no time is supplied, prints the current time to console.
-* **add_portal** - Teleporter will attempt to spawn after the teleporter completion. `add_portal {('blue'|'gold'|'celestial'|'null'|'void'|'deepvoid'|'all')}`. The `null` portal doesn't require a teleporter and will spawn in front of the player.
+* **add_portal** - Teleporter will attempt to spawn after the teleporter completion. `add_portal {portal ('blue'|'gold'|'celestial'|'null'|'void'|'deepvoid'|'all')}`. The `null` portal doesn't require a teleporter and will spawn in front of the player.
 * **seed** - Set the seed for all next runs this session. `seed [new_seed]`. Use `0` to specify the game should generate its own seed. If used without argument, it's equivalent to the vanilla `run_get_seed`.
 * **kill_all** - Kills all members of a specified team. `kill_all [team:Monster]`.
-* **true_kill** - Truly kill a player, ignoring revival effects. `true_kill [target player:<self>]`
-* **respawn** - Respawn a player at the map spawnpoint. `respawn [target player:<self>]`
+* **true_kill** - Truly kill a player, ignoring revival effects. `true_kill *[player:<self>]`
+* **respawn** - Respawn a player at the map spawnpoint. `respawn *[player:<self>]`
 * **teleport_on_cursor** -  Teleport you to where your cursor is currently aiming at. `teleport_on_cursor`
 * **time_scale** -  Sets the timescale of the game. 0.5 would mean everything happens at half speed. `time_scale [time_scale]`. If no argument is supplied, gives the current timescale.
 * **post_sound_event** - Post a sound event to the AkSoundEngine (WWise) by its event name: `post_sound_event {event_name}`
@@ -81,15 +81,15 @@ Item Commands:
 * **remove_item_stacks** - Removes all item stacks from a character's inventory. `remove_item_stacks {item} *[target (player|'pinged'):<self>]`
 * **remove_all_items** - Removes all items from a character's inventory. `remove_all_items *[target (player|'pinged'):<self>]`
 * **remove_equip** - Sets the equipment of a character to 'None'. `remove_equip *[target (player|'pinged'):<self>]`
-* **create_pickup** - Creates a pickup in front of the issuing player. Pickups are items, equipment, or lunar coins. Additionally 'item' or 'equip' may be specified to only search that list. `create_pickup {(object|'coin')} [search ('item'|'equip'):<both>]`
+* **create_pickup** - Creates a pickup in front of a player. Pickups are items, equipment, or lunar coins. Additionally 'item' or 'equip' may be specified to only search that list. `create_pickup {object (item|equip|'coin')} [search ('item'|'equip'):<both>] *[player:<self>]`
 
 Spawn Commands:
 
 * **spawn_interactable/spawn_interactible** - Spawns an interactible in front of the player. `(spawn_interactable|spawn_interactible) {interactable}`
 * **spawn_ai** - Spawn an AI. `spawn_ai {ai} [count:1] [elite:None] [braindead (0|1):0/false] [team:Monster]`.
-* **spawn_as** - Spawn as a new character. `spawn_as {body} [target player:<self>]`
+* **spawn_as** - Spawn as a new character. `spawn_as {body} *[player:<self>]`
 * **spawn_body** - Spawns a CharacterBody with no AI, inventory, or team alliance: `spawn_body {body}`
-* **change_team** - Change a player's team. `change_team {team} [target player:<self>]`.
+* **change_team** - Change a player's team. `change_team {team} *[player:<self>]`.
 
 Cheat Commands:
 

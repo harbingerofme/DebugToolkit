@@ -7,22 +7,27 @@ namespace DebugToolkit.Commands
 {
     class PlayerCommands
     {
-        [ConCommand(commandName = "god", flags = ConVarFlags.ExecuteOnServer, helpText = "Become invincible. " + Lang.GOD_ARGS)]
+        [ConCommand(commandName = "god", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.GOD_HELP)]
         private static void CCGodModeToggle(ConCommandArgs args)
         {
+            if (!Run.instance)
+            {
+                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
+                return;
+            }
             bool hasNotYetRun = true;
             foreach (var playerInstance in PlayerCharacterMasterController.instances)
             {
                 playerInstance.master.ToggleGod();
                 if (hasNotYetRun)
                 {
-                    Log.MessageNetworked($"God mode {(playerInstance.master.GetBody().healthComponent.godMode ? "enabled" : "disabled")}.", args);
+                    Log.MessageNetworked($"God mode {(playerInstance.master.godMode ? "enabled" : "disabled")}.", args);
                     hasNotYetRun = false;
                 }
             }
         }
 
-        [ConCommand(commandName = "noclip", flags = ConVarFlags.ExecuteOnServer, helpText = "Allow flying and going through objects. Sprinting will double the speed. " + Lang.NOCLIP_ARGS)]
+        [ConCommand(commandName = "noclip", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.NOCLIP_HELP)]
         private static void CCNoclip(ConCommandArgs args)
         {
             if (args.sender == null)
@@ -30,17 +35,20 @@ namespace DebugToolkit.Commands
                 Log.MessageWarning(Lang.DS_NOTAVAILABLE);
                 return;
             }
-            if (Run.instance)
-            {
-                NoclipNet.Invoke(args.sender); // callback
-            }
-            else
+            if (!Run.instance)
             {
                 Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
+                return;
             }
+            if (!args.senderBody)
+            {
+                Log.MessageNetworked("Can't toggle noclip while you're dead. " + Lang.USE_RESPAWN, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            NoclipNet.Invoke(args.sender); // callback
         }
 
-        [ConCommand(commandName = "teleport_on_cursor", flags = ConVarFlags.ExecuteOnServer, helpText = "Teleport you to where your cursor is currently aiming at. " + Lang.CURSORTELEPORT_ARGS)]
+        [ConCommand(commandName = "teleport_on_cursor", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.CURSORTELEPORT_HELP)]
         private static void CCCursorTeleport(ConCommandArgs args)
         {
             if (args.sender == null)
@@ -48,53 +56,52 @@ namespace DebugToolkit.Commands
                 Log.MessageWarning(Lang.DS_NOTAVAILABLE);
                 return;
             }
-            if (Run.instance && args.senderBody)
-            {
-                TeleportNet.Invoke(args.sender); // callback
-            }
-            else
+            if (!Run.instance)
             {
                 Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
+                return;
             }
+            if (!args.senderBody)
+            {
+                Log.MessageNetworked("Can't toggle noclip while you're dead. " + Lang.USE_RESPAWN, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            TeleportNet.Invoke(args.sender); // callback
         }
 
-        [ConCommand(commandName = "spawn_as", flags = ConVarFlags.ExecuteOnServer, helpText = "Respawn the specified player using the specified body prefab. " + Lang.SPAWNAS_ARGS)]
+        [ConCommand(commandName = "spawn_as", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SPAWNAS_HELP)]
         [AutoCompletion(typeof(BodyCatalog), "bodyPrefabBodyComponents", "baseNameToken")]
         private static void CCSpawnAs(ConCommandArgs args)
         {
-            if (args.Count == 0)
+            if (!Run.instance)
             {
-                Log.MessageNetworked(Lang.SPAWNAS_ARGS, args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
                 return;
             }
+            if (args.Count == 0 || (args.Count < 2 && args.sender == null))
+            {
+                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.SPAWNAS_ARGS, args, LogLevel.MessageClientOnly);
+                return;
+            }
+
             string character = StringFinder.Instance.GetBodyName(args[0]);
             if (character == null)
             {
-                Log.MessageNetworked(Lang.SPAWN_ERROR + args[0], args, LogLevel.MessageClientOnly);
-                Log.MessageNetworked("Please use list_body to print CharacterBodies", args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(Lang.BODY_NOTFOUND, args, LogLevel.MessageClientOnly);
                 return;
             }
             GameObject newBody = BodyCatalog.FindBodyPrefab(character);
 
-            if (args.sender == null && args.Count < 2)
-            {
-                Log.Message(Lang.DS_REQUIREFULLQUALIFY, LogLevel.Error);
-                return;
-            }
-
-            CharacterMaster master = args.sender.master;
+            CharacterMaster master = args.senderMaster;
             if (args.Count > 1 && args[1] != Lang.DEFAULT_VALUE)
             {
                 NetworkUser player = Util.GetNetUserFromString(args.userArgs, 1);
-                if (player != null)
-                {
-                    master = player.master;
-                }
-                else
+                if (player == null)
                 {
                     Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
                     return;
                 }
+                master = player.master;
             }
 
             master.bodyPrefab = newBody;
@@ -102,7 +109,7 @@ namespace DebugToolkit.Commands
 
             if (!master.GetBody())
             {
-                Log.MessageNetworked(Lang.PLAYER_DEADRESPAWN, args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(Lang.PLAYER_DEADRESPAWN, args);
                 return;
             }
 
@@ -113,31 +120,31 @@ namespace DebugToolkit.Commands
             stage1pod.SetBool(oldVal);
         }
 
-
-
-        [ConCommand(commandName = "respawn", flags = ConVarFlags.ExecuteOnServer, helpText = "Respawns the specified player. " + Lang.RESPAWN_ARGS)]
+        [ConCommand(commandName = "respawn", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.RESPAWN_HELP)]
         [AutoCompletion(typeof(NetworkUser), "instancesList", "userName", true)]
         //[AutoCompletion(typeof(NetworkUser), "instancesList", "_id/value", true)] // ideathhd : breaks the whole console for me
-        private static void RespawnPlayer(ConCommandArgs args)
+        private static void CCRespawnPlayer(ConCommandArgs args)
         {
-            if (args.sender == null && args.Count < 1)
+            if (!Run.instance)
             {
-                Log.Message(Lang.DS_REQUIREFULLQUALIFY, LogLevel.Error);
+                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
                 return;
             }
-            CharacterMaster master = args.sender.master;
+            if (args.sender == null && args.Count < 1)
+            {
+                Log.Message(Lang.INSUFFICIENT_ARGS + Lang.RESPAWN_ARGS, LogLevel.Error);
+                return;
+            }
+            CharacterMaster master = args.senderMaster;
             if (args.Count > 0 && args[0] != Lang.DEFAULT_VALUE)
             {
                 NetworkUser player = Util.GetNetUserFromString(args.userArgs);
-                if (player != null)
-                {
-                    master = player.master;
-                }
-                else
+                if (player == null)
                 {
                     Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
                     return;
                 }
+                master = player.master;
             }
 
             Transform spawnPoint = Stage.instance.GetPlayerSpawnTransform();
@@ -145,108 +152,101 @@ namespace DebugToolkit.Commands
             Log.MessageNetworked(string.Format(Lang.SPAWN_ATTEMPT_1, master.name), args);
         }
 
-        [ConCommand(commandName = "change_team", flags = ConVarFlags.ExecuteOnServer, helpText = "Change the specified player to the specified team. " + Lang.CHANGETEAM_ARGS)]
+        [ConCommand(commandName = "change_team", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.CHANGETEAM_HELP)]
         private static void CCChangeTeam(ConCommandArgs args)
         {
-            if (args.Count == 0)
+            if (!Run.instance)
             {
-                Log.MessageNetworked(Lang.CHANGETEAM_ARGS, args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
                 return;
             }
-            if (args.sender == null && args.Count < 2)
+            if (args.Count == 0 || (args.Count < 2 && args.sender == null))
             {
-                Log.Message(Lang.DS_REQUIREFULLQUALIFY, LogLevel.Error);
+                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.CHANGETEAM_ARGS, args, LogLevel.MessageClientOnly);
                 return;
             }
 
-            CharacterMaster master = args.sender.master;
+            CharacterMaster master = args.sender?.master;
             if (args.Count > 1 && args[1] != Lang.DEFAULT_VALUE)
             {
                 NetworkUser player = Util.GetNetUserFromString(args.userArgs, 1);
-                if (player != null)
-                {
-                    master = player.master;
-                }
-                else
+                if (player == null)
                 {
                     Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
                     return;
                 }
+                master = player.master;
             }
-
-            if (Enum.TryParse(StringFinder.GetEnumFromPartial<TeamIndex>(args[0]).ToString(), true, out TeamIndex teamIndex))
+            if (!master.GetBody())
             {
-                if ((int)teamIndex >= (int)TeamIndex.None && (int)teamIndex < (int)TeamIndex.Count)
-                {
-                    if (master.GetBody())
-                    {
-                        master.GetBody().teamComponent.teamIndex = teamIndex;
-                        master.teamIndex = teamIndex;
-                        Log.MessageNetworked("Changed to team " + teamIndex, args);
-                        return;
-                    }
-                }
-            }
-            //Note the `return` on succesful evaluation.
-            Log.MessageNetworked("Invalid team. Please check list_team for options.", args, LogLevel.MessageClientOnly);
-
-        }
-
-        [ConCommand(commandName = "loadout_set_skin_variant", flags = ConVarFlags.None, helpText = "Change your loadout's skin,  " + Lang.LOADOUTSKIN_ARGS)]
-        public static void CCLoadoutSetSkinVariant(ConCommandArgs args)
-        {
-            if (args.sender == null)
-            {
-                Log.Message(Lang.DS_REQUIREFULLQUALIFY, LogLevel.Error);
+                Log.MessageNetworked("Can't change a dead player's team. " + Lang.USE_RESPAWN, args, LogLevel.MessageClientOnly);
                 return;
             }
 
-            if (args.Count != 2)
+            if (!Enum.TryParse(StringFinder.GetEnumFromPartial<TeamIndex>(args[0]).ToString(), true, out TeamIndex teamIndex))
             {
-                Log.Message(Lang.LOADOUTSKIN_ARGS, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(Lang.TEAM_NOTFOUND, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            if ((int)teamIndex >= (int)TeamIndex.None && (int)teamIndex < (int)TeamIndex.Count)
+            {
+                master.GetBody().teamComponent.teamIndex = teamIndex;
+                master.teamIndex = teamIndex;
+                Log.MessageNetworked("Changed to team " + teamIndex, args);
+            }
+        }
+
+        [ConCommand(commandName = "loadout_set_skin_variant", flags = ConVarFlags.None, helpText = Lang.LOADOUTSKIN_HELP)]
+        public static void CCLoadoutSetSkinVariant(ConCommandArgs args)
+        {
+            if (args.Count < 2)
+            {
+                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.LOADOUTSKIN_ARGS, args, LogLevel.MessageClientOnly);
                 return;
             }
 
             BodyIndex argBodyIndex = BodyIndex.None;
             bool bodyIsSelf = false;
 
-            if (args.Count > 0)
+            if (args[0].ToUpperInvariant() == "SELF")
             {
-                if (args.GetArgString(0).ToUpperInvariant() == "SELF")
+                bodyIsSelf = true;
+                if (args.sender == null)
                 {
-                    bodyIsSelf = true;
-                    if (args.sender == null)
-                    {
-                        Log.Message("Can't choose self if not in-game!", LogLevel.Error);
-                        return;
-                    }
-                    if (args.senderBody)
-                    {
-                        argBodyIndex = args.senderBody.bodyIndex;
-                    }
-                    else
-                    {
-                        if (args.senderMaster && args.senderMaster.bodyPrefab)
-                        {
-                            argBodyIndex = args.senderMaster.bodyPrefab.GetComponent<CharacterBody>().bodyIndex;
-                        }
-                        else
-                        {
-                            argBodyIndex = args.sender.bodyIndexPreference;
-                        }
-                    }
+                    Log.Message("Can't choose self if not in-game!", LogLevel.Error);
+                    return;
+                }
+                if (args.senderBody)
+                {
+                    argBodyIndex = args.senderBody.bodyIndex;
                 }
                 else
                 {
-                    string requestedBodyName = StringFinder.Instance.GetBodyName(args[0]);
-                    if (requestedBodyName != null)
+                    if (args.senderMaster && args.senderMaster.bodyPrefab)
                     {
-                        argBodyIndex = BodyCatalog.FindBodyIndex(requestedBodyName);
+                        argBodyIndex = args.senderMaster.bodyPrefab.GetComponent<CharacterBody>().bodyIndex;
+                    }
+                    else
+                    {
+                        argBodyIndex = args.sender.bodyIndexPreference;
                     }
                 }
             }
+            else
+            {
+                string requestedBodyName = StringFinder.Instance.GetBodyName(args[0]);
+                if (requestedBodyName == null)
+                {
+                    Log.MessageNetworked(Lang.BODY_NOTFOUND, args, LogLevel.MessageClientOnly);
+                    return;
+                }
+                argBodyIndex = BodyCatalog.FindBodyIndex(requestedBodyName);
+            }
 
-            int requestedSkinIndexChange = args.GetArgInt(1);
+            if (!TextSerialization.TryParseInvariant(args[1], out int requestedSkinIndexChange))
+            {
+                Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "skin_index", "int"), args, LogLevel.MessageClientOnly);
+            }
 
             Loadout loadout = new Loadout();
             UserProfile userProfile = args.GetSenderLocalUser().userProfile;
@@ -275,8 +275,6 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(Lang.PLAYER_SKINCHANGERESPAWN, args, LogLevel.MessageClientOnly);
             }
         }
-
-
 
         internal static bool UpdateCurrentPlayerBody(out NetworkUser networkUser, out CharacterBody characterBody)
         {

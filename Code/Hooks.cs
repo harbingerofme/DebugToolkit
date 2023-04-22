@@ -21,7 +21,7 @@ namespace DebugToolkit
         private const ConVarFlags AllFlagsNoCheat = ConVarFlags.None | ConVarFlags.Archive | ConVarFlags.Engine | ConVarFlags.ExecuteOnServer | ConVarFlags.SenderMustBeServer;
 
         private static On.RoR2.Console.orig_RunCmd _origRunCmd;
-        private static CharacterBody pingedBody;
+        private static CharacterMaster pingedTarget;
         public static void InitializeHooks()
         {
             IL.RoR2.Console.Awake += UnlockConsole;
@@ -54,10 +54,10 @@ namespace DebugToolkit
             orig(self, pingInfo);
             if (self.pingIndicator & self.pingIndicator.pingTarget)
             {
-                pingedBody = self.pingIndicator.pingTarget.GetComponent<CharacterBody>();
+                pingedTarget = self.pingIndicator.pingTarget.GetComponent<CharacterBody>()?.master;
                 return;
             }
-            pingedBody = null;
+            pingedTarget = null;
         }
 
         private static void OverrideVanillaSceneList(On.RoR2.Networking.NetworkManagerSystem.orig_CCSceneList orig, ConCommandArgs args)
@@ -390,9 +390,9 @@ namespace DebugToolkit
             return;
         }
 
-        internal static CharacterBody GetPingedBody()
+        internal static CharacterMaster GetPingedTarget()
         {
-            return pingedBody;
+            return pingedTarget;
         }
     }
 }

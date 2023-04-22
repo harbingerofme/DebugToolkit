@@ -12,50 +12,15 @@ namespace DebugToolkit.Commands
     class Spawners
     {
 
-        [ConCommand(commandName = "spawn_interactable", flags = ConVarFlags.ExecuteOnServer, helpText = "Spawns the specified interactable. List_Interactable for options. " + Lang.SPAWNINTERACTABLE_ARGS)]
+        [ConCommand(commandName = "spawn_interactable", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SPAWNINTERACTABLE_HELP)]
         [AutoCompletion(typeof(StringFinder), "interactableSpawnCards", "", true)]
         private static void CCSpawnInteractable(ConCommandArgs args)
         {
-            if (args.Count == 0)
+            if (!Run.instance)
             {
-                Log.MessageNetworked(Lang.SPAWNINTERACTABLE_ARGS, args, LogLevel.ErrorClientOnly);
+                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
                 return;
             }
-            try
-            {
-                var isc = StringFinder.Instance.GetInteractableSpawnCard(args[0]);
-                isc.DoSpawn(args.senderBody.transform.position, new Quaternion(), new DirectorSpawnRequest(
-                    isc,
-                    new DirectorPlacementRule
-                    {
-                        placementMode = DirectorPlacementRule.PlacementMode.NearestNode,
-                        maxDistance = 100f,
-                        minDistance = 20f,
-                        position = args.senderBody.transform.position,
-                        preventOverhead = true
-                    },
-                    RoR2Application.rng)
-                );
-            }
-            catch (Exception ex)
-            {
-                Log.MessageNetworked(ex.ToString(), args, LogLevel.ErrorClientOnly);
-            }
-        }
-
-        [ConCommand(commandName = "spawn_interactible", flags = ConVarFlags.ExecuteOnServer, helpText = "Spawns the specified interactable. List_Interactable for options. " + Lang.SPAWNINTERACTABLE_ARGS)]
-        [AutoCompletion(typeof(StringFinder), "interactableSpawnCards", "", true)]
-        private static void CCSpawnInteractible(ConCommandArgs args)
-        {
-            CCSpawnInteractable(args);
-        }
-
-        [ConCommand(commandName = "spawn_ai", flags = ConVarFlags.ExecuteOnServer, helpText = "Spawns the specified CharacterMaster. " + Lang.SPAWNAI_ARGS)]
-        [AutoCompletion(typeof(MasterCatalog), "aiMasterPrefabs")]
-        private static void CCSpawnAI(ConCommandArgs args)
-        {
-            //- Spawns the specified CharacterMaster. Requires 1 argument: spawn_ai 0:{localised_objectname} 1:[Count:1] 2:[EliteIndex:-1/None] 3:[Braindead:0/false(0|1)] 4:[TeamIndex:0/Neutral]
-
             if (args.sender == null)
             {
                 Log.Message(Lang.DS_NOTYETIMPLEMENTED, LogLevel.Error);
@@ -63,7 +28,67 @@ namespace DebugToolkit.Commands
             }
             if (args.Count == 0)
             {
-                Log.MessageNetworked(Lang.SPAWNAI_ARGS, args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.SPAWNINTERACTABLE_ARGS, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            if (!args.senderBody)
+            {
+                Log.MessageNetworked("Can't spawn an object with relation to a dead target.", args, LogLevel.MessageClientOnly);
+                return;
+            }
+            var isc = StringFinder.Instance.GetInteractableSpawnCard(args[0]);
+            if (isc == null)
+            {
+                Log.MessageNetworked(Lang.INTERACTABLE_NOTFOUND, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            var result = isc.DoSpawn(args.senderBody.transform.position, new Quaternion(), new DirectorSpawnRequest(
+                isc,
+                new DirectorPlacementRule
+                {
+                    placementMode = DirectorPlacementRule.PlacementMode.NearestNode,
+                    maxDistance = 100f,
+                    minDistance = 20f,
+                    position = args.senderBody.transform.position,
+                    preventOverhead = true
+                },
+                RoR2Application.rng)
+            );
+            if (!result.success)
+            {
+                Log.MessageNetworked("Failed to spawn interactable.", args, LogLevel.MessageClientOnly);
+            }
+        }
+
+        [ConCommand(commandName = "spawn_interactible", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SPAWNINTERACTABLE_HELP)]
+        [AutoCompletion(typeof(StringFinder), "interactableSpawnCards", "", true)]
+        private static void CCSpawnInteractible(ConCommandArgs args)
+        {
+            CCSpawnInteractable(args);
+        }
+
+        [ConCommand(commandName = "spawn_ai", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SPAWNAI_HELP)]
+        [AutoCompletion(typeof(MasterCatalog), "aiMasterPrefabs")]
+        private static void CCSpawnAI(ConCommandArgs args)
+        {
+            if (!Run.instance)
+            {
+                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            if (args.sender == null)
+            {
+                Log.Message(Lang.DS_NOTYETIMPLEMENTED, LogLevel.Error);
+                return;
+            }
+            if (args.Count == 0)
+            {
+                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.SPAWNAI_ARGS, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            if (!args.senderBody)
+            {
+                Log.MessageNetworked("Can't spawn an object with relation to a dead target.", args, LogLevel.MessageClientOnly);
                 return;
             }
 
@@ -77,15 +102,12 @@ namespace DebugToolkit.Commands
             var body = masterprefab.GetComponent<CharacterMaster>().bodyPrefab;
 
             int amount = 1;
-            if (args.Count > 1 && args[1] != Lang.DEFAULT_VALUE)
+            if (args.Count > 1 && args[1] != Lang.DEFAULT_VALUE && !TextSerialization.TryParseInvariant(args[1], out amount))
             {
-                if (int.TryParse(args[1], out amount) == false)
-                {
-                    Log.MessageNetworked(Lang.SPAWNAI_ARGS, args, LogLevel.MessageClientOnly);
-                    return;
-                }
+                Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "count", "int"), args, LogLevel.MessageClientOnly);
+                return;
             }
-            Vector3 location = args.sender.master.GetBody().transform.position;
+            Vector3 location = args.senderBody.transform.position;
             Log.MessageNetworked(string.Format(Lang.SPAWN_ATTEMPT_2, amount, character), args);
             for (int i = 0; i < amount; i++)
             {
@@ -106,19 +128,30 @@ namespace DebugToolkit.Commands
                         master.inventory.GiveItem(RoR2Content.Items.BoostHp, Mathf.RoundToInt((eliteDef.healthBoostCoefficient - 1) * 10));
                         master.inventory.GiveItem(RoR2Content.Items.BoostDamage, Mathf.RoundToInt(eliteDef.damageBoostCoefficient - 1) * 10);
                     }
+                    else
+                    {
+                        Log.MessageNetworked(Lang.ELITE_NOTFOUND, args, LogLevel.MessageClientOnly);
+                        return;
+                    }
                 }
 
-                if (args.Count > 3 && args[3] != Lang.DEFAULT_VALUE && Util.TryParseBool(args[3], out bool braindead) && braindead)
+                bool braindead = false;
+                if (args.Count > 3 && args[3] != Lang.DEFAULT_VALUE && !Util.TryParseBool(args[3], out braindead))
+                {
+                    Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "braindead", "int or bool"), args, LogLevel.MessageClientOnly);
+                    return;
+                }
+                if (braindead)
                 {
                     UnityEngine.Object.Destroy(master.GetComponent<BaseAI>());
                 }
 
                 TeamIndex teamIndex = TeamIndex.Monster;
-                if (args.Count > 4 && args[4] != Lang.DEFAULT_VALUE)
+                if (args.Count > 4 && args[4] != Lang.DEFAULT_VALUE && !StringFinder.TryGetEnumFromPartial(args[4], out teamIndex))
                 {
-                    StringFinder.TryGetEnumFromPartial(args[4], out teamIndex);
+                    Log.MessageNetworked(Lang.TEAM_NOTFOUND, args, LogLevel.MessageClientOnly);
+                    return;
                 }
-
                 if (teamIndex >= TeamIndex.None && teamIndex < TeamIndex.Count)
                 {
                     master.teamIndex = teamIndex;
@@ -127,18 +160,28 @@ namespace DebugToolkit.Commands
             }
         }
 
-        [ConCommand(commandName = "spawn_body", flags = ConVarFlags.ExecuteOnServer, helpText = "Spawns the specified dummy body. " + Lang.SPAWNBODY_ARGS)]
+        [ConCommand(commandName = "spawn_body", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SPAWNBODY_HELP)]
         [AutoCompletion(typeof(BodyCatalog), "bodyPrefabBodyComponents", "baseNameToken")]
         private static void CCSpawnBody(ConCommandArgs args)
         {
-            if (args.Count == 0)
+            if (!Run.instance)
             {
-                Log.MessageNetworked(Lang.SPAWNBODY_ARGS, args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
                 return;
             }
             if (args.sender == null)
             {
                 Log.Message(Lang.DS_NOTYETIMPLEMENTED, LogLevel.Error);
+                return;
+            }
+            if (args.Count == 0)
+            {
+                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.SPAWNBODY_ARGS, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            if (!args.senderBody)
+            {
+                Log.MessageNetworked("Can't spawn an object with relation to a dead target.", args, LogLevel.MessageClientOnly);
                 return;
             }
 
@@ -150,7 +193,7 @@ namespace DebugToolkit.Commands
             }
 
             GameObject body = BodyCatalog.FindBodyPrefab(character);
-            GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(body, args.sender.master.GetBody().transform.position, Quaternion.identity);
+            GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(body, args.senderBody.transform.position, Quaternion.identity);
             NetworkServer.Spawn(gameObject);
             Log.MessageNetworked(string.Format(Lang.SPAWN_ATTEMPT_1, character), args);
         }
