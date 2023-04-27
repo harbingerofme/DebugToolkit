@@ -1,6 +1,23 @@
 ﻿
 ## Changelog ##
 
+### 3.8 ###
+
+* **3.8.0**
+    * This update is basically carried by [SChinchi](https://github.com/SChinchi), thank you!
+    * Added: `give_buff`
+    * Added: `give_dot`
+    * Added: `remove_buff`
+    * Added: `remove_buff_stacks`
+    * Added: `remove_all_buffs`
+    * Added: `remove_dot`
+    * Added: `remove_dot_stacks`
+    * Added: `remove_all_dot`
+    * Added: `list_buff`
+    * Added: `list_dot`
+    * Details of how to use these commands are listed in the README file.
+    * Many commands have a much better description of how they work and the errors printed in the console in case of misuse should also be clearer.
+
 ### 3.7 ###
 
 * "Survivors of the Void"
