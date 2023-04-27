@@ -10,13 +10,23 @@ namespace DebugToolkit
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
     internal class AutoCompletionAttribute : Attribute
     {
+        internal readonly Type ClassType;
         internal readonly IEnumerable<object> Catalog;
         internal readonly string NestedField;
         internal readonly bool Dynamic;
+        internal readonly bool IsEnum;
 
         public AutoCompletionAttribute(Type classType, string catalogName, string nestedField = "", bool dynamic = false)
         {
-            Catalog = classType.GetFieldValue<IEnumerable<object>>(catalogName);
+            ClassType = classType;
+            if (catalogName != null)
+            {
+                Catalog = classType.GetFieldValue<IEnumerable<object>>(catalogName);
+            }
+            else
+            {
+                IsEnum = true;
+            }
             NestedField = nestedField;
             Dynamic = dynamic;
         }
@@ -71,6 +81,18 @@ namespace DebugToolkit
 
                 foreach (var attribute in acAttribute)
                 {
+                    if (attribute.IsEnum)
+                    {
+                        foreach (var field in attribute.ClassType.GetFields())
+                        {
+                            var fieldName = field.Name;
+                            if (fieldName != "value__" && fieldName != "None" && fieldName != "Count")
+                            {
+                                toFill.Add(commandName + fieldName);
+                            }
+                        }
+                        continue;
+                    }
                     foreach (object item in attribute.Catalog)
                     {
                         string itemString = "";

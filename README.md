@@ -64,11 +64,26 @@ List Commands:
 * **list_ai** - List all Masters and their language invariants.
 * **list_elite** - List all Elites and their language invariants.
 * **list_team** - List all Teams and their language invariants.
+* **list_buff** - List all Buffs and if they are stackable.
+* **list_dot** - List all DoT effects.
 * **list_item** - List all Items, their language invariants, and if they are in the current drop pool.
 * **list_equip** - List all Equipment, their language invariants, and if they are in the current drop pool.
 * **list_interactables** List all Interactables.
 * **list_directorcards** List all Director Cards. Mainly used for the `next_boss` command.
 * **list_skins** List all Body Skins and the language invariant of the current one in use.
+
+Buff Commands:
+
+* **give_buff** - Gives a buff to a character. Duration of 0 means permanent: `give_buff {buff} [count:1] [duration:0] *[target (player|'pinged'):<self>]`
+* **give_dot** - Gives a DoT stack to a character: `give_dot {dot} [count:1] *[target (player|'pinged'):<self>] *[attacker (player|'pinged'):<self>]`
+* **remove_buff** - Removes a buff from a character. Timed buffs prioritise the longest expiration stack: `remove_buff {buff} [count:1] [timed (0|1):0/false] *[target (player|'pinged'):<self>]`
+* **remove_buff_stacks** - Resets a buff for a character: `remove_buff_stacks {buff} [timed (0|1):0/false] *[target (player|'pinged'):<self>]`
+* **remove_all_buffs** - Resets all buffs for a character: `remove_all_buffs [timed (0|1):0/false] *[target (player|'pinged'):<self>]`
+* **remove_dot** - Removes a DoT stack with the longest expiration from a character: `remove_dot {dot} [count:1] *[target (player|'pinged'):<self>]`
+* **remove_dot_stacks** - Removes all stacks of a DoT effect from a character: `remove_dot_stacks {dot} *[target (player|'pinged'):<self>]`
+* **remove_all_dots** - Removes all DoT effects from a character: `remove_all_dot *[target (player|'pinged'):<self>]`
+
+***Note:*** _The game does not protect against negative buff stacks, which can lead to unintended behaviors. Gaining a timed buff gives a permanent stack which is taken away upon expiration._ `give_buff bleed 5 10; remove_buff_stacks bleed` _will lead to -5 bleed stacks when the timed buff expires. Having a DoT active is also similar to a timed buff._
 
 Item Commands:
 
