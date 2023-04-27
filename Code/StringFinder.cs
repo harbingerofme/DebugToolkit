@@ -17,6 +17,8 @@ namespace DebugToolkit
     {
         private static readonly Dictionary<string, string[]> BodyAlias = new Dictionary<string, string[]>();
         private static readonly Dictionary<string, string[]> MasterAlias = new Dictionary<string, string[]>();
+        private static readonly Dictionary<string, string[]> BuffAlias = new Dictionary<string, string[]>();
+        private static readonly Dictionary<string, string[]> DotAlias = new Dictionary<string, string[]>();
         private static readonly Dictionary<string, string[]> ItemAlias = new Dictionary<string, string[]>();
         private static readonly Dictionary<string, string[]> EquipAlias = new Dictionary<string, string[]>();
         private static readonly Dictionary<string, string[]> SkinAlias = new Dictionary<string, string[]>();
@@ -141,6 +143,146 @@ namespace DebugToolkit
             }
         }
 
+        /// <summary>
+        /// Returns a BuffIndex when provided with a partial/invariant.
+        /// </summary>
+        /// <param name="name">Matches in order: (int)Index, Exact Alias, Exact Index, Partial Index, Partial Invariant</param>
+        /// <returns>Returns the BuffIndex if a match is found, or returns BuffIndex.None</returns>
+        public BuffIndex GetBuffFromPartial(string name)
+        {
+            foreach (KeyValuePair<string, string[]> dictEnt in BuffAlias)
+            {
+                foreach (string alias in dictEnt.Value)
+                {
+                    if (alias.ToUpper().Equals(name.ToUpper()))
+                    {
+                        name = dictEnt.Key;
+                    }
+                }
+            }
+
+            if (Enum.TryParse(name, true, out BuffIndex buffIndex) && BuffCatalog.GetBuffDef(buffIndex) != null)
+            {
+                return buffIndex;
+            }
+
+            foreach (var buff in BuffCatalog.buffDefs)
+            {
+                if (buff.name.ToUpper().Contains(name.ToUpper()))
+                {
+                    return buff.buffIndex;
+                }
+            }
+            return BuffIndex.None;
+        }
+
+        /// <summary>
+        /// Returns an array of BuffIndex's when provided with a partial/invariant.
+        /// </summary>
+        /// <param name="name">Matches in order: (int)Index, Exact Alias, Exact Index, Partial Index, Partial Invariant</param>
+        /// <returns>Returns an array with all BuffIndex's matched</returns>
+        public BuffIndex[] GetBuffsFromPartial(string name)
+        {
+            var set = new HashSet<BuffIndex>();
+            foreach (KeyValuePair<string, string[]> dictEnt in BuffAlias)
+            {
+                foreach (string alias in dictEnt.Value)
+                {
+                    if (alias.ToUpper().Equals(name.ToUpper()))
+                    {
+                        name = dictEnt.Key;
+                        var buffIndex = BuffCatalog.FindBuffIndex(name);
+                        if (buffIndex != BuffIndex.None)
+                        {
+                            set.Add(buffIndex);
+                        }
+                    }
+                }
+            }
+
+            foreach (var buff in BuffCatalog.buffDefs)
+            {
+                if (buff.name.ToUpper().Contains(name.ToUpper()))
+                {
+                    set.Add(buff.buffIndex);
+                }
+            }
+            return set.ToArray();
+        }
+
+        /// <summary>
+        /// Returns a DotIndex when provided with a partial/invariant.
+        /// </summary>
+        /// <param name="name">Matches in order: (int)Index, Exact Alias, Exact Index, Partial Index, Partial Invariant</param>
+        /// <returns>Returns the DotIndex if a match is found, or returns DotIndex.None</returns>
+        public DotController.DotIndex GetDotFromPartial(string name)
+        {
+            foreach (KeyValuePair<string, string[]> dictEnt in DotAlias)
+            {
+                foreach (string alias in dictEnt.Value)
+                {
+                    if (alias.ToUpper().Equals(name.ToUpper()))
+                    {
+                        name = dictEnt.Key;
+                    }
+                }
+            }
+
+            if (Enum.TryParse(name, true, out DotController.DotIndex dotIndex) && DotController.GetDotDef(dotIndex) != null)
+            {
+                return dotIndex;
+            }
+
+            foreach (var dot in Enum.GetValues(typeof(DotController.DotIndex)).Cast<DotController.DotIndex>())
+            {
+                if (dot >= DotController.DotIndex.Bleed && dot < DotController.DotIndex.Count)
+                {
+                    var dotName = dot.ToString();
+                    if (dotName.ToUpper().Contains(name.ToUpper()))
+                    {
+                        return dot;
+                    }
+                }
+            }
+            return DotController.DotIndex.None;
+        }
+
+        /// <summary>
+        /// Returns an array of DotIndex's when provided with a partial/invariant.
+        /// </summary>
+        /// <param name="name">Matches in order: (int)Index, Exact Alias, Exact Index, Partial Index, Partial Invariant</param>
+        /// <returns>Returns an array with all the DotIndex's matched</returns>
+        public DotController.DotIndex[] GetDotsFromPartial(string name)
+        {
+            var set = new HashSet<DotController.DotIndex>();
+            foreach (KeyValuePair<string, string[]> dictEnt in DotAlias)
+            {
+                foreach (string alias in dictEnt.Value)
+                {
+                    if (alias.ToUpper().Equals(name.ToUpper()))
+                    {
+                        name = dictEnt.Key;
+                        if (Enum.TryParse(name, true, out DotController.DotIndex dotIndex) && DotController.GetDotDef(dotIndex) != null)
+                        {
+                            set.Add(dotIndex);
+                        }
+                    }
+                }
+            }
+
+            foreach (var dot in Enum.GetValues(typeof(DotController.DotIndex)).Cast<DotController.DotIndex>())
+            {
+                if (dot >= DotController.DotIndex.Bleed && dot < DotController.DotIndex.Count)
+                {
+                    var dotName = dot.ToString();
+                    if (dotName.ToUpper().Contains(name.ToUpper()))
+                    {
+                        set.Add(dot);
+                    }
+                }
+            }
+            return set.ToArray();
+        }
 
         /// <summary>
         /// Returns an EquipmentIndex when provided with a partial/invariant.

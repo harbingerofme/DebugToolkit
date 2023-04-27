@@ -52,7 +52,7 @@ namespace DebugToolkit
         private static void InterceptPing(On.RoR2.PingerController.orig_RebuildPing orig, PingerController self, PingerController.PingInfo pingInfo)
         {
             orig(self, pingInfo);
-            if (self.pingIndicator & self.pingIndicator.pingTarget)
+            if (self.pingIndicator && self.pingIndicator.pingTarget)
             {
                 pingedTarget = self.pingIndicator.pingTarget.GetComponent<CharacterBody>()?.master;
                 return;
