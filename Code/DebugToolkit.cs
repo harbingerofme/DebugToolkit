@@ -17,7 +17,7 @@ namespace DebugToolkit
     [BepInPlugin(GUID, modname, modver)]
     public class DebugToolkit : BaseUnityPlugin
     {
-        public const string modname = "DebugToolkit", modver = "3.7.3";
+        public const string modname = "DebugToolkit", modver = "3.8.0";
         public const string GUID = "iHarbHD." + modname;
 
         internal static ConfigFile Configuration;
@@ -37,16 +37,16 @@ namespace DebugToolkit
             {
                 gitVersion = reader.ReadToEnd();
             }
-            Log.MessageWarning(
+            //Log.MessageWarning(
 #if DEBUG
                 $"This is a debug build!"
 #elif NONETWORK
-                $"This is a non-networked build!"
+                //$"This is a non-networked build!"
 #elif BLEEDING
                 $"This is a Bleeding-Edge build!"
 #endif
-                , Log.Target.Bepinex);
-            Log.MessageWarning($"Commit: {gitVersion.Trim()}", Log.Target.Bepinex);
+                //, Log.Target.Bepinex);
+            //Log.MessageWarning($"Commit: {gitVersion.Trim()}", Log.Target.Bepinex);
 #endif
             #endregion
 
