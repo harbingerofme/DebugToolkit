@@ -1,4 +1,22 @@
+﻿
 ## Changelog ##
+
+### 3.8 ###
+
+* **3.8.0**
+    * This update is basically carried by [SChinchi](https://github.com/SChinchi), thank you!
+    * Added: `give_buff`
+    * Added: `give_dot`
+    * Added: `remove_buff`
+    * Added: `remove_buff_stacks`
+    * Added: `remove_all_buffs`
+    * Added: `remove_dot`
+    * Added: `remove_dot_stacks`
+    * Added: `remove_all_dot`
+    * Added: `list_buff`
+    * Added: `list_dot`
+    * Details of how to use these commands are listed in the README file.
+    * Many commands have a much better description of how they work and the errors printed in the console in case of misuse should also be clearer.
 
 ### 3.7 ###
 
@@ -15,6 +33,8 @@
 * **3.7.2**
     * Added split assembly support Thank you [HeyImNoop](https://thunderstore.io/package/Heyimnoob/)
     * Started work on better interactible loading. Thank you [HeyImNoop](https://thunderstore.io/package/Heyimnoob/)
+* **3.7.3**
+    * Added filtering to listing commands (list_item, etc). Thank you [DestroyedClone](https://thunderstore.io/package/DestroyedClone/)
 
 ### 3.6 ###
 
@@ -82,9 +102,9 @@
 
 * "Dedicated Servers"
 * **General**
-	* Commands are now safe to run with a dedicated server as the sender. Want to know how you can issue commands during runtime as a server? [R2DSE](https://github.com/harbingerofme/R2DS-Essentials)
-		* Some commands have not yet been implemented this way and merely do nothing, expect fixes for that in `3.2.X` updates.
-		* When a player is needed for a command, dedicated servers will have to fully qualify their command.
+    * Commands are now safe to run with a dedicated server as the sender. Want to know how you can issue commands during runtime as a server? [R2DSE](https://github.com/harbingerofme/R2DS-Essentials)
+        * Some commands have not yet been implemented this way and merely do nothing, expect fixes for that in `3.2.X` updates.
+        * When a player is needed for a command, dedicated servers will have to fully qualify their command.
 * **Additions**
     * **3.2.1** reworked `spawn_ai` so that it can now spawn multiple enemies. As a result the command arguments have been shuffled around a bit.
     * Added the null portal to `add_portal`
@@ -98,7 +118,7 @@
     * **3.2.1** `spawn_ai` now parses braindead if it's an integer.
     * **3.2.1** Fix `spawn_as` crashing dedicated servers.
     * **3.2.1** fixed_time now actually sets/displays the ingame time. Thank you [@Rayss](https://github.com/SuperRayss).
-	* `Noclip` now disables the out of bounds teleport. Go take a look at that collossus head!
+    * `Noclip` now disables the out of bounds teleport. Go take a look at that collossus head!
     * `add_portal` now gives a nicer error message with all available portals
     * Reenabled `next_boss`. Behaviour might still be weird.
 * **Known Bugs**
@@ -110,19 +130,19 @@
 
 * "DebugToolkit"
 * **General**
-	* **3.1.2:** Disabled `next_boss` so that everyone can use it to update their mods.
-	* **3.1.1:** Now known as DebugToolkit on Thunderstore.
-	* **3.1.1:** Removed obsoleted commands.
-	* **Paddywan** has left the modding community. We thank them for their contributions to this project and wish them the best of luck in future endavours.
+    * **3.1.2:** Disabled `next_boss` so that everyone can use it to update their mods.
+    * **3.1.1:** Now known as DebugToolkit on Thunderstore.
+    * **3.1.1:** Removed obsoleted commands.
+    * **Paddywan** has left the modding community. We thank them for their contributions to this project and wish them the best of luck in future endavours.
     * **iDeathHD** has joined the team behind RoR2Cheats/DebugToolkit, their expertise has been of amazing use and we're excited to have a joint venture in this.
     * You may have noticed *MiniRPCLib* is a new dependency. This is to network cheats better over the network. Functionally nothing has changed.
     * A secret new convar is added: `debugtoolkit_debug`. Only available for those people who read the changelog. ❤️
     * Various commands have had their ingame descriptions updated to better inform what args are expected.
-	* added the *"all"* overload to `add_portal`.
+    * added the *"all"* overload to `add_portal`.
     * *Modders stuff:* Hooks that do not permanently need to exists have been been made to only exist for as long as they are needed.
     * *Modders stuff:* All hooks, temporary or not, have been added to the readme to help resolve mod conflicts.
 * **New Commands**
-	* **3.1.1:** `post_sound_event` Sounds be hard. This should help.
+    * **3.1.1:** `post_sound_event` Sounds be hard. This should help.
     * `next_boss` We've worked hard on this. We hope you find use for it. *(And with 'we', Harb means the other contributor who isn't Harb nor iDeathHD.)*
     * `give_lunar` Editing your save is an unnessecary task. This command is restricted to the issuing player to prevent grieving.
     * `remove_item` While this functionality could already be achieved with *give_item* and a negative amount, this was not obvious.
@@ -138,10 +158,10 @@
     * Clients now see the output of commands with the ExecuteOnServer flag. *This change only applies to commands created by this mod.*
     * Host now sees the input of commands with the ExecuteOnServer flag. *This change applies to all commands, even that of other mods.*
     * `set_team` is now smarter in detecting which team you want.
-	* `add_portal` now sets better values to get the vanilla orb messages to appear in chat.
+    * `add_portal` now sets better values to get the vanilla orb messages to appear in chat.
     * Several issues with argument matching are now resolved better.
     * Special characters are now handled better (or rather, are ignored completely) when matching arguments.
-	* `set_scene` is now no longer denying access to you because you don't have cheats enabled. (you do, after all.)
+    * `set_scene` is now no longer denying access to you because you don't have cheats enabled. (you do, after all.)
 
 ### 3.0 ###
 
@@ -182,8 +202,8 @@ This mod hooks the following methods when prompted:
 * `On.RoR2.Stage.Start` - We hook this to remove the IL hook on ClassicStageInfo.
 * `IL.RoR2.ClassicStageInfo.Awake` - We hook this to set a family event.
 * NoClip requires 3 hooks:
-	* `On.RoR2.Networking.GameNetworkManager.Disconnect` 
-	* These two trampoline hooks are initialized, but are only applied on prompt:
-		1. UnityEngine.NetworkManager.DisableOnServerSceneChange
-		2. UnityEngine.NetworkManager.DisableOnClientSceneChange
-	
+    * `On.RoR2.Networking.GameNetworkManager.Disconnect` 
+    * These two trampoline hooks are initialized, but are only applied on prompt:
+        1. UnityEngine.NetworkManager.DisableOnServerSceneChange
+        2. UnityEngine.NetworkManager.DisableOnClientSceneChange
+    
