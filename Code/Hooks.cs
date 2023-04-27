@@ -22,6 +22,8 @@ namespace DebugToolkit
 
         private static On.RoR2.Console.orig_RunCmd _origRunCmd;
         private static CharacterMaster pingedTarget;
+        private static bool buddha;
+
         public static void InitializeHooks()
         {
             IL.RoR2.Console.Awake += UnlockConsole;
@@ -47,6 +49,16 @@ namespace DebugToolkit
             Command_Noclip.OnClientChangeSceneHook = new Hook(typeof(UnityEngine.Networking.NetworkManager).GetMethodCached("ClientChangeScene"),
                 typeof(Command_Noclip).GetMethodCached("DisableOnClientSceneChange"), hookConfig);
             Command_Noclip.origClientChangeScene = Command_Noclip.OnClientChangeSceneHook.GenerateTrampoline<Command_Noclip.d_ClientChangeScene>();
+
+            //Buddha Mode hook
+            On.RoR2.HealthComponent.TakeDamage += NonLethatDamage;
+        }
+
+        private static void NonLethatDamage(On.RoR2.HealthComponent.orig_TakeDamage orig,HealthComponent self,DamageInfo damageInfo){
+            if(buddha && self.body.isPlayerControlled){
+              damageInfo.damageType |= DamageType.NonLethal;
+            }
+            orig(self,damageInfo);
         }
 
         private static void InterceptPing(On.RoR2.PingerController.orig_RebuildPing orig, PingerController self, PingerController.PingInfo pingInfo)
@@ -393,6 +405,10 @@ namespace DebugToolkit
         internal static CharacterMaster GetPingedTarget()
         {
             return pingedTarget;
+        }
+
+        internal static bool ToggleBuddha(){
+            return (buddha = !buddha);
         }
     }
 }
