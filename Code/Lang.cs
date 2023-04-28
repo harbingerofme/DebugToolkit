@@ -30,7 +30,7 @@
             PERM_ENABLE_ARGS = "Requires 0 or 1 arguments: [value]",
             PERM_MOD_ARGS = "Requires 2 arguments: (permission_level (0 OR None|1 OR SubAdmin|2 OR Admin) (player)",
             POSTSOUNDEVENT_ARGS = "Requires 1 argument: {event_name}",
-            RANDOMITEM_ARGS = "Requires 1 (2 if from server) argument: {count} [target (player|'pinged'):<self>]",
+            RANDOMITEM_ARGS = "Requires 1 (3 if from server) argument: {count} [include ('lunar'|'void'|'both'):<none>] [target (player|'pinged'):<self>]",
             REMOVEALLBUFFS_ARGS = "Requires 0 (2 if from server) arguments: [timed (0|1):0/false] [target (player|'pinged'):<self>]",
             REMOVEALLDOTS_ARGS = "Requires 0 (1 if from server) arguments: [target (player|'pinged'):<self>]",
             REMOVEALLITEMS_ARGS = "Requires 0 (1 if from server) arguments: [target (player|'pinged'):<self>]",

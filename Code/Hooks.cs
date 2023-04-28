@@ -38,6 +38,7 @@ namespace DebugToolkit
             IL.RoR2.Networking.NetworkManagerSystem.CCSetScene += EnableCheatsInCCSetScene;
             On.RoR2.Networking.NetworkManagerSystem.CCSceneList += OverrideVanillaSceneList;
             On.RoR2.PingerController.RebuildPing += InterceptPing;
+            IL.RoR2.Inventory.GiveRandomItems += FixRandomItemsDroptables;
 
             // Noclip hooks
             var hookConfig = new HookConfig { ManualApply = true };
@@ -47,6 +48,31 @@ namespace DebugToolkit
             Command_Noclip.OnClientChangeSceneHook = new Hook(typeof(UnityEngine.Networking.NetworkManager).GetMethodCached("ClientChangeScene"),
                 typeof(Command_Noclip).GetMethodCached("DisableOnClientSceneChange"), hookConfig);
             Command_Noclip.origClientChangeScene = Command_Noclip.OnClientChangeSceneHook.GenerateTrampoline<Command_Noclip.d_ClientChangeScene>();
+        }
+
+        private static void FixRandomItemsDroptables(ILContext il)
+        {
+            bool PatchMethod(ILCursor cursor, string field, float value, string newField)
+            {
+                if (cursor.TryGotoNext(
+                    x => x.MatchLdfld<Run>(field),
+                    x => x.MatchLdcR4(value)))
+                {
+                    cursor.Remove();
+                    cursor.Emit(OpCodes.Ldfld, typeof(Run).GetField(newField));
+                    return true;
+                }
+                return false;
+            }
+
+            ILCursor c = new ILCursor(il);
+            bool patched = true;
+            patched &= PatchMethod(c, "availableVoidTier1DropList", 2.3999999f, "availableVoidTier2DropList");
+            patched &= PatchMethod(c, "availableVoidTier1DropList", 0.16f, "availableVoidTier3DropList");
+            if (!patched)
+            {
+                Debug.LogWarning("Unable to patch RoR2.Inventory.GiveRandomItems");
+            }
         }
 
         private static void InterceptPing(On.RoR2.PingerController.orig_RebuildPing orig, PingerController self, PingerController.PingInfo pingInfo)

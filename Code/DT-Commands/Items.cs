@@ -134,17 +134,39 @@ namespace DebugToolkit.Commands
                 return;
             }
             bool isDedicatedServer = args.sender == null;
-            if (args.Count == 0 || (args.Count < 2 && isDedicatedServer))
+            if (args.Count == 0 || (args.Count < 3 && isDedicatedServer))
             {
                 Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.RANDOMITEM_ARGS, args, LogLevel.MessageClientOnly);
                 return;
             }
 
-            CharacterMaster target = args.senderMaster;
+            bool lunarEnabled = false;
+            bool voidEnabled = false;
             if (args.Count > 1 && args[1] != Lang.DEFAULT_VALUE)
             {
-                target = Util.GetTargetFromArgs(args.userArgs, 1, isDedicatedServer);
-                if (target == null && !isDedicatedServer && args[1].ToUpper() == Lang.PINGED)
+                switch (args[1].ToLower())
+                {
+                    case "lunar":
+                        lunarEnabled = true;
+                        break;
+                    case "void":
+                        voidEnabled = true;
+                        break;
+                    case "both":
+                        lunarEnabled= true;
+                        voidEnabled = true;
+                        break;
+                    default:
+                        Log.MessageNetworked(String.Format(Lang.INVALID_ARG_VALUE, "include"), args, LogLevel.MessageClientOnly);
+                        return;
+                }
+            }
+
+            CharacterMaster target = args.senderMaster;
+            if (args.Count > 2 && args[2] != Lang.DEFAULT_VALUE)
+            {
+                target = Util.GetTargetFromArgs(args.userArgs, 2, isDedicatedServer);
+                if (target == null && !isDedicatedServer && args[2].ToUpper() == Lang.PINGED)
                 {
                     Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
                     return;
@@ -172,7 +194,7 @@ namespace DebugToolkit.Commands
             }
             if (iCount > 0)
             {
-                inventory.GiveRandomItems(iCount, false, false);
+                inventory.GiveRandomItems(iCount, lunarEnabled, voidEnabled);
                 Log.MessageNetworked($"Generated {iCount} items for {targetName}!", args);
             }
             else
