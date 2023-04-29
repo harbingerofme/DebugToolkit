@@ -66,6 +66,7 @@ List Commands:
 * **list_team** - List all Teams and their language invariants.
 * **list_buff** - List all Buffs and if they are stackable.
 * **list_dot** - List all DoT effects.
+* **list_itemtier** - List all Item Tiers.
 * **list_item** - List all Items, their language invariants, and if they are in the current drop pool.
 * **list_equip** - List all Equipment, their language invariants, and if they are in the current drop pool.
 * **list_interactables** List all Interactables.
@@ -88,7 +89,7 @@ Buff Commands:
 Item Commands:
 
 * **give_item** - Give an item directly to a character's inventory: `give_item {item} [count:1] *[target (player|'pinged'):<self>]`
-* **random_items** - Generate random items from the available droptables. `random_items {count} [include ('lunar'|'void'|'both'):<none>] *[target (player|'pinged'):<self>]`
+* **random_items** - Generate random items from the available item tiers. The tier argument must be encapsulated by double quotes if there is a comma. `random_items {count} [tiers ('all'|Any comma-separated tier names):'all'] *[target (player|'pinged'):<self>]`
 * **give_equip** - Give an equipment directly to a character's inventory: `give_equip {(equip|'random')} *[target (player|'pinged'):<self>]`
 * **give_money** - Gives the desired player/team money `give_money {amount} [target ('all'|player):'all']`
 * **give_lunar** - Gives the specified amount of lunar coins to the issuing player. A negative count may be specified to remove that many. `give_lunar [amount:1]`

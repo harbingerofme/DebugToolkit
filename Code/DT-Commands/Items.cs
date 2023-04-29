@@ -11,6 +11,27 @@ namespace DebugToolkit.Commands
 {
     class Items
     {
+        [ConCommand(commandName = "list_itemtier", flags = ConVarFlags.None, helpText = Lang.LISTITEMTIER_HELP)]
+        private static void CCListItemTier(ConCommandArgs args)
+        {
+            var sb = new StringBuilder();
+            IEnumerable<ItemTier> tierList;
+            if (args.Count > 0)
+            {
+                tierList = (IEnumerable<ItemTier>)StringFinder.Instance.GetItemTiersFromPartial(args.GetArgString(0));
+                if (tierList.Count() == 0) sb.AppendLine($"No item tier that matches \"{args[0]}\".");
+            }
+            else
+            {
+                tierList = (IEnumerable<ItemTier>)StringFinder.Instance.GetItemTiersFromPartial("");
+            }
+            foreach (var tier in tierList)
+            {
+                sb.AppendLine($"[{(int)tier}]{ItemTierCatalog.GetItemTierDef(tier).name}");
+            }
+            Log.MessageNetworked(sb.ToString(), args, LogLevel.MessageClientOnly);
+        }
+
         [ConCommand(commandName = "list_item", flags = ConVarFlags.None, helpText = Lang.LISTITEM_HELP)]
         private static void CCListItem(ConCommandArgs args)
         {
@@ -140,26 +161,55 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            bool lunarEnabled = false;
-            bool voidEnabled = false;
-            if (args.Count > 1 && args[1] != Lang.DEFAULT_VALUE)
+            var itemTierPools = new Dictionary<ItemTier, List<PickupIndex>>();
+            if (args.Count < 2 || (args[1] == Lang.DEFAULT_VALUE || args[1].ToUpper() == Lang.ALL))
             {
-                switch (args[1].ToLower())
+                foreach (var tier in StringFinder.Instance.GetItemTiersFromPartial(""))
                 {
-                    case "lunar":
-                        lunarEnabled = true;
-                        break;
-                    case "void":
-                        voidEnabled = true;
-                        break;
-                    case "both":
-                        lunarEnabled= true;
-                        voidEnabled = true;
-                        break;
-                    default:
-                        Log.MessageNetworked(String.Format(Lang.INVALID_ARG_VALUE, "include"), args, LogLevel.MessageClientOnly);
-                        return;
+                    itemTierPools[tier] = new List<PickupIndex>();
                 }
+            }
+            else
+            {
+                foreach (var tierName in args[1].Split(','))
+                {
+                    var tier = StringFinder.Instance.GetItemTierFromPartial(tierName);
+                    if (tier == (ItemTier)(-1))
+                    {
+                        Log.MessageNetworked(Lang.OBJECT_NOTFOUND + tierName, args, LogLevel.MessageClientOnly);
+                        return;
+                    }
+                    else
+                    {
+                        itemTierPools[tier] = new List<PickupIndex>();
+                    }
+                }
+            }
+            foreach (var itemIndex in ItemCatalog.allItems)
+            {
+                if (Run.instance.availableItems.Contains(itemIndex))
+                {
+                    var itemDef = ItemCatalog.GetItemDef(itemIndex);
+                    if (itemTierPools.ContainsKey(itemDef.tier) && itemDef.DoesNotContainTag(ItemTag.WorldUnique))
+                    {
+                        itemTierPools[itemDef.tier].Add(PickupCatalog.FindPickupIndex(itemIndex));
+                    }
+                }
+            }
+            var weightedSelection = new WeightedSelection<List<PickupIndex>>(8);
+            foreach (var pool in itemTierPools)
+            {
+                if (pool.Value.Count == 0)
+                {
+                    Log.MessageNetworked($"No available items for {ItemTierCatalog.GetItemTierDef(pool.Key).name}. Skipping...", args, LogLevel.WarningClientOnly);
+                }
+                // TODO: Add custom weights
+                weightedSelection.AddChoice(pool.Value, 1f);
+            }
+            if (weightedSelection.Count == 0)
+            {
+                Log.MessageNetworked("No items found to draw from.", args, LogLevel.MessageClientOnly);
+                return;
             }
 
             CharacterMaster target = args.senderMaster;
@@ -194,7 +244,12 @@ namespace DebugToolkit.Commands
             }
             if (iCount > 0)
             {
-                inventory.GiveRandomItems(iCount, lunarEnabled, voidEnabled);
+                for (int i = 0; i < iCount; i++)
+                {
+                    var tier = weightedSelection.Evaluate(UnityEngine.Random.value);
+                    var pickupDef = PickupCatalog.GetPickupDef(tier[UnityEngine.Random.Range(0, tier.Count)]);
+                    inventory.GiveItem((pickupDef != null) ? pickupDef.itemIndex : ItemIndex.None, 1);
+                }
                 Log.MessageNetworked($"Generated {iCount} items for {targetName}!", args);
             }
             else
