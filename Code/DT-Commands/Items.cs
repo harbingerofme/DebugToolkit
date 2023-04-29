@@ -190,18 +190,19 @@ namespace DebugToolkit.Commands
                 if (Run.instance.availableItems.Contains(itemIndex))
                 {
                     var itemDef = ItemCatalog.GetItemDef(itemIndex);
-                    if (itemTierPools.ContainsKey(itemDef.tier) && itemDef.DoesNotContainTag(ItemTag.WorldUnique))
+                    if (Run.instance.availableItems.Contains(itemIndex) && itemTierPools.ContainsKey(itemDef.tier) && itemDef.DoesNotContainTag(ItemTag.WorldUnique))
                     {
                         itemTierPools[itemDef.tier].Add(PickupCatalog.FindPickupIndex(itemIndex));
                     }
                 }
             }
-            var weightedSelection = new WeightedSelection<List<PickupIndex>>(8);
+            var weightedSelection = new WeightedSelection<List<PickupIndex>>();
             foreach (var pool in itemTierPools)
             {
                 if (pool.Value.Count == 0)
                 {
                     Log.MessageNetworked($"No available items for {ItemTierCatalog.GetItemTierDef(pool.Key).name}. Skipping...", args, LogLevel.WarningClientOnly);
+                    continue;
                 }
                 // TODO: Add custom weights
                 weightedSelection.AddChoice(pool.Value, 1f);
