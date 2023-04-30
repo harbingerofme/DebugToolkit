@@ -166,10 +166,10 @@ namespace DebugToolkit.Commands
                 }
                 foreach (var elite in EliteCatalog.eliteDefs)
                 {
-                    var eliteName = Regex.Replace(elite.name, "^ed", "");
+                    var eliteName = elite.name;
                     if (int.TryParse(name, out iName) && i == iName || eliteName.ToUpper().Contains(name.ToUpper()))
                     {
-                        sb.AppendLine($"[{i}][{eliteName}");
+                        sb.AppendLine($"[{i}]{eliteName}");
                         resultCount++;
                     }
                     i++;
@@ -184,7 +184,7 @@ namespace DebugToolkit.Commands
                 sb.AppendLine("[-1]None");
                 foreach (var elite in EliteCatalog.eliteDefs)
                 {
-                    var eliteName = elite.name.Substring(2);
+                    var eliteName = elite.name;
                     sb.AppendLine($"[{i}]{eliteName}");
                     i++;
                 }

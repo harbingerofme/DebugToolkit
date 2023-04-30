@@ -255,40 +255,44 @@ namespace DebugToolkit.Commands
                 return;
             }
             s.AppendLine($"Next boss is: {nextBoss.spawnCard.name}. ");
-            if (args.Count > 1)
+
+            nextBossCount = 1;
+            if (args.Count > 1 && args[1] != Lang.DEFAULT_VALUE)
             {
-                if (!TextSerialization.TryParseInvariant(args[1], out int nextBossCount))
+                if (!TextSerialization.TryParseInvariant(args[1], out int count))
                 {
                     Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "count", "int"), args, LogLevel.MessageClientOnly);
                     return;
                 }
-                if (nextBossCount > 6)
+                var spawnLimit = Run.instance is InfiniteTowerRun ? 10 : 6;
+                if (count > spawnLimit)
                 {
-                    nextBossCount = 6;
-                    Log.MessageNetworked("'count' is capped at 6.", args, LogLevel.WarningClientOnly);
+                    count = spawnLimit;
+                    Log.MessageNetworked($"'count' is capped at {spawnLimit}.", args, LogLevel.WarningClientOnly);
                 }
                 else if (nextBossCount <= 0)
                 {
-                    nextBossCount = 1;
-                    Log.MessageNetworked("'count' must be non-zero positive.", args, LogLevel.WarningClientOnly);
+                    count = 1;
+                    Log.MessageNetworked("'count' must be non-zero positive. Reseting to 1.", args, LogLevel.WarningClientOnly);
                 }
+                nextBossCount = count;
                 s.Append($"Count:  {nextBossCount}. ");
+            }
 
-                if (args.Count > 2 && args[2] != Lang.DEFAULT_VALUE)
+            nextBossElite = null;
+            if (args.Count > 2 && args[2] != Lang.DEFAULT_VALUE)
+            {
+                var eliteIndex = StringFinder.Instance.GetEliteFromPartial(args[2]);
+                if ((int)eliteIndex == -2)
                 {
-                    var eliteDef = int.TryParse(args[2], out var eliteIndex) ?
-                        EliteCatalog.GetEliteDef((EliteIndex)eliteIndex) :
-                        EliteCatalog.eliteDefs.FirstOrDefault(d => d.name.ToLowerInvariant().Contains(args[2].ToLowerInvariant()));
-                    if (eliteDef)
-                    {
-                        nextBossElite = eliteDef;
-                        s.Append("Elite: " + nextBossElite.name);
-                    }
-                    else
-                    {
-                        Log.MessageNetworked(Lang.ELITE_NOTFOUND, args, LogLevel.MessageClientOnly);
-                        return;
-                    }
+                    Log.MessageNetworked(Lang.ELITE_NOTFOUND, args, LogLevel.MessageClientOnly);
+                    return;
+                }
+                var eliteDef = EliteCatalog.GetEliteDef(eliteIndex);
+                if (eliteDef)
+                {
+                    nextBossElite = eliteDef;
+                    s.Append("Elite: " + nextBossElite.name);
                 }
             }
 

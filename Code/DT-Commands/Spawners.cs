@@ -107,6 +107,33 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "count", "int"), args, LogLevel.MessageClientOnly);
                 return;
             }
+
+            EliteDef eliteDef = null;
+            if (args.Count > 2 && args[2] != Lang.DEFAULT_VALUE)
+            {
+                var eliteIndex = StringFinder.Instance.GetEliteFromPartial(args[2]);
+                if ((int)eliteIndex == -2)
+                {
+                    Log.MessageNetworked(Lang.ELITE_NOTFOUND, args, LogLevel.MessageClientOnly);
+                    return;
+                }
+                eliteDef = EliteCatalog.GetEliteDef(eliteIndex);
+            }
+
+            bool braindead = false;
+            if (args.Count > 3 && args[3] != Lang.DEFAULT_VALUE && !Util.TryParseBool(args[3], out braindead))
+            {
+                Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "braindead", "int or bool"), args, LogLevel.MessageClientOnly);
+                return;
+            }
+
+            TeamIndex teamIndex = TeamIndex.Monster;
+            if (args.Count > 4 && args[4] != Lang.DEFAULT_VALUE && !StringFinder.TryGetEnumFromPartial(args[4], out teamIndex))
+            {
+                Log.MessageNetworked(Lang.TEAM_NOTFOUND, args, LogLevel.MessageClientOnly);
+                return;
+            }
+
             Vector3 location = args.senderBody.transform.position;
             Log.MessageNetworked(string.Format(Lang.SPAWN_ATTEMPT_2, amount, character), args);
             for (int i = 0; i < amount; i++)
@@ -117,40 +144,15 @@ namespace DebugToolkit.Commands
                 master.bodyPrefab = body;
                 master.SpawnBody(args.sender.master.GetBody().transform.position, Quaternion.identity);
 
-                if (args.Count > 2 && args[2] != Lang.DEFAULT_VALUE)
+                if (eliteDef)
                 {
-                    var eliteDef = int.TryParse(args[2], out var eliteIndex) ?
-                        EliteCatalog.GetEliteDef((EliteIndex)eliteIndex) :
-                        EliteCatalog.eliteDefs.FirstOrDefault(d => d.name.ToLower().Contains(args[2].ToLower(CultureInfo.InvariantCulture)));
-                    if (eliteDef)
-                    {
-                        master.inventory.SetEquipmentIndex(eliteDef.eliteEquipmentDef.equipmentIndex);
-                        master.inventory.GiveItem(RoR2Content.Items.BoostHp, Mathf.RoundToInt((eliteDef.healthBoostCoefficient - 1) * 10));
-                        master.inventory.GiveItem(RoR2Content.Items.BoostDamage, Mathf.RoundToInt(eliteDef.damageBoostCoefficient - 1) * 10);
-                    }
-                    else
-                    {
-                        Log.MessageNetworked(Lang.ELITE_NOTFOUND, args, LogLevel.MessageClientOnly);
-                        return;
-                    }
-                }
-
-                bool braindead = false;
-                if (args.Count > 3 && args[3] != Lang.DEFAULT_VALUE && !Util.TryParseBool(args[3], out braindead))
-                {
-                    Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "braindead", "int or bool"), args, LogLevel.MessageClientOnly);
-                    return;
+                    master.inventory.SetEquipmentIndex(eliteDef.eliteEquipmentDef.equipmentIndex);
+                    master.inventory.GiveItem(RoR2Content.Items.BoostHp, Mathf.RoundToInt((eliteDef.healthBoostCoefficient - 1) * 10));
+                    master.inventory.GiveItem(RoR2Content.Items.BoostDamage, Mathf.RoundToInt(eliteDef.damageBoostCoefficient - 1) * 10);
                 }
                 if (braindead)
                 {
                     UnityEngine.Object.Destroy(master.GetComponent<BaseAI>());
-                }
-
-                TeamIndex teamIndex = TeamIndex.Monster;
-                if (args.Count > 4 && args[4] != Lang.DEFAULT_VALUE && !StringFinder.TryGetEnumFromPartial(args[4], out teamIndex))
-                {
-                    Log.MessageNetworked(Lang.TEAM_NOTFOUND, args, LogLevel.MessageClientOnly);
-                    return;
                 }
                 if (teamIndex >= TeamIndex.None && teamIndex < TeamIndex.Count)
                 {

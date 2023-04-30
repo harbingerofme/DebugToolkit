@@ -350,22 +350,52 @@ namespace DebugToolkit
         internal static void CombatDirector_SetNextSpawnAsBoss(On.RoR2.CombatDirector.orig_SetNextSpawnAsBoss orig, CombatDirector self)
         {
             orig(self);
+            /* This method is called for the following:
+             * - Teleporter
+             * - Simulacrum boss wave (except from the augments of Mithrix and Scav)
+             * - Deep Void Signals: ignore this
+             */
+            if (self.gameObject.name.Contains("DeepVoidPortalBattery"))
+            {
+                return;
+            }
 
             var selectedBossCard = CurrentRun.nextBoss;
-
-            var eliteTierDef = Spawners.GetTierDef(CurrentRun.nextBossElite.eliteIndex);
-
-            selectedBossCard.spawnCard.directorCreditCost = (int)((self.monsterCredit / CurrentRun.nextBossCount) / eliteTierDef.costMultiplier);
-
             self.OverrideCurrentMonsterCard(selectedBossCard);
 
-            self.currentActiveEliteTier = eliteTierDef;
-            self.currentActiveEliteDef = CurrentRun.nextBossElite;
+            var selectedElite = CurrentRun.nextBossElite;
+            self.currentActiveEliteDef = selectedElite;
+            var eliteName = "non-elite";
+            if (selectedElite == null)
+            {
+                self.currentActiveEliteTier = CombatDirector.eliteTiers[0];
+            }
+            else
+            {
+                eliteName = selectedElite.name;
+                var found = false;
+                foreach (var eliteTier in CombatDirector.eliteTiers)
+                {
+                    foreach (var eliteDef in eliteTier.eliteTypes)
+                    {
+                        if (eliteDef == CurrentRun.nextBossElite)
+                        {
+                            self.currentActiveEliteTier = eliteTier;
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (found)
+                    {
+                        break;
+                    }
+                }
+            }
 
-            Log.Message($"{selectedBossCard.spawnCard.name} cost has been set to {selectedBossCard.cost} for {CurrentRun.nextBossCount} {CurrentRun.nextBossElite} bosses with available credit: {self.monsterCredit}", Log.LogLevel.Info);
+            var count = CurrentRun.nextBossCount;
+            self.monsterCredit = selectedBossCard.cost * count * self.currentActiveEliteTier.costMultiplier;
 
-            CurrentRun.nextBossCount = 1;
-            CurrentRun.nextBossElite = CombatDirector.eliteTiers[0].GetRandomAvailableEliteDef(self.rng);
+            Log.Message($"The director credits have been set to {self.monsterCredit} to spawn {count} {eliteName} {selectedBossCard.spawnCard.name}", Log.LogLevel.Info);
 
             On.RoR2.CombatDirector.SetNextSpawnAsBoss -= CombatDirector_SetNextSpawnAsBoss;
         }
