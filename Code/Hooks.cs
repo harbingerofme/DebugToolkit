@@ -374,6 +374,24 @@ namespace DebugToolkit
             Log.Message($"The director credits have been set to {self.monsterCredit} to spawn {count} {eliteName} {selectedBossCard.spawnCard.name}", Log.LogLevel.Info);
 
             On.RoR2.CombatDirector.SetNextSpawnAsBoss -= CombatDirector_SetNextSpawnAsBoss;
+            On.RoR2.InfiniteTowerExplicitSpawnWaveController.Initialize -= InfiniteTowerExplicitSpawnWaveController_Initialize;
+        }
+
+        internal static void InfiniteTowerExplicitSpawnWaveController_Initialize(On.RoR2.InfiniteTowerExplicitSpawnWaveController.orig_Initialize orig, InfiniteTowerExplicitSpawnWaveController self, int waveIndex, Inventory enemyInventory, GameObject spawnTargetObject)
+        {
+            self.spawnList = new InfiniteTowerExplicitSpawnWaveController.SpawnInfo[]
+            {
+                new InfiniteTowerExplicitSpawnWaveController.SpawnInfo
+                {
+                    spawnCard = (CharacterSpawnCard)CurrentRun.nextBoss.spawnCard,
+                    eliteDef = CurrentRun.nextBossElite,
+                    count = CurrentRun.nextBossCount
+                }
+            };
+            orig(self, waveIndex, enemyInventory, spawnTargetObject);
+
+            On.RoR2.CombatDirector.SetNextSpawnAsBoss -= CombatDirector_SetNextSpawnAsBoss;
+            On.RoR2.InfiniteTowerExplicitSpawnWaveController.Initialize -= InfiniteTowerExplicitSpawnWaveController_Initialize;
         }
 
         internal static void SeedHook(On.RoR2.PreGameController.orig_Awake orig, PreGameController self)

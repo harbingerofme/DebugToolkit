@@ -86,7 +86,7 @@
             MACRO_DTZOOM_HELP = "Gives you 20 hooves and 200 feathers for getting around quickly.",
             MACRO_LATEGAME_HELP = "Sets the current run to the 'lategame' as defined by HG. This command is DESTRUCTIVE.",
             MACRO_MIDGAME_HELP = "Sets the current run to the 'midgame' as defined by HG. This command is DESTRUCTIVE.",
-            NEXTBOSS_HELP = "Sets the next teleporter instance to the specified boss. " + NEXTBOSS_ARGS,
+            NEXTBOSS_HELP = "Sets the next teleporter/simulacrum boss to the specified boss. " + NEXTBOSS_ARGS,
             NEXTSTAGE_HELP = "Forces a stage change to the specified stage. " + NEXTSTAGE_ARGS,
             NOCLIP_HELP = "Allow flying and going through objects. Sprinting will double the speed. " + NO_ARGS,
             NOENEMIES_HELP = "Toggle Monster spawning. " + NO_ARGS,
