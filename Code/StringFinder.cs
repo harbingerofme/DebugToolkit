@@ -323,7 +323,7 @@ namespace DebugToolkit
         /// Returns an array of EquipmentIndex's when provided with a partial/invariant.
         /// </summary>
         /// <param name="name">Matches in order: (int)Index, Exact Alias, Exact Index, Partial Index, Partial Invariant</param>
-        /// <returns>Returns the EquiptmentIndex if a match is found, or returns EquiptmentIndex.None</returns>
+        /// <returns>Returns the EquipmentIndex if a match is found, or returns EquiptmentIndex.None</returns>
         public EquipmentIndex[] GetEquipsFromPartial(string name)
         {
             var set = new HashSet<EquipmentIndex>();
@@ -354,6 +354,61 @@ namespace DebugToolkit
             }
             //if (set.Count == 0) set.Add(EquipmentIndex.None);
             return set.ToArray();
+        }
+
+        /// <summary>
+        /// Returns an ItemTier when provided with a partial/invariant.
+        /// </summary>
+        /// <param name="name">Matches in order: (int)Index, Partial Invariant</param>
+        /// <returns>Returns the ItemTier if a match is found, or returns -1</returns>
+        public ItemTier GetItemTierFromPartial(string name)
+        {
+            // Not using Enum.TryParse because we're trying to avoid ItemTier.AssignedAtRuntime
+            if (int.TryParse(name, out int index))
+            {
+                // They are not ordered by tier value!
+                foreach (var tierDef in ItemTierCatalog.allItemTierDefs)
+                {
+                    if ((ItemTier)index == tierDef.tier)
+                    {
+                        return tierDef.tier;
+                    }
+                }
+            }
+
+            foreach (var tierDef in ItemTierCatalog.allItemTierDefs)
+            {
+                if (tierDef.name.ToUpperInvariant().Contains(name.ToUpperInvariant()))
+                {
+                    return tierDef.tier;
+                }
+            }
+            return (ItemTier)(-1);
+        }
+
+        /// <summary>
+        /// Returns an array of ItemTier's when provided with a partial/invariant.
+        /// </summary>
+        /// <param name="name">Matches in order: (int)Index, Partial Invariant</param>
+        /// <returns>Returns the array of ItemTier indices for any matches found</returns>
+        public ItemTier[] GetItemTiersFromPartial(string name)
+        {
+            var set = new HashSet<ItemTier>();
+            foreach (var tierDef in ItemTierCatalog.allItemTierDefs)
+            {
+                if (int.TryParse(name, out int index))
+                {
+                    if (index == (int)tierDef.tier)
+                    {
+                        set.Add(tierDef.tier);
+                    }
+                }
+                else if (tierDef.name.ToUpperInvariant().Contains(name.ToUpperInvariant()))
+                {
+                    set.Add(tierDef.tier);
+                }
+            }
+            return set.OrderBy(t => t).ToArray();
         }
 
         /// <summary>
