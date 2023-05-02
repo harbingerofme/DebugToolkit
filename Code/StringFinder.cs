@@ -518,6 +518,39 @@ namespace DebugToolkit
             return SkinIndex.None;
         }
 
+        /// <summary>
+        /// Returns an EliteIndex when provided with a partial/invariant.
+        /// </summary>
+        /// <param name="name">Matches in order: (int)Index, Partial Invariant</param>
+        /// <returns>Returns the EliteIndex if a match is found including EliteIndex.None, or returns -2</returns>
+        public EliteIndex GetEliteFromPartial(string name)
+        {
+            if (int.TryParse(name, out int index))
+            {
+                if (index == -1)
+                {
+                    return (EliteIndex)(-1);
+                }
+                else if (EliteCatalog.GetEliteDef((EliteIndex)index) != null)
+                {
+                    return (EliteIndex)index;
+                }
+            }
+
+            if ("NONE".Contains(name.ToUpperInvariant()))
+            {
+                return (EliteIndex)(-1);
+            }
+            foreach (var elite in EliteCatalog.eliteDefs)
+            {
+                if (elite.name.ToUpperInvariant().Contains(name.ToUpperInvariant()))
+                {
+                    return elite.eliteIndex;
+                }
+            }
+            return (EliteIndex)(-2);
+        }
+
         public DirectorCard GetDirectorCardFromPartial(string masterNameUpper)
         {
             var nameUpper = masterNameUpper.ToUpperInvariant();
