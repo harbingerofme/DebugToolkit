@@ -11,7 +11,7 @@
             BIND_ARGS = "Requires 2 arguments: {key} {console_commands}",
             BIND_DELETE_ARGS = "Requires 1 argument: {key}",
             CHANGETEAM_ARGS = "Requires 1 (2 if from server) argument: {team} [player]",
-            CREATEPICKUP_ARGS = "Requires 1 (3 if from server) argument: {object (item|equip|'lunarcoin'|'voidcoin')} [search ('item'|'equip'|'all'):'all'] *[player:<self>]",
+            CREATEPICKUP_ARGS = "Requires 1 (3 if from server) argument: {object (item|equip|'lunarcoin'|'voidcoin')} [search ('item'|'equip'|'both'):'both'] *[player:<self>]",
             FIXEDTIME_ARGS = "Requires 0 or 1 argument: [time]",
             GIVEBUFF_ARGS = "Requires 1 (4 if from server) arguments: {buff} [count:1] [duration:0] [target (player|'pinged'):<self>]",
             GIVEDOT_ARGS = "Requires 1 (4 if from server) argument: {dot} [count:1] [target (player|'pinged'):<self>] [attacker (player|'pinged'):<self>]",
@@ -160,6 +160,7 @@
         // Keywords
         public const string
             ALL = "ALL",
+            BOTH = "BOTH",
             COIN_LUNAR = "LUNARCOIN",
             COIN_VOID = "VOIDCOIN",
             DEFAULT_VALUE = "",

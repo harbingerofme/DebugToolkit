@@ -97,7 +97,7 @@ Item Commands:
 * **remove_item_stacks** - Removes all item stacks from a character's inventory. `remove_item_stacks {item} *[target (player|'pinged'):<self>]`
 * **remove_all_items** - Removes all items from a character's inventory. `remove_all_items *[target (player|'pinged'):<self>]`
 * **remove_equip** - Sets the equipment of a character to 'None'. `remove_equip *[target (player|'pinged'):<self>]`
-* **create_pickup** - Creates a pickup in front of a player. Pickups are items, equipment, or lunar coins. Additionally 'item' or 'equip' may be specified to only search that list. `create_pickup {object (item|equip|'lunarcoin'|'voidcoin')} [search ('item'|'equip'|'all'):'all'] *[player:<self>]`
+* **create_pickup** - Creates a pickup in front of a player. Pickups are items, equipment, or coins. When the pickup is an item or equipment, the search argument 'item' or 'equip' may be specified to only search that list. `create_pickup {object (item|equip|'lunarcoin'|'voidcoin')} [search ('item'|'equip'|'both'):'both'] *[player:<self>]`
 
 Spawn Commands:
 

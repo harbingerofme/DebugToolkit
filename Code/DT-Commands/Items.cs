@@ -393,7 +393,7 @@ namespace DebugToolkit.Commands
             {
                 switch (args[1].ToUpperInvariant())
                 {
-                    case Lang.ALL:
+                    case Lang.BOTH:
                         break;
                     case Lang.ITEM:
                         searchEquip = false;
