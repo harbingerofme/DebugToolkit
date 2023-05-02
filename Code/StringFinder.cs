@@ -482,13 +482,13 @@ namespace DebugToolkit
                 }
             }
 
-            if ("NONE".Contains(name.ToUpper()))
+            if ("NONE".Contains(name.ToUpperInvariant()))
             {
                 return (EliteIndex)(-1);
             }
             foreach (var elite in EliteCatalog.eliteDefs)
             {
-                if (elite.name.ToUpper().Contains(name.ToUpper()))
+                if (elite.name.ToUpperInvariant().Contains(name.ToUpperInvariant()))
                 {
                     return elite.eliteIndex;
                 }
