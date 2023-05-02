@@ -365,32 +365,8 @@ namespace DebugToolkit
 
             var selectedElite = CurrentRun.nextBossElite;
             self.currentActiveEliteDef = selectedElite;
-            var eliteName = "non-elite";
-            if (selectedElite == null)
-            {
-                self.currentActiveEliteTier = CombatDirector.eliteTiers[0];
-            }
-            else
-            {
-                eliteName = selectedElite.name;
-                var found = false;
-                foreach (var eliteTier in CombatDirector.eliteTiers)
-                {
-                    foreach (var eliteDef in eliteTier.eliteTypes)
-                    {
-                        if (eliteDef == CurrentRun.nextBossElite)
-                        {
-                            self.currentActiveEliteTier = eliteTier;
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (found)
-                    {
-                        break;
-                    }
-                }
-            }
+            self.currentActiveEliteTier = Spawners.GetTierDef(selectedElite);
+            var eliteName = (selectedElite == null) ? "non-elite" : selectedElite.name;
 
             var count = CurrentRun.nextBossCount;
             self.monsterCredit = selectedBossCard.cost * count * self.currentActiveEliteTier.costMultiplier;

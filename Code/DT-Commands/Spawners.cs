@@ -201,17 +201,21 @@ namespace DebugToolkit.Commands
         }
 
 
-        internal static CombatDirector.EliteTierDef GetTierDef(EliteIndex index)
+        internal static CombatDirector.EliteTierDef GetTierDef(EliteDef eliteDef)
         {
+            if (!eliteDef)
+            {
+                return CombatDirector.eliteTiers[0];
+            }
             foreach (var eliteTier in CombatDirector.eliteTiers)
             {
                 if (eliteTier != null)
                 {
-                    foreach (var eliteDef in eliteTier.eliteTypes)
+                    foreach (var thisEliteDef in eliteTier.eliteTypes)
                     {
-                        if (eliteDef)
+                        if (thisEliteDef)
                         {
-                            if (eliteDef.eliteIndex == index)
+                            if (thisEliteDef == eliteDef)
                             {
                                 return eliteTier;
                             }
