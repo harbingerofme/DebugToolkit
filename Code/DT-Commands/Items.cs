@@ -162,7 +162,7 @@ namespace DebugToolkit.Commands
             }
 
             var itemTierPools = new Dictionary<ItemTier, List<PickupIndex>>();
-            if (args.Count < 2 || (args[1] == Lang.DEFAULT_VALUE || args[1].ToUpper() == Lang.ALL))
+            if (args.Count < 2 || (args[1] == Lang.DEFAULT_VALUE || args[1].ToUpperInvariant() == Lang.ALL))
             {
                 foreach (var tier in StringFinder.Instance.GetItemTiersFromPartial(""))
                 {

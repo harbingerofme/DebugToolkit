@@ -378,7 +378,7 @@ namespace DebugToolkit
 
             foreach (var tierDef in ItemTierCatalog.allItemTierDefs)
             {
-                if (tierDef.name.ToUpper().Contains(name.ToUpper()))
+                if (tierDef.name.ToUpperInvariant().Contains(name.ToUpperInvariant()))
                 {
                     return tierDef.tier;
                 }
@@ -403,7 +403,7 @@ namespace DebugToolkit
                         set.Add(tierDef.tier);
                     }
                 }
-                else if (tierDef.name.ToUpper().Contains(name.ToUpper()))
+                else if (tierDef.name.ToUpperInvariant().Contains(name.ToUpperInvariant()))
                 {
                     set.Add(tierDef.tier);
                 }
