@@ -1,9 +1,8 @@
 ﻿using DebugToolkit.Commands;
 using R2API;
-using RoR2;
-using System;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.SceneManagement;
 using UnityObject = UnityEngine.Object;
 
 namespace DebugToolkit
@@ -30,31 +29,19 @@ namespace DebugToolkit
 
         private static void ApplyHook()
         {
-            On.RoR2.SceneDirector.Start += EnsureDTNetwork;
+            SceneManager.sceneLoaded += EnsureDTNetwork;
         }
 
-        // ReSharper disable once UnusedMember.Global
         internal static void UndoHook()
         {
-            On.RoR2.SceneDirector.Start -= EnsureDTNetwork;
+            SceneManager.sceneLoaded -= EnsureDTNetwork;
         }
 
-        // ReSharper disable once InconsistentNaming
-        private static void EnsureDTNetwork(On.RoR2.SceneDirector.orig_Start orig, SceneDirector self)
+        private static void EnsureDTNetwork(Scene _, LoadSceneMode __)
         {
-            try
+            if (!_debugToolKitComponentsSpawned && NetworkServer.active)
             {
-                orig(self);
-            }
-            catch (Exception e)
-            {
-                Log.Message($"Vanilla Exception : {e}", Log.LogLevel.Warning, Log.Target.Bepinex);
-            }
-
-            if (!_debugToolKitComponentsSpawned)
-            {
-                _debugToolKitComponentsSpawned =
-                    UnityObject.Instantiate(DebugToolKitComponents);
+                _debugToolKitComponentsSpawned = UnityObject.Instantiate(DebugToolKitComponents);
 
                 NetworkServer.Spawn(_debugToolKitComponentsSpawned);
             }

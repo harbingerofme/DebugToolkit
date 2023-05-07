@@ -27,7 +27,6 @@ namespace DebugToolkit.Commands
 
         internal static void InitRPC()
         {
-
             NetworkManager.DebugToolKitComponents.AddComponent<NoclipNet>();
         }
 
