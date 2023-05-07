@@ -8,6 +8,7 @@
     * Added: `list_itemtier`
     * Updated `next_boss`: Should work correctly for any master. Work consistently in simulacrum.
     * Fix commands (`spawn_ai` `next_boss`) that had an elite type arg. Specifying `-1` / `None` now works correctly.
+    * Fix networked commands like `noclip` or `time_scale` not working in all custom gamemodes.
 
 * **3.8.0**
     * This update is basically carried by [SChinchi](https://github.com/SChinchi), thank you!
