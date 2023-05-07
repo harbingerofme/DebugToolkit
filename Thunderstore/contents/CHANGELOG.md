@@ -3,6 +3,12 @@
 
 ### 3.8 ###
 
+* **3.8.1**
+    * Updated `random_items`: Can now specify which tiers of items you want to include. By default, all tiers are included.
+    * Added: `list_itemtier`
+    * Updated `next_boss`: Should work correctly for any master. Work consistently in simulacrum.
+    * Fix commands (`spawn_ai` `next_boss`) that had an elite type arg. Specifying `-1` / `None` now works correctly.
+
 * **3.8.0**
     * This update is basically carried by [SChinchi](https://github.com/SChinchi), thank you!
     * Added: `give_buff`
