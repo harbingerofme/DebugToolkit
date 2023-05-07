@@ -28,27 +28,7 @@ namespace DebugToolkit
 
             new Log(Logger);
 
-            #region Not Release Message
-#if !RELEASE   //Additional references in this block must be fully qualifed as to not use them in Release Builds.
-            string gitVersion = "";
-            using (System.IO.Stream stream = System.Reflection.Assembly.GetExecutingAssembly()
-                    .GetManifestResourceStream($"{this.GetType().Namespace}.Resources.CurrentCommit"))
-            using (System.IO.StreamReader reader = new System.IO.StreamReader(stream))
-            {
-                gitVersion = reader.ReadToEnd();
-            }
-            Log.MessageWarning(
-#if DEBUG
-                $"This is a debug build!"
-#elif NONETWORK
-                $"This is a non-networked build!"
-#elif BLEEDING
-                $"This is a Bleeding-Edge build!"
-#endif
-                , Log.Target.Bepinex);
-            Log.MessageWarning($"Commit: {gitVersion.Trim()}", Log.Target.Bepinex);
-#endif
-            #endregion
+            LogBuildInfo();
 
             Log.Message("Created by Harb, iDeathHD and . Based on RoR2Cheats by Morris1927.", LogLevel.Info, Log.Target.Bepinex);
 
@@ -56,6 +36,32 @@ namespace DebugToolkit
             PermissionSystem.Init();
             Hooks.InitializeHooks();
             NetworkManager.Init();
+        }
+
+        private void LogBuildInfo()
+        {
+            #region Not Release Message
+#if !RELEASE   //Additional references in this block must be fully qualifed as to not use them in Release Builds.
+            string gitVersion = "";
+            using (System.IO.Stream stream = System.Reflection.Assembly.GetExecutingAssembly()
+                    .GetManifestResourceStream($"{GetType().Namespace}.Resources.CurrentCommit"))
+            using (System.IO.StreamReader reader = new System.IO.StreamReader(stream))
+            {
+                gitVersion = reader.ReadToEnd();
+            }
+
+            Log.MessageWarning(
+#if DEBUG
+                $"This is a debug build!"
+#elif NONETWORK
+    $"This is a non-networked build!"
+#elif BLEEDING
+                $"This is a Bleeding-Edge build!"
+#endif
+    , Log.Target.Bepinex);
+            Log.MessageWarning($"Commit: {gitVersion.Trim()}", Log.Target.Bepinex);
+#endif
+            #endregion
         }
 
         private void Start()
