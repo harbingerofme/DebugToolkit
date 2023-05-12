@@ -89,6 +89,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "give_item", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.GIVEITEM_HELP)]
+        [ConCommand(commandName = "remove_item", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.REMOVEITEM_HELP)]
         [AutoCompletion(typeof(ItemCatalog), "itemDefs", "nameToken")]
         private static void CCGiveItem(ConCommandArgs args)
         {
@@ -142,8 +143,27 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(Lang.OBJECT_NOTFOUND + args[0] + ":" + item, args, LogLevel.MessageClientOnly);
                 return;
             }
-            inventory.GiveItem(item, iCount);
-            Log.MessageNetworked($"Gave {iCount} {item} to {targetName}", args);
+            var amount = (args.commandName == "give_item" ? 1 : -1) * iCount;
+            if (amount > 0)
+            {
+                if (Run.instance.IsItemExpansionLocked(item))
+                {
+                    Log.MessageNetworked("Additional content enabled is required to grant this item.", args, LogLevel.MessageClientOnly);
+                    return;
+                }
+                inventory.GiveItem(item, amount);
+                Log.MessageNetworked($"Gave {amount} {item} to {targetName}", args);
+            }
+            else if (amount < 0)
+            {
+                amount = Math.Min(-amount, inventory.GetItemCount(item));
+                inventory.RemoveItem(item, amount);
+                Log.MessageNetworked($"Removed {amount} {item} from {targetName}", args);
+            }
+            else
+            {
+                Log.MessageNetworked("Nothing happened", args);
+            }
         }
 
         [ConCommand(commandName = "random_items", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.RANDOMITEM_HELP)]
@@ -435,63 +455,6 @@ namespace DebugToolkit.Commands
             }
             Log.MessageNetworked(string.Format(Lang.CREATEPICKUP_SUCCES_1, final), args);
             PickupDropletController.CreatePickupDroplet(final, transform.position, transform.forward * 40f);
-        }
-
-        [ConCommand(commandName = "remove_item", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.REMOVEITEM_HELP)]
-        private static void CCRemoveItem(ConCommandArgs args)
-        {
-            if (!Run.instance)
-            {
-                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            bool isDedicatedServer = args.sender == null;
-            if (args.Count == 0 || (args.Count < 3 && isDedicatedServer))
-            {
-                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.REMOVEITEM_ARGS, args, LogLevel.MessageClientOnly);
-                return;
-            }
-
-            int iCount = 1;
-            if (args.Count > 1 && args[1] != Lang.DEFAULT_VALUE && !TextSerialization.TryParseInvariant(args[1], out iCount))
-            {
-                Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "count", "int"), args, LogLevel.MessageClientOnly);
-                return;
-            }
-
-            CharacterMaster target = args.senderMaster;
-            if (args.Count > 2 && args[2] != Lang.DEFAULT_VALUE)
-            {
-                target = Util.GetTargetFromArgs(args.userArgs, 2, isDedicatedServer);
-                if (target == null && !isDedicatedServer && args[2].ToUpper() == Lang.PINGED)
-                {
-                    Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
-                    return;
-                }
-            }
-            if (target == null)
-            {
-                Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            NetworkUser player = target.playerCharacterMasterController?.networkUser;
-            string targetName = (player != null) ? player.masterController.GetDisplayName() : target.gameObject.name;
-
-            Inventory inventory = target.inventory;
-            if (inventory == null)
-            {
-                Log.MessageNetworked(Lang.INVENTORY_ERROR, args, LogLevel.MessageClientOnly);
-                return;
-            }
-
-            var item = StringFinder.Instance.GetItemFromPartial(args[0]);
-            if (item == ItemIndex.None)
-            {
-                Log.MessageNetworked(Lang.OBJECT_NOTFOUND + args[0] + ":" + item, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            inventory.RemoveItem(item, iCount);
-            Log.MessageNetworked($"Removed {iCount} {item} from {targetName}", args);
         }
 
         [ConCommand(commandName = "remove_item_stacks", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.REMOVEITEMSTACKS_HELP)]
