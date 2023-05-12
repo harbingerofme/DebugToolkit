@@ -88,12 +88,12 @@ Buff Commands:
 
 Item Commands:
 
-* **give_item** - Give an item directly to a character's inventory: `give_item {item} [count:1] *[target (player|'pinged'):<self>]`
+* **give_item** - Give an item directly to a character's inventory. A negative amount is an alias for `remove_item`: `give_item {item} [count:1] *[target (player|'pinged'):<self>]`
 * **random_items** - Generate random items from the available item tiers. The tier argument must be encapsulated by double quotes if there is a comma. `random_items {count} [tiers ('all'|Any comma-separated tier names):'all'] *[target (player|'pinged'):<self>]`
 * **give_equip** - Give an equipment directly to a character's inventory: `give_equip {(equip|'random')} *[target (player|'pinged'):<self>]`
 * **give_money** - Gives the desired player/team money `give_money {amount} [target ('all'|player):'all']`
 * **give_lunar** - Gives the specified amount of lunar coins to the issuing player. A negative count may be specified to remove that many. `give_lunar [amount:1]`
-* **remove_item** - Removes an item from a character's inventory. `remove_item {item} [count:1] *[target (player|'pinged'):<self>]`
+* **remove_item** - Removes an item from a character's inventory. A negative amount is an alias for `give_item`: `remove_item {item} [count:1] *[target (player|'pinged'):<self>]`
 * **remove_item_stacks** - Removes all item stacks from a character's inventory. `remove_item_stacks {item} *[target (player|'pinged'):<self>]`
 * **remove_all_items** - Removes all items from a character's inventory. `remove_all_items *[target (player|'pinged'):<self>]`
 * **remove_equip** - Sets the equipment of a character to 'None'. `remove_equip *[target (player|'pinged'):<self>]`

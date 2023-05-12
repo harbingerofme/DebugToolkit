@@ -101,8 +101,7 @@ namespace DebugToolkit.Commands
             bool isDedicatedServer = args.sender == null;
             if (args.Count == 0 || (args.Count < 3 && isDedicatedServer))
             {
-                string usage = args.commandName == "give_item" ? Lang.GIVEITEM_ARGS : Lang.REMOVEITEM_ARGS;
-                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + usage, args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.GIVEITEM_ARGS, args, LogLevel.MessageClientOnly);
                 return;
             }
 
@@ -144,40 +143,26 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(Lang.OBJECT_NOTFOUND + args[0] + ":" + item, args, LogLevel.MessageClientOnly);
                 return;
             }
-            string action;
-            if (args.commandName == "give_item")
-            {
-                action = "give";
-                if (iCount < 0)
-                {
-                    action = "remove";
-                    iCount = -iCount;
-                }
-            }
-            else
-            {
-                action = "remove";
-                if (iCount < 0)
-                {
-                    action = "give";
-                    iCount = -iCount;
-                }
-            }
-            if (action == "give")
+            var amount = (args.commandName == "give_item" ? 1 : -1) * iCount;
+            if (amount > 0)
             {
                 if (Run.instance.IsItemExpansionLocked(item))
                 {
                     Log.MessageNetworked("Additional content enabled is required to grant this item.", args, LogLevel.MessageClientOnly);
                     return;
                 }
-                inventory.GiveItem(item, iCount);
-                Log.MessageNetworked($"Gave {iCount} {item} to {targetName}", args);
+                inventory.GiveItem(item, amount);
+                Log.MessageNetworked($"Gave {amount} {item} to {targetName}", args);
+            }
+            else if (amount < 0)
+            {
+                amount = Math.Min(-amount, inventory.GetItemCount(item));
+                inventory.RemoveItem(item, amount);
+                Log.MessageNetworked($"Removed {amount} {item} from {targetName}", args);
             }
             else
             {
-                int stacks = Math.Min(iCount, inventory.GetItemCount(item));
-                inventory.RemoveItem(item, iCount);
-                Log.MessageNetworked($"Removed {stacks} {item} from {targetName}", args);
+                Log.MessageNetworked("Nothing happened", args);
             }
         }
 
