@@ -3,6 +3,10 @@
 
 ### 3.8 ###
 
+* **3.8.2**
+    * Updated `give_item` and `remove_item`: A negative amount is an alias for the other command and vice versa. Also simplified the code internally. Thanks [SChinchi](https://github.com/SChinchi)
+    * Some changelog entries were missing for the `3.8.0` update, they have been retroactively added.
+
 * **3.8.1**
     * Updated `random_items`: Can now specify which tiers of items you want to include. By default, all tiers are included.
     * Added: `list_itemtier`
@@ -24,6 +28,12 @@
     * Added: `list_dot`
     * Details of how to use these commands are listed in the README file.
     * Many commands have a much better description of how they work and the errors printed in the console in case of misuse should also be clearer.
+    * Ping functionality has been added for some commands, refer to the README for a complete list and look for the `pinged` arg.
+    * Updated `remove_item`: Split into `remove_item_stacks` and `remove_all_items`.
+    * Fixed `next_boss`: It just works.
+    * Fixed `list_interactable`: Should now show all possible entries.
+    * Fixed `list_directorcards`: Should now show all possible entries.
+    * Fixed `force_family_event`: Wasn't working since SOTV DCCS pool changes.
 
 ### 3.7 ###
 

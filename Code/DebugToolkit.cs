@@ -17,7 +17,7 @@ namespace DebugToolkit
     [BepInPlugin(GUID, modname, modver)]
     public class DebugToolkit : BaseUnityPlugin
     {
-        public const string modname = "DebugToolkit", modver = "3.8.1";
+        public const string modname = "DebugToolkit", modver = "3.8.2";
         public const string GUID = "iHarbHD." + modname;
 
         internal static ConfigFile Configuration;
@@ -28,7 +28,7 @@ namespace DebugToolkit
 
             new Log(Logger);
 
-            LogBuildInfo();
+            //LogBuildInfo();
 
             Log.Message("Created by Harb, iDeathHD and . Based on RoR2Cheats by Morris1927.", LogLevel.Info, Log.Target.Bepinex);
 
