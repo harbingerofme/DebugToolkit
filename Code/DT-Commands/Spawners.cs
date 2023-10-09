@@ -1,13 +1,9 @@
 ﻿using RoR2;
 using RoR2.CharacterAI;
 using System;
-using System.Globalization;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
-using UnityEngine.UIElements;
 using static DebugToolkit.Log;
-using static RoR2.DirectorPlacementRule;
 
 namespace DebugToolkit.Commands
 {
