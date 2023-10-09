@@ -111,6 +111,7 @@ Cheat Commands:
 
 * **no_enemies** - Toggles enemy spawns.
 * **god** - Toggles HealthComponent.TakeDamage for all players. AKA: you can't take damage.
+* **buddha** / **budha** / **buda** / **budda** - Turns damage taken `NonLethal` for all players. AKA: you can't die.
 * **lock_exp** - Prevents EXP gain for the player team.
 * **noclip** - Toggles noclip. Allow you to fly and going through objects. Sprinting will double the speed.
 

@@ -54,6 +54,7 @@
         public const string
             ADDPORTAL_HELP = "Add a portal to the current Teleporter on completion. " + ADDPORTAL_ARGS,
             BAN_HELP = "Bans the specified player from the session. " + BAN_ARGS,
+            BUDDHA_HELP = "Become immortal. Instead of refusing damage you just refuse to take lethal damage.\nIt works by giving all damage a player takes DamageType.NonLethal" + NO_ARGS,
             CHANGETEAM_HELP = "Change the specified player to the specified team. " + CHANGETEAM_ARGS,
             CREATEPICKUP_HELP = "Creates a PickupDroplet infront of your position. " + CREATEPICKUP_ARGS,
             CURSORTELEPORT_HELP = "Teleport you to where your cursor is currently aiming at. " + NO_ARGS,

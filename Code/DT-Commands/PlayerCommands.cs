@@ -1,5 +1,5 @@
-﻿using RoR2;
-using System;
+﻿using System;
+using RoR2;
 using UnityEngine;
 using static DebugToolkit.Log;
 
@@ -25,6 +25,21 @@ namespace DebugToolkit.Commands
                     hasNotYetRun = false;
                 }
             }
+        }
+
+        [ConCommand(commandName = "buddha", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.BUDDHA_HELP)]
+        [ConCommand(commandName = "budha", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.BUDDHA_HELP)]
+        [ConCommand(commandName = "buda", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.BUDDHA_HELP)]
+        [ConCommand(commandName = "budda", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.BUDDHA_HELP)]
+        private static void CCBuddhaModeToggle(ConCommandArgs args)
+        {
+            if (!Run.instance)
+            {
+                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            bool modeOn = Hooks.ToggleBuddha();
+            Log.MessageNetworked($"Buddha mode {(modeOn ? "enabled" : "disabled")}.", args);
         }
 
         [ConCommand(commandName = "noclip", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.NOCLIP_HELP)]
