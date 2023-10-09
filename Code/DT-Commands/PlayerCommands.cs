@@ -1,5 +1,6 @@
 ﻿using RoR2;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using static DebugToolkit.Log;
 
@@ -193,6 +194,177 @@ namespace DebugToolkit.Commands
                 master.GetBody().teamComponent.teamIndex = teamIndex;
                 master.teamIndex = teamIndex;
                 Log.MessageNetworked("Changed to team " + teamIndex, args);
+            }
+        }
+
+        [ConCommand(commandName = "dump_stats", flags = ConVarFlags.None, helpText = Lang.DUMPSTATS)]
+        private static void CCDumpStats(ConCommandArgs args)
+        {
+            if (args.Count == 0)
+            {
+                Log.Message(Lang.INSUFFICIENT_ARGS + Lang.DUMPSTATS_ARGS, LogLevel.Error);
+                return;
+            }
+            var bodyName = StringFinder.Instance.GetBodyName(args[0]);
+            if (bodyName == null)
+            {
+                Log.Message(Lang.BODY_NOTFOUND);
+                return;
+            }
+            var bodyPrefab = BodyCatalog.FindBodyPrefab(bodyName);
+            if (bodyPrefab == null)
+            {
+                Log.Message(Lang.BODY_NOTFOUND);
+                return;
+            }
+
+            var body = bodyPrefab.GetComponent<CharacterBody>();
+            var sb = new System.Text.StringBuilder();
+            sb.AppendLine($"Body: {body.name}");
+            sb.AppendLine($"Health: {body.baseMaxHealth} ({FormatLevelStat(body.levelMaxHealth)}/level)");
+            sb.AppendLine($"Regen: {body.baseRegen} ({FormatLevelStat(body.levelRegen)}/level)");
+            sb.AppendLine($"Damage: {body.baseDamage} ({FormatLevelStat(body.levelDamage)}/level)");
+            sb.AppendLine($"Armor: {body.baseArmor} ({FormatLevelStat(body.levelArmor)}/level)");
+            sb.AppendLine($"Speed: {body.baseMoveSpeed} ({FormatLevelStat(body.levelMoveSpeed)}/level)");
+            sb.AppendLine($"Acceleration: {body.baseAcceleration}");
+            sb.AppendLine($"Sprinting Modifier: {body.sprintingSpeedMultiplier}");
+            sb.AppendLine($"Crit: {body.baseCrit} ({FormatLevelStat(body.levelCrit)}/level)");
+            sb.AppendLine($"Attack speed: {body.attackSpeed}");
+            sb.AppendLine($"Jump Count: {body.baseJumpCount}");
+            sb.AppendLine($"Jump Power: {body.baseJumpPower} ({FormatLevelStat(body.levelJumpPower)}/level)");
+            sb.AppendLine($"Vision Distance: {body.baseVisionDistance}");
+            sb.Append($"Body Flags: {body.bodyFlags}");
+            Log.Message(sb.ToString());
+        }
+
+        private static string FormatLevelStat(float value)
+        {
+            // Done so the value is formatted properly as +value or -value, e.g., Heretic negative regen
+            return value.ToString("+0;-#");
+        }
+
+        [ConCommand(commandName = "dump_state", flags = ConVarFlags.None, helpText = Lang.DUMPSTATE)]
+        private static void CCDumpState(ConCommandArgs args)
+        {
+            bool isDedicatedServer = args.sender == null;
+            if (args.Count < 1 && isDedicatedServer)
+            {
+                Log.Message(Lang.INSUFFICIENT_ARGS + Lang.DUMPSTATE_ARGS, LogLevel.Error);
+                return;
+            }
+
+            CharacterMaster target = args.senderMaster;
+            if (args.Count > 0 && args[0] != Lang.DEFAULT_VALUE)
+            {
+                target = Util.GetTargetFromArgs(args.userArgs, 0, isDedicatedServer);
+                if (target == null && !isDedicatedServer && args[0].ToUpperInvariant() == Lang.PINGED)
+                {
+                    Log.Message(Lang.PINGEDBODY_NOTFOUND);
+                    return;
+                }
+            }
+            if (target == null)
+            {
+                Log.Message(Lang.PLAYER_NOTFOUND);
+                return;
+            }
+
+            var body = target.GetBody();
+            var healthComponent = body.GetComponent<HealthComponent>();
+            var sb = new System.Text.StringBuilder();
+            var suffix = "(Clone)";
+            sb.AppendLine($"Body: {(body.name.EndsWith(suffix) ? body.name.Substring(0, body.name.Length - suffix.Length) : body.name)}");
+            sb.AppendLine($"Level: {body.level}");
+            sb.AppendLine($"Health: {healthComponent.health}/{body.maxHealth} ({body.regen} regen/sec)");
+            sb.AppendLine($"Shield: {healthComponent.shield}/{body.maxShield}");
+            sb.AppendLine($"Barrier: {healthComponent.barrier}/{body.maxBarrier} ({-body.barrierDecayRate} decay/sec)");
+            sb.AppendLine($"Acceleration: {body.acceleration}");
+            string movementType;
+            if (body.moveSpeed == 0f)
+            {
+                movementType = "stationary";
+            }
+            else if (body.notMovingStopwatch > 1f)
+            {
+                movementType = "standing";
+            }
+            else if (body.isSprinting)
+            {
+                movementType = "sprintning";
+            }
+            else
+            {
+                movementType = "walking";
+            }
+            sb.AppendLine($"Speed: {body.moveSpeed} ({movementType})");
+            sb.AppendLine($"Attack speed: {body.attackSpeed}");
+            sb.AppendLine($"Damage: {body.damage}");
+            sb.AppendLine($"Armor: {body.armor} (+{healthComponent.adaptiveArmorValue} adaptive)");
+            var motor = body.characterMotor;
+            sb.AppendLine($"Jump: {(motor != null ? body.maxJumpCount - motor.jumpCount : 0)}/{body.maxJumpCount} ({body.jumpPower} jump power)");
+            var skills = body.skillLocator;
+            if (skills != null)
+            {
+                var skillMap = new List<KeyValuePair<string, GenericSkill>>()
+                {
+                    new KeyValuePair<string, GenericSkill>("Primary", skills.primary),
+                    new KeyValuePair<string, GenericSkill>("Secondary", skills.secondary),
+                    new KeyValuePair<string, GenericSkill>("Utility", skills.utility),
+                    new KeyValuePair<string, GenericSkill>("Special", skills.special)
+                };
+                foreach (var currentSkill in skillMap)
+                {
+                    if (currentSkill.Value != null)
+                    {
+                        var skill = currentSkill.Value;
+                        // Various skills have a name for any combination of the following skillName/skillNameToken,
+                        // so we're capturing all to help with identification
+                        sb.AppendLine($"{currentSkill.Key}: [{skill.baseSkill.skillName} {skill.skillName} {skill.skillNameToken}] {skill.stock}/{skill.maxStock} ({skill.cooldownRemaining}/{skill.finalRechargeInterval} cooldown)");
+                    }
+                    else
+                    {
+                        sb.AppendLine($"{currentSkill.Key}: -");
+                    }
+                }
+            }
+            var inventory = body.inventory;
+            if (inventory != null)
+            {
+                for (int i = 0; i < inventory.GetEquipmentSlotCount(); i++)
+                {
+                    var slot = inventory.equipmentStateSlots[i];
+                    var equip = slot.equipmentDef;
+                    if (equip != null)
+                    {
+                        sb.AppendLine($"Equipment {i + 1}: {equip.name} {slot.charges}/{inventory.GetEquipmentSlotMaxCharges((byte)i)} ({slot.chargeFinishTime.timeUntil}/{equip.cooldown} cooldown)");
+                    }
+                    else
+                    {
+                        // There may not be an equipment, but the cooldown still matters
+                        sb.AppendLine($"Equipment {i + 1}: - 0/0 ({slot.chargeFinishTime.timeUntil}/0 cooldown)");
+                    }
+                }
+            }
+            GatherObjectState(sb, body);
+            var master = body.master;
+            if (master != null)
+            {
+                GatherObjectState(sb, master);
+                var aiComponents = master.GetComponents<RoR2.CharacterAI.BaseAI>();
+                foreach (var ai in aiComponents)
+                {
+                    sb.AppendLine($"AI skill driver: {ai.skillDriverEvaluation.dominantSkillDriver?.customName ?? string.Empty}");
+                }
+            }
+            Log.Message(sb.ToString().TrimEnd('\n'));
+        }
+
+        private static void GatherObjectState(System.Text.StringBuilder sb, Component component)
+        {
+            var esmComponents = component.GetComponents<EntityStateMachine>();
+            foreach (var esm in esmComponents)
+            {
+                sb.AppendLine($"{esm.customName} state: {esm.state?.ToString() ?? string.Empty}");
             }
         }
 

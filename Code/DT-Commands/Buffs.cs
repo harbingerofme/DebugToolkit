@@ -53,6 +53,32 @@ namespace DebugToolkit.Commands
             Log.MessageNetworked(sb.ToString(), args, LogLevel.MessageClientOnly);
         }
 
+        [ConCommand(commandName = "dump_buffs", flags = ConVarFlags.None, helpText = Lang.DUMPBUFFS)]
+        private static void CCDumpBuffs(ConCommandArgs args)
+        {
+            if (!Run.instance)
+            {
+                Log.Message(Lang.NOTINARUN_ERROR);
+                return;
+            }
+            var sb = new StringBuilder();
+            foreach (var body in CharacterBody.readOnlyInstancesList)
+            {
+                sb.AppendLine($"--- {body.name} {body.corePosition}");
+                foreach (var buffDef in BuffCatalog.buffDefs)
+                {
+                    var count = body.GetBuffCount(buffDef);
+                    if (count != 0)
+                    {
+                        var colorHexString = RoR2.Util.RGBToHex(buffDef.buffColor);
+                        sb.AppendLine($"<color=#{colorHexString}>{buffDef.name}</color> {count}");
+                    }
+                }
+                sb.AppendLine();
+            }
+            Log.Message(sb.ToString().TrimEnd('\n'));
+        }
+
         [ConCommand(commandName = "give_buff", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.GIVEBUFF_HELP)]
         [AutoCompletion(typeof(BuffCatalog), "buffDefs")]
         private static void CCGiveBuff(ConCommandArgs args)
