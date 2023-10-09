@@ -1,8 +1,6 @@
 ﻿using RoR2;
 using RoR2.CharacterAI;
 using System;
-using System.Globalization;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
 using static DebugToolkit.Log;
@@ -42,9 +40,9 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(Lang.INTERACTABLE_NOTFOUND, args, LogLevel.MessageClientOnly);
                 return;
             }
-            var result = isc.DoSpawn(args.senderBody.transform.position, new Quaternion(), new DirectorSpawnRequest(
+            var result = isc.DoSpawn(args.senderBody.footPosition, new Quaternion(), new DirectorSpawnRequest(
                 isc,
-                new DirectorPlacementRule
+                new DirectorPlacementRule  // unused internally
                 {
                     placementMode = DirectorPlacementRule.PlacementMode.NearestNode,
                     maxDistance = 100f,
