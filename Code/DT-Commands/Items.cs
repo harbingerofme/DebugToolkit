@@ -88,12 +88,12 @@ namespace DebugToolkit.Commands
             Log.MessageNetworked(sb.ToString(), args, LogLevel.MessageClientOnly);
         }
 
-        [ConCommand(commandName = "dump_inventories", flags = ConVarFlags.None, helpText = Lang.DUMPINVENTORIES)]
+        [ConCommand(commandName = "dump_inventories", flags = ConVarFlags.None, helpText = Lang.DUMPINVENTORIES_HELP)]
         private static void CCDumpInventories(ConCommandArgs args)
         {
             if (!Run.instance)
             {
-                Log.Message(Lang.NOTINARUN_ERROR);
+                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
                 return;
             }
             var sb = new StringBuilder();
@@ -125,7 +125,7 @@ namespace DebugToolkit.Commands
                 }
                 sb.AppendLine();
             }
-            Log.Message(sb.ToString().TrimEnd('\n'));
+            Log.MessageNetworked(sb.ToString().TrimEnd('\n'), args, LogLevel.MessageClientOnly);
         }
 
         [ConCommand(commandName = "give_item", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.GIVEITEM_HELP)]

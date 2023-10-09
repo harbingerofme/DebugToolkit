@@ -53,7 +53,7 @@ namespace DebugToolkit.Commands
             Log.MessageNetworked(sb.ToString(), args, LogLevel.MessageClientOnly);
         }
 
-        [ConCommand(commandName = "dump_buffs", flags = ConVarFlags.None, helpText = Lang.DUMPBUFFS)]
+        [ConCommand(commandName = "dump_buffs", flags = ConVarFlags.None, helpText = Lang.DUMPBUFFS_HELP)]
         private static void CCDumpBuffs(ConCommandArgs args)
         {
             if (!Run.instance)
@@ -76,7 +76,7 @@ namespace DebugToolkit.Commands
                 }
                 sb.AppendLine();
             }
-            Log.Message(sb.ToString().TrimEnd('\n'));
+            Log.MessageNetworked(sb.ToString().TrimEnd('\n'), args, LogLevel.MessageClientOnly);
         }
 
         [ConCommand(commandName = "give_buff", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.GIVEBUFF_HELP)]

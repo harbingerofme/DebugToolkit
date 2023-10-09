@@ -197,24 +197,24 @@ namespace DebugToolkit.Commands
             }
         }
 
-        [ConCommand(commandName = "dump_stats", flags = ConVarFlags.None, helpText = Lang.DUMPSTATS)]
+        [ConCommand(commandName = "dump_stats", flags = ConVarFlags.None, helpText = Lang.DUMPSTATS_HELP)]
         private static void CCDumpStats(ConCommandArgs args)
         {
             if (args.Count == 0)
             {
-                Log.Message(Lang.INSUFFICIENT_ARGS + Lang.DUMPSTATS_ARGS, LogLevel.Error);
+                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.DUMPSTATS_ARGS, args, LogLevel.ErrorClientOnly);
                 return;
             }
             var bodyName = StringFinder.Instance.GetBodyName(args[0]);
             if (bodyName == null)
             {
-                Log.Message(Lang.BODY_NOTFOUND);
+                Log.MessageNetworked(Lang.BODY_NOTFOUND, args, LogLevel.MessageClientOnly);
                 return;
             }
             var bodyPrefab = BodyCatalog.FindBodyPrefab(bodyName);
             if (bodyPrefab == null)
             {
-                Log.Message(Lang.BODY_NOTFOUND);
+                Log.MessageNetworked(Lang.BODY_NOTFOUND, args, LogLevel.MessageClientOnly);
                 return;
             }
 
@@ -234,7 +234,7 @@ namespace DebugToolkit.Commands
             sb.AppendLine($"Jump Power: {body.baseJumpPower} ({FormatLevelStat(body.levelJumpPower)}/level)");
             sb.AppendLine($"Vision Distance: {body.baseVisionDistance}");
             sb.Append($"Body Flags: {body.bodyFlags}");
-            Log.Message(sb.ToString());
+            Log.MessageNetworked(sb.ToString(), args, LogLevel.MessageClientOnly);
         }
 
         private static string FormatLevelStat(float value)
@@ -243,13 +243,13 @@ namespace DebugToolkit.Commands
             return value.ToString("+0;-#");
         }
 
-        [ConCommand(commandName = "dump_state", flags = ConVarFlags.None, helpText = Lang.DUMPSTATE)]
+        [ConCommand(commandName = "dump_state", flags = ConVarFlags.None, helpText = Lang.DUMPSTATE_HELP)]
         private static void CCDumpState(ConCommandArgs args)
         {
             bool isDedicatedServer = args.sender == null;
             if (args.Count < 1 && isDedicatedServer)
             {
-                Log.Message(Lang.INSUFFICIENT_ARGS + Lang.DUMPSTATE_ARGS, LogLevel.Error);
+                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.DUMPSTATE_ARGS, args, LogLevel.ErrorClientOnly);
                 return;
             }
 
@@ -259,13 +259,13 @@ namespace DebugToolkit.Commands
                 target = Util.GetTargetFromArgs(args.userArgs, 0, isDedicatedServer);
                 if (target == null && !isDedicatedServer && args[0].ToUpperInvariant() == Lang.PINGED)
                 {
-                    Log.Message(Lang.PINGEDBODY_NOTFOUND);
+                    Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
                     return;
                 }
             }
             if (target == null)
             {
-                Log.Message(Lang.PLAYER_NOTFOUND);
+                Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
                 return;
             }
 
@@ -356,7 +356,7 @@ namespace DebugToolkit.Commands
                     sb.AppendLine($"AI skill driver: {ai.skillDriverEvaluation.dominantSkillDriver?.customName ?? string.Empty}");
                 }
             }
-            Log.Message(sb.ToString().TrimEnd('\n'));
+            Log.MessageNetworked(sb.ToString().TrimEnd('\n'), args, LogLevel.MessageClientOnly);
         }
 
         private static void GatherObjectState(System.Text.StringBuilder sb, Component component)
