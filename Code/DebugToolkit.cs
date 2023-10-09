@@ -1,3 +1,4 @@
+using System.Linq;
 using BepInEx;
 using BepInEx.Configuration;
 using DebugToolkit.Code;
@@ -5,7 +6,6 @@ using DebugToolkit.Commands;
 using DebugToolkit.Permissions;
 using R2API.Utils;
 using RoR2;
-using System.Linq;
 using LogLevel = DebugToolkit.Log.LogLevel;
 
 namespace DebugToolkit
@@ -17,7 +17,7 @@ namespace DebugToolkit
     [BepInPlugin(GUID, modname, modver)]
     public class DebugToolkit : BaseUnityPlugin
     {
-        public const string modname = "DebugToolkit", modver = "3.8.2";
+        public const string modname = "DebugToolkit", modver = "3.9.0";
         public const string GUID = "iHarbHD." + modname;
 
         internal static ConfigFile Configuration;

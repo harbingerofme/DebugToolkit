@@ -1,6 +1,19 @@
 
 ## Changelog ##
 
+### 3.9 ###
+
+* **3.9.0**
+    * This update is basically carried by [SChinchi](https://github.com/SChinchi) and [RandomlyAwesome](https://github.com/yekoc), thanks!
+    * Added `buddha` (aliases: `budha`, `buddha`, `buda`, `budda`): Become immortal. Instead of refusing damage you just refuse to take lethal damage. It works by giving all damage a player takes `DamageType.NonLethal`.
+    * Added `dump_buffs`, `dump_inventories`, `dump_stats ` and `dump_state `: [Image showcasing the new commands](https://user-images.githubusercontent.com/57867641/273559529-cc505004-4f21-474a-84ed-672227183f65.png). The buff/inventory ones are useful for keeping track of who has what. The latter is also helpful to verify which characters get any NoTier items. The stats one is mostly for wiki work, while the state one to get current stats during gameplay and/or skill cooldowns, entity state and AI values.
+    * Added various simulacrum commands: `next_wave`, `set_run_waves_cleared`, `force_wave ` and `dump_state `: `next_wave` (similar to `next_stage` for a classic run). `set_run_waves_cleared` {wave} (similar to `set_run_stages_cleared`). `force_wave` [wave_prefab] (similar to `force_family`). They add control to fast-track progression to certain wave numbers, e.g., transition waves, and force certain wave augments.
+    * Updated `create_pickup`: Add autocomplete support, fix equipment not found without the 'equip' search. Add void coin support; useful for the Released From The Void mod. Explicit arg strings should be prioritised before partial search terms to avoid ambiguity.
+    * Updated `give_equip`: Explicit arg strings should be prioritised before partial search terms to avoid ambiguity.
+    * Updated `spawn_interactable`: Fix floating interactables when on ground.
+    * Updated `midgame` and `lategame`: The previous update changed the command signature for `random_items` to include tiers. They now correctly include tier 1 to 3.
+    * Updated `spawn_ai`: Fix spawns not properly getting UseAmbientLevel item, Evolution items, and artifact effects such as Swarms.
+
 ### 3.8 ###
 
 * **3.8.2**
