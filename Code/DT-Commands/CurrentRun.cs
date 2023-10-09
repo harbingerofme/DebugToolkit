@@ -1,6 +1,7 @@
 using R2API.Utils;
 using RoR2;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -20,6 +21,7 @@ namespace DebugToolkit.Commands
         internal static DirectorCard nextBoss;
         internal static int nextBossCount = 1;
         internal static EliteDef nextBossElite;
+        internal static GameObject selectedWavePrefab;
 
         [ConCommand(commandName = "add_portal", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.ADDPORTAL_HELP)]
         private static void CCAddPortal(ConCommandArgs args)
@@ -333,6 +335,87 @@ namespace DebugToolkit.Commands
             {
                 Log.MessageNetworked(Lang.STAGE_NOTFOUND, args, LogLevel.MessageClientOnly);
             }
+        }
+
+        [ConCommand(commandName = "next_wave", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.NEXTWAVE_HELP)]
+        private static void CCNextWave(ConCommandArgs args)
+        {
+            if (!Run.instance || !(Run.instance is InfiniteTowerRun))
+            {
+                Log.MessageNetworked(Lang.NOTINASIMULACRUMRUN_ERROR, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            var run = Run.instance as InfiniteTowerRun;
+            if (run.waveInstance && run.waveController && !run.waveController.isFinished)
+            {
+                run.waveController.combatDirector.totalCreditsSpent = run.waveController.totalWaveCredits;
+                run.waveController.KillSquad();
+            }
+        }
+
+        [ConCommand(commandName = "set_run_waves_cleared", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SETRUNWAVESCLEARED_HELP)]
+        private static void CCSetRunWavesCleared(ConCommandArgs args)
+        {
+            if (!Run.instance || !(Run.instance is InfiniteTowerRun))
+            {
+                Log.MessageNetworked(Lang.NOTINASIMULACRUMRUN_ERROR, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            if (args.Count == 0)
+            {
+                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.SETRUNWAVESCLEARED_ARGS, args, LogLevel.ErrorClientOnly);
+                return;
+            }
+            if (!TextSerialization.TryParseInvariant(args[0], out int wave))
+            {
+                Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "wave", "int"), args, LogLevel.MessageClientOnly);
+                return;
+            }
+            if (wave < 0)
+            {
+                wave = 0;
+                Log.MessageNetworked("'wave' must be positive. Reseting to 0.", args, LogLevel.WarningClientOnly);
+            }
+            var run = Run.instance as InfiniteTowerRun;
+            run.Network_waveIndex = wave;
+        }
+
+        [ConCommand(commandName = "force_wave", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.FORCEWAVE_HELP)]
+        private static void CCForceWave(ConCommandArgs args)
+        {
+            if (!Run.instance || !(Run.instance is InfiniteTowerRun))
+            {
+                Log.MessageNetworked(Lang.NOTINASIMULACRUMRUN_ERROR, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            var run = Run.instance as InfiniteTowerRun;
+            var waves = new Dictionary<string, GameObject>();
+            foreach (var category in run.waveCategories)
+            {
+                foreach (var wave in category.wavePrefabs)
+                {
+                    var name = wave.wavePrefab.name;
+                    name = name.Replace("InfiniteTowerWave", "").Replace("Artifact", "");
+                    waves[name] = wave.wavePrefab;
+                }
+            }
+            selectedWavePrefab = null;
+            if (args.Count == 0)
+            {
+                Log.MessageNetworked("You can choose from: " + string.Join(", ", waves.Keys), args, LogLevel.MessageClientOnly);
+                return;
+            }
+            var waveName = args[0].ToLowerInvariant();
+            foreach (var kvp in waves)
+            {
+                if (kvp.Key.ToLowerInvariant().Contains(waveName))
+                {
+                    selectedWavePrefab = kvp.Value;
+                    Log.MessageNetworked("Selected " + kvp.Key, args, LogLevel.MessageClientOnly);
+                    return;
+                }
+            }
+            Log.MessageNetworked("Wave prefab not found. You can choose from: " + string.Join(", ", waves.Keys), args, LogLevel.MessageClientOnly);
         }
 
         [ConCommand(commandName = "seed", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SEED_HELP)]
