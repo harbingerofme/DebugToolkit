@@ -73,6 +73,13 @@ List Commands:
 * **list_directorcards** List all Director Cards. Mainly used for the `next_boss` command.
 * **list_skins** List all Body Skins and the language invariant of the current one in use.
 
+Dump Commands:
+
+* **dump_buffs** - List the buffs/debuffs of all spawned bodies.
+* **dump_inventories** - List the inventory items and equipment of all spawned bodies.
+* **dump_state** - List the current stats, entity state, and skill cooldown of a specified body. `dump_state *[target (player|'pinged'):<self>]`
+* **dump_stats** - List the base stats of a specific body.
+
 Buff Commands:
 
 * **give_buff** - Gives a buff to a character. Duration of 0 means permanent: `give_buff {buff} [count:1] [duration:0] *[target (player|'pinged'):<self>]`

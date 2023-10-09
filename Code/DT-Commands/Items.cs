@@ -88,6 +88,46 @@ namespace DebugToolkit.Commands
             Log.MessageNetworked(sb.ToString(), args, LogLevel.MessageClientOnly);
         }
 
+        [ConCommand(commandName = "dump_inventories", flags = ConVarFlags.None, helpText = Lang.DUMPINVENTORIES_HELP)]
+        private static void CCDumpInventories(ConCommandArgs args)
+        {
+            if (!Run.instance)
+            {
+                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            var sb = new StringBuilder();
+            foreach (var body in CharacterBody.readOnlyInstancesList)
+            {
+                var inventory = body.inventory;
+                if (!inventory)
+                {
+                    continue;
+                }
+                sb.AppendLine($"--- {body.name} {body.corePosition}");
+                foreach (var itemIndex in inventory.itemAcquisitionOrder)
+                {
+                    int count = inventory.GetItemCount(itemIndex);
+                    if (count != 0)
+                    {
+                        var itemDef = ItemCatalog.GetItemDef(itemIndex);
+                        var colorHexString = ColorCatalog.GetColorHexString(itemDef.colorIndex);
+                        var name = itemDef.nameToken != "" ? Language.GetString(itemDef.nameToken) : itemDef.name;
+                        sb.AppendLine($"<color=#{colorHexString}>{name}</color> {count}");
+                    }
+                }
+                for (var slot = 0; slot < inventory.GetEquipmentSlotCount(); slot++)
+                {
+                    var equipmentDef = inventory.GetEquipment((uint)slot).equipmentDef;
+                    var colorHexString = ColorCatalog.GetColorHexString(ColorCatalog.ColorIndex.Equipment);
+                    var name = (equipmentDef != null) ? Language.GetString(equipmentDef.nameToken) : "<NONE>";
+                    sb.AppendLine($"<color=#{colorHexString}>{name}</color>");
+                }
+                sb.AppendLine();
+            }
+            Log.MessageNetworked(sb.ToString().TrimEnd('\n'), args, LogLevel.MessageClientOnly);
+        }
+
         [ConCommand(commandName = "give_item", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.GIVEITEM_HELP)]
         [ConCommand(commandName = "remove_item", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.REMOVEITEM_HELP)]
         [AutoCompletion(typeof(ItemCatalog), "itemDefs", "nameToken")]
