@@ -98,8 +98,6 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(Lang.SPAWN_ERROR + character, args, LogLevel.MessageClientOnly);
                 return;
             }
-            var masterprefab = MasterCatalog.FindMasterPrefab(character);
-            var body = masterprefab.GetComponent<CharacterMaster>().bodyPrefab;
 
             int amount = 1;
             if (args.Count > 1 && args[1] != Lang.DEFAULT_VALUE && !TextSerialization.TryParseInvariant(args[1], out amount))
@@ -134,30 +132,36 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            Vector3 location = args.senderBody.transform.position;
+            var spawnCard = StringFinder.Instance.GetDirectorCardFromPartial(character).spawnCard;
+            var spawnRequest = new DirectorSpawnRequest(
+                spawnCard,
+                new DirectorPlacementRule
+                {
+                    placementMode = DirectorPlacementRule.PlacementMode.Direct,
+                    position = args.senderBody.footPosition
+                },
+                RoR2Application.rng
+            );
+            spawnRequest.teamIndexOverride = teamIndex;
+            spawnRequest.ignoreTeamMemberLimit = true;
+
             Log.MessageNetworked(string.Format(Lang.SPAWN_ATTEMPT_2, amount, character), args);
             for (int i = 0; i < amount; i++)
             {
-                var bodyGameObject = UnityEngine.Object.Instantiate<GameObject>(masterprefab, location, Quaternion.identity);
-                CharacterMaster master = bodyGameObject.GetComponent<CharacterMaster>();
-                NetworkServer.Spawn(bodyGameObject);
-                master.bodyPrefab = body;
-                master.SpawnBody(args.sender.master.GetBody().transform.position, Quaternion.identity);
-
-                if (eliteDef)
+                var masterGameObject = DirectorCore.instance.TrySpawnObject(spawnRequest);
+                if (masterGameObject)
                 {
-                    master.inventory.SetEquipmentIndex(eliteDef.eliteEquipmentDef.equipmentIndex);
-                    master.inventory.GiveItem(RoR2Content.Items.BoostHp, Mathf.RoundToInt((eliteDef.healthBoostCoefficient - 1) * 10));
-                    master.inventory.GiveItem(RoR2Content.Items.BoostDamage, Mathf.RoundToInt(eliteDef.damageBoostCoefficient - 1) * 10);
-                }
-                if (braindead)
-                {
-                    UnityEngine.Object.Destroy(master.GetComponent<BaseAI>());
-                }
-                if (teamIndex >= TeamIndex.None && teamIndex < TeamIndex.Count)
-                {
-                    master.teamIndex = teamIndex;
-                    master.GetBody().teamComponent.teamIndex = teamIndex;
+                    CharacterMaster master = masterGameObject.GetComponent<CharacterMaster>();
+                    if (eliteDef)
+                    {
+                        master.inventory.SetEquipmentIndex(eliteDef.eliteEquipmentDef.equipmentIndex);
+                        master.inventory.GiveItem(RoR2Content.Items.BoostHp, Mathf.RoundToInt((eliteDef.healthBoostCoefficient - 1) * 10));
+                        master.inventory.GiveItem(RoR2Content.Items.BoostDamage, Mathf.RoundToInt(eliteDef.damageBoostCoefficient - 1) * 10);
+                    }
+                    if (braindead)
+                    {
+                        UnityEngine.Object.Destroy(master.GetComponent<BaseAI>());
+                    }
                 }
             }
         }
