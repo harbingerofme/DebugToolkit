@@ -11,7 +11,7 @@
             BIND_ARGS = "Requires 2 arguments: {key} {console_commands}",
             BIND_DELETE_ARGS = "Requires 1 argument: {key}",
             CHANGETEAM_ARGS = "Requires 1 (2 if from server) argument: {team} [player]",
-            CREATEPICKUP_ARGS = "Requires 1 (3 if from server) argument: {object (item|equip|'coin')} [search ('item'|'equip'):<both>] [player:<self>]",
+            CREATEPICKUP_ARGS = "Requires 1 (3 if from server) argument: {object (item|equip|'lunarcoin'|'voidcoin')} [search ('item'|'equip'|'both'):'both'] *[player:<self>]",
             DUMPSTATE_ARGS = "Requires 0 arguments [target (player|'pinged'):<self>]",
             DUMPSTATS_ARGS = "Requires 1 argument: {body}",
             FIXEDTIME_ARGS = "Requires 0 or 1 argument: [time]",
@@ -56,6 +56,7 @@
         public const string
             ADDPORTAL_HELP = "Add a portal to the current Teleporter on completion. " + ADDPORTAL_ARGS,
             BAN_HELP = "Bans the specified player from the session. " + BAN_ARGS,
+            BUDDHA_HELP = "Become immortal. Instead of refusing damage you just refuse to take lethal damage.\nIt works by giving all damage a player takes DamageType.NonLethal" + NO_ARGS,
             CHANGETEAM_HELP = "Change the specified player to the specified team. " + CHANGETEAM_ARGS,
             CREATEPICKUP_HELP = "Creates a PickupDroplet infront of your position. " + CREATEPICKUP_ARGS,
             CURSORTELEPORT_HELP = "Teleport you to where your cursor is currently aiming at. " + NO_ARGS,
@@ -125,7 +126,7 @@
         // Messages
         public const string
             CREATEPICKUP_AMBIGIOUS_2 = "Could not choose between {0} and {1}, please be more precise. Consider using 'equip' or 'item' as the second argument.",
-            CREATEPICKUP_NOTFOUND = "Could not find any item nor equipment with that name. It's not a coin either.",
+            CREATEPICKUP_NOTFOUND = "Could not find any item nor equipment with that name.",
             CREATEPICKUP_SUCCES_1 = "Succesfully created the pickup {0}.",
             GIVELUNAR_2 = "{0} {1} lunar coin(s).",
             GIVEOBJECT = "Gave {0} {1}",
@@ -165,7 +166,9 @@
         // Keywords
         public const string
             ALL = "ALL",
-            COIN = "COIN",
+            BOTH = "BOTH",
+            COIN_LUNAR = "LUNARCOIN",
+            COIN_VOID = "VOIDCOIN",
             DEFAULT_VALUE = "",
             EQUIP = "EQUIP",
             ITEM = "ITEM",
