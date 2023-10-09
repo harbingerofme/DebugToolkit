@@ -14,7 +14,7 @@ namespace DebugToolkit.Commands
             foreach (NetworkUser user in NetworkUser.readOnlyInstancesList)
             {
                 Invoke(a, "remove_all_items", user.userName);
-                Invoke(a, "random_items", "23", user.userName);
+                Invoke(a, "random_items", "23", "Tier1,Tier2,Tier3", user.userName);
                 Invoke(a, "give_equip", "random", user.userName);
             }
             Invoke(a, "set_scene", "bazaar");
@@ -30,7 +30,7 @@ namespace DebugToolkit.Commands
             foreach (NetworkUser user in NetworkUser.readOnlyInstancesList)
             {
                 Invoke(a, "remove_all_items", user.userName);
-                Invoke(a, "random_items", "75", user.userName);
+                Invoke(a, "random_items", "75", "Tier1,Tier2,Tier3", user.userName);
                 Invoke(a, "give_equip", "random", user.userName);
             }
             Invoke(a, "set_scene", "bazaar");
