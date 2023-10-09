@@ -11,7 +11,7 @@
             BIND_ARGS = "Requires 2 arguments: {key} {console_commands}",
             BIND_DELETE_ARGS = "Requires 1 argument: {key}",
             CHANGETEAM_ARGS = "Requires 1 (2 if from server) argument: {team} [player]",
-            CREATEPICKUP_ARGS = "Requires 1 (3 if from server) argument: {object (item|equip|'coin')} [search ('item'|'equip'):<both>] [player:<self>]",
+            CREATEPICKUP_ARGS = "Requires 1 (3 if from server) argument: {object (item|equip|'lunarcoin'|'voidcoin')} [search ('item'|'equip'|'both'):'both'] *[player:<self>]",
             FIXEDTIME_ARGS = "Requires 0 or 1 argument: [time]",
             GIVEBUFF_ARGS = "Requires 1 (4 if from server) arguments: {buff} [count:1] [duration:0] [target (player|'pinged'):<self>]",
             GIVEDOT_ARGS = "Requires 1 (4 if from server) argument: {dot} [count:1] [target (player|'pinged'):<self>] [attacker (player|'pinged'):<self>]",
@@ -119,7 +119,7 @@
         // Messages
         public const string
             CREATEPICKUP_AMBIGIOUS_2 = "Could not choose between {0} and {1}, please be more precise. Consider using 'equip' or 'item' as the second argument.",
-            CREATEPICKUP_NOTFOUND = "Could not find any item nor equipment with that name. It's not a coin either.",
+            CREATEPICKUP_NOTFOUND = "Could not find any item nor equipment with that name.",
             CREATEPICKUP_SUCCES_1 = "Succesfully created the pickup {0}.",
             GIVELUNAR_2 = "{0} {1} lunar coin(s).",
             GIVEOBJECT = "Gave {0} {1}",
@@ -159,7 +159,9 @@
         // Keywords
         public const string
             ALL = "ALL",
-            COIN = "COIN",
+            BOTH = "BOTH",
+            COIN_LUNAR = "LUNARCOIN",
+            COIN_VOID = "VOIDCOIN",
             DEFAULT_VALUE = "",
             EQUIP = "EQUIP",
             ITEM = "ITEM",

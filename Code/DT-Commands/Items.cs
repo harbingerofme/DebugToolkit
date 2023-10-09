@@ -320,20 +320,21 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            var equip = StringFinder.Instance.GetEquipFromPartial(args[0]);
-            if (equip != EquipmentIndex.None)
-            {
-                inventory.SetEquipmentIndex(equip);
-            }
-            else if (args[0].ToUpper() == Lang.RANDOM)
+            var equip = EquipmentIndex.None;
+            if (args[0].ToUpperInvariant() == Lang.RANDOM)
             {
                 inventory.GiveRandomEquipment();
                 equip = inventory.GetEquipmentIndex();
             }
             else
             {
-                Log.MessageNetworked(Lang.OBJECT_NOTFOUND + args[0] + ":" + equip, args, LogLevel.MessageClientOnly);
-                return;
+                equip = StringFinder.Instance.GetEquipFromPartial(args[0]);
+                if (equip == EquipmentIndex.None)
+                {
+                    Log.MessageNetworked(Lang.OBJECT_NOTFOUND + args[0] + ":" + equip, args, LogLevel.MessageClientOnly);
+                    return;
+                }
+                inventory.SetEquipmentIndex(equip);
             }
 
             Log.MessageNetworked($"Gave {equip} to {targetName}", args);
@@ -375,6 +376,8 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "create_pickup", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.CREATEPICKUP_HELP)]
+        [AutoCompletion(typeof(EquipmentCatalog), "equipmentDefs", "nameToken")]
+        [AutoCompletion(typeof(ItemCatalog), "itemDefs", "nameToken")]
         private static void CCCreatePickup(ConCommandArgs args)
         {
             if (!Run.instance)
@@ -408,8 +411,10 @@ namespace DebugToolkit.Commands
             bool searchEquip = true, searchItem = true;
             if (args.Count > 1 && args[1] != Lang.DEFAULT_VALUE)
             {
-                switch (args[1].ToUpper())
+                switch (args[1].ToUpperInvariant())
                 {
+                    case Lang.BOTH:
+                        break;
                     case Lang.ITEM:
                         searchEquip = false;
                         break;
@@ -425,34 +430,44 @@ namespace DebugToolkit.Commands
             EquipmentIndex equipment = EquipmentIndex.None;
             ItemIndex item = ItemIndex.None;
 
-            if (searchEquip)
+            switch (args[0].ToUpperInvariant())
             {
-                equipment = StringFinder.Instance.GetEquipFromPartial(args[0]);
-                final = PickupCatalog.FindPickupIndex(equipment);
-            }
-            if (searchItem)
-            {
-                item = StringFinder.Instance.GetItemFromPartial(args[0]);
-                final = PickupCatalog.FindPickupIndex(item);
-            }
-            if (item != ItemIndex.None && equipment != EquipmentIndex.None)
-            {
-                Log.MessageNetworked(string.Format(Lang.CREATEPICKUP_AMBIGIOUS_2, item, equipment), args, LogLevel.MessageClientOnly);
-                return;
+                case Lang.COIN_LUNAR:
+                    final = PickupCatalog.FindPickupIndex("LunarCoin.Coin0");
+                    break;
+                case Lang.COIN_VOID:
+                    final = PickupCatalog.FindPickupIndex("MiscPickupIndex.VoidCoin");
+                    break;
+                default:
+                    if (searchEquip)
+                    {
+                        equipment = StringFinder.Instance.GetEquipFromPartial(args[0]);
+                    }
+                    if (searchItem)
+                    {
+                        item = StringFinder.Instance.GetItemFromPartial(args[0]);
+                    }
+                    if (item == ItemIndex.None && equipment == EquipmentIndex.None)
+                    {
+                        Log.MessageNetworked(Lang.CREATEPICKUP_NOTFOUND, args, LogLevel.MessageClientOnly);
+                        return;
+                    }
+                    else if (item != ItemIndex.None && equipment != EquipmentIndex.None)
+                    {
+                        Log.MessageNetworked(string.Format(Lang.CREATEPICKUP_AMBIGIOUS_2, item, equipment), args, LogLevel.MessageClientOnly);
+                        return;
+                    }
+                    else if (equipment != EquipmentIndex.None)
+                    {
+                        final = PickupCatalog.FindPickupIndex(equipment);
+                    }
+                    else
+                    {
+                        final = PickupCatalog.FindPickupIndex(item);
+                    }
+                    break;
             }
 
-            if (item == ItemIndex.None && equipment == EquipmentIndex.None)
-            {
-                if (args[0].ToUpper() == Lang.COIN)
-                {
-                    final = PickupCatalog.FindPickupIndex("LunarCoin.Coin0");
-                }
-                else
-                {
-                    Log.MessageNetworked(Lang.CREATEPICKUP_NOTFOUND, args, LogLevel.MessageClientOnly);
-                    return;
-                }
-            }
             Log.MessageNetworked(string.Format(Lang.CREATEPICKUP_SUCCES_1, final), args);
             PickupDropletController.CreatePickupDroplet(final, transform.position, transform.forward * 40f);
         }
