@@ -40,6 +40,7 @@ namespace DebugToolkit
             IL.RoR2.Networking.NetworkManagerSystem.CCSetScene += EnableCheatsInCCSetScene;
             On.RoR2.Networking.NetworkManagerSystem.CCSceneList += OverrideVanillaSceneList;
             On.RoR2.PingerController.RebuildPing += InterceptPing;
+            IL.RoR2.InfiniteTowerRun.BeginNextWave += InfiniteTowerRun_BeginNextWave;
 
             // Noclip hooks
             var hookConfig = new HookConfig { ManualApply = true };
@@ -59,6 +60,24 @@ namespace DebugToolkit
               damageInfo.damageType |= DamageType.NonLethal;
             }
             orig(self,damageInfo);
+        }
+
+        private static void InfiniteTowerRun_BeginNextWave(ILContext il)
+        {
+            var c = new ILCursor(il);
+            if (!c.TryGotoNext(x => x.MatchLdloc(0)))
+            {
+                Log.Message("Failed to patch RoR2.InfiniteTowerRun.BeginNextWave", Log.LogLevel.Warning, Log.Target.Bepinex);
+                return;
+            }
+            c.Index += 1;
+            c.Emit(OpCodes.Ldarg_0);
+            c.EmitDelegate<Func<GameObject, InfiniteTowerRun, GameObject>>((wavePrefab, run) =>
+            {
+                wavePrefab = CurrentRun.selectedWavePrefab ?? wavePrefab;
+                CurrentRun.selectedWavePrefab = null;
+                return wavePrefab;
+            });
         }
 
         private static void InterceptPing(On.RoR2.PingerController.orig_RebuildPing orig, PingerController self, PingerController.PingInfo pingInfo)
