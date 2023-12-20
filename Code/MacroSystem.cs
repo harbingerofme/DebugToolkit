@@ -92,14 +92,26 @@ namespace DebugToolkit.Code
             Reload();
 
             DebugToolkit.Configuration.SettingChanged += OnMacroSettingChanged;
-            Run.onRunStartGlobal += Run_onRunStartGlobal;
+            RoR2Application.onLoad += CollectInspectorObjects;
         }
 
-        private static IEnumerable<ChatBox> chatboxes = null;
+        private static GameObject runtimeInspector;
+        private static GameObject unityInspector;
 
-        private static void Run_onRunStartGlobal(Run obj)
+        private static void CollectInspectorObjects()
         {
-            chatboxes = HUD.readOnlyInstanceList.Select(hud => hud.GetComponent<ChatBox>());
+            var objs = Resources.FindObjectsOfTypeAll<Transform>();
+            foreach (var obj in objs)
+            {
+                if (obj.gameObject.name == "RuntimeInspectorCanvas")
+                {
+                    runtimeInspector = obj.gameObject;
+                }
+                else if (obj.gameObject.name == "com.sinai.unityexplorer_Root")
+                {
+                    unityInspector = obj.gameObject;
+                }
+            }
         }
 
         private static void OnMacroSettingChanged(object sender, SettingChangedEventArgs e)
@@ -184,21 +196,38 @@ namespace DebugToolkit.Code
 
         internal static void Update()
         {
-            var anyChatInputActive = chatboxes?.Any(chat => chat && chat.inputField && chat.inputField.isActiveAndEnabled) ?? false;
-
-            if (!ConsoleWindow.instance && !anyChatInputActive)
+            if (!IsAnyUIWindowOpen() && !IsAnyInputFieldActive())
             {
-                foreach (var (keyBind, macroConfigEntry) in MacroConfigEntries)
+                // Iterating on a copy of the keys in case a macro executes a bind/delete and modifies the collection
+                var keyBinds = new List<string>(MacroConfigEntries.Keys);
+                foreach (var keyBind in keyBinds)
                 {
-                    if (Input.GetKeyDown(keyBind))
+                    if (MacroConfigEntries.TryGetValue(keyBind, out var macroConfigEntry))
                     {
-                        foreach (var consoleCommand in macroConfigEntry.ConsoleCommands)
+                        if (Input.GetKeyDown(keyBind))
                         {
-                            RoR2.Console.instance.SubmitCmd(NetworkUser.readOnlyLocalPlayersList.FirstOrDefault(), consoleCommand);
+                            foreach (var consoleCommand in macroConfigEntry.ConsoleCommands)
+                            {
+                                RoR2.Console.instance.SubmitCmd(NetworkUser.readOnlyLocalPlayersList.FirstOrDefault(), consoleCommand);
+                            }
                         }
                     }
                 }
             }
+        }
+
+        private static bool IsAnyUIWindowOpen()
+        {
+            return ConsoleWindow.instance
+                || PauseManager.pauseScreenInstance
+                || runtimeInspector && runtimeInspector.activeSelf
+                || unityInspector && unityInspector.activeSelf;
+        }
+
+        private static bool IsAnyInputFieldActive()
+        {
+            return MPEventSystem.instancesList.Any(eventSystem => eventSystem && eventSystem.currentSelectedGameObject)
+                || UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject;
         }
 
         [ConCommand(commandName = "dt_bind", flags = ConVarFlags.None,
