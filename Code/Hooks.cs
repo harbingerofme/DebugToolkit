@@ -21,7 +21,8 @@ namespace DebugToolkit
         private const ConVarFlags AllFlagsNoCheat = ConVarFlags.None | ConVarFlags.Archive | ConVarFlags.Engine | ConVarFlags.ExecuteOnServer | ConVarFlags.SenderMustBeServer;
 
         private static On.RoR2.Console.orig_RunCmd _origRunCmd;
-        private static CharacterMaster pingedTarget;
+        private static CharacterBody pingedBody;
+        private static CharacterMaster pingedMaster;
         private static bool buddha;
 
         public static void InitializeHooks()
@@ -85,10 +86,21 @@ namespace DebugToolkit
             orig(self, pingInfo);
             if (self.pingIndicator && self.pingIndicator.pingTarget)
             {
-                pingedTarget = self.pingIndicator.pingTarget.GetComponent<CharacterBody>()?.master;
+                var body = self.pingIndicator.pingTarget.GetComponent<CharacterBody>();
+                if (body != null)
+                {
+                    pingedBody = body;
+                    pingedMaster = body.master;
+                }
+                else
+                {
+                    pingedBody = null;
+                    pingedMaster = null;
+                }
                 return;
             }
-            pingedTarget = null;
+            pingedBody = null;
+            pingedMaster = null;
         }
 
         private static void OverrideVanillaSceneList(On.RoR2.Networking.NetworkManagerSystem.orig_CCSceneList orig, ConCommandArgs args)
@@ -445,9 +457,14 @@ namespace DebugToolkit
             return;
         }
 
-        internal static CharacterMaster GetPingedTarget()
+        internal static CharacterBody GetPingedBody()
         {
-            return pingedTarget;
+            return pingedBody;
+        }
+
+        internal static CharacterMaster GetPingedMaster()
+        {
+            return pingedMaster;
         }
 
         internal static bool ToggleBuddha(){
