@@ -337,9 +337,7 @@ namespace DebugToolkit
             }
 
             On.RoR2.FamilyDirectorCardCategorySelection.IsAvailable += ForceFamilyDirectorCardCategorySelectionToBeAvailable;
-
             var weightedSelection = orig(self);
-
             On.RoR2.FamilyDirectorCardCategorySelection.IsAvailable -= ForceFamilyDirectorCardCategorySelectionToBeAvailable;
 
             var newChoices = new List<WeightedSelection<DirectorCardCategorySelection>.ChoiceInfo>();
@@ -351,11 +349,12 @@ namespace DebugToolkit
                 }
             }
 
-            weightedSelection.choices = newChoices.ToArray();
-            weightedSelection.Count = newChoices.Count;
-            weightedSelection.RecalculateTotalWeight();
-
-            On.RoR2.DccsPool.GenerateWeightedSelection -= ForceFamilyEventForDccsPoolStages;
+            if (newChoices.Count > 0)
+            {
+                weightedSelection.choices = newChoices.ToArray();
+                weightedSelection.Count = newChoices.Count;
+                weightedSelection.RecalculateTotalWeight();
+            }
 
             return weightedSelection;
         }
@@ -365,17 +364,32 @@ namespace DebugToolkit
             return true;
         }
 
-        internal static void ForceFamilyEventForNonDccsPoolStages(On.RoR2.ClassicStageInfo.orig_RebuildCards orig, ClassicStageInfo self)
+        internal static void ForceFamilyEvent(On.RoR2.ClassicStageInfo.orig_RebuildCards orig, ClassicStageInfo self)
         {
-            var originalValue = ClassicStageInfo.monsterFamilyChance;
-
-            ClassicStageInfo.monsterFamilyChance = 1;
-
+            On.RoR2.DccsPool.GenerateWeightedSelection += ForceFamilyEventForDccsPoolStages;
+            var originalEventChance = ClassicStageInfo.monsterFamilyChance;
+            var originalFamilyCategories = self.possibleMonsterFamilies;
+            ClassicStageInfo.monsterFamilyChance = 1f;
+            var newFamilyCategories = new ClassicStageInfo.MonsterFamily[originalFamilyCategories.Length];
+            for (int i = 0; i < self.possibleMonsterFamilies.Length; i++)
+            {
+                var category = self.possibleMonsterFamilies[i];
+                newFamilyCategories[i] = new ClassicStageInfo.MonsterFamily
+                {
+                    monsterFamilyCategories = category.monsterFamilyCategories,
+                    familySelectionChatString = category.familySelectionChatString,
+                    selectionWeight = category.selectionWeight,
+                    minimumStageCompletion = 0,
+                    maximumStageCompletion = int.MaxValue
+                };
+            }
+            self.possibleMonsterFamilies = newFamilyCategories;
             orig(self);
+            On.RoR2.DccsPool.GenerateWeightedSelection -= ForceFamilyEventForDccsPoolStages;
+            ClassicStageInfo.monsterFamilyChance = originalEventChance;
+            self.possibleMonsterFamilies = originalFamilyCategories;
 
-            ClassicStageInfo.monsterFamilyChance = originalValue;
-
-            On.RoR2.ClassicStageInfo.RebuildCards -= ForceFamilyEventForNonDccsPoolStages;
+            On.RoR2.ClassicStageInfo.RebuildCards -= ForceFamilyEvent;
         }
 
         internal static void CombatDirector_SetNextSpawnAsBoss(On.RoR2.CombatDirector.orig_SetNextSpawnAsBoss orig, CombatDirector self)
