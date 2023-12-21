@@ -117,6 +117,10 @@ Spawn Commands:
 * **spawn_body** - Spawns a CharacterBody with no AI, inventory, or team alliance: `spawn_body {body}`
 * **change_team** - Change a player's team. `change_team {team} *[player:<self>]`.
 
+Profile Commands:
+
+* **prevent_profile_writing** - Prevent saving the user profile to avoid bogus data. Enable before doing something and keep it until the end of the session. `prevent_profile_writing [flag (0|1)]`. If no argument is supplied, prints the current state. Disabled by default.
+
 Cheat Commands:
 
 * **no_enemies** - Toggles enemy spawns.
