@@ -40,6 +40,7 @@ namespace DebugToolkit
             IL.RoR2.UI.ConsoleWindow.Update += SmoothDropDownSuggestionNavigation;
             IL.RoR2.Networking.NetworkManagerSystem.CCSetScene += EnableCheatsInCCSetScene;
             On.RoR2.Networking.NetworkManagerSystem.CCSceneList += OverrideVanillaSceneList;
+            On.RoR2.SaveSystem.Save += Profile.PreventSave;
             On.RoR2.PingerController.RebuildPing += InterceptPing;
             IL.RoR2.InfiniteTowerRun.BeginNextWave += InfiniteTowerRun_BeginNextWave;
 
