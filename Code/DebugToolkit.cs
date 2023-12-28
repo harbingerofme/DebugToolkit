@@ -17,7 +17,7 @@ namespace DebugToolkit
     [BepInPlugin(GUID, modname, modver)]
     public class DebugToolkit : BaseUnityPlugin
     {
-        public const string modname = "DebugToolkit", modver = "3.9.0";
+        public const string modname = "DebugToolkit", modver = "3.10.0";
         public const string GUID = "iHarbHD." + modname;
 
         internal static ConfigFile Configuration;

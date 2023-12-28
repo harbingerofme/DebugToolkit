@@ -1,6 +1,17 @@
 
 ## Changelog ##
 
+### 3.10 ###
+
+* **3.10.0**
+    * This update is carried by [SChinchi](https://github.com/SChinchi), thanks!
+    * Updated `give_item`, `give_equip`, `random_items`, `remove_item`, `remove_item_stacks`, `remove_all_items`, `remove_equip`: Add the keywords "evolution", "simulacrum", and "voidfields" for item-related commands.
+    * Updated `spawn_ai`: null spawn_card, player clipping, flyers flung away.
+    * Updated `buff` commands: Work for masterless bodies.
+    * Ignore keybinds when an inspector window is open.
+    * Updated `force_family_event`: Fix some edge cases. [Details here](https://github.com/harbingerofme/DebugToolkit/pull/155)
+    * Add `prevent_profile_writing`: Prevent saving the user profile to avoid bogus data. Enable before doing something and keep it until the end of the session.
+
 ### 3.9 ###
 
 * **3.9.0**
