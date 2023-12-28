@@ -89,7 +89,7 @@ namespace DebugToolkit.Commands
                 return;
             }
             bool isDedicatedServer = args.sender == null;
-            if (args.Count == 0 || (args.Count < 4 && isDedicatedServer))
+            if (args.Count == 0 || (isDedicatedServer && (args.Count < 4 || args[3] == Lang.DEFAULT_VALUE)))
             {
                 Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.GIVEBUFF_ARGS, args, LogLevel.MessageClientOnly);
                 return;
@@ -119,29 +119,8 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            CharacterMaster target = args.senderMaster;
-            if (args.Count > 3 && args[3] != Lang.DEFAULT_VALUE)
+            if (!TryParseTarget(args, 3, out var body, out string targetName))
             {
-                target = Util.GetTargetFromArgs(args.userArgs, 3, isDedicatedServer);
-                if (target == null && !isDedicatedServer && args[3].ToUpper() == Lang.PINGED)
-                {
-                    Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
-                    return;
-                }
-            }
-            if (target == null)
-            {
-                Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            NetworkUser player = target.playerCharacterMasterController?.networkUser;
-            string targetName = (player != null) ? player.masterController.GetDisplayName() : target.gameObject.name;
-
-            CharacterBody body = target.GetBody();
-            if (body == null)
-            {
-                // I believe we should only reach this for dead players, so the error message is appropriate
-                Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
                 return;
             }
 
@@ -191,7 +170,7 @@ namespace DebugToolkit.Commands
                 return;
             }
             bool isDedicatedServer = args.sender == null;
-            if (args.Count == 0 || (args.Count < 4 && isDedicatedServer))
+            if (args.Count == 0 || (isDedicatedServer && (args.Count < 4 || args[3] == Lang.DEFAULT_VALUE)))
             {
                 Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.REMOVEBUFF_ARGS, args, LogLevel.MessageClientOnly);
                 return;
@@ -216,28 +195,8 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            CharacterMaster target = args.senderMaster;
-            if (args.Count > 3 && args[3] != Lang.DEFAULT_VALUE)
+            if (!TryParseTarget(args, 3, out var body, out var targetName))
             {
-                target = Util.GetTargetFromArgs(args.userArgs, 3, isDedicatedServer);
-                if (target == null && !isDedicatedServer && args[3].ToUpper() == Lang.PINGED)
-                {
-                    Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
-                    return;
-                }
-            }
-            if (target == null)
-            {
-                Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            NetworkUser player = target.playerCharacterMasterController?.networkUser;
-            string targetName = (player != null) ? player.masterController.GetDisplayName() : target.gameObject.name;
-
-            CharacterBody body = target.GetBody();
-            if (body == null)
-            {
-                Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
                 return;
             }
 
@@ -291,7 +250,7 @@ namespace DebugToolkit.Commands
                 return;
             }
             bool isDedicatedServer = args.sender == null;
-            if (args.Count == 0 || (args.Count < 3 && isDedicatedServer))
+            if (args.Count == 0 || (isDedicatedServer && (args.Count < 3 || args[2] == Lang.DEFAULT_VALUE)))
             {
                 Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.REMOVEBUFFSTACKS_ARGS, args, LogLevel.MessageClientOnly);
                 return;
@@ -304,28 +263,8 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            CharacterMaster target = args.senderMaster;
-            if (args.Count > 2 && args[2] != Lang.DEFAULT_VALUE)
+            if (!TryParseTarget(args, 2, out var body, out var targetName))
             {
-                target = Util.GetTargetFromArgs(args.userArgs, 2, isDedicatedServer);
-                if (target == null && !isDedicatedServer && args[2].ToUpper() == Lang.PINGED)
-                {
-                    Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
-                    return;
-                }
-            }
-            if (target == null)
-            {
-                Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            NetworkUser player = target.playerCharacterMasterController?.networkUser;
-            string targetName = (player != null) ? player.masterController.GetDisplayName() : target.gameObject.name;
-
-            CharacterBody body = target.GetBody();
-            if (body == null)
-            {
-                Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
                 return;
             }
 
@@ -365,7 +304,7 @@ namespace DebugToolkit.Commands
                 return;
             }
             bool isDedicatedServer = args.sender == null;
-            if (args.Count < 2 && isDedicatedServer)
+            if (isDedicatedServer && (args.Count < 2 || args[1] == Lang.DEFAULT_VALUE))
             {
                 Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.REMOVEALLBUFFS_ARGS, args, LogLevel.MessageClientOnly);
                 return;
@@ -378,28 +317,8 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            CharacterMaster target = args.senderMaster;
-            if (args.Count > 1 && args[1] != Lang.DEFAULT_VALUE)
+            if (!TryParseTarget(args, 1, out var body, out var targetName))
             {
-                target = Util.GetTargetFromArgs(args.userArgs, 1, isDedicatedServer);
-                if (target == null && !isDedicatedServer && args[1].ToUpper() == Lang.PINGED)
-                {
-                    Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
-                    return;
-                }
-            }
-            if (target == null)
-            {
-                Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            NetworkUser player = target.playerCharacterMasterController?.networkUser;
-            string targetName = (player != null) ? player.masterController.GetDisplayName() : target.gameObject.name;
-
-            CharacterBody body = target.GetBody();
-            if (body == null)
-            {
-                Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
                 return;
             }
 
@@ -431,7 +350,7 @@ namespace DebugToolkit.Commands
                 return;
             }
             bool isDedicatedServer = args.sender == null;
-            if (args.Count == 0 || (args.Count < 4 && isDedicatedServer))
+            if (args.Count == 0 || (isDedicatedServer && (args.Count < 4 || args[2] == Lang.DEFAULT_VALUE || args[3] == Lang.DEFAULT_VALUE)))
             {
                 Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.GIVEDOT_ARGS, args, LogLevel.MessageClientOnly);
                 return;
@@ -444,55 +363,17 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            CharacterMaster targetMaster = args.senderMaster;
-            if (args.Count > 2 && args[2] != Lang.DEFAULT_VALUE)
+            if (!TryParseTarget(args, 2, out var targetBody, out var targetName))
             {
-                targetMaster = Util.GetTargetFromArgs(args.userArgs, 2, isDedicatedServer);
-                if (targetMaster == null && !isDedicatedServer && args[2].ToUpper() == Lang.PINGED)
-                {
-                    Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
-                    return;
-                }
-            }
-            if (targetMaster == null)
-            {
-                Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
                 return;
             }
-            NetworkUser targetPlayer = targetMaster.playerCharacterMasterController?.networkUser;
-            string targetName = (targetPlayer != null) ? targetPlayer.masterController.GetDisplayName() : targetMaster.gameObject.name;
+            GameObject target = targetBody.gameObject;
 
-            GameObject target = targetMaster.bodyInstanceObject;
-            if (target == null)
+            if (!TryParseTarget(args, 3, out var attackerBody, out var attackerName))
             {
-                Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
                 return;
             }
-
-            CharacterMaster attackerMaster = args.senderMaster;
-            if (args.Count > 3 && args[3] != Lang.DEFAULT_VALUE)
-            {
-                attackerMaster = Util.GetTargetFromArgs(args.userArgs, 3, isDedicatedServer);
-                if (attackerMaster == null && !isDedicatedServer && args[3].ToUpper() == Lang.PINGED)
-                {
-                    Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
-                    return;
-                }
-            }
-            if (attackerMaster == null)
-            {
-                Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            NetworkUser attackerPlayer = attackerMaster.playerCharacterMasterController?.networkUser;
-            string attackerName = (attackerPlayer != null) ? attackerPlayer.masterController.GetDisplayName() : attackerMaster.gameObject.name;
-
-            GameObject attacker = attackerMaster.bodyInstanceObject;
-            if (attacker == null)
-            {
-                Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
-                return;
-            }
+            GameObject attacker = attackerBody.gameObject;
 
             var dot = StringFinder.Instance.GetDotFromPartial(args[0]);
             if (dot == DotController.DotIndex.None)
@@ -550,7 +431,7 @@ namespace DebugToolkit.Commands
                 return;
             }
             bool isDedicatedServer = args.sender == null;
-            if (args.Count == 0 || (args.Count < 3 && isDedicatedServer))
+            if (args.Count == 0 || (isDedicatedServer && (args.Count < 3 || args[2] == Lang.DEFAULT_VALUE)))
             {
                 Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.REMOVEDOT_ARGS, args, LogLevel.MessageClientOnly);
                 return;
@@ -563,30 +444,11 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            CharacterMaster target = args.senderMaster;
-            if (args.Count > 2 && args[2] != Lang.DEFAULT_VALUE)
+            if (!TryParseTarget(args, 2, out var target, out var targetName))
             {
-                target = Util.GetTargetFromArgs(args.userArgs, 2, isDedicatedServer);
-                if (target == null && !isDedicatedServer && args[2].ToUpper() == Lang.PINGED)
-                {
-                    Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
-                    return;
-                }
-            }
-            if (target == null)
-            {
-                Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
                 return;
             }
-            NetworkUser player = target.playerCharacterMasterController?.networkUser;
-            string targetName = (player != null) ? player.masterController.GetDisplayName() : target.gameObject.name;
-
-            GameObject body = target.bodyInstanceObject;
-            if (body == null)
-            {
-                Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
-                return;
-            }
+            GameObject body = target.gameObject;
 
             var dot = StringFinder.Instance.GetDotFromPartial(args[0]);
             if (dot == DotController.DotIndex.None)
@@ -627,36 +489,17 @@ namespace DebugToolkit.Commands
                 return;
             }
             bool isDedicatedServer = args.sender == null;
-            if (args.Count == 0 || (args.Count < 2 && isDedicatedServer))
+            if (args.Count == 0 || (isDedicatedServer && (args.Count < 2 || args[1] == Lang.DEFAULT_VALUE)))
             {
                 Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.REMOVEDOTSTACKS_ARGS, args, LogLevel.MessageClientOnly);
                 return;
             }
 
-            CharacterMaster target = args.senderMaster;
-            if (args.Count > 1 && args[1] != Lang.DEFAULT_VALUE)
+            if (!TryParseTarget(args, 1, out var target, out var targetName))
             {
-                target = Util.GetTargetFromArgs(args.userArgs, 1, isDedicatedServer);
-                if (target == null && !isDedicatedServer && args[1].ToUpper() == Lang.PINGED)
-                {
-                    Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
-                    return;
-                }
-            }
-            if (target == null)
-            {
-                Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
                 return;
             }
-            NetworkUser player = target.playerCharacterMasterController?.networkUser;
-            string targetName = (player != null) ? player.masterController.GetDisplayName() : target.gameObject.name;
-
-            GameObject body = target.bodyInstanceObject;
-            if (body == null)
-            {
-                Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
-                return;
-            }
+            GameObject body = target.gameObject;
 
             var dot = StringFinder.Instance.GetDotFromPartial(args[0]);
             if (dot == DotController.DotIndex.None)
@@ -696,39 +539,56 @@ namespace DebugToolkit.Commands
                 return;
             }
             bool isDedicatedServer = args.sender == null;
-            if (args.Count < 1 && isDedicatedServer)
+            if (isDedicatedServer && (args.Count < 1 || args[0] == Lang.DEFAULT_VALUE))
             {
                 Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.REMOVEALLDOTS_ARGS, args, LogLevel.MessageClientOnly);
                 return;
             }
 
-            CharacterMaster target = args.senderMaster;
-            if (args.Count > 0 && args[0] != Lang.DEFAULT_VALUE)
+            if (!TryParseTarget(args, 0, out var target, out var targetName))
             {
-                target = Util.GetTargetFromArgs(args.userArgs, 0, isDedicatedServer);
-                if (target == null && !isDedicatedServer && args[0].ToUpper() == Lang.PINGED)
+                return;
+            }
+            GameObject body = target.gameObject;
+
+            DotController.RemoveAllDots(body);
+            Log.MessageNetworked($"Reseting DoTs for {targetName}", args);
+        }
+
+        private static bool TryParseTarget(ConCommandArgs args, int index, out CharacterBody target, out string targetName)
+        {
+            target = args.senderBody;
+            targetName = "";
+            var isDedicatedServer = args.sender == null;
+            if (args.Count > index && args[index] != Lang.DEFAULT_VALUE)
+            {
+                // Try to get target from the master initially to account for ping -> target revival
+                // as in that case the cached pinged body would be stale.
+                var targetMaster = Util.GetTargetFromArgs(args.userArgs, index, isDedicatedServer);
+                if (targetMaster == null && !isDedicatedServer && args[index].ToUpperInvariant() == Lang.PINGED)
                 {
-                    Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
-                    return;
+                    // Account for masterless bodies
+                    target = Hooks.GetPingedBody();
+                    if (target == null)
+                    {
+                        Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
+                        return false;
+                    }
+                }
+                else
+                {
+                    target = targetMaster?.GetBody();
                 }
             }
             if (target == null)
             {
                 Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            NetworkUser player = target.playerCharacterMasterController?.networkUser;
-            string targetName = (player != null) ? player.masterController.GetDisplayName() : target.gameObject.name;
-
-            GameObject body = target.bodyInstanceObject;
-            if (body == null)
-            {
-                Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
-                return;
+                return false;
             }
 
-            DotController.RemoveAllDots(body);
-            Log.MessageNetworked($"Reseting DoTs for {targetName}", args);
+            var player = target.master?.playerCharacterMasterController?.networkUser;
+            targetName = (player != null) ? player.masterController.GetDisplayName() : target.gameObject.name;
+            return true;
         }
     }
 }
