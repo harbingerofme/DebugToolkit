@@ -1,6 +1,4 @@
-﻿using EntityStates.VoidRaidCrab.Leg;
-using HG.GeneralSerializer;
-using RoR2;
+﻿using RoR2;
 using System.Collections.Generic;
 
 namespace DebugToolkit
@@ -50,7 +48,7 @@ namespace DebugToolkit
         }
 
         /// <summary>
-        /// Find the target CharacterBody for a matched player string or pinged entity.
+        /// Find the target CharacterMaster for a matched player string or pinged entity.
         /// </summary>
         /// <param name="args">(string[])args array</param>
         /// <param name="index">(int)on the string array, at which index the target string is</param>
@@ -59,9 +57,9 @@ namespace DebugToolkit
         internal static CharacterMaster GetTargetFromArgs(List<string> args, int index, bool isDedicatedServer)
         {
             CharacterMaster target;
-            if (!isDedicatedServer && args[index].ToUpper() == Lang.PINGED)
+            if (!isDedicatedServer && args[index].ToUpperInvariant() == Lang.PINGED)
             {
-                target = Hooks.GetPingedTarget();
+                target = Hooks.GetPingedMaster();
             }
             else
             {

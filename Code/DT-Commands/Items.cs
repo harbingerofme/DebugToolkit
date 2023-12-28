@@ -1,5 +1,5 @@
-﻿
-using RoR2;
+﻿using RoR2;
+using RoR2.Artifacts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,7 +41,8 @@ namespace DebugToolkit.Commands
             {
                 itemList = (IEnumerable<ItemIndex>)StringFinder.Instance.GetItemsFromPartial(args.GetArgString(0));
                 if (itemList.Count() == 0) sb.AppendLine($"No item that matches \"{args[0]}\".");
-            } else
+            }
+            else
             {
                 itemList = (IEnumerable<ItemIndex>)ItemCatalog.allItems;
             }
@@ -139,7 +140,7 @@ namespace DebugToolkit.Commands
                 return;
             }
             bool isDedicatedServer = args.sender == null;
-            if (args.Count == 0 || (args.Count < 3 && isDedicatedServer))
+            if (args.Count == 0 || (isDedicatedServer && (args.Count < 3 || args[2] == Lang.DEFAULT_VALUE)))
             {
                 Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.GIVEITEM_ARGS, args, LogLevel.MessageClientOnly);
                 return;
@@ -152,28 +153,8 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            CharacterMaster target = args.senderMaster;
-            if (args.Count > 2 && args[2] != Lang.DEFAULT_VALUE)
+            if (!TryParseTarget(args, 2, out var inventory, out var targetName))
             {
-                target = Util.GetTargetFromArgs(args.userArgs, 2, isDedicatedServer);
-                if (target == null && !isDedicatedServer && args[2].ToUpper() == Lang.PINGED)
-                {
-                    Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
-                    return;
-                }
-            }
-            if (target == null)
-            {
-                Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            NetworkUser player = target.playerCharacterMasterController?.networkUser;
-            string targetName = (player != null) ? player.masterController.GetDisplayName() : target.gameObject.name;
-
-            Inventory inventory = target.inventory;
-            if (inventory == null)
-            {
-                Log.MessageNetworked(Lang.INVENTORY_ERROR, args, LogLevel.MessageClientOnly);
                 return;
             }
 
@@ -215,14 +196,14 @@ namespace DebugToolkit.Commands
                 return;
             }
             bool isDedicatedServer = args.sender == null;
-            if (args.Count == 0 || (args.Count < 3 && isDedicatedServer))
+            if (args.Count == 0 || (isDedicatedServer && (args.Count < 3 || args[2] == Lang.DEFAULT_VALUE)))
             {
                 Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.RANDOMITEM_ARGS, args, LogLevel.MessageClientOnly);
                 return;
             }
 
             var itemTierPools = new Dictionary<ItemTier, List<PickupIndex>>();
-            if (args.Count < 2 || (args[1] == Lang.DEFAULT_VALUE || args[1].ToUpperInvariant() == Lang.ALL))
+            if (args.Count < 2 || args[1] == Lang.DEFAULT_VALUE || args[1].ToUpperInvariant() == Lang.ALL)
             {
                 foreach (var tier in StringFinder.Instance.GetItemTiersFromPartial(""))
                 {
@@ -273,28 +254,8 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            CharacterMaster target = args.senderMaster;
-            if (args.Count > 2 && args[2] != Lang.DEFAULT_VALUE)
+            if (!TryParseTarget(args, 2, out var inventory, out var targetName))
             {
-                target = Util.GetTargetFromArgs(args.userArgs, 2, isDedicatedServer);
-                if (target == null && !isDedicatedServer && args[2].ToUpper() == Lang.PINGED)
-                {
-                    Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
-                    return;
-                }
-            }
-            if (target == null)
-            {
-                Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            NetworkUser player = target.playerCharacterMasterController?.networkUser;
-            string targetName = (player != null) ? player.masterController.GetDisplayName() : target.gameObject.name;
-
-            Inventory inventory = target.inventory;
-            if (inventory == null)
-            {
-                Log.MessageNetworked(Lang.INVENTORY_ERROR, args, LogLevel.MessageClientOnly);
                 return;
             }
 
@@ -329,34 +290,14 @@ namespace DebugToolkit.Commands
                 return;
             }
             bool isDedicatedServer = args.sender == null;
-            if (args.Count == 0 || (args.Count < 2 && isDedicatedServer))
+            if (args.Count == 0 || (isDedicatedServer && (args.Count < 2 || args[1] == Lang.DEFAULT_VALUE)))
             {
                 Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.GIVEEQUIP_ARGS, args, LogLevel.MessageClientOnly);
                 return;
             }
 
-            CharacterMaster target = args.senderMaster;
-            if (args.Count > 1 && args[1] != Lang.DEFAULT_VALUE)
+            if (!TryParseTarget(args, 1, out var inventory, out var targetName))
             {
-                target = Util.GetTargetFromArgs(args.userArgs, 1, isDedicatedServer);
-                if (target == null && !isDedicatedServer && args[1].ToUpper() == Lang.PINGED)
-                {
-                    Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
-                    return;
-                }
-            }
-            if (target == null)
-            {
-                Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            NetworkUser player = target.playerCharacterMasterController?.networkUser;
-            string targetName = (player != null) ? player.masterController.GetDisplayName() : target.gameObject.name;
-
-            Inventory inventory = target.inventory;
-            if (inventory == null)
-            {
-                Log.MessageNetworked(Lang.INVENTORY_ERROR, args, LogLevel.MessageClientOnly);
                 return;
             }
 
@@ -520,35 +461,15 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
                 return;
             }
-            bool isDedicatedServer = false;
-            if (args.Count == 0 || (args.Count < 2 && isDedicatedServer))
+            bool isDedicatedServer = args.sender == false;
+            if (args.Count == 0 || (isDedicatedServer && (args.Count < 2 || args[1] == Lang.DEFAULT_VALUE)))
             {
                 Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.REMOVEITEMSTACKS_ARGS, args, LogLevel.MessageClientOnly);
                 return;
             }
 
-            CharacterMaster target = args.senderMaster;
-            if (args.Count > 1 && args[1] != Lang.DEFAULT_VALUE)
+            if (!TryParseTarget(args, 1, out var inventory, out var targetName))
             {
-                target = Util.GetTargetFromArgs(args.userArgs, 1, isDedicatedServer);
-                if (target == null && !isDedicatedServer && args[1].ToUpper() == Lang.PINGED)
-                {
-                    Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
-                    return;
-                }
-            }
-            if (target == null)
-            {
-                Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            NetworkUser player = target.playerCharacterMasterController?.networkUser;
-            string targetName = (player != null) ? player.masterController.GetDisplayName() : target.gameObject.name;
-
-            Inventory inventory = target.inventory;
-            if (inventory == null)
-            {
-                Log.MessageNetworked(Lang.INVENTORY_ERROR, args, LogLevel.MessageClientOnly);
                 return;
             }
 
@@ -572,34 +493,14 @@ namespace DebugToolkit.Commands
                 return;
             }
             bool isDedicatedServer = args.sender == null;
-            if (args.Count < 1 && isDedicatedServer)
+            if (isDedicatedServer && (args.Count < 1 || args[0] == Lang.DEFAULT_VALUE))
             {
-                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.REMOVEALLITEMS_ARGS, args,LogLevel.MessageClientOnly);
+                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.REMOVEALLITEMS_ARGS, args, LogLevel.MessageClientOnly);
                 return;
             }
 
-            CharacterMaster target = args.senderMaster;
-            if (args.Count > 0 && args[0] != Lang.DEFAULT_VALUE)
+            if (!TryParseTarget(args, 0, out var inventory, out var targetName))
             {
-                target = Util.GetTargetFromArgs(args.userArgs, 0, isDedicatedServer);
-                if (target == null && !isDedicatedServer && args[0].ToUpper() == Lang.PINGED)
-                {
-                    Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
-                    return;
-                }
-            }
-            if (target == null)
-            {
-                Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            NetworkUser player = target.playerCharacterMasterController?.networkUser;
-            string targetName = (player != null) ? player.masterController.GetDisplayName() : target.gameObject.name;
-
-            Inventory inventory = target.inventory;
-            if (inventory == null)
-            {
-                Log.MessageNetworked(Lang.INVENTORY_ERROR, args, LogLevel.MessageClientOnly);
                 return;
             }
 
@@ -618,39 +519,92 @@ namespace DebugToolkit.Commands
                 return;
             }
             bool isDedicatedServer = args.sender == null;
-            if (args.Count < 1 && isDedicatedServer)
+            if (isDedicatedServer && (args.Count < 1 || args[0] == Lang.DEFAULT_VALUE))
             {
                 Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.REMOVEEQUIP_ARGS, args, LogLevel.MessageClientOnly);
                 return;
             }
 
-            CharacterMaster target = args.senderMaster;
-            if (args.Count > 0 && args[0] != Lang.DEFAULT_VALUE)
+            if (!TryParseTarget(args, 0, out var inventory, out var targetName))
             {
-                target = Util.GetTargetFromArgs(args.userArgs, 0, isDedicatedServer);
-                if (target == null && !isDedicatedServer && args[0].ToUpper() == Lang.PINGED)
-                {
-                    Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
-                    return;
-                }
-            }
-            if (target == null)
-            {
-                Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            NetworkUser player = target.playerCharacterMasterController?.networkUser;
-            string targetName = (player != null) ? player.masterController.GetDisplayName() : target.gameObject.name;
-
-            Inventory inventory = target.inventory;
-            if (inventory == null)
-            {
-                Log.MessageNetworked(Lang.INVENTORY_ERROR, args, LogLevel.MessageClientOnly);
                 return;
             }
 
             inventory.SetEquipmentIndex(EquipmentIndex.None);
             Log.MessageNetworked($"Removed current Equipment from {targetName}", args);
+        }
+
+        private static bool TryParseTarget(ConCommandArgs args, int index, out Inventory inventory, out string targetName)
+        {
+            inventory = null;
+            targetName = null;
+            if (args.Count > index && args[index] != Lang.DEFAULT_VALUE)
+            {
+                var targetArg = args[index].ToUpperInvariant();
+                if (targetArg == Lang.EVOLUTION)
+                {
+                    inventory = MonsterTeamGainsItemsArtifactManager.monsterTeamInventory;
+                    targetName = inventory?.gameObject.name;
+                }
+                else if (targetArg == Lang.SIMULACRUM)
+                {
+                    var run = Run.instance as InfiniteTowerRun;
+                    if (!run)
+                    {
+                        Log.MessageNetworked(Lang.NOTINASIMULACRUMRUN_ERROR, args, LogLevel.MessageClientOnly);
+                        return false;
+                    }
+                    inventory = run.enemyInventory;
+                    targetName = inventory?.gameObject.name;
+                }
+                else if (targetArg == Lang.VOIDFIELDS)
+                {
+                    var mission = ArenaMissionController.instance;
+                    if (!mission)
+                    {
+                        Log.MessageNetworked(Lang.NOTINVOIDFIELDS_ERROR, args, LogLevel.MessageClientOnly);
+                        return false;
+                    }
+                    inventory = mission.inventory;
+                    targetName = inventory?.gameObject.name;
+                }
+                else
+                {
+                    var isDedicatedServer = args.sender == null;
+                    var target = Util.GetTargetFromArgs(args.userArgs, index, isDedicatedServer);
+                    if (target == null && !isDedicatedServer && targetArg == Lang.PINGED)
+                    {
+                        Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
+                        return false;
+                    }
+                    if (target == null)
+                    {
+                        Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
+                        return false;
+                    }
+                    inventory = target.inventory;
+                    var player = target.playerCharacterMasterController?.networkUser;
+                    targetName = player?.masterController.GetDisplayName() ?? target.gameObject.name;
+                }
+            }
+            else
+            {
+                var target = args.senderMaster;
+                if (target == null)
+                {
+                    Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
+                    return false;
+                }
+                inventory = target.inventory;
+                var player = target.playerCharacterMasterController?.networkUser;
+                targetName = player?.masterController.GetDisplayName() ?? target.gameObject.name;
+            }
+            if (inventory == null)
+            {
+                Log.MessageNetworked(Lang.INVENTORY_ERROR, args, LogLevel.MessageClientOnly);
+                return false;
+            }
+            return true;
         }
     }
 }
