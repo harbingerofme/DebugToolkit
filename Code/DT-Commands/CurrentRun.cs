@@ -233,10 +233,9 @@ namespace DebugToolkit.Commands
         [ConCommand(commandName = "force_family_event", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.FAMILYEVENT_HELP)]
         private static void CCFamilyEvent(ConCommandArgs args)
         {
-            On.RoR2.DccsPool.GenerateWeightedSelection += Hooks.ForceFamilyEventForDccsPoolStages;
-            On.RoR2.ClassicStageInfo.RebuildCards += Hooks.ForceFamilyEventForNonDccsPoolStages;
-
-            Log.MessageNetworked("The next stage will contain a family event!", args);
+            On.RoR2.ClassicStageInfo.RebuildCards -= Hooks.ForceFamilyEvent;
+            On.RoR2.ClassicStageInfo.RebuildCards += Hooks.ForceFamilyEvent;
+            Log.MessageNetworked("The next stage will contain a family event if available!", args);
         }
 
         [ConCommand(commandName = "next_boss", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.NEXTBOSS_HELP)]

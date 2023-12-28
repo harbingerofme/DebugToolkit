@@ -1,5 +1,7 @@
-﻿using RoR2;
+﻿using KinematicCharacterController;
+using RoR2;
 using RoR2.CharacterAI;
+using RoR2.Navigation;
 using System;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -130,7 +132,21 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            var spawnCard = StringFinder.Instance.GetDirectorCardFromPartial(character).spawnCard;
+            var spawnCard = StringFinder.Instance.GetDirectorCardFromPartial(character)?.spawnCard;
+            if (spawnCard == null)
+            {
+                spawnCard = ScriptableObject.CreateInstance<CharacterSpawnCard>();
+                spawnCard.prefab = MasterCatalog.FindMasterPrefab(character);
+                spawnCard.sendOverNetwork = true;
+                var body = spawnCard.prefab.GetComponent<CharacterMaster>().bodyPrefab;
+                if (body)
+                {
+                    spawnCard.nodeGraphType = (body.GetComponent<CharacterMotor>() == null
+                        && (body.GetComponent<RigidbodyMotor>() != null || body.GetComponent<KinematicCharacterMotor>()))
+                        ? MapNodeGroup.GraphType.Air
+                        : MapNodeGroup.GraphType.Ground;
+                }
+            }
             var spawnRequest = new DirectorSpawnRequest(
                 spawnCard,
                 new DirectorPlacementRule
@@ -143,10 +159,54 @@ namespace DebugToolkit.Commands
             spawnRequest.teamIndexOverride = teamIndex;
             spawnRequest.ignoreTeamMemberLimit = true;
 
+            // The size of the monster's radius is required so multiple enemies do not spawn on the same spot.
+            // This prevents the player from clipping into the ground, or flyers flinging themselves away.
+            var radius = 1f;
+            var prefab = spawnCard.prefab.GetComponent<CharacterMaster>().bodyPrefab;
+            if (prefab)
+            {
+                var capsule = prefab.GetComponent<CapsuleCollider>();
+                if (capsule)
+                {
+                    radius = capsule.radius;
+                }
+                else
+                {
+                    var sphere = prefab.GetComponent<SphereCollider>();
+                    if (sphere)
+                    {
+                        radius = sphere.radius;
+                    }
+                }
+            }
+            // Just a hack for the Grandparent which still causes clipping otherwise
+            if (prefab.name.Equals("GrandParentBody"))
+            {
+                radius = 0f;
+            }
+
+            var position = args.senderBody.footPosition + args.senderBody.transform.forward * (args.senderBody.radius + radius);
+            var isFlyer = spawnCard.nodeGraphType == MapNodeGroup.GraphType.Air;
+            if (isFlyer)
+            {
+                position = args.senderBody.transform.position;
+                if (args.senderBody.characterMotor)
+                {
+                    position.y += 0.5f * args.senderBody.characterMotor.capsuleHeight + 2f;
+                }
+                radius *= Mathf.Max(1f, 0.5f * amount);
+            }
+
             Log.MessageNetworked(string.Format(Lang.SPAWN_ATTEMPT_2, amount, character), args);
             for (int i = 0; i < amount; i++)
             {
-                var masterGameObject = DirectorCore.instance.TrySpawnObject(spawnRequest);
+                var spawnPosition = position;
+                if (isFlyer)
+                {
+                    var direction = Quaternion.AngleAxis(360f * ((float)i / amount), args.senderBody.transform.up) * args.senderBody.transform.forward;
+                    spawnPosition = position + (direction * radius);
+                }
+                var masterGameObject = spawnCard.DoSpawn(spawnPosition, Quaternion.identity, spawnRequest).spawnedInstance;
                 if (masterGameObject)
                 {
                     CharacterMaster master = masterGameObject.GetComponent<CharacterMaster>();
@@ -158,7 +218,11 @@ namespace DebugToolkit.Commands
                     }
                     if (braindead)
                     {
-                        UnityEngine.Object.Destroy(master.GetComponent<BaseAI>());
+                        foreach (var ai in master.aiComponents)
+                        {
+                            UnityEngine.Object.Destroy(ai);
+                        }
+                        master.aiComponents = Array.Empty<BaseAI>();
                     }
                 }
             }
