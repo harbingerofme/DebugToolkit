@@ -226,8 +226,8 @@ namespace DebugToolkit.Code
 
         private static bool IsAnyInputFieldActive()
         {
-            return MPEventSystem.instancesList.Any(eventSystem => eventSystem && eventSystem.currentSelectedGameObject)
-                || UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject;
+            return (MPEventSystem.instancesList != null && MPEventSystem.instancesList.Any(eventSystem => eventSystem && eventSystem.currentSelectedGameObject))
+                || (UnityEngine.EventSystems.EventSystem.current && UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject);
         }
 
         [ConCommand(commandName = "dt_bind", flags = ConVarFlags.None,
