@@ -31,6 +31,7 @@ You may contact us at any time through [issues on GitHub](https://github.com/har
 * [Rays](https://github.com/SuperRayss)
 * [HeyImNoop](https://thunderstore.io/package/Heyimnoob/)
 * [SChinchi](https://github.com/SChinchi)
+* [RandomlyAwesome](https://github.com/yekoc)
 
 ---
 
