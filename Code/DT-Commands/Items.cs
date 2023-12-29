@@ -5,12 +5,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using static DebugToolkit.Log;
 
 namespace DebugToolkit.Commands
 {
     class Items
     {
+        private static readonly Dictionary<ItemTier, List<PickupIndex>> availableDropLists = new Dictionary<ItemTier, List<PickupIndex>>();
+        private static BasicPickupDropTable droptable;
+        private static GameObject potentialPrefab;
+
         [ConCommand(commandName = "list_itemtier", flags = ConVarFlags.None, helpText = Lang.LISTITEMTIER_HELP)]
         private static void CCListItemTier(ConCommandArgs args)
         {
@@ -202,52 +207,12 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            var itemTierPools = new Dictionary<ItemTier, List<PickupIndex>>();
-            if (args.Count < 2 || args[1] == Lang.DEFAULT_VALUE || args[1].ToUpperInvariant() == Lang.ALL)
+            var droptable = ParseDroptable(args, 1, false);
+            if (droptable == null)
             {
-                foreach (var tier in StringFinder.Instance.GetItemTiersFromPartial(""))
-                {
-                    itemTierPools[tier] = new List<PickupIndex>();
-                }
+                return;
             }
-            else
-            {
-                foreach (var tierName in args[1].Split(','))
-                {
-                    var tier = StringFinder.Instance.GetItemTierFromPartial(tierName);
-                    if (tier == (ItemTier)(-1))
-                    {
-                        Log.MessageNetworked(Lang.OBJECT_NOTFOUND + tierName, args, LogLevel.MessageClientOnly);
-                        return;
-                    }
-                    else
-                    {
-                        itemTierPools[tier] = new List<PickupIndex>();
-                    }
-                }
-            }
-            foreach (var itemIndex in ItemCatalog.allItems)
-            {
-                if (Run.instance.availableItems.Contains(itemIndex))
-                {
-                    var itemDef = ItemCatalog.GetItemDef(itemIndex);
-                    if (Run.instance.availableItems.Contains(itemIndex) && itemTierPools.ContainsKey(itemDef.tier) && itemDef.DoesNotContainTag(ItemTag.WorldUnique))
-                    {
-                        itemTierPools[itemDef.tier].Add(PickupCatalog.FindPickupIndex(itemIndex));
-                    }
-                }
-            }
-            var weightedSelection = new WeightedSelection<List<PickupIndex>>();
-            foreach (var pool in itemTierPools)
-            {
-                if (pool.Value.Count == 0)
-                {
-                    Log.MessageNetworked($"No available items for {ItemTierCatalog.GetItemTierDef(pool.Key).name}. Skipping...", args, LogLevel.WarningClientOnly);
-                    continue;
-                }
-                // TODO: Add custom weights
-                weightedSelection.AddChoice(pool.Value, 1f);
-            }
+            var weightedSelection = droptable.selector;
             if (weightedSelection.Count == 0)
             {
                 Log.MessageNetworked("No items found to draw from.", args, LogLevel.MessageClientOnly);
@@ -268,8 +233,8 @@ namespace DebugToolkit.Commands
             {
                 for (int i = 0; i < iCount; i++)
                 {
-                    var tier = weightedSelection.Evaluate(UnityEngine.Random.value);
-                    var pickupDef = PickupCatalog.GetPickupDef(tier[UnityEngine.Random.Range(0, tier.Count)]);
+                    var pickupIndex = weightedSelection.Evaluate(UnityEngine.Random.value);
+                    var pickupDef = PickupCatalog.GetPickupDef(pickupIndex);
                     inventory.GiveItem((pickupDef != null) ? pickupDef.itemIndex : ItemIndex.None, 1);
                 }
                 Log.MessageNetworked($"Generated {iCount} items for {targetName}!", args);
@@ -449,8 +414,76 @@ namespace DebugToolkit.Commands
                     break;
             }
 
-            Log.MessageNetworked(string.Format(Lang.CREATEPICKUP_SUCCES_1, final), args);
+            Log.MessageNetworked(string.Format(Lang.CREATEPICKUP_SUCCESS_1, final), args);
             PickupDropletController.CreatePickupDroplet(final, transform.position, transform.forward * 40f);
+        }
+
+        [ConCommand(commandName = "create_potential", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.CREATEPOTENTIAL_HELP)]
+        private static void CCCreatePotential(ConCommandArgs args)
+        {
+            if (!Run.instance)
+            {
+                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            if (args.Count < 3 && args.sender == null)
+            {
+                Log.Message(Lang.INSUFFICIENT_ARGS + Lang.CREATEPOTENTIAL_ARGS, LogLevel.MessageClientOnly);
+                return;
+            }
+            NetworkUser player = args.sender;
+            if (args.Count > 2)
+            {
+                player = Util.GetNetUserFromString(args.userArgs, 2);
+                if (player == null)
+                {
+                    Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
+                    return;
+                }
+            }
+            Transform transform = player.GetCurrentBody()?.gameObject.transform;
+            if (transform == null)
+            {
+                // We could possibly use `player.master.deathFootPosition` instead
+                Log.MessageNetworked("Can't spawn an object with relation to a dead player.", args, LogLevel.MessageClientOnly);
+                return;
+            }
+
+            var iCount = 3;
+            if (args.Count > 1 && args[1] != Lang.DEFAULT_VALUE)
+            {
+                if (!TextSerialization.TryParseInvariant(args[1], out iCount))
+                {
+                    Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "count", "int"), args, LogLevel.MessageClientOnly);
+                    return;
+                }
+            }
+            if (iCount <= 0)
+            {
+                Log.MessageNetworked("'count' should be a non-zero positive integer.", args, LogLevel.MessageClientOnly);
+                return;
+            }
+
+            var droptable = ParseDroptable(args, 0, true);
+            if (droptable == null)
+            {
+                return;
+            }
+            var firstItemTier = ItemTier.Tier1;
+            if (args.Count > 0 && args[0] != Lang.DEFAULT_VALUE && args[0].ToUpperInvariant() != Lang.ALL)
+            {
+                firstItemTier = StringFinder.Instance.GetItemTierFromPartial(args[0].Split(',')[0].Split(':')[0]);
+            }
+
+            PickupDropletController.CreatePickupDroplet(new GenericPickupController.CreatePickupInfo
+            {
+                pickerOptions = PickupPickerController.GenerateOptionsFromDropTable(iCount, droptable, RoR2Application.rng),
+                prefabOverride = potentialPrefab,
+                position = transform.position,
+                rotation = Quaternion.identity,
+                pickupIndex = PickupCatalog.FindPickupIndex(firstItemTier)
+            }, transform.position, transform.forward * 40f);
+            Log.MessageNetworked(string.Format(Lang.CREATEPICKUP_SUCCESS_2, Math.Min(iCount, droptable.selector.Count)), args);
         }
 
         [ConCommand(commandName = "remove_item_stacks", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.REMOVEITEMSTACKS_HELP)]
@@ -605,6 +638,112 @@ namespace DebugToolkit.Commands
                 return false;
             }
             return true;
+        }
+
+        private static BasicPickupDropTable ParseDroptable(ConCommandArgs args, int index, bool canDropBeReplaced)
+        {
+            droptable.selector.Clear();
+            droptable.canDropBeReplaced = canDropBeReplaced;
+            if (args.Count < index + 1 || args[index] == Lang.DEFAULT_VALUE || args[index].ToUpperInvariant() == Lang.ALL)
+            {
+                foreach (var itemTier in StringFinder.Instance.GetItemTiersFromPartial(""))
+                {
+                    droptable.Add(availableDropLists[itemTier], 1f);
+                }
+            }
+            else
+            {
+                foreach (var tierData in args[index].Split(','))
+                {
+                    var data = tierData.Split(':');
+                    var itemTier = StringFinder.Instance.GetItemTierFromPartial(data[0]);
+                    if (itemTier == (ItemTier)(-1))
+                    {
+                        Log.MessageNetworked(Lang.OBJECT_NOTFOUND + data[0], args, LogLevel.MessageClientOnly);
+                        return null;
+                    }
+                    float weight = 1f;
+                    if (data.Length > 1 && !TextSerialization.TryParseInvariant(data[1], out weight))
+                    {
+                        Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "droptable weight", "float"), args, LogLevel.MessageClientOnly);
+                        return null;
+                    }
+                    if (weight < 0f)
+                    {
+                        Log.MessageNetworked(string.Format(Lang.NEGATIVE_ARG, "droptable weight"), args, LogLevel.MessageClientOnly);
+                        return null;
+                    }
+                    droptable.Add(availableDropLists[itemTier], weight);
+                }
+            }
+            return droptable;
+        }
+
+        internal static void InitDroptableData()
+        {
+            droptable = ScriptableObject.CreateInstance<BasicPickupDropTable>();
+            droptable.name = "dtDebugToolkit";
+            potentialPrefab = Addressables.LoadAssetAsync<GameObject>("RoR2/DLC1/OptionPickup/OptionPickup.prefab").WaitForCompletion();
+        }
+
+        internal static void CollectItemTiers(Run run)
+        {
+            availableDropLists.Clear();
+            var customTiers = new Dictionary<ItemTier, List<PickupIndex>>();
+            foreach (var itemTier in StringFinder.Instance.GetItemTiersFromPartial(""))
+            {
+                switch (itemTier)
+                {
+                    case ItemTier.Tier1:
+                        availableDropLists[itemTier] = Run.instance.availableTier1DropList;
+                        break;
+                    case ItemTier.Tier2:
+                        availableDropLists[itemTier] = Run.instance.availableTier2DropList;
+                        break;
+                    case ItemTier.Tier3:
+                        availableDropLists[itemTier] = Run.instance.availableTier3DropList;
+                        break;
+                    case ItemTier.Lunar:
+                        availableDropLists[itemTier] = Run.instance.availableLunarItemDropList;
+                        break;
+                    case ItemTier.Boss:
+                        availableDropLists[itemTier] = Run.instance.availableBossDropList;
+                        break;
+                    case ItemTier.VoidTier1:
+                        availableDropLists[itemTier] = Run.instance.availableVoidTier1DropList;
+                        break;
+                    case ItemTier.VoidTier2:
+                        availableDropLists[itemTier] = Run.instance.availableVoidTier2DropList;
+                        break;
+                    case ItemTier.VoidTier3:
+                        availableDropLists[itemTier] = Run.instance.availableVoidTier3DropList;
+                        break;
+                    case ItemTier.VoidBoss:
+                        availableDropLists[itemTier] = Run.instance.availableVoidBossDropList;
+                        break;
+                    default:
+                        customTiers[itemTier] = new List<PickupIndex>();
+                        break;
+                }
+            }
+            if (customTiers.Count > 0)
+            {
+                foreach (var itemIndex in ItemCatalog.allItems)
+                {
+                    var itemDef = ItemCatalog.GetItemDef(itemIndex);
+                    if (run.availableItems.Contains(itemIndex) && itemDef.DoesNotContainTag(ItemTag.WorldUnique))
+                    {
+                        if (customTiers.TryGetValue(itemDef.tier, out var list))
+                        {
+                            list.Add(PickupCatalog.FindPickupIndex(itemIndex));
+                        }
+                    }
+                }
+                foreach (var tier in customTiers)
+                {
+                    availableDropLists[tier.Key] = tier.Value;
+                }
+            }
         }
     }
 }
