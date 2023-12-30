@@ -9,6 +9,7 @@
     * Added `create_potential`: Creates a potential in front of a player. The first item tier defined in the droptable decides the color of the droplet and what items will be available with the Artifact of Command.
     * Some commands support a weighted item selection, referred to as _droptable_. More info in the README.
     * Updated `random_items`, `midgame`, and `lategame`. The last two now restore their behavior to the original `Inventory.GiveRandomItems` functionality.
+    * Added `restock_equip`: Restock charges for the current equipment.
 
 ### 3.10 ###
 
