@@ -567,6 +567,43 @@ namespace DebugToolkit.Commands
             Log.MessageNetworked($"Removed current Equipment from {targetName}", args);
         }
 
+        [ConCommand(commandName = "restock_equip", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.RESTOCKEQUIP_HELP)]
+        private static void CCRestockEquip(ConCommandArgs args)
+        {
+            if (!Run.instance)
+            {
+                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            bool isDedicatedServer = args.sender == null;
+            if (isDedicatedServer && (args.Count < 2 || args[1] == Lang.DEFAULT_VALUE))
+            {
+                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.RESTOCKEQUIP_ARGS, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            var iCount = 1;
+            if (args.Count > 0 && !TextSerialization.TryParseInvariant(args[0], out iCount))
+            {
+                Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "count", "int"), args, LogLevel.MessageClientOnly);
+                return;
+            }
+            if (iCount < 0)
+            {
+                Log.MessageNetworked(string.Format(Lang.NEGATIVE_ARG, "count"), args, LogLevel.MessageClientOnly);
+                return;
+            }
+            if (!TryParseTarget(args, 1, out var inventory, out var targetName))
+            {
+                return;
+            }
+
+            var currentSlot = inventory.activeEquipmentSlot;
+            var chargesBefore = inventory.GetEquipment(currentSlot).charges;
+            inventory.RestockEquipmentCharges(currentSlot, iCount);
+            var chargesAfter = inventory.GetEquipment(currentSlot).charges;
+            Log.MessageNetworked($"Restocked {chargesAfter - chargesBefore} for the current equipment of {targetName}", args);
+        }
+
         private static bool TryParseTarget(ConCommandArgs args, int index, out Inventory inventory, out string targetName)
         {
             inventory = null;
