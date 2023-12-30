@@ -1,6 +1,15 @@
 
 ## Changelog ##
 
+### 3.11 ###
+
+* **3.11.0**
+    * This update is carried by [SChinchi](https://github.com/SChinchi), thanks!
+    * Updated `give_money`: Support negative amounts. This change was actually done in 3.10 but forgor to put it into the changelog.
+    * Added `create_potential`: Creates a potential in front of a player. The first item tier defined in the droptable decides the color of the droplet and what items will be available with the Artifact of Command.
+    * Some commands support a weighted item selection, referred to as _droptable_. More info in the README.
+    * Updated `random_items`, `midgame`, and `lategame`. The last two now restore their behavior to the original `Inventory.GiveRandomItems` functionality.
+
 ### 3.10 ###
 
 * **3.10.0**
@@ -10,6 +19,7 @@
     * Updated `buff` commands: Work for masterless bodies.
     * Ignore keybinds when an inspector window is open.
     * Updated `force_family_event`: Fix some edge cases. [Details here](https://github.com/harbingerofme/DebugToolkit/pull/155)
+    * Updated `give_money`: Support negative amounts.
     * Add `prevent_profile_writing`: Prevent saving the user profile to avoid bogus data. Enable before doing something and keep it until the end of the session.
 
 ### 3.9 ###
