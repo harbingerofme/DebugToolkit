@@ -150,8 +150,8 @@ namespace DebugToolkit.Commands
                     _currentBody.characterMotor.SetUseGravity(!_currentBody.characterMotor.useGravity);
                 }
 
-                IsActivated = !IsActivated;
                 UndoHooks();
+                IsActivated = !IsActivated;
                 Log.Message(string.Format(Lang.NOCLIP_TOGGLE, IsActivated));
             }
 
