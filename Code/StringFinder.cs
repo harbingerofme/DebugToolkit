@@ -354,7 +354,7 @@ namespace DebugToolkit
         /// <returns>Returns an iterator with all NetworkUsers matched</returns>
         public IEnumerable<NetworkUser> GetPlayersFromPartial(string name)
         {
-            if (int.TryParse(name, out var i))
+            if (TextSerialization.TryParseInvariant(name, out int i))
             {
                 if (i >= 0 && i < NetworkUser.readOnlyInstancesList.Count)
                 {
@@ -428,7 +428,7 @@ namespace DebugToolkit
         /// <returns>Returns an iterator with all EliteIndex's matched</returns>
         public IEnumerable<EliteIndex> GetElitesFromPartial(string name)
         {
-            if (int.TryParse(name, out int i))
+            if (TextSerialization.TryParseInvariant(name, out int i))
             {
                 var index = (EliteIndex)i;
                 if (index == EliteIndex.None)
