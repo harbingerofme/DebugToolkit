@@ -1,7 +1,7 @@
 ﻿using RoR2;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
+using UnityEngine.Networking;
 using static DebugToolkit.Log;
 
 namespace DebugToolkit.Commands
@@ -11,235 +11,127 @@ namespace DebugToolkit.Commands
         [ConCommand(commandName = "list_interactables", flags = ConVarFlags.None, helpText = Lang.LISTINTERACTABLE_HELP)]
         private static void CCListInteractables(ConCommandArgs args)
         {
-            //edits based on StringFinder.GetInteractableSpawnCard()
-            StringBuilder s = new StringBuilder();
-            IEnumerable<InteractableSpawnCard> list;
-            if (args.Count > 0)
+            StringBuilder sb = new StringBuilder();
+            var arg = args.Count > 0 ? args[0] : "";
+            var cards = new HashSet<InteractableSpawnCard>(StringFinder.Instance.GetInteractableSpawnCardsFromPartial(arg));
+            for (int i = 0; i < StringFinder.Instance.InteractableSpawnCards.Count; i++)
             {
-                list = StringFinder.Instance.GetInteractableSpawnCardsFromPartial(args[0]);
-
-                if (list.Count() == 0)
-                    s.AppendLine($"No interactables found that match \"{args[0]}\".");
-            } else
-            {
-                list = StringFinder.Instance.InteractableSpawnCards;
+                var isc = StringFinder.Instance.InteractableSpawnCards[i];
+                if (cards.Contains(isc))
+                {
+                    var langInvar = StringFinder.GetLangInvar(StringFinder.GetInteractableName(isc.prefab));
+                    sb.AppendLine($"[{i}]{isc.name}={langInvar}");
+                }
             }
-
-            foreach (InteractableSpawnCard isc in list)
-            {
-                s.AppendLine(isc.name.Replace("isc", string.Empty));
-            }
-            Log.MessageNetworked(s.ToString(), args, LogLevel.MessageClientOnly);
+            var s = sb.Length > 0 ? sb.ToString().TrimEnd('\n') : string.Format(Lang.NOMATCH_ERROR, "interactables", arg);
+            Log.MessageNetworked(s, args, LogLevel.MessageClientOnly);
         }
 
         [ConCommand(commandName = "list_player", flags = ConVarFlags.None, helpText = Lang.LISTPLAYER_HELP)]
         private static void CCListPlayer(ConCommandArgs args)
         {
             StringBuilder sb = new StringBuilder();
-            int i = 0;
-            int resultCount = 0;
-
-            if (args.Count > 0)
+            var arg = args.Count > 0 ? args[0] : "";
+            var players = new HashSet<NetworkUser>(StringFinder.Instance.GetPlayersFromPartial(arg));
+            for (int i = 0; i < NetworkUser.readOnlyInstancesList.Count; i++)
             {
-                string name = args[0];
-                foreach (var user in NetworkUser.readOnlyInstancesList)
+                var user = NetworkUser.readOnlyInstancesList[i];
+                if (players.Contains(user))
                 {
-                    var userName = user.userName;
-                    if (int.TryParse(name, out int iName) && i == iName || userName.ToUpper().Contains(name.ToUpper()))
-                    {
-                        sb.AppendLine($"[{i}]{userName}");
-                        resultCount++;
-                    }
-                    i++;
+                    sb.AppendLine($"[{i}]{user.userName}");
                 }
-                if (resultCount == 0)
-                {
-                    sb.AppendLine($"No players found that match \"{name}\".");
-                }
+            }
+            if (sb.Length > 0)
+            {
+                Log.MessageNetworked(sb.ToString().TrimEnd('\n'), args, LogLevel.MessageClientOnly);
             }
             else
             {
-                foreach (var user in NetworkUser.readOnlyInstancesList)
-                {
-                    sb.AppendLine($"[{i}]{user.userName}");
-                    i++;
-
-                }
+                var s = NetworkClient.active ? string.Format(Lang.NOMATCH_ERROR, "players", arg) : Lang.NOCONNECTION_ERROR;
+                Log.MessageNetworked(s, args, LogLevel.MessageClientOnly);
             }
-            Log.MessageNetworked(sb.ToString(), args, LogLevel.MessageClientOnly);
         }
 
         [ConCommand(commandName = "list_ai", flags = ConVarFlags.None, helpText = Lang.LISTAI_HELP)]
         private static void CCListAI(ConCommandArgs args)
         {
-            string langInvar;
-            int i = 0;
             StringBuilder sb = new StringBuilder();
-            int resultCount = 0;
-            if (args.Count > 0)
+            var arg = args.Count > 0 ? args[0] : "";
+            var indices = StringFinder.Instance.GetAisFromPartial(arg);
+            foreach (var index in indices)
             {
-                string name = args[0];
-                foreach (var master in MasterCatalog.allAiMasters)
-                {
-                    var masterName = master.name.ToUpper();
-                    if (int.TryParse(name, out int iName) && i == iName || masterName.Equals(name.ToUpper().Replace("MASTER", string.Empty)) || masterName.Contains(name.ToUpper()))
-                    {
-                        resultCount++;
-                        langInvar = StringFinder.GetLangInvar(master.bodyPrefab.GetComponent<CharacterBody>().baseNameToken);
-                        sb.AppendLine($"[{i}]{master.name}={langInvar}");
-                    }
-                    i++;
-                }
-                if (resultCount == 0)
-                {
-                    sb.AppendLine($"No masters found that match \"{name}\".");
-                }
-            } else
-            {
-                foreach (var master in MasterCatalog.allAiMasters)
-                {
-                    langInvar = StringFinder.GetLangInvar(master.bodyPrefab.GetComponent<CharacterBody>().baseNameToken);
-                    sb.AppendLine($"[{i}]{master.name}={langInvar}");
-                    i++;
-                }
+                var master = MasterCatalog.GetMasterPrefab(index).GetComponent<CharacterMaster>();
+                var langInvar = StringFinder.GetLangInvar(StringFinder.GetMasterName(master));
+                sb.AppendLine($"[{(int)index}]{master.name}={langInvar}");
             }
-            Log.MessageNetworked(sb.ToString(), args, LogLevel.MessageClientOnly);
+            var s = sb.Length > 0 ? sb.ToString().TrimEnd('\n') : string.Format(Lang.NOMATCH_ERROR, "masters", arg);
+            Log.MessageNetworked(s, args, LogLevel.MessageClientOnly);
         }
 
         [ConCommand(commandName = "list_body", flags = ConVarFlags.None, helpText = Lang.LISTBODY_HELP)]
         private static void CCListBody(ConCommandArgs args)
         {
             StringBuilder sb = new StringBuilder();
-            string langInvar;
-            int resultCount = 0;
-            int i = 0;
-
-            if (args.Count > 0)
+            var arg = args.Count > 0 ? args[0] : "";
+            var indices = StringFinder.Instance.GetBodiesFromPartial(arg);
+            foreach (var index in indices)
             {
-                string name = args[0];
-                foreach (var body in BodyCatalog.allBodyPrefabBodyBodyComponents)
-                {
-                    var upperBodyName = body.name.ToUpper();
-                    if (int.TryParse(name, out int iName) && i == iName || upperBodyName.Equals(name.ToUpper().Replace("BODY", string.Empty)) || upperBodyName.Contains(name.ToUpper()) )
-                    {
-                        langInvar = StringFinder.GetLangInvar(body.baseNameToken);
-                        sb.AppendLine($"[{i}]{body.name}={langInvar}");
-                        resultCount++;
-                    }
-                    i++;
-                }
-                if (resultCount == 0)
-                {
-                    sb.AppendLine($"No bodies found that match \"{name}\".");
-                }
+                var body = BodyCatalog.GetBodyPrefabBodyComponent(index);
+                var langInvar = StringFinder.GetLangInvar(body.baseNameToken);
+                sb.AppendLine($"[{(int)index}]{body.name}={langInvar}");
             }
-            else
-            {
-                foreach (var body in BodyCatalog.allBodyPrefabBodyBodyComponents)
-                {
-                    langInvar = StringFinder.GetLangInvar(body.baseNameToken);
-                    sb.AppendLine($"[{i}]{body.name}={langInvar}");
-                    i++;
-                }
-            }
-            Log.MessageNetworked(sb.ToString(), args, LogLevel.MessageClientOnly);
+            var s = sb.Length > 0 ? sb.ToString().TrimEnd('\n') : string.Format(Lang.NOMATCH_ERROR, "bodies", arg);
+            Log.MessageNetworked(s, args, LogLevel.MessageClientOnly);
         }
 
         [ConCommand(commandName = "list_elite", flags = ConVarFlags.None, helpText = Lang.LISTELITE_HELP)]
         private static void CCListElites(ConCommandArgs args)
         {
             StringBuilder sb = new StringBuilder();
-            int resultCount = 0;
-            int i = 0;
-
-            if (args.Count > 0)
+            var arg = args.Count > 0 ? args[0] : "";
+            var indices = StringFinder.Instance.GetElitesFromPartial(arg);
+            foreach (var index in indices)
             {
-                string name = args[0];
-                if (int.TryParse(name, out int iName) && iName == -1 || "NONE".Contains(name.ToUpper()))
-                {
-                    sb.AppendLine("[-1]None");
-                    resultCount++;
-                }
-                foreach (var elite in EliteCatalog.eliteDefs)
-                {
-                    var eliteName = elite.name;
-                    if (int.TryParse(name, out iName) && i == iName || eliteName.ToUpper().Contains(name.ToUpper()))
-                    {
-                        sb.AppendLine($"[{i}]{eliteName}");
-                        resultCount++;
-                    }
-                    i++;
-                }
-                if (resultCount == 0)
-                {
-                    sb.AppendLine($"No elites found that match \"{name}\".");
-                }
+                var elite = EliteCatalog.GetEliteDef(index);
+                var name = elite?.name ?? "None";
+                var langInvar = StringFinder.GetLangInvar(elite?.modifierToken).Replace("{0}", "");
+                sb.AppendLine($"[{(int)index}]{name}={langInvar}");
             }
-            else
-            {
-                sb.AppendLine("[-1]None");
-                foreach (var elite in EliteCatalog.eliteDefs)
-                {
-                    var eliteName = elite.name;
-                    sb.AppendLine($"[{i}]{eliteName}");
-                    i++;
-                }
-            }
-            Log.MessageNetworked(sb.ToString(), args, LogLevel.MessageClientOnly);
+            var s = sb.Length > 0 ? sb.ToString().TrimEnd('\n') : string.Format(Lang.NOMATCH_ERROR, "elites", arg);
+            Log.MessageNetworked(s, args, LogLevel.MessageClientOnly);
         }
 
         [ConCommand(commandName = "list_team", flags = ConVarFlags.None, helpText = Lang.LISTTEAM_HELP)]
         private static void CCListTeams(ConCommandArgs args)
         {
             StringBuilder sb = new StringBuilder();
-            int resultCount = 0;
-            sbyte i = 0;
-
-            if (args.Count > 0)
+            var arg = args.Count > 0 ? args[0] : "";
+            var indices = StringFinder.Instance.GetTeamsFromPartial(arg);
+            foreach (var index in indices)
             {
-                string name = args[0];
-                if (int.TryParse(name, out int iName) && iName == -1 || "NONE".Contains(name.ToUpper()))
-                {
-                    sb.AppendLine("[-1]None");
-                    resultCount++;
-                }
-                foreach (var team in TeamCatalog.teamDefs)
-                {
-                    var teamName = ((TeamIndex)i).ToString();
-                    if (int.TryParse(name, out iName) && i == iName || teamName.ToUpper().Contains(name.ToUpper()))
-                    {
-                        sb.AppendLine($"[{i}]{teamName}");
-                        resultCount++;
-                    }
-                    i++;
-                }
-                if (resultCount == 0)
-                {
-                    sb.AppendLine($"No teams found that match \"{name}\".");
-                }
+                sb.AppendLine($"[{(int)index}]{index}");
             }
-            else
-            {
-                sb.AppendLine("[-1]None");
-                foreach (var team in TeamCatalog.teamDefs)
-                {
-                    var teamName = ((TeamIndex)i).ToString();
-                    sb.AppendLine($"[{i}]{teamName}");
-                    i++;
-                }
-            }
-            Log.Message(sb);
+            var s = sb.Length > 0 ? sb.ToString().TrimEnd('\n') : string.Format(Lang.NOMATCH_ERROR, "teams", arg);
+            Log.MessageNetworked(s, args, LogLevel.MessageClientOnly);
         }
 
         [ConCommand(commandName = "list_directorcards", flags = ConVarFlags.None, helpText = Lang.LISTDIRECTORCARDS_HELP)]
         private static void CCListDirectorCards(ConCommandArgs args)
         {
             StringBuilder sb = new StringBuilder();
-            foreach (var card in StringFinder.Instance.DirectorCards)
+            var arg = args.Count > 0 ? args[0] : "";
+            var cards = new HashSet<DirectorCard>(StringFinder.Instance.GetDirectorCardsFromPartial(arg));
+            for (int i = 0; i < StringFinder.Instance.DirectorCards.Count; i++)
             {
-                sb.AppendLine($"{card.spawnCard.name}");
+                var card = StringFinder.Instance.DirectorCards[i];
+                if (cards.Contains(card))
+                {
+                    var langInvar = StringFinder.GetLangInvar(StringFinder.GetMasterName(card.spawnCard.prefab.GetComponent<CharacterMaster>()));
+                    sb.AppendLine($"[{i}]{card.spawnCard.name}={langInvar}");
+                }
             }
-            Log.MessageNetworked(sb.ToString(), args, LogLevel.MessageClientOnly);
+            var s = sb.Length > 0 ? sb.ToString().TrimEnd('\n') : string.Format(Lang.NOMATCH_ERROR, "director cards", arg);
+            Log.MessageNetworked(s, args, LogLevel.MessageClientOnly);
         }
 
         [ConCommand(commandName = "list_skin", flags = ConVarFlags.None, helpText = Lang.LISTSKIN_HELP)]

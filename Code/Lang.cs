@@ -164,6 +164,8 @@
             INVALID_ARG_VALUE = "Invalid value for {0}.",
             INVENTORY_ERROR = "The selected target has no inventory.",
             NEGATIVE_ARG = "Negative value for {0} encountered. It needs to be zero or higher.",
+            NOCONNECTION_ERROR = "Not connected to a server.",
+            NOMATCH_ERROR = "No {0} found that match \"{1}\".",
             NOTINARUN_ERROR = "This command only works when in a Run!",
             NOTINASIMULACRUMRUN_ERROR = "Must be in a Simulacrum Run!",
             NOTINVOIDFIELDS_ERROR = "Must be on Void Fields!",
