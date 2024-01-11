@@ -602,12 +602,16 @@ namespace DebugToolkit
         }
 
         /// <summary>
-        /// Returns a special char stripped language invariant when provided with a BaseNameToke.
+        /// Returns a special char stripped language invariant when provided with a BaseNameToken.
         /// </summary>
         /// <param name="baseToken">The BaseNameToken to query for a Language Invariant.</param>
-        /// <returns>Returns the LanguageInvariant for the BaseNameToken.</returns>
+        /// <returns>Returns the LanguageInvariant for the BaseNameToken, or returns an empty string for a null input.</returns>
         public static string GetLangInvar(string baseToken)
         {
+            if (baseToken == null)
+            {
+                return "";
+            }
             return RemoveSpacesAndAlike(Language.GetString(baseToken));
         }
 
