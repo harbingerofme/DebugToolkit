@@ -1,11 +1,7 @@
 ﻿using RoR2;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
-using System.Xml.Linq;
-using UnityEngine;
 using static DebugToolkit.Log;
 
 namespace DebugToolkit.Commands
@@ -20,7 +16,7 @@ namespace DebugToolkit.Commands
             IEnumerable<InteractableSpawnCard> list;
             if (args.Count > 0)
             {
-                list = StringFinder.Instance.GetInteractableSpawnCards(args[0]);
+                list = StringFinder.Instance.GetInteractableSpawnCardsFromPartial(args[0]);
 
                 if (list.Count() == 0)
                     s.AppendLine($"No interactables found that match \"{args[0]}\".");
@@ -307,14 +303,13 @@ namespace DebugToolkit.Commands
                         }
                         else
                         {
-                            string requestedBodyName = StringFinder.Instance.GetBodyName(args[0]);
-                            if (requestedBodyName == null)
+                            var bodyIndex = StringFinder.Instance.GetBodyFromPartial(args[0]);
+                            if (bodyIndex == BodyIndex.None)
                             {
                                 Log.MessageNetworked("Please use list_body to print CharacterBodies", args, LogLevel.MessageClientOnly);
                                 return;
                             }
-                            GameObject newBody = BodyCatalog.FindBodyPrefab(requestedBodyName);
-                            body = newBody.GetComponent<CharacterBody>();
+                            body = BodyCatalog.GetBodyPrefabBodyComponent(bodyIndex);
                         }
                         if (body)
                         {

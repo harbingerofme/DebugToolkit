@@ -100,13 +100,13 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            string character = StringFinder.Instance.GetBodyName(args[0]);
-            if (character == null)
+            var bodyIndex = StringFinder.Instance.GetBodyFromPartial(args[0]);
+            if (bodyIndex == BodyIndex.None)
             {
                 Log.MessageNetworked(Lang.BODY_NOTFOUND, args, LogLevel.MessageClientOnly);
                 return;
             }
-            GameObject newBody = BodyCatalog.FindBodyPrefab(character);
+            GameObject newBody = BodyCatalog.GetBodyPrefab(bodyIndex);
 
             CharacterMaster master = args.senderMaster;
             if (args.Count > 1 && args[1] != Lang.DEFAULT_VALUE)
@@ -121,7 +121,7 @@ namespace DebugToolkit.Commands
             }
 
             master.bodyPrefab = newBody;
-            Log.MessageNetworked(args.sender.userName + " is spawning as " + character, args);
+            Log.MessageNetworked(args.sender.userName + " is spawning as " + newBody.name, args);
 
             if (!master.GetBody())
             {
@@ -220,18 +220,13 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.DUMPSTATS_ARGS, args, LogLevel.ErrorClientOnly);
                 return;
             }
-            var bodyName = StringFinder.Instance.GetBodyName(args[0]);
-            if (bodyName == null)
+            var bodyIndex = StringFinder.Instance.GetBodyFromPartial(args[0]);
+            if (bodyIndex == BodyIndex.None)
             {
                 Log.MessageNetworked(Lang.BODY_NOTFOUND, args, LogLevel.MessageClientOnly);
                 return;
             }
-            var bodyPrefab = BodyCatalog.FindBodyPrefab(bodyName);
-            if (bodyPrefab == null)
-            {
-                Log.MessageNetworked(Lang.BODY_NOTFOUND, args, LogLevel.MessageClientOnly);
-                return;
-            }
+            var bodyPrefab = BodyCatalog.GetBodyPrefab(bodyIndex);
 
             var body = bodyPrefab.GetComponent<CharacterBody>();
             var sb = new System.Text.StringBuilder();
@@ -421,13 +416,12 @@ namespace DebugToolkit.Commands
             }
             else
             {
-                string requestedBodyName = StringFinder.Instance.GetBodyName(args[0]);
-                if (requestedBodyName == null)
+                argBodyIndex = StringFinder.Instance.GetBodyFromPartial(args[0]);
+                if (argBodyIndex == BodyIndex.None)
                 {
                     Log.MessageNetworked(Lang.BODY_NOTFOUND, args, LogLevel.MessageClientOnly);
                     return;
                 }
-                argBodyIndex = BodyCatalog.FindBodyIndex(requestedBodyName);
             }
 
             if (!TextSerialization.TryParseInvariant(args[1], out int requestedSkinIndexChange))

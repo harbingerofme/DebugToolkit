@@ -27,10 +27,10 @@ namespace DebugToolkit.Commands
             Log.Message(StringFinder.Instance.GetItemFromPartial(args[0]).ToString());
         }
 
-        [ConCommand(commandName = "getBodyName", flags = ConVarFlags.None, helpText = "Match a bpartial localised body name to a character body name")]
+        [ConCommand(commandName = "getBodyName", flags = ConVarFlags.None, helpText = "Match a partial localised body name to a character body name")]
         private static void CCGetBodyName(ConCommandArgs args)
         {
-            Log.Message(StringFinder.Instance.GetBodyName(args[0]));
+            Log.Message(StringFinder.Instance.GetBodyFromPartial(args[0]));
         }
 
         [ConCommand(commandName = "getEquipName", flags = ConVarFlags.None, helpText = "Match a partial localised equip name to an EquipIndex")]
@@ -42,7 +42,7 @@ namespace DebugToolkit.Commands
         [ConCommand(commandName = "getMasterName", flags = ConVarFlags.None, helpText = "Match a partial localised Master name to a CharacterMaster")]
         private static void CCGetMasterName(ConCommandArgs args)
         {
-            Log.Message(StringFinder.Instance.GetMasterName(args[0]));
+            Log.Message(StringFinder.Instance.GetAiFromPartial(args[0]));
         }
 
         [ConCommand(commandName = "getTeamIndexPartial", flags = ConVarFlags.None, helpText = "Match a partial TeamIndex")]
