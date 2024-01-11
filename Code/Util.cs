@@ -9,40 +9,13 @@ namespace DebugToolkit
         /// Returns a matched NetworkUser when provided to a player.
         /// </summary>
         /// <param name="args">(string[])args array</param>
-        /// <param name="startLocation">(int)on the string array, at which index the player string starts at. Default value is 0</param>
+        /// <param name="startLocation">(int)on the string array, at which index the player string is. Default value is 0</param>
         /// <returns>Returns a NetworkUser if a match is found, or null if not</returns>
-        internal static NetworkUser GetNetUserFromString(List<string> args, int startLocation = 0)
+        internal static NetworkUser GetNetUserFromString(List<string> args, int index = 0)
         {
-            if (args.Count > 0 && startLocation < args.Count)
+            if (args.Count > 0 && index < args.Count)
             {
-                // This doesn't seem to be necessary
-                if (args[startLocation].StartsWith("\""))
-                {
-                    var startString = string.Join(" ", args);
-
-                    var startIndex = startString.IndexOf('\"') + 1;
-                    var length = startString.LastIndexOf('\"') - startIndex;
-
-                    args[startLocation] = startString.Substring(startIndex, length);
-                }
-
-                if (int.TryParse(args[startLocation], out int result))
-                {
-                    if (result < NetworkUser.readOnlyInstancesList.Count && result >= 0)
-                    {
-                        return NetworkUser.readOnlyInstancesList[result];
-                    }
-                    return null;
-                }
-
-                foreach (var n in NetworkUser.readOnlyInstancesList)
-                {
-                    if (n.userName.ToLower().Contains(args[startLocation].ToLower()))
-                    {
-                        return n;
-                    }
-                }
-                return null;
+                return StringFinder.Instance.GetPlayerFromPartial(args[index]);
             }
             return null;
         }
@@ -56,16 +29,15 @@ namespace DebugToolkit
         /// <returns>Returns the found master. Null otherwise</returns>
         internal static CharacterMaster GetTargetFromArgs(List<string> args, int index, bool isDedicatedServer)
         {
-            CharacterMaster target;
-            if (!isDedicatedServer && args[index].ToUpperInvariant() == Lang.PINGED)
+            if (args.Count > 0 && index < args.Count)
             {
-                target = Hooks.GetPingedMaster();
+                if (!isDedicatedServer && args[index].ToUpperInvariant() == Lang.PINGED)
+                {
+                    return Hooks.GetPingedMaster();
+                }
+                return GetNetUserFromString(args, index)?.master;
             }
-            else
-            {
-                target = GetNetUserFromString(args, index)?.master;
-            }
-            return target;
+            return null;
         }
 
         /// <summary>
