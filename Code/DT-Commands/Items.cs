@@ -419,6 +419,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "create_potential", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.CREATEPOTENTIAL_HELP)]
+        [AutoCompletion(typeof(ItemTierCatalog), "itemTierDefs")]
         private static void CCCreatePotential(ConCommandArgs args)
         {
             if (!Run.instance)
@@ -487,6 +488,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "remove_item_stacks", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.REMOVEITEMSTACKS_HELP)]
+        [AutoCompletion(typeof(ItemCatalog), "itemDefs", "nameToken")]
         private static void CCRemoveItemStacks(ConCommandArgs args)
         {
             if (!Run.instance)

@@ -182,6 +182,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "kill_all", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.KILLALL_HELP)]
+        [AutoCompletion(typeof(TeamIndex))]
         private static void CCKillAll(ConCommandArgs args)
         {
             if (!Run.instance)

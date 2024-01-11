@@ -169,6 +169,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "change_team", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.CHANGETEAM_HELP)]
+        [AutoCompletion(typeof(TeamIndex))]
         private static void CCChangeTeam(ConCommandArgs args)
         {
             if (!Run.instance)

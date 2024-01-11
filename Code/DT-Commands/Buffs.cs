@@ -423,6 +423,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "remove_dot", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.REMOVEDOT_HELP)]
+        [AutoCompletion(typeof(DotController.DotIndex))]
         private static void CCRemoveDot(ConCommandArgs args)
         {
             if (!Run.instance)
@@ -481,6 +482,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "remove_dot_stacks", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.REMOVEDOTSTACKS_HELP)]
+        [AutoCompletion(typeof(DotController.DotIndex))]
         private static void CCRemoveDotStacks(ConCommandArgs args)
         {
             if (!Run.instance)

@@ -10,6 +10,7 @@ namespace DebugToolkit.Commands
     class LobbyManagement
     {
         [ConCommand(commandName = "kick", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.KICK_HELP)]
+        [AutoCompletion(typeof(NetworkUser), "instancesList", "userName", true)]
         [RequiredLevel]
         private static void CCKick(ConCommandArgs args)
         {
@@ -66,6 +67,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "ban", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.BAN_HELP)]
+        [AutoCompletion(typeof(NetworkUser), "instancesList", "userName", true)]
         [RequiredLevel]
         private static void CCBan(ConCommandArgs args)
         {
@@ -121,6 +123,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "true_kill", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.TRUEKILL_HELP)]
+        [AutoCompletion(typeof(NetworkUser), "instancesList", "userName", true)]
         private static void CCTrueKill(ConCommandArgs args)
         {
             if (args.sender == null && args.Count < 1)
