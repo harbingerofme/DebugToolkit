@@ -62,7 +62,7 @@ Commands:
 
 List Commands:
 
-* [All the `list_` commands support filtering](https://user-images.githubusercontent.com/72328339/213889205-2dbaab4f-3b88-481e-ba29-2a466a10ed53.png)
+* [All the `list_` commands support filtering](https://user-images.githubusercontent.com/57867641/295963274-169b2fd9-a5ea-41df-8dba-2632f75ddbd4.png). A number for the unique index or any string for partial matching.
 * **list_player** - List all Players and their ID.
 * **list_body** - List all Bodies and their language invariants.
 * **list_ai** - List all Masters and their language invariants.
