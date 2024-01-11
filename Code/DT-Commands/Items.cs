@@ -663,7 +663,7 @@ namespace DebugToolkit.Commands
                 {
                     var data = tierData.Split(':');
                     var itemTier = StringFinder.Instance.GetItemTierFromPartial(data[0]);
-                    if (itemTier == (ItemTier)(-1))
+                    if (itemTier == StringFinder.ItemTier_NotFound)
                     {
                         Log.MessageNetworked(Lang.OBJECT_NOTFOUND + data[0], args, LogLevel.MessageClientOnly);
                         return null;

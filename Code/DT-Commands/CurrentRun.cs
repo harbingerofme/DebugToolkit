@@ -2,7 +2,6 @@ using R2API.Utils;
 using RoR2;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Text;
 using UnityEngine;
@@ -190,23 +189,24 @@ namespace DebugToolkit.Commands
                 return;
             }
             TeamIndex team = TeamIndex.Monster;
-            if (args.Count > 0 && args[0] != Lang.DEFAULT_VALUE && !StringFinder.TryGetEnumFromPartial(args[0], out team))
+            if (args.Count > 0 && args[0] != Lang.DEFAULT_VALUE)
             {
-                Log.MessageNetworked(Lang.TEAM_NOTFOUND, args, LogLevel.MessageClientOnly);
-                return;
+                team = StringFinder.Instance.GetTeamFromPartial(args[0]);
+                if (team == StringFinder.TeamIndex_NotFound)
+                {
+                    Log.MessageNetworked(Lang.TEAM_NOTFOUND, args, LogLevel.MessageClientOnly);
+                    return;
+                }
             }
 
             int count = 0;
-            foreach (CharacterMaster cm in UnityEngine.Object.FindObjectsOfType<CharacterMaster>())
+            foreach (var teamComponent in TeamComponent.GetTeamMembers(team))
             {
-                if (cm.teamIndex == team)
+                var healthComponent = teamComponent.GetComponent<HealthComponent>();
+                if (healthComponent)
                 {
-                    CharacterBody cb = cm.GetBody();
-                    if (cb && cb.healthComponent)
-                    {
-                        cb.healthComponent.Suicide(null);
-                        count++;
-                    }
+                    healthComponent.Suicide(null);
+                    count++;
                 }
             }
             Log.MessageNetworked($"Killed {count} of team {team}.", args);
@@ -284,7 +284,7 @@ namespace DebugToolkit.Commands
             if (args.Count > 2 && args[2] != Lang.DEFAULT_VALUE)
             {
                 var eliteIndex = StringFinder.Instance.GetEliteFromPartial(args[2]);
-                if ((int)eliteIndex == -2)
+                if (eliteIndex == StringFinder.EliteIndex_NotFound)
                 {
                     Log.MessageNetworked(Lang.ELITE_NOTFOUND, args, LogLevel.MessageClientOnly);
                     return;

@@ -111,7 +111,7 @@ namespace DebugToolkit.Commands
             if (args.Count > 2 && args[2] != Lang.DEFAULT_VALUE)
             {
                 var eliteIndex = StringFinder.Instance.GetEliteFromPartial(args[2]);
-                if ((int)eliteIndex == -2)
+                if (eliteIndex == StringFinder.EliteIndex_NotFound)
                 {
                     Log.MessageNetworked(Lang.ELITE_NOTFOUND, args, LogLevel.MessageClientOnly);
                     return;
@@ -127,10 +127,14 @@ namespace DebugToolkit.Commands
             }
 
             TeamIndex teamIndex = TeamIndex.Monster;
-            if (args.Count > 4 && args[4] != Lang.DEFAULT_VALUE && !StringFinder.TryGetEnumFromPartial(args[4], out teamIndex))
+            if (args.Count > 4 && args[4] != Lang.DEFAULT_VALUE)
             {
-                Log.MessageNetworked(Lang.TEAM_NOTFOUND, args, LogLevel.MessageClientOnly);
-                return;
+                teamIndex = StringFinder.Instance.GetTeamFromPartial(args[4]);
+                if (teamIndex == StringFinder.TeamIndex_NotFound)
+                {
+                    Log.MessageNetworked(Lang.TEAM_NOTFOUND, args, LogLevel.MessageClientOnly);
+                    return;
+                }
             }
 
             var spawnCard = StringFinder.Instance.GetDirectorCardFromPartial(masterPrefab.name)?.spawnCard;
@@ -264,7 +268,7 @@ namespace DebugToolkit.Commands
             GameObject body = BodyCatalog.GetBodyPrefab(bodyIndex);
             GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(body, args.senderBody.transform.position, Quaternion.identity);
             NetworkServer.Spawn(gameObject);
-            Log.MessageNetworked(string.Format(Lang.SPAWN_ATTEMPT_1, body), args);
+            Log.MessageNetworked(string.Format(Lang.SPAWN_ATTEMPT_1, body.name), args);
         }
 
 
