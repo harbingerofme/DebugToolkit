@@ -341,7 +341,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "give_dot", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.GIVEDOT_HELP)]
-        [AutoCompletion(typeof(DotController.DotIndex), null)]
+        [AutoCompletion(typeof(DotController.DotIndex))]
         private static void CCGiveDot(ConCommandArgs args)
         {
             if (!Run.instance)
