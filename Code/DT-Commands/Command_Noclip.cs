@@ -115,10 +115,13 @@ namespace DebugToolkit.Commands
         {
             var kcm = _currentBody.GetComponent<KinematicCharacterMotor>();
             var rigid = _currentBody.GetComponent<Rigidbody>();
-            if (kcm && kcm.CollidableLayers != 0) // when respawning or things like that, call the toggle to set the variables correctly again
+            if (kcm) // when respawning or things like that, call the toggle to set the variables correctly again
             {
-                InternalToggle();
-                InternalToggle();
+                if (kcm.CollidableLayers != 0)
+                {
+                    InternalToggle();
+                    InternalToggle();
+                }
             }
             else if (rigid)
             {
