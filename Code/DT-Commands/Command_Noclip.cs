@@ -23,7 +23,6 @@ namespace DebugToolkit.Commands
 
         private static NetworkUser _currentNetworkUser;
         private static CharacterBody _currentBody;
-        private static int _collidableLayersCached;
 
         internal static void InitRPC()
         {
@@ -34,20 +33,47 @@ namespace DebugToolkit.Commands
         {
             if (PlayerCommands.UpdateCurrentPlayerBody(out _currentNetworkUser, out _currentBody))
             {
+                var kcm = _currentBody.GetComponent<KinematicCharacterMotor>();
+                var rigid = _currentBody.GetComponent<Rigidbody>();
+                var motor = _currentBody.characterMotor;
                 if (IsActivated)
                 {
-                    if (_collidableLayersCached != 0)
+                    if (kcm)
                     {
-                        _currentBody.GetComponent<KinematicCharacterMotor>().CollidableLayers = _collidableLayersCached;
+                        kcm.RebuildCollidableLayers();
                     }
-                    _currentBody.characterMotor.SetUseGravity(true);
+                    else if (rigid)
+                    {
+                        var collider = rigid.GetComponent<Collider>();
+                        if (collider)
+                        {
+                            collider.isTrigger = false;
+                        }
+                    }
+                    if (motor)
+                    {
+                        _currentBody.characterMotor.SetUseGravity(true);
+                    }
                     UndoHooks();
                 }
                 else
                 {
-                    _collidableLayersCached = _currentBody.GetComponent<KinematicCharacterMotor>().CollidableLayers;
-                    _currentBody.GetComponent<KinematicCharacterMotor>().CollidableLayers = 0;
-                    _currentBody.characterMotor.SetUseGravity(false);
+                    if (kcm)
+                    {
+                        kcm.CollidableLayers = 0;
+                    }
+                    else if (rigid)
+                    {
+                        var collider = rigid.GetComponent<Collider>();
+                        if (collider)
+                        {
+                            collider.isTrigger = true;
+                        }
+                    }
+                    if (motor)
+                    {
+                        motor.SetUseGravity(false);
+                    }
                     ApplyHooks();
                 }
 
@@ -87,41 +113,55 @@ namespace DebugToolkit.Commands
 
         private static void Loop()
         {
-            if (_currentBody.characterMotor.useGravity) // when respawning or things like that, call the toggle to set the variables correctly again
+            var kcm = _currentBody.GetComponent<KinematicCharacterMotor>();
+            var rigid = _currentBody.GetComponent<Rigidbody>();
+            if (kcm && kcm.CollidableLayers != 0) // when respawning or things like that, call the toggle to set the variables correctly again
             {
                 InternalToggle();
                 InternalToggle();
             }
-
-            var forwardDirection = _currentBody.GetComponent<InputBankTest>().moveVector.normalized;
-            var aimDirection = _currentBody.GetComponent<InputBankTest>().aimDirection.normalized;
-            var isForward = Vector3.Dot(forwardDirection, aimDirection) > 0f;
-
-            var isSprinting = _currentNetworkUser.inputPlayer.GetButton("Sprint");
-            // ReSharper disable once CompareOfFloatsByEqualityOperator
-            var isStrafing = _currentNetworkUser.inputPlayer.GetAxis("MoveVertical") != 0f;
-
-            if (isSprinting)
+            else if (rigid)
             {
-                _currentBody.characterMotor.velocity = forwardDirection * 100f;
-                if (isStrafing)
+                var collider = rigid.GetComponent<Collider>();
+                if (collider && !collider.isTrigger)
                 {
-                    _currentBody.characterMotor.velocity.y = aimDirection.y * (isForward ? 100f : -100f);
-                }
-
-            }
-            else
-            {
-                _currentBody.characterMotor.velocity = forwardDirection * 50;
-                if (isStrafing)
-                {
-                    _currentBody.characterMotor.velocity.y = aimDirection.y * (isForward ? 50 : -50);
+                    InternalToggle();
+                    InternalToggle();
                 }
             }
 
             var inputBank = _currentBody.GetComponent<InputBankTest>();
-            if (inputBank && inputBank.jump.down)
-                _currentBody.characterMotor.velocity.y = 50f;
+            var motor = _currentBody.characterMotor;
+            if (inputBank && (motor || rigid))
+            {
+                var forwardDirection = inputBank.moveVector.normalized;
+                var aimDirection = inputBank.aimDirection.normalized;
+                var isForward = Vector3.Dot(forwardDirection, aimDirection) > 0f;
+
+                var isSprinting = _currentNetworkUser.inputPlayer.GetButton("Sprint");
+                // ReSharper disable once CompareOfFloatsByEqualityOperator
+                var isStrafing = _currentNetworkUser.inputPlayer.GetAxis("MoveVertical") != 0f;
+                var scalar = isSprinting ? 100f : 50f;
+
+                var velocity = forwardDirection * scalar;
+                if (isStrafing)
+                {
+                    velocity.y = aimDirection.y * (isForward ? scalar : -scalar);
+                }
+                if (inputBank.jump.down)
+                {
+                    velocity.y = 50f;
+                }
+
+                if (motor)
+                {
+                    motor.velocity = velocity;
+                }
+                else
+                {
+                    rigid.velocity = velocity;
+                }
+            }
         }
 
         private static void DisableOnServerSceneChange(UnityEngine.Networking.NetworkManager instance, string newSceneName)
@@ -146,7 +186,11 @@ namespace DebugToolkit.Commands
             {
                 if (_currentBody)
                 {
-                    _currentBody.GetComponent<KinematicCharacterMotor>().CollidableLayers = _collidableLayersCached;
+                    var kcm = _currentBody.GetComponent<KinematicCharacterMotor>();
+                    if (kcm)
+                    {
+                        kcm.RebuildCollidableLayers();
+                    }
                     _currentBody.characterMotor.SetUseGravity(!_currentBody.characterMotor.useGravity);
                 }
 
