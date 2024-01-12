@@ -52,7 +52,7 @@ namespace DebugToolkit.Commands
                     }
                     if (motor)
                     {
-                        _currentBody.characterMotor.SetUseGravity(true);
+                        motor.useGravity = motor.gravityParameters.CheckShouldUseGravity();
                     }
                     UndoHooks();
                 }
@@ -72,7 +72,7 @@ namespace DebugToolkit.Commands
                     }
                     if (motor)
                     {
-                        motor.SetUseGravity(false);
+                        motor.useGravity = false;
                     }
                     ApplyHooks();
                 }
@@ -194,7 +194,11 @@ namespace DebugToolkit.Commands
                     {
                         kcm.RebuildCollidableLayers();
                     }
-                    _currentBody.characterMotor.SetUseGravity(!_currentBody.characterMotor.useGravity);
+                    var motor = _currentBody.characterMotor;
+                    if (motor)
+                    {
+                        motor.useGravity = motor.gravityParameters.CheckShouldUseGravity();
+                    }
                 }
 
                 UndoHooks();
