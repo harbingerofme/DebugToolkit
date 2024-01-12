@@ -127,7 +127,7 @@ namespace DebugToolkit.Commands
             var buff = StringFinder.Instance.GetBuffFromPartial(args[0]);
             if (buff == BuffIndex.None)
             {
-                Log.MessageNetworked(Lang.OBJECT_NOTFOUND + args[0] + ":" + buff, args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "buff", args[0]), args, LogLevel.MessageClientOnly);
                 return;
             }
             // Buffs that can't stack can only get up to 1 stack. The following ceiling is so
@@ -203,7 +203,7 @@ namespace DebugToolkit.Commands
             var buff = StringFinder.Instance.GetBuffFromPartial(args[0]);
             if (buff == BuffIndex.None)
             {
-                Log.MessageNetworked(Lang.OBJECT_NOTFOUND + args[0] + ":" + buff, args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "buff", args[0]), args, LogLevel.MessageClientOnly);
                 return;
             }
             if (isTimed)
@@ -271,7 +271,7 @@ namespace DebugToolkit.Commands
             var buff = StringFinder.Instance.GetBuffFromPartial(args[0]);
             if (buff == BuffIndex.None)
             {
-                Log.MessageNetworked(Lang.OBJECT_NOTFOUND + args[0] + ":" + buff, args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "buff", args[0]), args, LogLevel.MessageClientOnly);
                 return;
             }
             if (isTimed)
@@ -378,7 +378,7 @@ namespace DebugToolkit.Commands
             var dot = StringFinder.Instance.GetDotFromPartial(args[0]);
             if (dot == DotController.DotIndex.None)
             {
-                Log.MessageNetworked(Lang.OBJECT_NOTFOUND + args[0] + ":" + dot, args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "dot", args[0]), args, LogLevel.MessageClientOnly);
                 return;
             }
             float duration = 8f; // PercentBurn will have this
@@ -453,7 +453,7 @@ namespace DebugToolkit.Commands
             var dot = StringFinder.Instance.GetDotFromPartial(args[0]);
             if (dot == DotController.DotIndex.None)
             {
-                Log.MessageNetworked(Lang.OBJECT_NOTFOUND + args[0] + ":" + dot, args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "dot", args[0]), args, LogLevel.MessageClientOnly);
                 return;
             }
             var controller = DotController.FindDotController(body);
@@ -504,7 +504,7 @@ namespace DebugToolkit.Commands
             var dot = StringFinder.Instance.GetDotFromPartial(args[0]);
             if (dot == DotController.DotIndex.None)
             {
-                Log.MessageNetworked(Lang.OBJECT_NOTFOUND + args[0] + ":" + dot, args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "dot", args[0]), args, LogLevel.MessageClientOnly);
                 return;
             }
             var controller = DotController.FindDotController(body);

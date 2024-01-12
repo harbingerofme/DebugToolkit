@@ -166,7 +166,7 @@ namespace DebugToolkit.Commands
             var item = StringFinder.Instance.GetItemFromPartial(args[0]);
             if (item == ItemIndex.None)
             {
-                Log.MessageNetworked(Lang.OBJECT_NOTFOUND + args[0] + ":" + item, args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "item", args[0]), args, LogLevel.MessageClientOnly);
                 return;
             }
             var amount = (args.commandName == "give_item" ? 1 : -1) * iCount;
@@ -277,7 +277,7 @@ namespace DebugToolkit.Commands
                 equip = StringFinder.Instance.GetEquipFromPartial(args[0]);
                 if (equip == EquipmentIndex.None)
                 {
-                    Log.MessageNetworked(Lang.OBJECT_NOTFOUND + args[0] + ":" + equip, args, LogLevel.MessageClientOnly);
+                    Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "equip", args[0]), args, LogLevel.MessageClientOnly);
                     return;
                 }
                 inventory.SetEquipmentIndex(equip);
@@ -509,7 +509,7 @@ namespace DebugToolkit.Commands
             var item = StringFinder.Instance.GetItemFromPartial(args[0]);
             if (item == ItemIndex.None)
             {
-                Log.MessageNetworked(Lang.OBJECT_NOTFOUND + args[0] + ":" + item, args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "item", args[0]), args, LogLevel.MessageClientOnly);
                 return;
             }
             int iCount = inventory.GetItemCount(item);
@@ -696,7 +696,7 @@ namespace DebugToolkit.Commands
                     var itemTier = StringFinder.Instance.GetItemTierFromPartial(data[0]);
                     if (itemTier == (ItemTier)(-1))
                     {
-                        Log.MessageNetworked(Lang.OBJECT_NOTFOUND + data[0], args, LogLevel.MessageClientOnly);
+                        Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "item tier", data[0]), args, LogLevel.MessageClientOnly);
                         return null;
                     }
                     float weight = 1f;

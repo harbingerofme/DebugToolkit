@@ -167,7 +167,7 @@
             NOTINARUN_ERROR = "This command only works when in a Run!",
             NOTINASIMULACRUMRUN_ERROR = "Must be in a Simulacrum Run!",
             NOTINVOIDFIELDS_ERROR = "Must be on Void Fields!",
-            OBJECT_NOTFOUND = "The requested object could not be found: ",
+            OBJECT_NOTFOUND = "No {0} with the name \"{1}\" could not be found.",
             PARSE_ERROR = "Unable to parse {0} to {1}.",
             PINGEDBODY_NOTFOUND = "Pinged target not found. Either the last ping was not a character, or it has been destroyed since.",
             PLAYER_NOTFOUND = "Specified player not found or isn't alive. Please use list_player for options.",

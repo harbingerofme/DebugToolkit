@@ -252,7 +252,7 @@ namespace DebugToolkit.Commands
             nextBoss = StringFinder.Instance.GetDirectorCardFromPartial(args[0]);
             if (nextBoss == null)
             {
-                Log.MessageNetworked(Lang.OBJECT_NOTFOUND + args[0], args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "director card", args[0]), args, LogLevel.MessageClientOnly);
                 return;
             }
             s.AppendLine($"Next boss is: {nextBoss.spawnCard.name}. ");
