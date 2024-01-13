@@ -13,6 +13,7 @@ namespace DebugToolkit.Commands
     {
 
         [ConCommand(commandName = "spawn_interactable", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SPAWNINTERACTABLE_HELP)]
+        [ConCommand(commandName = "spawn_interactible", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SPAWNINTERACTABLE_HELP)]
         [AutoCompletion(typeof(StringFinder), "interactableSpawnCards", "", true)]
         private static void CCSpawnInteractable(ConCommandArgs args)
         {
@@ -58,13 +59,6 @@ namespace DebugToolkit.Commands
             {
                 Log.MessageNetworked("Failed to spawn interactable.", args, LogLevel.MessageClientOnly);
             }
-        }
-
-        [ConCommand(commandName = "spawn_interactible", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SPAWNINTERACTABLE_HELP)]
-        [AutoCompletion(typeof(StringFinder), "interactableSpawnCards", "", true)]
-        private static void CCSpawnInteractible(ConCommandArgs args)
-        {
-            CCSpawnInteractable(args);
         }
 
         [ConCommand(commandName = "spawn_ai", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SPAWNAI_HELP)]

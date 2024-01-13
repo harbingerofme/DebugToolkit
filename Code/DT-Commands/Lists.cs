@@ -13,6 +13,7 @@ namespace DebugToolkit.Commands
     class Lists
     {
         [ConCommand(commandName = "list_interactables", flags = ConVarFlags.None, helpText = Lang.LISTINTERACTABLE_HELP)]
+        [ConCommand(commandName = "list_interactibles", flags = ConVarFlags.None, helpText = Lang.LISTINTERACTABLE_HELP)]
         private static void CCListInteractables(ConCommandArgs args)
         {
             //edits based on StringFinder.GetInteractableSpawnCard()
