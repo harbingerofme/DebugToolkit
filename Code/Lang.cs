@@ -141,7 +141,7 @@
             CREATEPICKUP_SUCCESS_1 = "Successfully created the pickup {0}.",
             CREATEPICKUP_SUCCESS_2 = "Successfully created a potential with {0} options.",
             GIVELUNAR_2 = "{0} {1} lunar coin(s).",
-            GIVEOBJECT = "Gave {0} {1}",
+            GIVEOBJECT = "Gave {0} {1} to {2}.",
             OBSOLETEWARNING = "This command has become obsolete and will be removed in the next version. ",
             NETWORKING_OTHERPLAYER_4 = "{0}({1}) issued: {2} {3}",
             NOMESSAGE = "Yell at the modmakers if you see this message!",
@@ -149,6 +149,7 @@
             PARTIALIMPLEMENTATION_WARNING = "WARNING: PARTIAL IMPLEMENTATION. WIP.",
             PLAYER_DEADRESPAWN = "Player will spawn as the specified body next round. " + USE_RESPAWN,
             PLAYER_SKINCHANGERESPAWN = "Player will spawn with the specified skin next round. " + USE_RESPAWN,
+            REMOVEOBJECT = "Removed {0} {1} from {2}.",
             RUNSETSTAGESCLEARED_HELP = "Sets the amount of stages cleared. This does not change the current stage.",
             SPAWN_ATTEMPT_1 = "Attempting to spawn: {0}",
             SPAWN_ATTEMPT_2 = "Attempting to spawn {0}: {1}",
@@ -158,6 +159,7 @@
         // Errors
         public const string
             BODY_NOTFOUND = "Specified body not found. Please use list_body for options.",
+            DOTCONTROLLER_NOTFOUND = "The selected target has no DoTs.",
             ELITE_NOTFOUND = "Elite type not recognized. Please use list_elite for options.",
             INSUFFICIENT_ARGS = "Insufficient number of arguments. ",
             INTERACTABLE_NOTFOUND = "Interactable not found. Please use list_interactables for options.",

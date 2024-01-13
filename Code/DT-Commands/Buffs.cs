@@ -130,6 +130,7 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "buff", args[0]), args, LogLevel.MessageClientOnly);
                 return;
             }
+            var name = BuffCatalog.GetBuffDef(buff).name;
             // Buffs that can't stack can only get up to 1 stack. The following ceiling is so
             // we both accurately report how many stacks are granted, and also to avoid giving
             // 1000 stacks, for example, to a buff with no effect.
@@ -144,7 +145,7 @@ namespace DebugToolkit.Commands
                 {
                     body.AddBuff(buff);
                 }
-                Log.MessageNetworked($"Gave {iCount} {buff} to {targetName}", args);
+                Log.MessageNetworked(string.Format(Lang.GIVEOBJECT, iCount, name, targetName), args);
             }
             else
             {
@@ -206,6 +207,7 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "buff", args[0]), args, LogLevel.MessageClientOnly);
                 return;
             }
+            var name = BuffCatalog.GetBuffDef(buff).name;
             if (isTimed)
             {
                 var timedBuffCount = 0;
@@ -236,7 +238,7 @@ namespace DebugToolkit.Commands
                 {
                     body.RemoveBuff(buff);
                 }
-                Log.MessageNetworked($"Removed {iCount} {buff} from {targetName}", args);
+                Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT, iCount, name, targetName), args);
             }
         }
 
@@ -274,6 +276,7 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "buff", args[0]), args, LogLevel.MessageClientOnly);
                 return;
             }
+            var name = BuffCatalog.GetBuffDef(buff).name;
             if (isTimed)
             {
                 var stacks = 0;
@@ -285,13 +288,13 @@ namespace DebugToolkit.Commands
                     }
                 }
                 body.ClearTimedBuffs(buff);
-                Log.MessageNetworked($"Removed {stacks} timed {buff} from {targetName}", args);
+                Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT, stacks, "timed " + name, targetName), args);
             }
             else
             {
                 var stacks = body.GetBuffCount(buff);
                 body.SetBuffCount(buff, 0);
-                Log.MessageNetworked($"Removed {stacks} {buff} from {targetName}", args);
+                Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT, stacks, name, targetName), args);
             }
         }
 
@@ -336,7 +339,7 @@ namespace DebugToolkit.Commands
                 {
                     body.SetBuffCount((BuffIndex)i, 0);
                 }
-                Log.MessageNetworked($"Reset all buffs from {targetName}", args);
+                Log.MessageNetworked($"Reset all buffs for {targetName}", args);
             }
         }
 
@@ -459,6 +462,7 @@ namespace DebugToolkit.Commands
             var controller = DotController.FindDotController(body);
             if (controller == null)
             {
+                Log.MessageNetworked(Lang.DOTCONTROLLER_NOTFOUND, args, LogLevel.MessageClientOnly);
                 return;
             }
             var dotStacks = new List<KeyValuePair<int, float>>();
@@ -477,7 +481,7 @@ namespace DebugToolkit.Commands
             {
                 controller.RemoveDotStackAtServer(dotStacks[i].Key);
             }
-            Log.MessageNetworked($"Removed {iCount} {dot} from {targetName}", args);
+            Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT, iCount, dot, targetName), args);
         }
 
         [ConCommand(commandName = "remove_dot_stacks", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.REMOVEDOTSTACKS_HELP)]
@@ -510,6 +514,7 @@ namespace DebugToolkit.Commands
             var controller = DotController.FindDotController(body);
             if (controller == null)
             {
+                Log.MessageNetworked(Lang.DOTCONTROLLER_NOTFOUND, args, LogLevel.MessageClientOnly);
                 return;
             }
             int stacks = 0;
@@ -527,7 +532,7 @@ namespace DebugToolkit.Commands
             {
                 UnityEngine.Object.Destroy(controller.gameObject);
             }
-            Log.MessageNetworked($"Removed {stacks} {dot} from {targetName}", args);
+            Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT, stacks, dot, targetName), args);
         }
 
         [ConCommand(commandName = "remove_all_dots", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.REMOVEALLDOTS_HELP)]

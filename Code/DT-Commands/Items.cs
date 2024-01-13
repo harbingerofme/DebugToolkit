@@ -169,6 +169,7 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "item", args[0]), args, LogLevel.MessageClientOnly);
                 return;
             }
+            var name = ItemCatalog.GetItemDef(item).name;
             var amount = (args.commandName == "give_item" ? 1 : -1) * iCount;
             if (amount > 0)
             {
@@ -178,13 +179,13 @@ namespace DebugToolkit.Commands
                     return;
                 }
                 inventory.GiveItem(item, amount);
-                Log.MessageNetworked($"Gave {amount} {item} to {targetName}", args);
+                Log.MessageNetworked(string.Format(Lang.GIVEOBJECT, amount, name, targetName), args);
             }
             else if (amount < 0)
             {
                 amount = Math.Min(-amount, inventory.GetItemCount(item));
                 inventory.RemoveItem(item, amount);
-                Log.MessageNetworked($"Removed {amount} {item} from {targetName}", args);
+                Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT, amount, name, targetName), args);
             }
             else
             {
@@ -512,9 +513,10 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "item", args[0]), args, LogLevel.MessageClientOnly);
                 return;
             }
+            var name = ItemCatalog.GetItemDef(item).name;
             int iCount = inventory.GetItemCount(item);
             inventory.RemoveItem(item, iCount);
-            Log.MessageNetworked($"Removed {iCount} {item} from {targetName}", args);
+            Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT, iCount, name, targetName), args);
         }
 
         [ConCommand(commandName = "remove_all_items", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.REMOVEALLITEMS_HELP)]
