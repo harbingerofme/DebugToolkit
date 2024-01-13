@@ -50,7 +50,7 @@ Commands:
 * **fixed_time** - Sets the time that has progressed in the run. Affects difficulty. `fixed_time [time]`. If no time is supplied, prints the current time to console.
 * **next_wave** - Advance to the next Simulacrum wave. `next_wave`
 * **force_wave** - Set the next wave prefab. `force_wave [wave_prefab]`. If no input is supplied, prints all available options and clears any previous selection.
-* **set_run_waves_cleared** - Set the Simulacrum waves cleared. Must be positive. `set_run_waves_cleared {wave}`
+* **run_set_waves_cleared** - Set the Simulacrum waves cleared. Must be positive. `set_run_waves_cleared {wave}`
 * **add_portal** - Teleporter will attempt to spawn after the teleporter completion. `add_portal {portal ('blue'|'gold'|'celestial'|'null'|'void'|'deepvoid'|'all')}`. The `null` portal doesn't require a teleporter and will spawn in front of the player.
 * **seed** - Set the seed for all next runs this session. `seed [new_seed]`. Use `0` to specify the game should generate its own seed. If used without argument, it's equivalent to the vanilla `run_get_seed`.
 * **kill_all** - Kills all members of a specified team. `kill_all [team:Monster]`.

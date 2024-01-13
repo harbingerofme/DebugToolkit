@@ -352,8 +352,8 @@ namespace DebugToolkit.Commands
             }
         }
 
-        [ConCommand(commandName = "set_run_waves_cleared", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SETRUNWAVESCLEARED_HELP)]
-        private static void CCSetRunWavesCleared(ConCommandArgs args)
+        [ConCommand(commandName = "run_set_waves_cleared", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.RUNSETWAVESCLEARED_HELP)]
+        private static void CCRunSetWavesCleared(ConCommandArgs args)
         {
             if (!Run.instance || !(Run.instance is InfiniteTowerRun))
             {
@@ -362,7 +362,7 @@ namespace DebugToolkit.Commands
             }
             if (args.Count == 0)
             {
-                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.SETRUNWAVESCLEARED_ARGS, args, LogLevel.ErrorClientOnly);
+                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.RUNSETWAVESCLEARED_ARGS, args, LogLevel.ErrorClientOnly);
                 return;
             }
             if (!TextSerialization.TryParseInvariant(args[0], out int wave))
