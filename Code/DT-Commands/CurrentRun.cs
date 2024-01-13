@@ -479,13 +479,7 @@ namespace DebugToolkit.Commands
                 return;
             }
             Run.instance.SetRunStopwatch(setTime);
-            ResetEnemyTeamLevel();
             Log.MessageNetworked("Run timer set to " + setTime, args);
-        }
-
-        private static void ResetEnemyTeamLevel()
-        {
-            TeamManager.instance.SetTeamLevel(TeamIndex.Monster, 1);
         }
     }
 
