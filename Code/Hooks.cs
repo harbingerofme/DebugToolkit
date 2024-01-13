@@ -430,6 +430,7 @@ namespace DebugToolkit
 
             var count = CurrentRun.nextBossCount;
             self.monsterCredit = selectedBossCard.cost * count * self.currentActiveEliteTier.costMultiplier;
+            self.skipSpawnIfTooCheap = false;
 
             Log.Message($"The director credits have been set to {self.monsterCredit} to spawn {count} {eliteName} {selectedBossCard.spawnCard.name}", Log.LogLevel.Info);
 
