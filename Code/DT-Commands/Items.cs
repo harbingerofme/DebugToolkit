@@ -347,8 +347,8 @@ namespace DebugToolkit.Commands
                     return;
                 }
             }
-            Transform transform = player.GetCurrentBody()?.gameObject.transform;
-            if (transform == null)
+            var body = player.GetCurrentBody();
+            if (body == null)
             {
                 // We could possibly use `player.master.deathFootPosition` instead
                 Log.MessageNetworked("Can't spawn an object with relation to a dead player.", args, LogLevel.MessageClientOnly);
@@ -416,7 +416,7 @@ namespace DebugToolkit.Commands
             }
 
             Log.MessageNetworked(string.Format(Lang.CREATEPICKUP_SUCCESS_1, final), args);
-            PickupDropletController.CreatePickupDroplet(final, transform.position, transform.forward * 40f);
+            PickupDropletController.CreatePickupDroplet(final, body.transform.position, body.inputBank.aimDirection * 30f);
         }
 
         [ConCommand(commandName = "create_potential", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.CREATEPOTENTIAL_HELP)]
@@ -442,8 +442,8 @@ namespace DebugToolkit.Commands
                     return;
                 }
             }
-            Transform transform = player.GetCurrentBody()?.gameObject.transform;
-            if (transform == null)
+            var body = player.GetCurrentBody();
+            if (body == null)
             {
                 // We could possibly use `player.master.deathFootPosition` instead
                 Log.MessageNetworked("Can't spawn an object with relation to a dead player.", args, LogLevel.MessageClientOnly);
@@ -480,10 +480,10 @@ namespace DebugToolkit.Commands
             {
                 pickerOptions = PickupPickerController.GenerateOptionsFromDropTable(iCount, droptable, RoR2Application.rng),
                 prefabOverride = potentialPrefab,
-                position = transform.position,
+                position = body.transform.position,
                 rotation = Quaternion.identity,
                 pickupIndex = PickupCatalog.FindPickupIndex(firstItemTier)
-            }, transform.position, transform.forward * 40f);
+            }, body.transform.position, body.inputBank.aimDirection * 30f);
             Log.MessageNetworked(string.Format(Lang.CREATEPICKUP_SUCCESS_2, Math.Min(iCount, droptable.selector.Count)), args);
         }
 
