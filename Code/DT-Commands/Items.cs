@@ -288,41 +288,6 @@ namespace DebugToolkit.Commands
             Log.MessageNetworked($"Gave {name} to {targetName}", args);
         }
 
-        [ConCommand(commandName = "give_lunar", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.GIVELUNAR_HELP)]
-        private static void CCGiveLunar(ConCommandArgs args)
-        {
-            if (!Run.instance)
-            {
-                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            if (args.sender == null)
-            {
-                Log.Message("Can't modify Lunar coins of other users directly.", LogLevel.MessageClientOnly);
-                return;
-            }
-            int amount = 1;
-            if (args.Count > 0 && args[0] != Lang.DEFAULT_VALUE && !TextSerialization.TryParseInvariant(args[0], out amount))
-            {
-                Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "amount", "int"), args, LogLevel.MessageClientOnly);
-                return;
-            }
-            string str = "Nothing happened. Big surprise.";
-            NetworkUser target = args.sender;
-            if (amount > 0)
-            {
-                target.AwardLunarCoins((uint)amount);
-                str = string.Format(Lang.GIVELUNAR_2, "Gave", amount);
-            }
-            if (amount < 0)
-            {
-                amount *= -1;
-                target.DeductLunarCoins((uint)(amount));
-                str = string.Format(Lang.GIVELUNAR_2, "Removed", amount);
-            }
-            Log.MessageNetworked(str, args);
-        }
-
         [ConCommand(commandName = "create_pickup", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.CREATEPICKUP_HELP)]
         [AutoCompletion(typeof(EquipmentCatalog), "equipmentDefs", "nameToken")]
         [AutoCompletion(typeof(ItemCatalog), "itemDefs", "nameToken")]
