@@ -283,8 +283,9 @@ namespace DebugToolkit.Commands
                 }
                 inventory.SetEquipmentIndex(equip);
             }
+            var name = EquipmentCatalog.GetEquipmentDef(equip).name;
 
-            Log.MessageNetworked($"Gave {equip} to {targetName}", args);
+            Log.MessageNetworked($"Gave {name} to {targetName}", args);
         }
 
         [ConCommand(commandName = "give_lunar", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.GIVELUNAR_HELP)]
