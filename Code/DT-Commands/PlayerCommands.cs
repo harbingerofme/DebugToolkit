@@ -11,21 +11,13 @@ namespace DebugToolkit.Commands
         [ConCommand(commandName = "god", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.GOD_HELP)]
         private static void CCGodModeToggle(ConCommandArgs args)
         {
-            if (!Run.instance)
-            {
-                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            bool hasNotYetRun = true;
+            var modeOn = Hooks.ToggleGod();
             foreach (var playerInstance in PlayerCharacterMasterController.instances)
             {
-                playerInstance.master.ToggleGod();
-                if (hasNotYetRun)
-                {
-                    Log.MessageNetworked($"God mode {(playerInstance.master.godMode ? "enabled" : "disabled")}.", args);
-                    hasNotYetRun = false;
-                }
+                playerInstance.master.godMode = modeOn;
+                playerInstance.master.UpdateBodyGodMode();
             }
+            Log.MessageNetworked($"God mode {(modeOn ? "enabled" : "disabled")}.", args);
         }
 
         [ConCommand(commandName = "buddha", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.BUDDHA_HELP)]
@@ -34,11 +26,6 @@ namespace DebugToolkit.Commands
         [ConCommand(commandName = "budda", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.BUDDHA_HELP)]
         private static void CCBuddhaModeToggle(ConCommandArgs args)
         {
-            if (!Run.instance)
-            {
-                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
-                return;
-            }
             bool modeOn = Hooks.ToggleBuddha();
             Log.MessageNetworked($"Buddha mode {(modeOn ? "enabled" : "disabled")}.", args);
         }

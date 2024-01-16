@@ -12,6 +12,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using UnityEngine.Networking;
 using Console = RoR2.Console;
 
 namespace DebugToolkit
@@ -24,6 +25,7 @@ namespace DebugToolkit
         private static CharacterBody pingedBody;
         private static CharacterMaster pingedMaster;
         private static bool buddha;
+        private static bool god;
 
         public static void InitializeHooks()
         {
@@ -57,6 +59,16 @@ namespace DebugToolkit
 
             //Buddha Mode hook
             On.RoR2.HealthComponent.TakeDamage += NonLethatDamage;
+            On.RoR2.CharacterMaster.Awake += SetGodMode;
+        }
+
+        private static void SetGodMode(On.RoR2.CharacterMaster.orig_Awake orig, CharacterMaster self)
+        {
+            orig(self);
+            if (NetworkServer.active)
+            {
+                self.godMode |= self.playerCharacterMasterController && god;
+            }
         }
 
         private static void NonLethatDamage(On.RoR2.HealthComponent.orig_TakeDamage orig,HealthComponent self,DamageInfo damageInfo){
@@ -484,8 +496,14 @@ namespace DebugToolkit
             return pingedMaster;
         }
 
-        internal static bool ToggleBuddha(){
-            return (buddha = !buddha);
+        internal static bool ToggleBuddha()
+        {
+            return buddha = !buddha;
+        }
+
+        internal static bool ToggleGod()
+        {
+            return god = !god;
         }
     }
 }
