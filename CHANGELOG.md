@@ -1,6 +1,18 @@
 
 ## Changelog ##
 
+### 3.12 ###
+
+* **3.12.0**
+    * This update is carried by [SChinchi](https://github.com/SChinchi), thanks!
+    * Breaking change `set_run_waves_cleared` -> `run_set_waves_cleared`: To be consistent with the stage command counterpart.
+    * Updated `create_pickup` and `create_potential`: Can now specify direction. Giving control of the spawning direction also allows one to spawn lunar coins on pressure plates more easily. Slightly adjusted the forward magnitude so that the objects don't go too far when aiming at 45 degrees.
+    * Updated `spawn_as`: Fixes the command rolling a random body instead of the specified one when Metamorphosis is enabled.
+    * Updated `next_boss`: Fixes the command rerolling the selection in some rare cases.
+    * Updated `god`: The command now works similarly to both `buddha` and `no_enemies`, which persist between runs. And like the latter, there is no reason to have the value toggleable only within a run.
+    * Updated arguments partial matching for commands. Details in PR #164
+    * Updated `noclip`: Fix the command not working for flying entities. Fix noclip not behaving correctly after quitting a run with it on. Fix noclip restoring gravity even inside anti-gravity zones.
+
 ### 3.11 ###
 
 * **3.11.0**
