@@ -19,16 +19,19 @@ namespace DebugToolkit
         public AutoCompletionAttribute(Type classType, string catalogName, string nestedField = "", bool dynamic = false)
         {
             ClassType = classType;
-            if (catalogName != null)
-            {
-                Catalog = classType.GetFieldValue<IEnumerable<object>>(catalogName);
-            }
-            else
-            {
-                IsEnum = true;
-            }
+            Catalog = classType.GetFieldValue<IEnumerable<object>>(catalogName);
             NestedField = nestedField;
             Dynamic = dynamic;
+        }
+
+        public AutoCompletionAttribute(Type enumType)
+        {
+            if (!enumType.IsEnum)
+            {
+                throw new ArgumentException("Argument is not an enum");
+            }
+            ClassType = enumType;
+            IsEnum = true;
         }
     }
 
@@ -86,7 +89,7 @@ namespace DebugToolkit
                         foreach (var field in attribute.ClassType.GetFields())
                         {
                             var fieldName = field.Name;
-                            if (fieldName != "value__" && fieldName != "None" && fieldName != "Count")
+                            if (fieldName != "value__" && fieldName != "Count")
                             {
                                 toFill.Add(commandName + fieldName);
                             }
