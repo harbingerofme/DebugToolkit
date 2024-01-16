@@ -1,6 +1,6 @@
 {
     "name": "DebugToolkit",
-    "version_number": "3.11.0",
+    "version_number": "3.12.0",
     "website_url": "https://github.com/harbingerofme/DebugToolkit",
     "description": "Adds console command for debugging mods.",
     "dependencies": [
