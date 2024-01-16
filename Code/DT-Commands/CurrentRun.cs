@@ -253,7 +253,7 @@ namespace DebugToolkit.Commands
             nextBoss = StringFinder.Instance.GetDirectorCardFromPartial(args[0]);
             if (nextBoss == null)
             {
-                Log.MessageNetworked(Lang.OBJECT_NOTFOUND + args[0], args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "director card", args[0]), args, LogLevel.MessageClientOnly);
                 return;
             }
             s.AppendLine($"Next boss is: {nextBoss.spawnCard.name}. ");
@@ -353,8 +353,8 @@ namespace DebugToolkit.Commands
             }
         }
 
-        [ConCommand(commandName = "set_run_waves_cleared", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SETRUNWAVESCLEARED_HELP)]
-        private static void CCSetRunWavesCleared(ConCommandArgs args)
+        [ConCommand(commandName = "run_set_waves_cleared", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.RUNSETWAVESCLEARED_HELP)]
+        private static void CCRunSetWavesCleared(ConCommandArgs args)
         {
             if (!Run.instance || !(Run.instance is InfiniteTowerRun))
             {
@@ -363,7 +363,7 @@ namespace DebugToolkit.Commands
             }
             if (args.Count == 0)
             {
-                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.SETRUNWAVESCLEARED_ARGS, args, LogLevel.ErrorClientOnly);
+                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.RUNSETWAVESCLEARED_ARGS, args, LogLevel.ErrorClientOnly);
                 return;
             }
             if (!TextSerialization.TryParseInvariant(args[0], out int wave))
@@ -480,13 +480,7 @@ namespace DebugToolkit.Commands
                 return;
             }
             Run.instance.SetRunStopwatch(setTime);
-            ResetEnemyTeamLevel();
             Log.MessageNetworked("Run timer set to " + setTime, args);
-        }
-
-        private static void ResetEnemyTeamLevel()
-        {
-            TeamManager.instance.SetTeamLevel(TeamIndex.Monster, 1);
         }
     }
 

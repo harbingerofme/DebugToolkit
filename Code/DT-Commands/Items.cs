@@ -135,9 +135,10 @@ namespace DebugToolkit.Commands
             var item = StringFinder.Instance.GetItemFromPartial(args[0]);
             if (item == ItemIndex.None)
             {
-                Log.MessageNetworked(Lang.OBJECT_NOTFOUND + args[0] + ":" + item, args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "item", args[0]), args, LogLevel.MessageClientOnly);
                 return;
             }
+            var name = ItemCatalog.GetItemDef(item).name;
             var amount = (args.commandName == "give_item" ? 1 : -1) * iCount;
             if (amount > 0)
             {
@@ -147,13 +148,13 @@ namespace DebugToolkit.Commands
                     return;
                 }
                 inventory.GiveItem(item, amount);
-                Log.MessageNetworked($"Gave {amount} {item} to {targetName}", args);
+                Log.MessageNetworked(string.Format(Lang.GIVEOBJECT, amount, name, targetName), args);
             }
             else if (amount < 0)
             {
                 amount = Math.Min(-amount, inventory.GetItemCount(item));
                 inventory.RemoveItem(item, amount);
-                Log.MessageNetworked($"Removed {amount} {item} from {targetName}", args);
+                Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT, amount, name, targetName), args);
             }
             else
             {
@@ -246,48 +247,14 @@ namespace DebugToolkit.Commands
                 equip = StringFinder.Instance.GetEquipFromPartial(args[0]);
                 if (equip == EquipmentIndex.None)
                 {
-                    Log.MessageNetworked(Lang.OBJECT_NOTFOUND + args[0] + ":" + equip, args, LogLevel.MessageClientOnly);
+                    Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "equip", args[0]), args, LogLevel.MessageClientOnly);
                     return;
                 }
                 inventory.SetEquipmentIndex(equip);
             }
+            var name = EquipmentCatalog.GetEquipmentDef(equip).name;
 
-            Log.MessageNetworked($"Gave {equip} to {targetName}", args);
-        }
-
-        [ConCommand(commandName = "give_lunar", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.GIVELUNAR_HELP)]
-        private static void CCGiveLunar(ConCommandArgs args)
-        {
-            if (!Run.instance)
-            {
-                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            if (args.sender == null)
-            {
-                Log.Message("Can't modify Lunar coins of other users directly.", LogLevel.MessageClientOnly);
-                return;
-            }
-            int amount = 1;
-            if (args.Count > 0 && args[0] != Lang.DEFAULT_VALUE && !TextSerialization.TryParseInvariant(args[0], out amount))
-            {
-                Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "amount", "int"), args, LogLevel.MessageClientOnly);
-                return;
-            }
-            string str = "Nothing happened. Big surprise.";
-            NetworkUser target = args.sender;
-            if (amount > 0)
-            {
-                target.AwardLunarCoins((uint)amount);
-                str = string.Format(Lang.GIVELUNAR_2, "Gave", amount);
-            }
-            if (amount < 0)
-            {
-                amount *= -1;
-                target.DeductLunarCoins((uint)(amount));
-                str = string.Format(Lang.GIVELUNAR_2, "Removed", amount);
-            }
-            Log.MessageNetworked(str, args);
+            Log.MessageNetworked($"Gave {name} to {targetName}", args);
         }
 
         [ConCommand(commandName = "create_pickup", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.CREATEPICKUP_HELP)]
@@ -315,8 +282,8 @@ namespace DebugToolkit.Commands
                     return;
                 }
             }
-            Transform transform = player.GetCurrentBody()?.gameObject.transform;
-            if (transform == null)
+            var body = player.GetCurrentBody();
+            if (body == null)
             {
                 // We could possibly use `player.master.deathFootPosition` instead
                 Log.MessageNetworked("Can't spawn an object with relation to a dead player.", args, LogLevel.MessageClientOnly);
@@ -384,7 +351,7 @@ namespace DebugToolkit.Commands
             }
 
             Log.MessageNetworked(string.Format(Lang.CREATEPICKUP_SUCCESS_1, final), args);
-            PickupDropletController.CreatePickupDroplet(final, transform.position, transform.forward * 40f);
+            PickupDropletController.CreatePickupDroplet(final, body.transform.position, body.inputBank.aimDirection * 30f);
         }
 
         [ConCommand(commandName = "create_potential", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.CREATEPOTENTIAL_HELP)]
@@ -411,8 +378,8 @@ namespace DebugToolkit.Commands
                     return;
                 }
             }
-            Transform transform = player.GetCurrentBody()?.gameObject.transform;
-            if (transform == null)
+            var body = player.GetCurrentBody();
+            if (body == null)
             {
                 // We could possibly use `player.master.deathFootPosition` instead
                 Log.MessageNetworked("Can't spawn an object with relation to a dead player.", args, LogLevel.MessageClientOnly);
@@ -449,10 +416,10 @@ namespace DebugToolkit.Commands
             {
                 pickerOptions = PickupPickerController.GenerateOptionsFromDropTable(iCount, droptable, RoR2Application.rng),
                 prefabOverride = potentialPrefab,
-                position = transform.position,
+                position = body.transform.position,
                 rotation = Quaternion.identity,
                 pickupIndex = PickupCatalog.FindPickupIndex(firstItemTier)
-            }, transform.position, transform.forward * 40f);
+            }, body.transform.position, body.inputBank.aimDirection * 30f);
             Log.MessageNetworked(string.Format(Lang.CREATEPICKUP_SUCCESS_2, Math.Min(iCount, droptable.selector.Count)), args);
         }
 
@@ -480,12 +447,13 @@ namespace DebugToolkit.Commands
             var item = StringFinder.Instance.GetItemFromPartial(args[0]);
             if (item == ItemIndex.None)
             {
-                Log.MessageNetworked(Lang.OBJECT_NOTFOUND + args[0] + ":" + item, args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "item", args[0]), args, LogLevel.MessageClientOnly);
                 return;
             }
+            var name = ItemCatalog.GetItemDef(item).name;
             int iCount = inventory.GetItemCount(item);
             inventory.RemoveItem(item, iCount);
-            Log.MessageNetworked($"Removed {iCount} {item} from {targetName}", args);
+            Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT, iCount, name, targetName), args);
         }
 
         [ConCommand(commandName = "remove_all_items", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.REMOVEALLITEMS_HELP)]
@@ -667,7 +635,7 @@ namespace DebugToolkit.Commands
                     var itemTier = StringFinder.Instance.GetItemTierFromPartial(data[0]);
                     if (itemTier == StringFinder.ItemTier_NotFound)
                     {
-                        Log.MessageNetworked(Lang.OBJECT_NOTFOUND + data[0], args, LogLevel.MessageClientOnly);
+                        Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "item tier", data[0]), args, LogLevel.MessageClientOnly);
                         return null;
                     }
                     float weight = 1f;
