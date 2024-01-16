@@ -1,7 +1,6 @@
 ﻿using RoR2;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using UnityEngine;
 using static DebugToolkit.Log;
@@ -14,43 +13,29 @@ namespace DebugToolkit.Commands
         private static void CCListBuff(ConCommandArgs args)
         {
             var sb = new StringBuilder();
-            IEnumerable<BuffIndex> buffList;
-            if (args.Count > 0)
+            var arg = args.Count > 0 ? args[0] : "";
+            var indices = StringFinder.Instance.GetBuffsFromPartial(arg);
+            foreach (var index in indices)
             {
-                buffList = (IEnumerable<BuffIndex>)StringFinder.Instance.GetBuffsFromPartial(args.GetArgString(0));
-                if (buffList.Count() == 0) sb.AppendLine($"No buff that matches \"{args[0]}\".");
+                var buff = BuffCatalog.GetBuffDef(index);
+                sb.AppendLine($"[{(int)index}]{buff.name} (stackable={buff.canStack})");
             }
-            else
-            {
-                buffList = (IEnumerable<BuffIndex>)BuffCatalog.buffDefs.Select(b => b.buffIndex);
-            }
-            foreach (var buffIndex in buffList)
-            {
-                var definition = BuffCatalog.GetBuffDef(buffIndex);
-                sb.AppendLine($"[{(int)buffIndex}]{definition.name} (stackable={definition.canStack})");
-            }
-            Log.MessageNetworked(sb.ToString(), args, LogLevel.MessageClientOnly);
+            var s = sb.Length > 0 ? sb.ToString().TrimEnd('\n') : string.Format(Lang.NOMATCH_ERROR, "buffs", arg);
+            Log.MessageNetworked(s, args, LogLevel.MessageClientOnly);
         }
 
         [ConCommand(commandName = "list_dot", flags = ConVarFlags.None, helpText = Lang.LISTDOT_HELP)]
         private static void CCListDot(ConCommandArgs args)
         {
             var sb = new StringBuilder();
-            IEnumerable<DotController.DotIndex> dotList;
-            if (args.Count > 0)
+            var arg = args.Count > 0 ? args[0] : "";
+            var indices = StringFinder.Instance.GetDotsFromPartial(arg);
+            foreach (var index in indices)
             {
-                dotList = (IEnumerable<DotController.DotIndex>)StringFinder.Instance.GetDotsFromPartial(args.GetArgString(0));
-                if (dotList.Count() == 0) sb.AppendLine($"No DoT that matches \"{args[0]}\".");
+                sb.AppendLine($"[{(int)index}]{index}");
             }
-            else
-            {
-                dotList = (IEnumerable<DotController.DotIndex>)Enum.GetValues(typeof(DotController.DotIndex)).Cast<DotController.DotIndex>().Where(d => d >= DotController.DotIndex.Bleed && d < DotController.DotIndex.Count);
-            }
-            foreach (var dotIndex in dotList)
-            {
-                sb.AppendLine($"[{(int)dotIndex}]{dotIndex}");
-            }
-            Log.MessageNetworked(sb.ToString(), args, LogLevel.MessageClientOnly);
+            var s = sb.Length > 0 ? sb.ToString().TrimEnd('\n') : string.Format(Lang.NOMATCH_ERROR, "DoT", arg);
+            Log.MessageNetworked(s, args, LogLevel.MessageClientOnly);
         }
 
         [ConCommand(commandName = "dump_buffs", flags = ConVarFlags.None, helpText = Lang.DUMPBUFFS_HELP)]

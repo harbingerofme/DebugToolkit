@@ -1,10 +1,9 @@
-﻿using R2API.Utils;
-using RoR2;
+﻿using RoR2;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
+using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 
@@ -24,7 +23,12 @@ namespace DebugToolkit
         private static readonly Dictionary<string, string[]> SkinAlias = new Dictionary<string, string[]>();
         private static StringFinder instance;
         private static readonly List<DirectorCard> characterSpawnCard = new List<DirectorCard>();
-        private static List<InteractableSpawnCard> interactableSpawnCards = new List<InteractableSpawnCard>();
+        private static readonly List<InteractableSpawnCard> interactableSpawnCards = new List<InteractableSpawnCard>();
+        private static readonly string NAME_NOTFOUND = "???";
+
+        public static EliteIndex EliteIndex_NotFound = (EliteIndex)(-2);
+        public static ItemTier ItemTier_NotFound = (ItemTier)(-1);
+        public static TeamIndex TeamIndex_NotFound = (TeamIndex)(-2);
 
         public static StringFinder Instance
         {
@@ -144,580 +148,513 @@ namespace DebugToolkit
         }
 
         /// <summary>
-        /// Returns a BuffIndex when provided with a partial/invariant.
+        /// Returns a BuffIndex when provided with an index or partial/invariant.
         /// </summary>
-        /// <param name="name">Matches in order: (int)Index, Exact Alias, Exact Index, Partial Index, Partial Invariant</param>
+        /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>
         /// <returns>Returns the BuffIndex if a match is found, or returns BuffIndex.None</returns>
         public BuffIndex GetBuffFromPartial(string name)
         {
-            foreach (KeyValuePair<string, string[]> dictEnt in BuffAlias)
-            {
-                foreach (string alias in dictEnt.Value)
-                {
-                    if (alias.ToUpper().Equals(name.ToUpper()))
-                    {
-                        name = dictEnt.Key;
-                    }
-                }
-            }
-
-            if (Enum.TryParse(name, true, out BuffIndex buffIndex) && BuffCatalog.GetBuffDef(buffIndex) != null)
-            {
-                return buffIndex;
-            }
-
-            foreach (var buff in BuffCatalog.buffDefs)
-            {
-                if (buff.name.ToUpper().Contains(name.ToUpper()))
-                {
-                    return buff.buffIndex;
-                }
-            }
-            return BuffIndex.None;
+            return GetBuffsFromPartial(name).DefaultIfEmpty(BuffIndex.None).First();
         }
 
         /// <summary>
-        /// Returns an array of BuffIndex's when provided with a partial/invariant.
+        /// Returns an iterator of BuffIndex's when provided with an index or partial/invariant.
         /// </summary>
-        /// <param name="name">Matches in order: (int)Index, Exact Alias, Exact Index, Partial Index, Partial Invariant</param>
-        /// <returns>Returns an array with all BuffIndex's matched</returns>
-        public BuffIndex[] GetBuffsFromPartial(string name)
+        /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>
+        /// <returns>Returns an iterator with all BuffIndex's matched</returns>
+        public IEnumerable<BuffIndex> GetBuffsFromPartial(string name)
         {
-            var set = new HashSet<BuffIndex>();
-            foreach (KeyValuePair<string, string[]> dictEnt in BuffAlias)
+            if (TextSerialization.TryParseInvariant(name, out int i))
             {
-                foreach (string alias in dictEnt.Value)
+                var index = (BuffIndex)i;
+                if (BuffCatalog.GetBuffDef(index) != null)
                 {
-                    if (alias.ToUpper().Equals(name.ToUpper()))
-                    {
-                        name = dictEnt.Key;
-                        var buffIndex = BuffCatalog.FindBuffIndex(name);
-                        if (buffIndex != BuffIndex.None)
-                        {
-                            set.Add(buffIndex);
-                        }
-                    }
+                    yield return index;
                 }
+                yield break;
             }
-
+            name = name.ToUpperInvariant();
             foreach (var buff in BuffCatalog.buffDefs)
             {
-                if (buff.name.ToUpper().Contains(name.ToUpper()))
+                if (buff.name.ToUpper().Contains(name))
                 {
-                    set.Add(buff.buffIndex);
+                    yield return buff.buffIndex;
                 }
             }
-            return set.ToArray();
         }
 
         /// <summary>
-        /// Returns a DotIndex when provided with a partial/invariant.
+        /// Returns a DotIndex when provided with an index or partial/invariant.
         /// </summary>
-        /// <param name="name">Matches in order: (int)Index, Exact Alias, Exact Index, Partial Index, Partial Invariant</param>
+        /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>
         /// <returns>Returns the DotIndex if a match is found, or returns DotIndex.None</returns>
         public DotController.DotIndex GetDotFromPartial(string name)
         {
-            foreach (KeyValuePair<string, string[]> dictEnt in DotAlias)
-            {
-                foreach (string alias in dictEnt.Value)
-                {
-                    if (alias.ToUpper().Equals(name.ToUpper()))
-                    {
-                        name = dictEnt.Key;
-                    }
-                }
-            }
-
-            if (Enum.TryParse(name, true, out DotController.DotIndex dotIndex) && DotController.GetDotDef(dotIndex) != null)
-            {
-                return dotIndex;
-            }
-
-            foreach (var dot in Enum.GetValues(typeof(DotController.DotIndex)).Cast<DotController.DotIndex>())
-            {
-                if (dot >= DotController.DotIndex.Bleed && dot < DotController.DotIndex.Count)
-                {
-                    var dotName = dot.ToString();
-                    if (dotName.ToUpper().Contains(name.ToUpper()))
-                    {
-                        return dot;
-                    }
-                }
-            }
-            return DotController.DotIndex.None;
+            return GetDotsFromPartial(name).DefaultIfEmpty(DotController.DotIndex.None).First();
         }
 
         /// <summary>
-        /// Returns an array of DotIndex's when provided with a partial/invariant.
+        /// Returns an iterator of DotIndex's when provided with an index or partial/invariant.
         /// </summary>
-        /// <param name="name">Matches in order: (int)Index, Exact Alias, Exact Index, Partial Index, Partial Invariant</param>
-        /// <returns>Returns an array with all the DotIndex's matched</returns>
-        public DotController.DotIndex[] GetDotsFromPartial(string name)
+        /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>
+        /// <returns>Returns an iterator with all DotIndex's matched</returns>
+        public IEnumerable<DotController.DotIndex> GetDotsFromPartial(string name)
         {
-            var set = new HashSet<DotController.DotIndex>();
-            foreach (KeyValuePair<string, string[]> dictEnt in DotAlias)
+            if (TextSerialization.TryParseInvariant(name, out int i))
             {
-                foreach (string alias in dictEnt.Value)
+                var index = (DotController.DotIndex)i;
+                if (DotController.GetDotDef(index) != null)
                 {
-                    if (alias.ToUpper().Equals(name.ToUpper()))
-                    {
-                        name = dictEnt.Key;
-                        if (Enum.TryParse(name, true, out DotController.DotIndex dotIndex) && DotController.GetDotDef(dotIndex) != null)
-                        {
-                            set.Add(dotIndex);
-                        }
-                    }
+                    yield return index;
                 }
+                yield break;
             }
-
+            name = name.ToUpperInvariant();
             foreach (var dot in Enum.GetValues(typeof(DotController.DotIndex)).Cast<DotController.DotIndex>())
             {
                 if (dot >= DotController.DotIndex.Bleed && dot < DotController.DotIndex.Count)
                 {
-                    var dotName = dot.ToString();
-                    if (dotName.ToUpper().Contains(name.ToUpper()))
+                    if (dot.ToString().ToUpper().Contains(name))
                     {
-                        set.Add(dot);
+                        yield return dot;
                     }
                 }
             }
-            return set.ToArray();
         }
 
         /// <summary>
-        /// Returns an EquipmentIndex when provided with a partial/invariant.
+        /// Returns an EquipmentIndex when provided with an index or partial/invariant.
         /// </summary>
-        /// <param name="name">Matches in order: (int)Index, Exact Alias, Exact Index, Partial Index, Partial Invariant</param>
-        /// <returns>Returns the EquiptmentIndex if a match is found, or returns EquiptmentIndex.None</returns>
+        /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>
+        /// <returns>Returns the EquiptmentIndex if a match is found, or returns EquipmentIndex.None</returns>
         public EquipmentIndex GetEquipFromPartial(string name)
         {
-            string langInvar;
-            foreach (KeyValuePair<string, string[]> dictEnt in EquipAlias)
-            {
-                foreach (string alias in dictEnt.Value)
-                {
-                    if (alias.ToUpper().Equals(name.ToUpper()))
-                    {
-                        name = dictEnt.Key;
-                    }
-                }
-            }
-
-            if (Enum.TryParse(name, true, out EquipmentIndex foundEquip) && EquipmentCatalog.IsIndexValid(foundEquip))
-            {
-                return foundEquip;
-            }
-
-            foreach (var equip in typeof(EquipmentCatalog).GetFieldValue<EquipmentDef[]>("equipmentDefs"))
-            {
-                langInvar = GetLangInvar(equip.nameToken.ToUpper());
-                if (equip.name.ToUpper().Contains(name.ToUpper()) || langInvar.ToUpper().Contains(name.ToUpper()) || langInvar.ToUpper().Contains(RemoveSpacesAndAlike(name.ToUpper())))
-                {
-                    return equip.equipmentIndex;
-                }
-            }
-            return EquipmentIndex.None;
+            return GetEquipsFromPartial(name).DefaultIfEmpty(EquipmentIndex.None).First();
         }
 
         /// <summary>
-        /// Returns an array of EquipmentIndex's when provided with a partial/invariant.
+        /// Returns an iterator of EquipmentIndex's when provided with an index or partial/invariant.
         /// </summary>
-        /// <param name="name">Matches in order: (int)Index, Exact Alias, Exact Index, Partial Index, Partial Invariant</param>
-        /// <returns>Returns the EquipmentIndex if a match is found, or returns EquiptmentIndex.None</returns>
-        public EquipmentIndex[] GetEquipsFromPartial(string name)
+        /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>
+        /// <returns>Returns an iterator with all EquipmentIndex's matched</returns>
+        public IEnumerable<EquipmentIndex> GetEquipsFromPartial(string name)
         {
-            var set = new HashSet<EquipmentIndex>();
-            string langInvar;
-            foreach (KeyValuePair<string, string[]> dictEnt in EquipAlias)
+            if (TextSerialization.TryParseInvariant(name, out int i))
             {
-                foreach (string alias in dictEnt.Value)
+                var index = (EquipmentIndex)i;
+                if (EquipmentCatalog.GetEquipmentDef(index) != null)
                 {
-                    if (alias.ToUpper().Equals(name.ToUpper()))
-                    {
-                        name = dictEnt.Key;
-                        if (Enum.TryParse(name, true, out EquipmentIndex foundEquip) && EquipmentCatalog.IsIndexValid(foundEquip))
-                        {
-                            set.Add(foundEquip);
-                        }
-                    }
+                    yield return index;
+                }
+                yield break;
+            }
+            name = name.ToUpperInvariant();
+            foreach (var equip in EquipmentCatalog.equipmentDefs)
+            {
+                var langInvar = GetLangInvar(equip.nameToken).ToUpper();
+                if (equip.name.ToUpper().Contains(name) || langInvar.Contains(RemoveSpacesAndAlike(name)))
+                {
+                    yield return equip.equipmentIndex;
                 }
             }
-
-
-            foreach (var equip in typeof(EquipmentCatalog).GetFieldValue<EquipmentDef[]>("equipmentDefs"))
-            {
-                langInvar = GetLangInvar(equip.nameToken.ToUpper());
-                if (equip.name.ToUpper().Contains(name.ToUpper()) || langInvar.ToUpper().Contains(name.ToUpper()) || langInvar.ToUpper().Contains(RemoveSpacesAndAlike(name.ToUpper())))
-                {
-                    set.Add(equip.equipmentIndex);
-                }
-            }
-            //if (set.Count == 0) set.Add(EquipmentIndex.None);
-            return set.ToArray();
         }
 
         /// <summary>
-        /// Returns an ItemTier when provided with a partial/invariant.
+        /// Returns an ItemTierIndex when provided with an index or partial/invariant.
         /// </summary>
-        /// <param name="name">Matches in order: (int)Index, Partial Invariant</param>
-        /// <returns>Returns the ItemTier if a match is found, or returns -1</returns>
+        /// <param name="name">Matches either the (int)Index or Partial Invariant</param>
+        /// <returns>Returns the ItemTierIndex if a match is found, or returns -1</returns>
         public ItemTier GetItemTierFromPartial(string name)
         {
-            // Not using Enum.TryParse because we're trying to avoid ItemTier.AssignedAtRuntime
-            if (int.TryParse(name, out int index))
-            {
-                // They are not ordered by tier value!
-                foreach (var tierDef in ItemTierCatalog.allItemTierDefs)
-                {
-                    if ((ItemTier)index == tierDef.tier)
-                    {
-                        return tierDef.tier;
-                    }
-                }
-            }
-
-            foreach (var tierDef in ItemTierCatalog.allItemTierDefs)
-            {
-                if (tierDef.name.ToUpperInvariant().Contains(name.ToUpperInvariant()))
-                {
-                    return tierDef.tier;
-                }
-            }
-            return (ItemTier)(-1);
+            return GetItemTiersFromPartial(name).DefaultIfEmpty(ItemTier_NotFound).First();
         }
 
         /// <summary>
-        /// Returns an array of ItemTier's when provided with a partial/invariant.
+        /// Returns an iterator of ItemTierIndex's when provided with an index or partial/invariant.
         /// </summary>
-        /// <param name="name">Matches in order: (int)Index, Partial Invariant</param>
-        /// <returns>Returns the array of ItemTier indices for any matches found</returns>
-        public ItemTier[] GetItemTiersFromPartial(string name)
+        /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>
+        /// <returns>Returns an iterator with all ItemTierIndex's matched</returns>
+        public IEnumerable<ItemTier> GetItemTiersFromPartial(string name)
         {
-            var set = new HashSet<ItemTier>();
-            foreach (var tierDef in ItemTierCatalog.allItemTierDefs)
+            var allItemTierDefs = ItemTierCatalog.allItemTierDefs.OrderBy(t => t.tier).ToList();
+            if (TextSerialization.TryParseInvariant(name, out int i))
             {
-                if (int.TryParse(name, out int index))
+                var index = (ItemTier)i;
+                foreach (var tierDef in allItemTierDefs)
                 {
-                    if (index == (int)tierDef.tier)
+                    if (tierDef.tier == index)
                     {
-                        set.Add(tierDef.tier);
+                        yield return index;
+                        break;
                     }
                 }
-                else if (tierDef.name.ToUpperInvariant().Contains(name.ToUpperInvariant()))
+                yield break;
+            }
+            name = name.ToUpperInvariant();
+            foreach (var tierDef in allItemTierDefs)
+            {
+                if (tierDef.name.ToUpper().Contains(name))
                 {
-                    set.Add(tierDef.tier);
+                    yield return tierDef.tier;
                 }
             }
-            return set.OrderBy(t => t).ToArray();
         }
 
         /// <summary>
-        /// Returns an ItemIndex when provided with a partial/invariant.
+        /// Returns an ItemIndex when provided with an index or partial/invariant.
         /// </summary>
-        /// <param name="name">Matches in order: (int)Index, Exact Alias, Exact Index, Partial Index, Partial Invariant</param>
+        /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>
         /// <returns>Returns the ItemIndex if a match is found, or returns ItemIndex.None</returns>
         public ItemIndex GetItemFromPartial(string name)
         {
-            string langInvar;
-            foreach (KeyValuePair<string, string[]> dictEnt in ItemAlias)
-            {
-                foreach (string alias in dictEnt.Value)
-                {
-                    if (alias.ToUpper().Equals(name.ToUpper()))
-                    {
-                        name = dictEnt.Key;
-
-                    }
-                }
-            }
-            if (Enum.TryParse(name, true, out ItemIndex foundItem) && ItemCatalog.IsIndexValid(foundItem))
-            {
-                return foundItem;
-            }
-
-            foreach (var item in typeof(ItemCatalog).GetFieldValue<ItemDef[]>("itemDefs"))
-            {
-                langInvar = GetLangInvar(item.nameToken.ToUpper());
-                if (item.name.ToUpper().Contains(name.ToUpper()) || langInvar.ToUpper().Contains(name.ToUpper()) || langInvar.ToUpper().Contains(RemoveSpacesAndAlike(name.ToUpper())))
-                {
-                    return item.itemIndex;
-                }
-            }
-            return ItemIndex.None;
+            return GetItemsFromPartial(name).DefaultIfEmpty(ItemIndex.None).First();
         }
 
         /// <summary>
-        /// Returns an array of ItemIndex's when provided with a partial/invariant.
+        /// Returns an iterator of ItemIndex's when provided with an index or partial/invariant.
         /// </summary>
-        /// <param name="name">Matches in order: (int)Index, Exact Alias, Exact Index, Partial Index, Partial Invariant</param>
-        /// <returns>Returns the ItemIndex if a match is found, or returns ItemIndex.None</returns>
-        public ItemIndex[] GetItemsFromPartial(string name)
+        /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>
+        /// <returns>Returns an iterator with all ItemIndex's matched</returns>
+        public IEnumerable<ItemIndex> GetItemsFromPartial(string name)
         {
-            var set = new HashSet<ItemIndex>();
-            string langInvar;
-            foreach (KeyValuePair<string, string[]> dictEnt in ItemAlias)
+            if (TextSerialization.TryParseInvariant(name, out int i))
             {
-                foreach (string alias in dictEnt.Value)
+                var index = (ItemIndex)i;
+                if (ItemCatalog.IsIndexValid(index))
                 {
-                    if (alias.ToUpper().Equals(name.ToUpper()))
-                    {
-                        name = dictEnt.Key;
-                        if (Enum.TryParse(name, true, out ItemIndex foundItem) && ItemCatalog.IsIndexValid(foundItem))
-                        {
-                            set.Add(foundItem);
-                        }
-                    }
+                    yield return index;
+                }
+                yield break;
+            }
+            name = name.ToUpperInvariant();
+            foreach (var item in ItemCatalog.allItemDefs)
+            {
+                var langInvar = GetLangInvar(item.nameToken).ToUpper();
+                if (item.name.ToUpper().Contains(name) || langInvar.Contains(RemoveSpacesAndAlike(name)))
+                {
+                    yield return item.itemIndex;
                 }
             }
-
-            foreach (var item in typeof(ItemCatalog).GetFieldValue<ItemDef[]>("itemDefs"))
-            {
-                langInvar = GetLangInvar(item.nameToken.ToUpper());
-                if (item.name.ToUpper().Contains(name.ToUpper()) || langInvar.ToUpper().Contains(name.ToUpper()) || langInvar.ToUpper().Contains(RemoveSpacesAndAlike(name.ToUpper())))
-                {
-                    set.Add(item.itemIndex);
-                }
-            }
-            //if (set.Count == 0) set.Add(ItemIndex.None);
-            return set.ToArray();
         }
 
         /// <summary>
-        /// Returns an SkinIndex when provided with a partial/invariant.
+        /// Returns a NetworkUser when provided with an index or partial/invariant.
         /// </summary>
-        /// <param name="name">Matches in order: (int)Index, Exact Alias, Exact Index, Partial Index, Partial Invariant</param>
-        /// <returns>Returns the SkinIndex if a match is found, or returns SkinIndex.None</returns>
-        public SkinIndex GetSkinFromPartial(string name)
+        /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>
+        /// <returns>Returns the NetworkUser if a match is found, or returns null</returns>
+        public NetworkUser GetPlayerFromPartial(string name)
         {
-            string langInvar;
-            string nameUpperInvar = name.ToUpperInvariant();
-            foreach (KeyValuePair<string, string[]> dictEnt in SkinAlias)
-            {
-                foreach (string alias in dictEnt.Value)
-                {
-                    if (alias.ToUpperInvariant().Equals(nameUpperInvar))
-                    {
-                        name = dictEnt.Key;
-                    }
-                }
-            }
-            if (Enum.TryParse(name, true, out SkinIndex foundSkin) && foundSkin < (SkinIndex)SkinCatalog.skinCount)
-            {
-                return foundSkin;
-            }
-
-            foreach (var skin in typeof(SkinCatalog).GetFieldValue<SkinDef[]>("allSkinDefs"))
-            {
-                langInvar = GetLangInvar(skin.nameToken.ToUpperInvariant());
-                var langInvarUpper = langInvar.ToUpperInvariant();
-                if (skin.name.ToUpperInvariant().Contains(nameUpperInvar) || langInvarUpper.Contains(nameUpperInvar) || langInvarUpper.Contains(RemoveSpacesAndAlike(nameUpperInvar)))
-                {
-                    return skin.skinIndex;
-                }
-            }
-            return SkinIndex.None;
+            return GetPlayersFromPartial(name).DefaultIfEmpty(null).First();
         }
 
         /// <summary>
-        /// Returns an EliteIndex when provided with a partial/invariant.
+        /// Returns an iterator of NetworkUsers when provided with an index or partial/invariant.
         /// </summary>
-        /// <param name="name">Matches in order: (int)Index, Partial Invariant</param>
-        /// <returns>Returns the EliteIndex if a match is found including EliteIndex.None, or returns -2</returns>
+        /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>
+        /// <returns>Returns an iterator with all NetworkUsers matched</returns>
+        public IEnumerable<NetworkUser> GetPlayersFromPartial(string name)
+        {
+            if (TextSerialization.TryParseInvariant(name, out int i))
+            {
+                if (i >= 0 && i < NetworkUser.readOnlyInstancesList.Count)
+                {
+                    yield return NetworkUser.readOnlyInstancesList[i];
+                }
+                yield break;
+            }
+            name = name.ToUpperInvariant();
+            foreach (var user in NetworkUser.readOnlyInstancesList)
+            {
+                if (user.userName.ToUpper().Contains(name))
+                {
+                    yield return user;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Returns a TeamIndex when provided with an index or partial/invariant.
+        /// </summary>
+        /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>
+        /// <returns>Returns the TeamIndex if a match is found, or returns -2</returns>
+        public TeamIndex GetTeamFromPartial(string name)
+        {
+            return GetTeamsFromPartial(name).DefaultIfEmpty(TeamIndex_NotFound).First();
+        }
+
+        /// <summary>
+        /// Returns an iterator of TeamIndex's when provided with an index or partial/invariant.
+        /// </summary>
+        /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>
+        /// <returns>Returns an iterator with all TeamIndex's matched</returns>
+        public IEnumerable<TeamIndex> GetTeamsFromPartial(string name)
+        {
+            if (TextSerialization.TryParseInvariant(name, out int i))
+            {
+                var index = (TeamIndex)i;
+                if (index >= TeamIndex.None && index < TeamIndex.Count)
+                {
+                    yield return index;
+                }
+                yield break;
+            }
+            name = name.ToUpperInvariant();
+            foreach (var team in Enum.GetValues(typeof(TeamIndex)).Cast<TeamIndex>().OrderBy(t => t))
+            {
+                if (team >= TeamIndex.None && team < TeamIndex.Count)
+                {
+                    if (team.ToString().ToUpper().Contains(name))
+                    {
+                        yield return team;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Returns an EliteIndex when provided with an index or partial/invariant.
+        /// </summary>
+        /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>
+        /// <returns>Returns the EliteIndex if a match is found, or returns -2</returns>
         public EliteIndex GetEliteFromPartial(string name)
         {
-            if (int.TryParse(name, out int index))
-            {
-                if (index == -1)
-                {
-                    return (EliteIndex)(-1);
-                }
-                else if (EliteCatalog.GetEliteDef((EliteIndex)index) != null)
-                {
-                    return (EliteIndex)index;
-                }
-            }
+            return GetElitesFromPartial(name).DefaultIfEmpty(EliteIndex_NotFound).First();
+        }
 
-            if ("NONE".Contains(name.ToUpperInvariant()))
+        /// <summary>
+        /// Returns an iterator of EliteIndex's when provided with an index or partial/invariant.
+        /// </summary>
+        /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>
+        /// <returns>Returns an iterator with all EliteIndex's matched</returns>
+        public IEnumerable<EliteIndex> GetElitesFromPartial(string name)
+        {
+            if (TextSerialization.TryParseInvariant(name, out int i))
             {
-                return (EliteIndex)(-1);
+                var index = (EliteIndex)i;
+                if (index == EliteIndex.None)
+                {
+                    yield return index;
+                }
+                else if (EliteCatalog.GetEliteDef(index) != null)
+                {
+                    yield return index;
+                }
+                yield break;
+            }
+            name = name.ToUpperInvariant();
+            if ("NONE".Contains(name))
+            {
+                yield return EliteIndex.None;
             }
             foreach (var elite in EliteCatalog.eliteDefs)
             {
-                if (elite.name.ToUpperInvariant().Contains(name.ToUpperInvariant()))
+                var langInvar = GetLangInvar(elite.modifierToken).Replace("{0}", "").ToUpper();
+                if (elite.name.ToUpper().Contains(name) || langInvar.Contains(name))
                 {
-                    return elite.eliteIndex;
+                    yield return elite.eliteIndex;
                 }
             }
-            return (EliteIndex)(-2);
-        }
-
-        public DirectorCard GetDirectorCardFromPartial(string masterNameUpper)
-        {
-            var nameUpper = masterNameUpper.ToUpperInvariant();
-
-            foreach (DirectorCard dc in characterSpawnCard)
-            {
-                var spawnCardNameUpper = dc.spawnCard.name.ToUpperInvariant();
-
-                if (nameUpper == spawnCardNameUpper)
-                {
-                    return dc;
-                }
-
-                if (spawnCardNameUpper.Replace("CSC", String.Empty).Equals(nameUpper))
-                {
-                    return dc;
-                }
-            }
-
-            var masterName = GetMasterName(masterNameUpper);
-            if (masterName != null)
-            {
-                masterNameUpper = masterName.ToUpper();
-                foreach (DirectorCard dc in characterSpawnCard)
-                {
-                    var spawnCardPrefabNameUpper = dc.spawnCard.prefab.name.ToUpperInvariant();
-
-                    if (masterNameUpper == spawnCardPrefabNameUpper)
-                    {
-                        return dc;
-                    }
-                }
-            }
-
-            return null;
         }
 
         /// <summary>
-        /// Returns an InteractableSpawnCard given a partial spawncard name
+        /// Returns a DirectorCard when provided with an index or partial/invariant.
         /// </summary>
-        /// <param name="name">Matches a specific spawncard prior to matching a partial.</param>
-        /// <returns>Returns a InteractableSpawncard or throws exception.</returns>
-        public InteractableSpawnCard GetInteractableSpawnCard(string name)
+        /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>
+        /// <returns>Returns the DirectorCard if a match is found, or returns null</returns>
+        public DirectorCard GetDirectorCardFromPartial(string name)
         {
-            foreach (InteractableSpawnCard isc in interactableSpawnCards)
-            {
-                if (isc.name.ToUpper().Replace("ISC", String.Empty).Equals(name.ToUpper().Replace("ISC", string.Empty)) || isc.name.ToUpper().Replace("ISC", String.Empty).Contains(name.ToUpper()))
-                {
-                    return isc;
-                }
-            }
-
-            return null;
+            return GetDirectorCardsFromPartial(name).DefaultIfEmpty(null).First();
         }
 
         /// <summary>
-        /// Returns an array of InteractableSpawnCards given a partial spawncard name
+        /// Returns an iterator of DirectorCards when provided with an index or partial/invariant.
         /// </summary>
-        /// <param name="name">Matches a specific spawncard prior to matching a partial.</param>
-        /// <returns>Returns a InteractableSpawncard or throws exception.</returns>
-        public InteractableSpawnCard[] GetInteractableSpawnCards(string name)
+        /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>
+        /// <returns>Returns an iterator with all DirectorCards matched</returns>
+        public IEnumerable<DirectorCard> GetDirectorCardsFromPartial(string name)
         {
-            HashSet<InteractableSpawnCard> set = new HashSet<InteractableSpawnCard>();
-            foreach (InteractableSpawnCard isc in interactableSpawnCards)
+            if (TextSerialization.TryParseInvariant(name, out int i))
             {
-                if (isc.name.ToUpper().Replace("ISC", String.Empty).Equals(name.ToUpper().Replace("ISC", string.Empty)) || isc.name.ToUpper().Replace("ISC", String.Empty).Contains(name.ToUpper()))
+                if (i >= 0 && i < characterSpawnCard.Count)
                 {
-                    set.Add(isc);
+                    yield return characterSpawnCard[i];
+                }
+                yield break;
+            }
+            name = name.ToUpperInvariant();
+            foreach (var dc in characterSpawnCard)
+            {
+                if (dc.spawnCard.name.ToUpper().Contains(name))
+                {
+                    yield return dc;
                 }
             }
-
-            return set.ToArray();
         }
 
         /// <summary>
-        /// Returns BodyName when provided with a partial/invariant.
+        /// Returns an InteractableSpawnCard when provided with an index or partial/invariant.
         /// </summary>
-        /// <param name="name">Matches in order: (int)Index, Exact Alias, Exact name_BODY, Exact name, Partial name, Partial Invariant</param>
-        /// <returns>Returns the matched body name string or returns null.</returns>
-        public string GetBodyName(string name)
+        /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>
+        /// <returns>Returns the InteractableSpawnCard if a match is found, or returns null</returns>
+        public InteractableSpawnCard GetInteractableSpawnCardFromPartial(string name)
         {
-            string langInvar;
-            foreach (KeyValuePair<string, string[]> dictEnt in BodyAlias)
+            return GetInteractableSpawnCardsFromPartial(name).DefaultIfEmpty(null).First();
+        }
+
+        /// <summary>
+        /// Returns an iterator of InteractableSpawnCards when provided with an index or partial/invariant.
+        /// </summary>
+        /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>
+        /// <returns>Returns an iterator with all InteractableSpawnCards matched</returns>
+        public IEnumerable<InteractableSpawnCard> GetInteractableSpawnCardsFromPartial(string name)
+        {
+            if (TextSerialization.TryParseInvariant(name, out int i))
             {
-                foreach (string alias in dictEnt.Value)
+                if (i >= 0 && i < interactableSpawnCards.Count)
                 {
-                    if (alias.ToUpper().Equals(name.ToUpper()))
-                    {
-                        name = dictEnt.Key;
-                    }
+                    yield return interactableSpawnCards[i];
+                }
+                yield break;
+            }
+            name = name.ToUpperInvariant();
+            foreach (var isc in interactableSpawnCards)
+            {
+                var langInvar = GetLangInvar(GetInteractableName(isc.prefab)).ToUpper();
+                if (isc.name.ToUpper().Contains(name) || langInvar.Contains(name))
+                {
+                    yield return isc;
                 }
             }
-            int i = 0;
+        }
+
+        /// <summary>
+        /// Returns a BodyIndex when provided with an index or partial/invariant.
+        /// </summary>
+        /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>
+        /// <returns>Returns the BodyIndex if a match is found, or returns BodyIndex.None</returns>
+        public BodyIndex GetBodyFromPartial(string name)
+        {
+            return GetBodiesFromPartial(name).DefaultIfEmpty(BodyIndex.None).First();
+        }
+
+        /// <summary>
+        /// Returns an iterator of BodyIndex's when provided with an index or partial/invariant.
+        /// </summary>
+        /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>
+        /// <returns>Returns an iterator with all BodyIndex's matched</returns>
+        public IEnumerable<BodyIndex> GetBodiesFromPartial(string name)
+        {
+            if (TextSerialization.TryParseInvariant(name, out int i))
+            {
+                var index = (BodyIndex)i;
+                if (BodyCatalog.GetBodyPrefab(index) != null)
+                {
+                    yield return index;
+                }
+                yield break;
+            }
+            name = name.ToUpperInvariant();
             foreach (var body in BodyCatalog.allBodyPrefabBodyBodyComponents)
             {
-                if (int.TryParse(name, out int iName) && i == iName || body.name.ToUpper().Equals(name.ToUpper()) || body.name.ToUpper().Replace("BODY", string.Empty).Equals(name.ToUpper()))
+                var langInvar = GetLangInvar(body.baseNameToken).ToUpper();
+                if (body.name.ToUpper().Contains(name) || langInvar.Contains(RemoveSpacesAndAlike(name)))
                 {
-                    return body.name;
-                }
-                i++;
-            }
-            StringBuilder s = new StringBuilder();
-            foreach (var body in BodyCatalog.allBodyPrefabBodyBodyComponents)
-            {
-                langInvar = GetLangInvar(body.baseNameToken);
-                s.AppendLine(body.name + ":" + langInvar + ":" + name.ToUpper());
-                if (body.name.ToUpper().Contains(name.ToUpper()) || langInvar.ToUpper().Contains(name.ToUpper()))
-                {
-                    return body.name;
+                    yield return body.bodyIndex;
                 }
             }
-            return null;
         }
 
         /// <summary>
-        /// Returns MasterName when provided with a partial/invariant.
+        /// Returns a MasterIndex when provided with an index or partial/invariant.
         /// </summary>
-        /// <param name="name">Matches in order: (int)Index, Exact Alias, Exact name_MASTER, Exact name, Partial name, Partial Invariant</param>
-        /// <returns>Returns the matched Master name string or returns null.</returns>
-        public string GetMasterName(string name)
+        /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>
+        /// <returns>Returns the MasterIndex if a match is found, or returns MasterIndex.none</returns>
+        public MasterCatalog.MasterIndex GetAiFromPartial(string name)
         {
-            foreach (KeyValuePair<string, string[]> dictEnt in MasterAlias)
-            {
-                foreach (string alias in dictEnt.Value)
-                {
-                    if (alias.ToUpper().Equals(name.ToUpper()))
-                    {
-                        name = dictEnt.Key;
-                    }
-                }
-            }
-            int i = 0;
-            foreach (var master in MasterCatalog.allAiMasters)
-            {
-                if (int.TryParse(name, out int iName) && i == iName || master.name.ToUpper().Equals(name.ToUpper()) || master.name.ToUpper().Replace("MASTER", string.Empty).Equals(name.ToUpper()))
-                {
-                    return master.name;
-                }
-                i++;
-            }
-            StringBuilder s = new StringBuilder();
-            foreach (var master in MasterCatalog.allAiMasters)
-            {
-
-                var langInvar = GetLangInvar(master.bodyPrefab.GetComponent<CharacterBody>().baseNameToken);
-                s.AppendLine(master.name + ":" + langInvar + ":" + name.ToUpper());
-                if (master.name.ToUpper().Contains(name.ToUpper()) || langInvar.ToUpper().Contains(name.ToUpper()))
-                {
-                    return master.name;
-                }
-            }
-            return null;
+            return GetAisFromPartial(name).DefaultIfEmpty(MasterCatalog.MasterIndex.none).First();
         }
 
         /// <summary>
-        /// Returns a special char stripped language invariant when provided with a BaseNameToke.
+        /// Returns an iterator of MasterIndex's when provided with an index or partial/invariant.
+        /// </summary>
+        /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>
+        /// <returns>Returns an iterator with all MasterIndex's matched</returns>
+        public IEnumerable<MasterCatalog.MasterIndex> GetAisFromPartial(string name)
+        {
+            if (TextSerialization.TryParseInvariant(name, out int i))
+            {
+                var index = (MasterCatalog.MasterIndex)i;
+                if (MasterCatalog.GetMasterPrefab(index) != null)
+                {
+                    yield return index;
+                }
+                yield break;
+            }
+            name = name.ToUpperInvariant();
+            foreach (var ai in MasterCatalog.allAiMasters)
+            {
+                var langInvar = GetLangInvar(GetMasterName(ai)).ToUpper();
+                if (ai.name.ToUpper().Contains(name) || langInvar.Contains(name))
+                {
+                    yield return ai.masterIndex;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Returns a special char stripped language invariant when provided with a BaseNameToken.
         /// </summary>
         /// <param name="baseToken">The BaseNameToken to query for a Language Invariant.</param>
-        /// <returns>Returns the LanguageInvariant for the BaseNameToken.</returns>
+        /// <returns>Returns the LanguageInvariant for the BaseNameToken, or returns an empty string for a null input.</returns>
         public static string GetLangInvar(string baseToken)
         {
+            if (baseToken == null)
+            {
+                return "";
+            }
             return RemoveSpacesAndAlike(Language.GetString(baseToken));
         }
 
         public static string RemoveSpacesAndAlike(string input)
         {
             return Regex.Replace(input, @"[ '-]", string.Empty);
+        }
+
+        public static string GetInteractableName(GameObject prefab)
+        {
+            if (prefab == null)
+            {
+                return NAME_NOTFOUND;
+            }
+            var display = prefab.GetComponent<IDisplayNameProvider>();
+            if (display != null)
+            {
+                return display.GetDisplayName();
+            }
+            var multishop = prefab.GetComponent<MultiShopController>();
+            if (multishop != null && multishop.terminalPrefab)
+            {
+                display = multishop.terminalPrefab.GetComponent<IDisplayNameProvider>();
+                if (display != null)
+                {
+                    return display.GetDisplayName();
+                }
+            }
+            return NAME_NOTFOUND;
+        }
+
+        public static string GetMasterName(CharacterMaster master)
+        {
+            if (master == null)
+            {
+                return NAME_NOTFOUND;
+            }
+            var body = master?.bodyPrefab.GetComponent<CharacterBody>();
+            if (body != null)
+            {
+                return body.GetDisplayName();
+            }
+            return NAME_NOTFOUND;
         }
 
         /// <summary>

@@ -2,7 +2,6 @@
 using RoR2.Artifacts;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
@@ -20,78 +19,48 @@ namespace DebugToolkit.Commands
         private static void CCListItemTier(ConCommandArgs args)
         {
             var sb = new StringBuilder();
-            IEnumerable<ItemTier> tierList;
-            if (args.Count > 0)
+            var arg = args.Count > 0 ? args[0] : "";
+            var indices = StringFinder.Instance.GetItemTiersFromPartial(arg);
+            foreach (var index in indices)
             {
-                tierList = (IEnumerable<ItemTier>)StringFinder.Instance.GetItemTiersFromPartial(args.GetArgString(0));
-                if (tierList.Count() == 0) sb.AppendLine($"No item tier that matches \"{args[0]}\".");
+                sb.AppendLine($"[{(int)index}]{ItemTierCatalog.GetItemTierDef(index).name}");
             }
-            else
-            {
-                tierList = (IEnumerable<ItemTier>)StringFinder.Instance.GetItemTiersFromPartial("");
-            }
-            foreach (var tier in tierList)
-            {
-                sb.AppendLine($"[{(int)tier}]{ItemTierCatalog.GetItemTierDef(tier).name}");
-            }
-            Log.MessageNetworked(sb.ToString(), args, LogLevel.MessageClientOnly);
+            var s = sb.Length > 0 ? sb.ToString().TrimEnd('\n') : string.Format(Lang.NOMATCH_ERROR, "item tiers", arg);
+            Log.MessageNetworked(s, args, LogLevel.MessageClientOnly);
         }
 
         [ConCommand(commandName = "list_item", flags = ConVarFlags.None, helpText = Lang.LISTITEM_HELP)]
         private static void CCListItem(ConCommandArgs args)
         {
             var sb = new StringBuilder();
-            IEnumerable<ItemIndex> itemList;
-            if (args.Count > 0)
+            var arg = args.Count > 0 ? args[0] : "";
+            var indices = StringFinder.Instance.GetItemsFromPartial(arg);
+            foreach (var index in indices)
             {
-                itemList = (IEnumerable<ItemIndex>)StringFinder.Instance.GetItemsFromPartial(args.GetArgString(0));
-                if (itemList.Count() == 0) sb.AppendLine($"No item that matches \"{args[0]}\".");
-            }
-            else
-            {
-                itemList = (IEnumerable<ItemIndex>)ItemCatalog.allItems;
-            }
-            foreach (var itemIndex in itemList)
-            {
-                var definition = ItemCatalog.GetItemDef(itemIndex);
-                bool enabled = false;
+                var definition = ItemCatalog.GetItemDef(index);
                 var realName = Language.currentLanguage.GetLocalizedStringByToken(definition.nameToken);
-                if (Run.instance)
-                {
-                    enabled = Run.instance.IsItemAvailable(itemIndex);
-                }
-                sb.AppendLine($"[{(int)itemIndex}]: {definition.name} \"{realName}\" (enabled={enabled})");
+                bool enabled = Run.instance && Run.instance.IsItemAvailable(index);
+                sb.AppendLine($"[{(int)index}]{definition.name} \"{realName}\" (enabled={enabled})");
             }
-            Log.MessageNetworked(sb.ToString(), args, LogLevel.MessageClientOnly);
+            var s = sb.Length > 0 ? sb.ToString().TrimEnd('\n') : string.Format(Lang.NOMATCH_ERROR, "items", arg);
+            Log.MessageNetworked(s, args, LogLevel.MessageClientOnly);
         }
 
         [ConCommand(commandName = "list_equip", flags = ConVarFlags.None, helpText = Lang.LISTEQUIP_HELP)]
         private static void CCListEquip(ConCommandArgs args)
         {
             var sb = new StringBuilder();
-            IEnumerable<EquipmentIndex> list;
-            if (args.Count > 0)
+            var arg = args.Count > 0 ? args[0] : "";
+            var indices = StringFinder.Instance.GetEquipsFromPartial(arg);
+            foreach (var index in indices)
             {
-                list = StringFinder.Instance.GetEquipsFromPartial(args[0]);
-                if (list.Count() == 0) sb.AppendLine($"No equipment that matches \"{args[0]}\".");
-            }
-            else
-            {
-                list = EquipmentCatalog.allEquipment;
-            }
-
-            foreach (var equipmentIndex in list)
-            {
-                var definition = EquipmentCatalog.GetEquipmentDef(equipmentIndex);
-                bool enabled = false;
+                var definition = EquipmentCatalog.GetEquipmentDef(index);
                 var realName = Language.currentLanguage.GetLocalizedStringByToken(definition.nameToken);
-                if (Run.instance)
-                {
-                    enabled = Run.instance.IsEquipmentAvailable(equipmentIndex);
-                }
-                sb.AppendLine($"[{(int)equipmentIndex}]: {definition.name} \"{realName}\" (enabled={enabled})");
+                var enabled = Run.instance && Run.instance.IsEquipmentAvailable(index);
+                sb.AppendLine($"[{(int)index}]{definition.name} \"{realName}\" (enabled={enabled})");
             }
-            Log.MessageNetworked(sb.ToString(), args, LogLevel.MessageClientOnly);
+            var s = sb.Length > 0 ? sb.ToString().TrimEnd('\n') : string.Format(Lang.NOMATCH_ERROR, "equipment", arg);
+            Log.MessageNetworked(s, args, LogLevel.MessageClientOnly);
         }
 
         [ConCommand(commandName = "dump_inventories", flags = ConVarFlags.None, helpText = Lang.DUMPINVENTORIES_HELP)]
@@ -694,7 +663,7 @@ namespace DebugToolkit.Commands
                 {
                     var data = tierData.Split(':');
                     var itemTier = StringFinder.Instance.GetItemTierFromPartial(data[0]);
-                    if (itemTier == (ItemTier)(-1))
+                    if (itemTier == StringFinder.ItemTier_NotFound)
                     {
                         Log.MessageNetworked(Lang.OBJECT_NOTFOUND + data[0], args, LogLevel.MessageClientOnly);
                         return null;

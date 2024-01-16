@@ -100,13 +100,13 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            string character = StringFinder.Instance.GetBodyName(args[0]);
-            if (character == null)
+            var bodyIndex = StringFinder.Instance.GetBodyFromPartial(args[0]);
+            if (bodyIndex == BodyIndex.None)
             {
                 Log.MessageNetworked(Lang.BODY_NOTFOUND, args, LogLevel.MessageClientOnly);
                 return;
             }
-            GameObject newBody = BodyCatalog.FindBodyPrefab(character);
+            GameObject newBody = BodyCatalog.GetBodyPrefab(bodyIndex);
 
             CharacterMaster master = args.senderMaster;
             if (args.Count > 1 && args[1] != Lang.DEFAULT_VALUE)
@@ -121,7 +121,7 @@ namespace DebugToolkit.Commands
             }
 
             master.bodyPrefab = newBody;
-            Log.MessageNetworked(args.sender.userName + " is spawning as " + character, args);
+            Log.MessageNetworked(args.sender.userName + " is spawning as " + newBody.name, args);
 
             if (!master.GetBody())
             {
@@ -198,18 +198,15 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked("Can't change a dead player's team. " + Lang.USE_RESPAWN, args, LogLevel.MessageClientOnly);
                 return;
             }
-
-            if (!Enum.TryParse(StringFinder.GetEnumFromPartial<TeamIndex>(args[0]).ToString(), true, out TeamIndex teamIndex))
+            var teamIndex = StringFinder.Instance.GetTeamFromPartial(args[0]);
+            if (teamIndex == StringFinder.TeamIndex_NotFound)
             {
                 Log.MessageNetworked(Lang.TEAM_NOTFOUND, args, LogLevel.MessageClientOnly);
                 return;
             }
-            if ((int)teamIndex >= (int)TeamIndex.None && (int)teamIndex < (int)TeamIndex.Count)
-            {
-                master.GetBody().teamComponent.teamIndex = teamIndex;
-                master.teamIndex = teamIndex;
-                Log.MessageNetworked("Changed to team " + teamIndex, args);
-            }
+            master.GetBody().teamComponent.teamIndex = teamIndex;
+            master.teamIndex = teamIndex;
+            Log.MessageNetworked("Changed to team " + teamIndex, args);
         }
 
         [ConCommand(commandName = "dump_stats", flags = ConVarFlags.None, helpText = Lang.DUMPSTATS_HELP)]
@@ -220,20 +217,14 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.DUMPSTATS_ARGS, args, LogLevel.ErrorClientOnly);
                 return;
             }
-            var bodyName = StringFinder.Instance.GetBodyName(args[0]);
-            if (bodyName == null)
+            var bodyIndex = StringFinder.Instance.GetBodyFromPartial(args[0]);
+            if (bodyIndex == BodyIndex.None)
             {
                 Log.MessageNetworked(Lang.BODY_NOTFOUND, args, LogLevel.MessageClientOnly);
                 return;
             }
-            var bodyPrefab = BodyCatalog.FindBodyPrefab(bodyName);
-            if (bodyPrefab == null)
-            {
-                Log.MessageNetworked(Lang.BODY_NOTFOUND, args, LogLevel.MessageClientOnly);
-                return;
-            }
+            var body = BodyCatalog.GetBodyPrefabBodyComponent(bodyIndex);
 
-            var body = bodyPrefab.GetComponent<CharacterBody>();
             var sb = new System.Text.StringBuilder();
             sb.AppendLine($"Body: {body.name}");
             sb.AppendLine($"Health: {body.baseMaxHealth} ({FormatLevelStat(body.levelMaxHealth)}/level)");
@@ -421,13 +412,12 @@ namespace DebugToolkit.Commands
             }
             else
             {
-                string requestedBodyName = StringFinder.Instance.GetBodyName(args[0]);
-                if (requestedBodyName == null)
+                argBodyIndex = StringFinder.Instance.GetBodyFromPartial(args[0]);
+                if (argBodyIndex == BodyIndex.None)
                 {
                     Log.MessageNetworked(Lang.BODY_NOTFOUND, args, LogLevel.MessageClientOnly);
                     return;
                 }
-                argBodyIndex = BodyCatalog.FindBodyIndex(requestedBodyName);
             }
 
             if (!TextSerialization.TryParseInvariant(args[1], out int requestedSkinIndexChange))

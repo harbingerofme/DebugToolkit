@@ -36,7 +36,7 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked("Can't spawn an object with relation to a dead target.", args, LogLevel.MessageClientOnly);
                 return;
             }
-            var isc = StringFinder.Instance.GetInteractableSpawnCard(args[0]);
+            var isc = StringFinder.Instance.GetInteractableSpawnCardFromPartial(args[0]);
             if (isc == null)
             {
                 Log.MessageNetworked(Lang.INTERACTABLE_NOTFOUND, args, LogLevel.MessageClientOnly);
@@ -92,12 +92,13 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            string character = StringFinder.Instance.GetMasterName(args[0]);
-            if (character == null)
+            var masterIndex = StringFinder.Instance.GetAiFromPartial(args[0]);
+            if (masterIndex == MasterCatalog.MasterIndex.none)
             {
-                Log.MessageNetworked(Lang.SPAWN_ERROR + character, args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(Lang.SPAWN_ERROR + args[0], args, LogLevel.MessageClientOnly);
                 return;
             }
+            var masterPrefab = MasterCatalog.GetMasterPrefab(masterIndex);
 
             int amount = 1;
             if (args.Count > 1 && args[1] != Lang.DEFAULT_VALUE && !TextSerialization.TryParseInvariant(args[1], out amount))
@@ -110,7 +111,7 @@ namespace DebugToolkit.Commands
             if (args.Count > 2 && args[2] != Lang.DEFAULT_VALUE)
             {
                 var eliteIndex = StringFinder.Instance.GetEliteFromPartial(args[2]);
-                if ((int)eliteIndex == -2)
+                if (eliteIndex == StringFinder.EliteIndex_NotFound)
                 {
                     Log.MessageNetworked(Lang.ELITE_NOTFOUND, args, LogLevel.MessageClientOnly);
                     return;
@@ -126,17 +127,21 @@ namespace DebugToolkit.Commands
             }
 
             TeamIndex teamIndex = TeamIndex.Monster;
-            if (args.Count > 4 && args[4] != Lang.DEFAULT_VALUE && !StringFinder.TryGetEnumFromPartial(args[4], out teamIndex))
+            if (args.Count > 4 && args[4] != Lang.DEFAULT_VALUE)
             {
-                Log.MessageNetworked(Lang.TEAM_NOTFOUND, args, LogLevel.MessageClientOnly);
-                return;
+                teamIndex = StringFinder.Instance.GetTeamFromPartial(args[4]);
+                if (teamIndex == StringFinder.TeamIndex_NotFound)
+                {
+                    Log.MessageNetworked(Lang.TEAM_NOTFOUND, args, LogLevel.MessageClientOnly);
+                    return;
+                }
             }
 
-            var spawnCard = StringFinder.Instance.GetDirectorCardFromPartial(character)?.spawnCard;
+            var spawnCard = StringFinder.Instance.GetDirectorCardFromPartial(masterPrefab.name)?.spawnCard;
             if (spawnCard == null)
             {
                 spawnCard = ScriptableObject.CreateInstance<CharacterSpawnCard>();
-                spawnCard.prefab = MasterCatalog.FindMasterPrefab(character);
+                spawnCard.prefab = masterPrefab;
                 spawnCard.sendOverNetwork = true;
                 var body = spawnCard.prefab.GetComponent<CharacterMaster>().bodyPrefab;
                 if (body)
@@ -197,7 +202,7 @@ namespace DebugToolkit.Commands
                 radius *= Mathf.Max(1f, 0.5f * amount);
             }
 
-            Log.MessageNetworked(string.Format(Lang.SPAWN_ATTEMPT_2, amount, character), args);
+            Log.MessageNetworked(string.Format(Lang.SPAWN_ATTEMPT_2, amount, masterPrefab.name), args);
             for (int i = 0; i < amount; i++)
             {
                 var spawnPosition = position;
@@ -253,17 +258,17 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            string character = StringFinder.Instance.GetBodyName(args[0]);
-            if (character == null)
+            var bodyIndex = StringFinder.Instance.GetBodyFromPartial(args[0]);
+            if (bodyIndex == BodyIndex.None)
             {
                 Log.MessageNetworked(string.Format(Lang.SPAWN_ERROR, args[0]), args, LogLevel.MessageClientOnly);
                 return;
             }
 
-            GameObject body = BodyCatalog.FindBodyPrefab(character);
+            GameObject body = BodyCatalog.GetBodyPrefab(bodyIndex);
             GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(body, args.senderBody.transform.position, Quaternion.identity);
             NetworkServer.Spawn(gameObject);
-            Log.MessageNetworked(string.Format(Lang.SPAWN_ATTEMPT_1, character), args);
+            Log.MessageNetworked(string.Format(Lang.SPAWN_ATTEMPT_1, body.name), args);
         }
 
 
