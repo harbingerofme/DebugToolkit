@@ -53,6 +53,7 @@
             SPAWNAS_ARGS = "Requires 1 argument: {body} [player:<self>]",
             SPAWNBODY_ARGS = "Requires 1 argument: {body}",
             SPAWNINTERACTABLE_ARGS = "Requires 1 argument: {interactable}",
+            SPAWNPORTAL_ARGS = "Requires 1 argument: {portal ('artifact'|'blue'|'celestial'|'deepvoid'|'gold'|'null'|'void')}",
             TIMESCALE_ARGS = "Requires 1 argument: {time_scale}",
             TRUEKILL_ARGS = "Requires 0 (1 if from server) arguments: [player:<self>]"
             ;
@@ -130,6 +131,7 @@
             SPAWNAI_HELP = "Spawns the specified CharacterMaster. " + SPAWNAI_ARGS,
             SPAWNBODY_HELP = "Spawns the specified dummy body. " + SPAWNBODY_ARGS,
             SPAWNINTERACTABLE_HELP = "Spawns the specified interactable. List_Interactable for options. " + SPAWNINTERACTABLE_ARGS,
+            SPAWNPORTAL_HELP = "Spawns a portal in front of the player. " + SPAWNPORTAL_ARGS,
             TIMESCALE_HELP = "Sets the Time Delta. " + TIMESCALE_ARGS,
             TRUEKILL_HELP = "Ignore Dio's and kill the entity. " + TRUEKILL_ARGS
             ;

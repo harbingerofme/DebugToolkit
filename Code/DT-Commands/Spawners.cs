@@ -3,7 +3,9 @@ using RoR2;
 using RoR2.CharacterAI;
 using RoR2.Navigation;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.Networking;
 using static DebugToolkit.Log;
 
@@ -11,6 +13,7 @@ namespace DebugToolkit.Commands
 {
     class Spawners
     {
+        private static readonly Dictionary<string, GameObject> portals = new Dictionary<string, GameObject>();
 
         [ConCommand(commandName = "spawn_interactable", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SPAWNINTERACTABLE_HELP)]
         [ConCommand(commandName = "spawn_interactible", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SPAWNINTERACTABLE_HELP)]
@@ -59,6 +62,71 @@ namespace DebugToolkit.Commands
             {
                 Log.MessageNetworked("Failed to spawn interactable.", args, LogLevel.MessageClientOnly);
             }
+        }
+
+        [ConCommand(commandName = "spawn_portal", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SPAWNPORTAL_HELP)]
+        private static void CCSpawnPortal(ConCommandArgs args)
+        {
+            if (!Run.instance)
+            {
+                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            if (args.sender == null)
+            {
+                Log.Message(Lang.DS_NOTYETIMPLEMENTED, LogLevel.Error);
+                return;
+            }
+            if (args.Count == 0)
+            {
+                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.SPAWNPORTAL_ARGS, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            if (!args.senderBody)
+            {
+                Log.MessageNetworked("Can't spawn an object with relation to a dead target.", args, LogLevel.MessageClientOnly);
+                return;
+            }
+
+            var portalName = args[0].ToLowerInvariant();
+            if (!portals.TryGetValue(portalName, out var portal))
+            {
+                Log.MessageNetworked(string.Format(Lang.INVALID_ARG_VALUE, "portal"), args, LogLevel.MessageClientOnly);
+                return;
+            }
+            var currentScene = Stage.instance.sceneDef;
+
+            if (currentScene.cachedName == "voidraid" && portalName == "deepvoid")
+            {
+                portal = StringFinder.Instance.GetInteractableSpawnCardFromPartial("VoidOutroPortal").prefab;
+            }
+            var position = args.senderBody.footPosition;
+            // Some portals spawn into the ground
+            if (portal.name == "DeepVoidPortal")
+            {
+                position.y += 4f;
+            }
+            else if (portal.name == "PortalArtifactworld")
+            {
+                position.y += 10f;
+            }
+
+            var gameObject = UnityEngine.Object.Instantiate(portal, position, Quaternion.LookRotation(args.senderBody.characterDirection.forward));
+            var exit = gameObject.GetComponent<SceneExitController>();
+            // The artifact portal erroneously points to mysteryspace by default
+            if (portalName == "artifact")
+            {
+                exit.destinationScene = SceneCatalog.FindSceneDef("artifactworld");
+            }
+            if (currentScene.cachedName == "voidraid" && gameObject.name.Contains("VoidOutroPortal"))
+            {
+                exit.useRunNextStageScene = false;
+            }
+            else
+            {
+                exit.useRunNextStageScene = exit.destinationScene == currentScene;
+            }
+            NetworkServer.Spawn(gameObject);
         }
 
         [ConCommand(commandName = "spawn_ai", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SPAWNAI_HELP)]
@@ -265,6 +333,16 @@ namespace DebugToolkit.Commands
             Log.MessageNetworked(string.Format(Lang.SPAWN_ATTEMPT_1, body.name), args);
         }
 
+        internal static void InitPortals()
+        {
+            portals.Add("artifact", Addressables.LoadAssetAsync<GameObject>("RoR2/Base/PortalArtifactworld/PortalArtifactworld.prefab").WaitForCompletion());
+            portals.Add("blue", Addressables.LoadAssetAsync<GameObject>("RoR2/Base/PortalShop/PortalShop.prefab").WaitForCompletion());
+            portals.Add("celestial", Addressables.LoadAssetAsync<GameObject>("RoR2/Base/PortalMS/PortalMS.prefab").WaitForCompletion());
+            portals.Add("deepvoid", Addressables.LoadAssetAsync<GameObject>("RoR2/DLC1/DeepVoidPortal/DeepVoidPortal.prefab").WaitForCompletion());
+            portals.Add("gold", Addressables.LoadAssetAsync<GameObject>("RoR2/Base/PortalGoldshores/PortalGoldshores.prefab").WaitForCompletion());
+            portals.Add("null", Addressables.LoadAssetAsync<GameObject>("RoR2/Base/PortalArena/PortalArena.prefab").WaitForCompletion());
+            portals.Add("void", Addressables.LoadAssetAsync<GameObject>("RoR2/DLC1/PortalVoid/PortalVoid.prefab").WaitForCompletion());
+        }
 
         internal static CombatDirector.EliteTierDef GetTierDef(EliteDef eliteDef)
         {

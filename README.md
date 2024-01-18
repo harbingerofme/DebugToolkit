@@ -117,6 +117,7 @@ Item Commands:
 Spawn Commands:
 
 * **spawn_interactable/spawn_interactible** - Spawns an interactible in front of the player. `(spawn_interactable|spawn_interactible) {interactable}`
+* **spawn_portal** - Spawns a portal in front of the player. `spawn_portal {portal ('artifact'|'blue'|'celestial'|'deepvoid'|'gold'|'null'|'void')}`.
 * **spawn_ai** - Spawn an AI. `spawn_ai {ai} [count:1] [elite:None] [braindead (0|1):0/false] [team:Monster]`.
 * **spawn_as** - Spawn as a new character. `spawn_as {body} *[player:<self>]`
 * **spawn_body** - Spawns a CharacterBody with no AI, inventory, or team alliance: `spawn_body {body}`
