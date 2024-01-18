@@ -6,7 +6,7 @@
 
         // Command arguments
         public const string
-            ADDPORTAL_ARGS = "Requires 1 argument: {portal ('blue'|'gold'|'celestial'|'null'|'void'|'deepvoid'|'all')}",
+            ADDPORTAL_ARGS = "Requires 1 argument: {portal ('blue'|'celestial'|'gold'|'void'|'all')}",
             BAN_ARGS = "Requires 1 argument: {player}",
             BIND_ARGS = "Requires 2 arguments: {key} {console_commands}",
             BIND_DELETE_ARGS = "Requires 1 argument: {key}",
@@ -177,7 +177,6 @@
             PARSE_ERROR = "Unable to parse {0} to {1}.",
             PINGEDBODY_NOTFOUND = "Pinged target not found. Either the last ping was not a character, or it has been destroyed since.",
             PLAYER_NOTFOUND = "Specified player not found or isn't alive. Please use list_player for options.",
-            PORTAL_NOTFOUND = "The specified portal could not be found. Valid portals: 'blue','gold','celestial','null','void','deepvoid','all'",
             SPAWN_ERROR = "Could not spawn: ",
             STAGE_NOTFOUND = "Stage not found. Please use scene_list for options.",
             TEAM_NOTFOUND = "Team type not found. Please use list_team for options."
