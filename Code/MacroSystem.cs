@@ -66,6 +66,8 @@ namespace DebugToolkit.Code
         private static Dictionary<ConfigDefinition, string> OrphanedEntries =>
             (Dictionary<ConfigDefinition, string>)OrphanedEntriesProperty.GetValue(DebugToolkit.Configuration);
 
+        private static ConfigEntry<bool> AllowKeybindsWithUi;
+
         private const string MACRO_SECTION_NAME = "Macros";
         private const string DEFAULT_MACRO_NAME = "Do not remove this example macro";
         private const string DEFAULT_MACRO_KEYBIND = "f15";
@@ -131,6 +133,8 @@ namespace DebugToolkit.Code
 
             BindExistingEntries();
             RetrieveOrphanedMacroEntries();
+
+            BindSettings();
         }
 
         private static void BindExampleMacro()
@@ -171,6 +175,12 @@ namespace DebugToolkit.Code
             }
         }
 
+        private static void BindSettings()
+        {
+            AllowKeybindsWithUi = DebugToolkit.Configuration.Bind("Macros.Settings", "AllowKeybindsWithUi", true,
+                "Allow keybinds to execute when a UI window is open, e.g., Console or an Inspector.");
+        }
+
         private static ConfigEntry<string> BindNewConfigEntry(string customValue)
         {
             var configEntry = DebugToolkit.Configuration.Bind(MACRO_SECTION_NAME,
@@ -196,7 +206,10 @@ namespace DebugToolkit.Code
 
         internal static void Update()
         {
-            if (!IsAnyUIWindowOpen() && !IsAnyInputFieldActive())
+            if (!IsAnyInputFieldActive()
+                && !PauseManager.pauseScreenInstance
+                && (AllowKeybindsWithUi.Value || !IsAnyUIWindowOpen())
+            )
             {
                 // Iterating on a copy of the keys in case a macro executes a bind/delete and modifies the collection
                 var keyBinds = new List<string>(MacroConfigEntries.Keys);
@@ -219,7 +232,6 @@ namespace DebugToolkit.Code
         private static bool IsAnyUIWindowOpen()
         {
             return ConsoleWindow.instance
-                || PauseManager.pauseScreenInstance
                 || runtimeInspector && runtimeInspector.activeSelf
                 || unityInspector && unityInspector.activeSelf;
         }
