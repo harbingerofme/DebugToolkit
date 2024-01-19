@@ -249,11 +249,8 @@ namespace DebugToolkit.Commands
             }
 
             // Unsub the last in case the user already used the command and want to change their mind.
-            On.RoR2.CombatDirector.SetNextSpawnAsBoss -= Hooks.CombatDirector_SetNextSpawnAsBoss;
-            On.RoR2.InfiniteTowerExplicitSpawnWaveController.Initialize -= Hooks.InfiniteTowerExplicitSpawnWaveController_Initialize;
-
-            On.RoR2.CombatDirector.SetNextSpawnAsBoss += Hooks.CombatDirector_SetNextSpawnAsBoss;
-            On.RoR2.InfiniteTowerExplicitSpawnWaveController.Initialize += Hooks.InfiniteTowerExplicitSpawnWaveController_Initialize;
+            Hooks.UndoNextBossHooks();
+            Hooks.ApplyNextBossHooks();
             Log.MessageNetworked(s.ToString(), args);
         }
 
