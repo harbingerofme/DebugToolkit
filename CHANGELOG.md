@@ -1,6 +1,16 @@
 
 ## Changelog ##
 
+### 3.13 ###
+
+* **3.13.0**
+    * This update is carried by [SChinchi](https://github.com/SChinchi), thanks!
+    * Add config for allowing keybinds with a runtime inspector.
+    * Added `spawn_portal`: Spawns any portal in front of the player.
+    * Updated `add_portal`: Now strictly for the teleporter related portals. Improved the void portal logic.
+    * The infinite portal has been excluded from all of this because there is nothing special about it; it has no special destination and uses the run's next scene.
+    * Updated `next_boss`: Fix the command spawning the max allowed count for 0 credit spawn cards.
+
 ### 3.12 ###
 
 * **3.12.0**
