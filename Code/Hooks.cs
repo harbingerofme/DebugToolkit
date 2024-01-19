@@ -27,6 +27,9 @@ namespace DebugToolkit
         private static bool buddha;
         private static bool god;
 
+        private static CombatDirector bossDirector;
+        private static bool skipSpawnIfTooCheapBackup;
+
         public static void InitializeHooks()
         {
             IL.RoR2.Console.Awake += UnlockConsole;
@@ -432,6 +435,8 @@ namespace DebugToolkit
                 return;
             }
 
+            bossDirector = self;
+
             var selectedBossCard = CurrentRun.nextBoss;
             self.OverrideCurrentMonsterCard(selectedBossCard);
 
@@ -442,12 +447,30 @@ namespace DebugToolkit
 
             var count = CurrentRun.nextBossCount;
             self.monsterCredit = selectedBossCard.cost * count * self.currentActiveEliteTier.costMultiplier;
+            skipSpawnIfTooCheapBackup = self.skipSpawnIfTooCheap;
             self.skipSpawnIfTooCheap = false;
 
             Log.Message($"The director credits have been set to {self.monsterCredit} to spawn {count} {eliteName} {selectedBossCard.spawnCard.name}", Log.LogLevel.Info);
 
-            On.RoR2.CombatDirector.SetNextSpawnAsBoss -= CombatDirector_SetNextSpawnAsBoss;
-            On.RoR2.InfiniteTowerExplicitSpawnWaveController.Initialize -= InfiniteTowerExplicitSpawnWaveController_Initialize;
+            On.RoR2.CombatDirector.AttemptSpawnOnTarget += OverrideBossCombatDirectorSpawnResult;
+        }
+
+        private static bool OverrideBossCombatDirectorSpawnResult(On.RoR2.CombatDirector.orig_AttemptSpawnOnTarget orig, CombatDirector self, Transform spawnTarget, DirectorPlacementRule.PlacementMode placementMode)
+        {
+            var success = orig(self, spawnTarget, placementMode);
+            if (self != bossDirector)
+            {
+                return success;
+            }
+
+            if (bossDirector.spawnCountInCurrentWave >= CurrentRun.nextBossCount || !success)
+            {
+                self.skipSpawnIfTooCheap = skipSpawnIfTooCheapBackup;
+                On.RoR2.CombatDirector.AttemptSpawnOnTarget -= OverrideBossCombatDirectorSpawnResult;
+                UndoNextBossHooks();
+                return false;
+            }
+            return success;
         }
 
         internal static void InfiniteTowerExplicitSpawnWaveController_Initialize(On.RoR2.InfiniteTowerExplicitSpawnWaveController.orig_Initialize orig, InfiniteTowerExplicitSpawnWaveController self, int waveIndex, Inventory enemyInventory, GameObject spawnTargetObject)
@@ -463,6 +486,17 @@ namespace DebugToolkit
             };
             orig(self, waveIndex, enemyInventory, spawnTargetObject);
 
+            UndoNextBossHooks();
+        }
+
+        internal static void ApplyNextBossHooks()
+        {
+            On.RoR2.CombatDirector.SetNextSpawnAsBoss += CombatDirector_SetNextSpawnAsBoss;
+            On.RoR2.InfiniteTowerExplicitSpawnWaveController.Initialize += InfiniteTowerExplicitSpawnWaveController_Initialize;
+        }
+
+        internal static void UndoNextBossHooks()
+        {
             On.RoR2.CombatDirector.SetNextSpawnAsBoss -= CombatDirector_SetNextSpawnAsBoss;
             On.RoR2.InfiniteTowerExplicitSpawnWaveController.Initialize -= InfiniteTowerExplicitSpawnWaveController_Initialize;
         }
