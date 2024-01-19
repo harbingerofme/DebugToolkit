@@ -6,7 +6,7 @@
 
         // Command arguments
         public const string
-            ADDPORTAL_ARGS = "Requires 1 argument: {portal ('blue'|'gold'|'celestial'|'null'|'void'|'deepvoid'|'all')}",
+            ADDPORTAL_ARGS = "Requires 1 argument: {portal ('blue'|'celestial'|'gold'|'void'|'all')}",
             BAN_ARGS = "Requires 1 argument: {player}",
             BIND_ARGS = "Requires 2 arguments: {key} {console_commands}",
             BIND_DELETE_ARGS = "Requires 1 argument: {key}",
@@ -53,6 +53,7 @@
             SPAWNAS_ARGS = "Requires 1 argument: {body} [player:<self>]",
             SPAWNBODY_ARGS = "Requires 1 argument: {body}",
             SPAWNINTERACTABLE_ARGS = "Requires 1 argument: {interactable}",
+            SPAWNPORTAL_ARGS = "Requires 1 argument: {portal ('artifact'|'blue'|'celestial'|'deepvoid'|'gold'|'null'|'void')}",
             TIMESCALE_ARGS = "Requires 1 argument: {time_scale}",
             TRUEKILL_ARGS = "Requires 0 (1 if from server) arguments: [player:<self>]"
             ;
@@ -130,6 +131,7 @@
             SPAWNAI_HELP = "Spawns the specified CharacterMaster. " + SPAWNAI_ARGS,
             SPAWNBODY_HELP = "Spawns the specified dummy body. " + SPAWNBODY_ARGS,
             SPAWNINTERACTABLE_HELP = "Spawns the specified interactable. List_Interactable for options. " + SPAWNINTERACTABLE_ARGS,
+            SPAWNPORTAL_HELP = "Spawns a portal in front of the player. " + SPAWNPORTAL_ARGS,
             TIMESCALE_HELP = "Sets the Time Delta. " + TIMESCALE_ARGS,
             TRUEKILL_HELP = "Ignore Dio's and kill the entity. " + TRUEKILL_ARGS
             ;
@@ -175,7 +177,6 @@
             PARSE_ERROR = "Unable to parse {0} to {1}.",
             PINGEDBODY_NOTFOUND = "Pinged target not found. Either the last ping was not a character, or it has been destroyed since.",
             PLAYER_NOTFOUND = "Specified player not found or isn't alive. Please use list_player for options.",
-            PORTAL_NOTFOUND = "The specified portal could not be found. Valid portals: 'blue','gold','celestial','null','void','deepvoid','all'",
             SPAWN_ERROR = "Could not spawn: ",
             STAGE_NOTFOUND = "Stage not found. Please use scene_list for options.",
             TEAM_NOTFOUND = "Team type not found. Please use list_team for options."

@@ -2,7 +2,6 @@ using R2API.Utils;
 using RoR2;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -35,115 +34,66 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.ADDPORTAL_ARGS, args, LogLevel.MessageClientOnly);
                 return;
             }
-            var portalName = args[0].ToLower();
             var teleporterInteraction = TeleporterInteraction.instance;
             if (!teleporterInteraction)
             {
-                if (portalName != "arena" && portalName != "null" && portalName != "void")
-                {
-                    Log.MessageNetworked("No teleporter interaction instance! Can only spawn null portal", args, LogLevel.WarningClientOnly);
-                    return;
-                }
+                Log.MessageNetworked("No teleporter interaction instance!", args, LogLevel.WarningClientOnly);
+                return;
             }
 
+            var portalName = args[0].ToUpperInvariant();
             switch (portalName)
             {
-                case "blue":
+                case "BLUE":
                     teleporterInteraction.shouldAttemptToSpawnShopPortal = true;
                     break;
-                case "gold":
+                case "GOLD":
                     teleporterInteraction.shouldAttemptToSpawnGoldshoresPortal = true;
                     break;
-                case "celestial":
+                case "CELESTIAL":
                     teleporterInteraction.shouldAttemptToSpawnMSPortal = true;
                     break;
-                case "deepvoid":
-                    QueueDeepVoidPortal();
-                    break;
-                case "void":
+                case "VOID":
                     QueueVoidPortal();
                     break;
-                case "arena":
-                case "null":
-                    SpawnArenaPortal();
-                    break;
-                case "all":
-                    teleporterInteraction.shouldAttemptToSpawnGoldshoresPortal = true;
+                case Lang.ALL:
                     teleporterInteraction.shouldAttemptToSpawnShopPortal = true;
                     teleporterInteraction.shouldAttemptToSpawnMSPortal = true;
-                    SpawnArenaPortal();
-                    QueueDeepVoidPortal();
+                    teleporterInteraction.shouldAttemptToSpawnGoldshoresPortal = true;
                     QueueVoidPortal();
                     break;
                 default:
-                    Log.MessageNetworked(Lang.PORTAL_NOTFOUND, args, LogLevel.MessageClientOnly);
+                    Log.MessageNetworked(string.Format(Lang.INVALID_ARG_VALUE, "portal"), args, LogLevel.MessageClientOnly);
                     return;
             }
 
-            //the preview child offset will be inside of MSorb's, making it seem like it hasnt spawned.
-            //see teleporter base mesh/builtineffects (or however its called) and change the orb position from here.
-            void QueueVoidPortal() //the charging stage
+            void QueueVoidPortal()
             {
-                PortalSpawner[] array = teleporterInteraction.portalSpawners;
-                for (int i = 0; i < array.Length; i++)
+                foreach (var portal in teleporterInteraction.portalSpawners)
                 {
-                    /* TBH: The portalSpawnCard check can likely be omitted because the teleporterInteraction seems
-                     * to *always* spawn with the first PortalSpawner set to the void charging stage
-                     *
-                     */
-                    if (array[i].portalSpawnCard == LegacyResourcesAPI.Load<InteractableSpawnCard>("SpawnCards/InteractableSpawnCard/iscVoidPortal")
-                        && array[i].previewChild
-                        && array[i].previewChild.activeSelf == false) //False to make it not double run
+                    if (portal.portalSpawnCard.name == "iscVoidPortal"
+                        && portal.previewChild
+                        && portal.previewChild.activeSelf == false) //False to make it not double run
                     {
-                        var cachedSpawnChance = array[i].spawnChance;
-                        var cachedMinStagesCleared = array[i].minStagesCleared;
-
-                        array[i].spawnChance = 1;
-                        array[i].minStagesCleared = 0;
-
-                        array[i].Start();
-
-                        // Does it even matter if I cache them?
-                        array[i].spawnChance = cachedSpawnChance;
-                        array[i].minStagesCleared = cachedMinStagesCleared;
-                        break;
-                    }
-                }
-            }
-
-            //Can't be queued, unless an arena portal spawn card is made
-            void SpawnArenaPortal()
-            {
-                var arenaPortal = UnityEngine.Object.Instantiate(LegacyResourcesAPI.Load<GameObject>("Prefabs/NetworkedObjects/PortalArena"), args.senderBody.corePosition, Quaternion.identity);
-                arenaPortal.GetComponent<SceneExitController>().useRunNextStageScene = false;
-                NetworkServer.Spawn(arenaPortal);
-            }
-
-            void QueueDeepVoidPortal()
-            {
-                PortalSpawner[] array = teleporterInteraction.portalSpawners;
-                for (int i = 0; i < array.Length; i++)
-                {
-                    if (array[i].portalSpawnCard != LegacyResourcesAPI.Load<InteractableSpawnCard>("SpawnCards/InteractableSpawnCard/iscDeepVoidPortal"))
-                    {
-                        var list = teleporterInteraction.portalSpawners.ToList();
-
-                        var deepVoidPortalSpawner = teleporterInteraction.gameObject.AddComponent<PortalSpawner>();
-                        deepVoidPortalSpawner.maxSpawnDistance = teleporterInteraction.portalSpawners[0].maxSpawnDistance;
-                        deepVoidPortalSpawner.minSpawnDistance = teleporterInteraction.portalSpawners[0].minSpawnDistance;
-                        deepVoidPortalSpawner.minStagesCleared = 0;
-                        deepVoidPortalSpawner.portalSpawnCard = LegacyResourcesAPI.Load<InteractableSpawnCard>("SpawnCards/InteractableSpawnCard/iscDeepVoidPortal");
-                        deepVoidPortalSpawner.previewChild = null;
-                        deepVoidPortalSpawner.previewChildName = null;
-                        deepVoidPortalSpawner.requiredExpansion = teleporterInteraction.portalSpawners[0].requiredExpansion;
-                        deepVoidPortalSpawner.rng = teleporterInteraction.portalSpawners[0].rng;
-                        deepVoidPortalSpawner.spawnChance = 1;
-                        deepVoidPortalSpawner.spawnMessageToken = "PORTAL_DEEPVOID_OPEN";
-                        deepVoidPortalSpawner.spawnPreviewMessageToken = "PORTAL_DEEPVOID_WILL_OPEN";
-                        list.Add(deepVoidPortalSpawner);
-
-                        teleporterInteraction.portalSpawners = list.ToArray();
-                        break;
+                        if (portal.requiredExpansion && !Run.instance.IsExpansionEnabled(portal.requiredExpansion))
+                        {
+                            Log.MessageNetworked("The void portal requires an expansion to be enabled.", args, LogLevel.MessageClientOnly);
+                            return;
+                        }
+                        if (!string.IsNullOrEmpty(portal.bannedEventFlag) && Run.instance.GetEventFlag(portal.bannedEventFlag))
+                        {
+                            Log.MessageNetworked("The void portal cannot spawn in this game mode.", args, LogLevel.MessageClientOnly);
+                            return;
+                        }
+                        portal.spawnChance = 1f;
+                        portal.minStagesCleared = 0;
+                        // The portal's orb copies the celestial portal's starting location, therefore
+                        // making this invisible if they are spawned at the same time. This fix makes
+                        // all orbs equidistant now (as intended?), but if the developers add new
+                        // orbs later, we may have to review whether we are intefering with anything.
+                        portal.previewChild.transform.localRotation = Quaternion.Euler(0f, 0f, 270f);
+                        portal.Start();
+                        return;
                     }
                 }
             }
