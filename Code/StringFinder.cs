@@ -148,6 +148,43 @@ namespace DebugToolkit
         }
 
         /// <summary>
+        /// Returns an ArtifactIndex when provided with an index or partial/invariant.
+        /// </summary>
+        /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>
+        /// <returns>Returns the ArtifactIndex if a match is found, or returns ArtifactIndex.None</returns>
+        public ArtifactIndex GetArtifactFromPartial(string name)
+        {
+            return GetArtifactsFromPartial(name).DefaultIfEmpty(ArtifactIndex.None).First();
+        }
+
+        /// <summary>
+        /// Returns an iterator of ArtifactIndex's when provided with an index or partial/invariant.
+        /// </summary>
+        /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>
+        /// <returns>Returns an iterator with all ArtifactIndex's matched</returns>
+        public IEnumerable<ArtifactIndex> GetArtifactsFromPartial(string name)
+        {
+            if (TextSerialization.TryParseInvariant(name, out int i))
+            {
+                var index = (ArtifactIndex)i;
+                if (ArtifactCatalog.GetArtifactDef(index) != null)
+                {
+                    yield return index;
+                }
+                yield break;
+            }
+            name = name.ToUpperInvariant();
+            foreach (var artifact in ArtifactCatalog.artifactDefs)
+            {
+                var langInvar = GetLangInvar(artifact.nameToken).ToUpper();
+                if (artifact.cachedName.ToUpper().Contains(name) || langInvar.Contains(name))
+                {
+                    yield return artifact.artifactIndex;
+                }
+            }
+        }
+
+        /// <summary>
         /// Returns a BuffIndex when provided with an index or partial/invariant.
         /// </summary>
         /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>
