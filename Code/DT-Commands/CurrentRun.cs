@@ -2,6 +2,7 @@ using R2API.Utils;
 using RoR2;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -151,13 +152,16 @@ namespace DebugToolkit.Commands
             }
 
             int count = 0;
-            foreach (var teamComponent in TeamComponent.GetTeamMembers(team))
+            foreach (var teamComponent in TeamComponent.GetTeamMembers(team).ToList())
             {
                 var healthComponent = teamComponent.GetComponent<HealthComponent>();
                 if (healthComponent)
                 {
                     healthComponent.Suicide(null);
-                    count++;
+                    if (!healthComponent.alive)
+                    {
+                        count++;
+                    }
                 }
             }
             Log.MessageNetworked($"Killed {count} of team {team}.", args);
