@@ -66,10 +66,19 @@ namespace DebugToolkit.Commands
             }
             if (!args.senderBody)
             {
-                Log.MessageNetworked("Can't toggle noclip while you're dead. " + Lang.USE_RESPAWN, args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked("Can't teleport while you're dead. " + Lang.USE_RESPAWN, args, LogLevel.MessageClientOnly);
                 return;
             }
-            TeleportNet.Invoke(args.sender); // callback
+            var body = args.senderBody;
+            var inputBank = body.inputBank;
+            if (inputBank)
+            {
+                if (Physics.Raycast(inputBank.aimOrigin, inputBank.aimDirection, out var hit, Mathf.Infinity, 1 << 11))
+                {
+                    var footOffset = body.transform.position - body.footPosition;
+                    TeleportHelper.TeleportGameObject(body.gameObject, hit.point + footOffset);
+                }
+            }
         }
 
         [ConCommand(commandName = "spawn_as", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SPAWNAS_HELP)]
