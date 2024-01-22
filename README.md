@@ -69,6 +69,7 @@ List Commands:
 * **list_ai** - List all Masters and their language invariants.
 * **list_elite** - List all Elites and their language invariants.
 * **list_team** - List all Teams and their language invariants.
+* **list_artifact** - List all Artifacts and their language invariants.
 * **list_buff** - List all Buffs and if they are stackable.
 * **list_dot** - List all DoT effects.
 * **list_itemtier** - List all Item Tiers.

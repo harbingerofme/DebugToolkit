@@ -85,6 +85,7 @@
             KICK_HELP = "Kicks the specified player from the session. " + KICK_ARGS,
             KILLALL_HELP = "Kill all entities on the specified team. " + KILLALL_ARGS,
             LISTAI_HELP = "List all Masters and their language invariants. " + LISTQUERY_ARGS,
+            LISTARTIFACT_HELP = "List all Artifacts and their language invariants. " + LISTQUERY_ARGS,
             LISTBODY_HELP = "List all Bodies and their language invariants. " + LISTQUERY_ARGS,
             LISTBUFF_HELP = "List all Buffs and whether they stack. " + LISTQUERY_ARGS,
             LISTDIRECTORCARDS_HELP = "List all Director Cards. " + LISTQUERY_ARGS,
