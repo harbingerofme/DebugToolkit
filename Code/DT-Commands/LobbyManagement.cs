@@ -50,7 +50,7 @@ namespace DebugToolkit.Commands
         [AutoComplete(Lang.TRUEKILL_ARGS)]
         private static void CCTrueKill(ConCommandArgs args)
         {
-            if (args.sender == null && args.Count < 1)
+            if (args.sender == null && (args.Count < 1 || args[0] == Lang.DEFAULT_VALUE))
             {
                 Log.Message(Lang.INSUFFICIENT_ARGS + Lang.TRUEKILL_ARGS, LogLevel.Error);
                 return;

@@ -77,6 +77,7 @@ namespace DebugToolkit
             parser.RegisterStaticVariable("specific_stage", SceneCatalog.indexToSceneDef.Select(i => i._cachedName));
 
             parser.RegisterStaticVariable("dot", CollectEnumNames(typeof(DotController.DotIndex), typeof(sbyte)).Skip(1));
+            parser.RegisterStaticVariable("permission_level", CollectEnumNames(typeof(Permissions.Level), typeof(int)));
             parser.RegisterStaticVariable("team", CollectEnumNames(typeof(TeamIndex), typeof(sbyte)));
 
             parser.RegisterDynamicVariable("director_card", StringFinder.Instance.DirectorCards, "spawnCard");
