@@ -8,7 +8,6 @@ using RoR2;
 using RoR2.ConVar;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Text;
 using UnityEngine;
@@ -20,6 +19,7 @@ namespace DebugToolkit
     public sealed class Hooks
     {
         private const ConVarFlags AllFlagsNoCheat = ConVarFlags.None | ConVarFlags.Archive | ConVarFlags.Engine | ConVarFlags.ExecuteOnServer | ConVarFlags.SenderMustBeServer;
+        private const string GRAY = "<color=#808080>";
 
         private static On.RoR2.Console.orig_RunCmd _origRunCmd;
         private static CharacterBody pingedBody;
@@ -40,11 +40,11 @@ namespace DebugToolkit
             _origRunCmd = runCmdHook.GenerateTrampoline<On.RoR2.Console.orig_RunCmd>();
 
             On.RoR2.Console.AutoComplete.SetSearchString += BetterAutoCompletion;
-            On.RoR2.Console.AutoComplete.ctor += CommandArgsAutoCompletion;
-            RoR2Application.onLoad += ArgsAutoCompletion.GatherCommandsAndFillStaticArgs;
             RoR2Application.onLoad += Items.InitDroptableData;
             RoR2Application.onLoad += Spawners.InitPortals;
+            RoR2Application.onLoad += AutoCompleteManager.RegisterAutoCompleteCommands;
             Run.onRunStartGlobal += Items.CollectItemTiers;
+            IL.RoR2.UI.ConsoleWindow.ApplyAutoComplete += ApplyTextWithoutColorTags;
             IL.RoR2.UI.ConsoleWindow.Update += SmoothDropDownSuggestionNavigation;
             IL.RoR2.Networking.NetworkManagerSystem.CCSetScene += EnableCheatsInCCSetScene;
             On.RoR2.Networking.NetworkManagerSystem.CCSceneList += OverrideVanillaSceneList;
@@ -263,56 +263,160 @@ namespace DebugToolkit
 
         private static bool BetterAutoCompletion(On.RoR2.Console.AutoComplete.orig_SetSearchString orig, Console.AutoComplete self, string newSearchString)
         {
-            var searchString = self.GetFieldValue<string>("searchString");
-            var searchableStrings = self.GetFieldValue<List<string>>("searchableStrings");
-
-            newSearchString = newSearchString.ToLower(CultureInfo.InvariantCulture);
-            if (newSearchString == searchString)
+            if (self.searchString == newSearchString)
             {
                 return false;
             }
-            self.SetFieldValue("searchString", newSearchString);
-
-            self.resultsList = new List<string>();
-            foreach (var searchableString in searchableStrings)
+            self.searchString = newSearchString;
+            var tokens = new Console.Lexer(newSearchString).GetTokens().ToList();
+            tokens.RemoveAt(tokens.Count - 1);
+            if (tokens.Count == 0)
             {
-                if (searchableString.ToLower(CultureInfo.InvariantCulture).Contains(newSearchString)) // StartWith case
+                return false;
+            }
+            // Since commands can be chained with a semi-colon, we need to keep the
+            // latest command name so we can display the relevant autofill options.
+            // Incidentally, if there is no semi-colon, the index will just be 0.
+            var lastCommandNameIndex = tokens.LastIndexOf(";") + 1;
+            var list = new List<Console.AutoComplete.MatchInfo>();
+            if (tokens[tokens.Count - 1] == ";" || newSearchString.EndsWith(tokens[lastCommandNameIndex]))
+            {
+                AutoCompleteManager.ClearCommandOptions();
+                var names = Console.instance.allConVars.Keys.ToList();
+                names.AddRange(Console.instance.concommandCatalog.Keys);
+                names.Sort();
+                var commandName = tokens[tokens.Count - 1] == ";" ? "" : tokens[lastCommandNameIndex].ToLowerInvariant();
+                foreach (var conVar in names)
                 {
-                    self.resultsList.Add(searchableString);
-                }
-                else // similar string in the middle of the user command arg
-                {
-                    string searchableStringsInvariant = searchableString.ToLower(CultureInfo.InvariantCulture);
-                    string userArg = newSearchString.Substring(newSearchString.IndexOf(' ') + 1);
-                    if (newSearchString.IndexOf(' ') > 0 && searchableString.IndexOf(' ') > 0)
+                    var i = conVar.IndexOf(commandName);
+                    if (i == 0)
                     {
-                        string userCmd = newSearchString.Substring(0, newSearchString.IndexOf(' '));
-                        string searchableStringsCmd = searchableString.Substring(0, searchableString.IndexOf(' '));
-                        string searchableStringsArg = searchableStringsInvariant.Substring(searchableStringsInvariant.IndexOf(' ') + 1);
-                        if (searchableStringsArg.Contains(userArg) && userCmd.Equals(searchableStringsCmd))
+                        // Commands that start with the input string are prioritised
+                        // The shorter the conVar length, the better the partial matching
+                        list.Add(new Console.AutoComplete.MatchInfo
                         {
-                            self.resultsList.Add(searchableString);
-                        }
+                            similarity = 1000 + commandName.Length - conVar.Length,
+                            str = conVar.Substring(0, commandName.Length) + GrayOutText(conVar, commandName.Length)
+                        });
+                    }
+                    else if (i > 0)
+                    {
+                        list.Add(new Console.AutoComplete.MatchInfo
+                        {
+                            similarity = commandName.Length - conVar.Length,
+                            str = GrayOutText(conVar, 0, i) + conVar.Substring(i, commandName.Length) + GrayOutText(conVar, i + commandName.Length)
+                        });
                     }
                 }
             }
+            else
+            {
+                var tokenIndex = tokens.Count - 1;
+                // If we have just completed the last argument and typed space,
+                // we need to provide autocompletion options for the next one
+                if (!newSearchString.EndsWith(tokens[tokens.Count - 1]))
+                {
+                    tokenIndex++;
+                }
+                var commandName = tokens[lastCommandNameIndex].ToLowerInvariant();
+                if (commandName != AutoCompleteManager.CurrentCommand)
+                {
+                    AutoCompleteManager.PrepareCommandOptions(commandName);
+                }
+                var parameters = AutoCompleteManager.CurrentParameters;
+                // The argument tokens start from position 1, while the command parameters are 0-based
+                var paramIndex = tokenIndex - lastCommandNameIndex - 1;
+                if (paramIndex < parameters.Length && parameters[paramIndex].Count > 0)
+                {
+                    var suggestions = parameters[paramIndex];
+                    var tokenName = tokenIndex < tokens.Count ? tokens[tokenIndex] : "";
+                    if (tokenName == "")
+                    {
+                        foreach (var suggestion in suggestions)
+                        {
+                            list.Add(new Console.AutoComplete.MatchInfo
+                            {
+                                similarity = int.MinValue,
+                                str = GrayOutText(suggestion, 0)
+                            });
+                        }
+                    }
+                    else
+                    {
+                        foreach (var suggestion in suggestions)
+                        {
+                            if (suggestion.IndexOf(tokenName, StringComparison.InvariantCultureIgnoreCase) >= 0)
+                            {
+                                var coloredStrings = new List<string>();
+                                int similarity = int.MinValue;
+                                foreach (var option in suggestion.Split('|'))
+                                {
+                                    var i = option.IndexOf(tokenName, StringComparison.InvariantCultureIgnoreCase);
+                                    if (i == 0)
+                                    {
+                                        similarity = Math.Max(1000 + tokenName.Length - option.Length, similarity);
+                                        coloredStrings.Add(option.Substring(0, tokenName.Length) + GrayOutText(option, tokenName.Length));
+                                    }
+                                    else if (i > 0)
+                                    {
+                                        similarity = Math.Max(tokenName.Length - option.Length, similarity);
+                                        coloredStrings.Add(GrayOutText(option, 0, i) + option.Substring(i, tokenName.Length) + GrayOutText(option, i + tokenName.Length));
+                                    }
+                                    else
+                                    {
+                                        coloredStrings.Add(GrayOutText(option, 0));
+                                    }
+                                }
+                                list.Add(new Console.AutoComplete.MatchInfo
+                                {
+                                    similarity = similarity,
+                                    str = string.Join("|", coloredStrings)
+                                });
+                            }
+                        }
+                    }
+                }
+
+            }
+            self.resultsList = list.OrderByDescending(m => m.similarity).Select(m => m.str).ToList();
             return true;
+
+            string GrayOutText(string text, int startIndex, int length = -1)
+            {
+                text = length < 0 ? text.Substring(startIndex) : text.Substring(startIndex, length);
+                return GRAY + text + "</color>";
+            }
         }
 
-        private static void CommandArgsAutoCompletion(On.RoR2.Console.AutoComplete.orig_ctor orig, Console.AutoComplete self, Console console)
+        private static void ApplyTextWithoutColorTags(ILContext il)
         {
-            orig(self, console);
-
-            var searchableStrings = self.GetFieldValue<List<string>>("searchableStrings");
-            var tmp = new List<string>();
-
-            tmp.AddRange(ArgsAutoCompletion.CommandsWithStaticArgs);
-            tmp.AddRange(ArgsAutoCompletion.CommandsWithDynamicArgs());
-
-            tmp.Sort();
-            searchableStrings.AddRange(tmp);
-
-            self.SetFieldValue("searchableStrings", searchableStrings);
+            var c = new ILCursor(il);
+            if (!c.TryGotoNext(
+                MoveType.After,
+                x => x.MatchCallvirt(typeof(TMPro.TMP_Dropdown.OptionData), "get_text")
+            ))
+            {
+                Log.Message("Failed to patch ConsoleWindow", Log.LogLevel.Error, Log.Target.Bepinex);
+                return;
+            }
+            c.Emit(OpCodes.Ldarg_0);
+            c.EmitDelegate<Func<string, RoR2.UI.ConsoleWindow, string>>((text, consoleWindow) =>
+            {
+                text = text.Split('|')[0].Replace(GRAY, "").Replace("</color>", "");
+                var inputText = consoleWindow.inputField.text;
+                var tokens = new Console.Lexer(inputText).GetTokens().ToList();
+                tokens.RemoveAt(tokens.Count - 1);
+                if (tokens.Count == 0)
+                {
+                    return text;
+                }
+                var lastToken = tokens[tokens.Count - 1];
+                if (!inputText.EndsWith(lastToken))
+                {
+                    return inputText + text;
+                }
+                return inputText.Substring(0, inputText.Length - lastToken.Length) + text;
+            });
         }
 
         private const float changeSelectedItemTimer = 0.1f;
