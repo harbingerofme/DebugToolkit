@@ -11,6 +11,7 @@ namespace DebugToolkit
 
         internal static string CurrentCommand { get; private set; }
         internal static List<string>[] CurrentParameters { get; private set; }
+        internal static string CurrentSignature { get; private set; }
 
         internal static void PrepareCommandOptions(string commandName)
         {
@@ -23,6 +24,7 @@ namespace DebugToolkit
             if (!commands.TryGetValue(commandName, out var data))
             {
                 CurrentParameters = new List<string>[0];
+                CurrentSignature = null;
                 return;
             }
             var parser = data.parser;
@@ -47,12 +49,14 @@ namespace DebugToolkit
                 }
             }
             CurrentParameters = options;
+            CurrentSignature = data.signature;
         }
 
         internal static void ClearCommandOptions()
         {
             CurrentCommand = null;
             CurrentParameters = null;
+            CurrentSignature = null;
         }
 
         internal static void RegisterCommand(string commandName, AutoCompleteAttribute.Result parameters)

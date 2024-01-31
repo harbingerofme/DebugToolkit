@@ -20,6 +20,7 @@ namespace DebugToolkit
     {
         private const ConVarFlags AllFlagsNoCheat = ConVarFlags.None | ConVarFlags.Archive | ConVarFlags.Engine | ConVarFlags.ExecuteOnServer | ConVarFlags.SenderMustBeServer;
         private const string GRAY = "<color=#808080>";
+        private const string COMMAND_SIGNATURE = "<color=#ffa000>{0} {1}</color>";
 
         private static On.RoR2.Console.orig_RunCmd _origRunCmd;
         private static CharacterBody pingedBody;
@@ -27,6 +28,7 @@ namespace DebugToolkit
         private static bool buddha;
         private static bool god;
 
+        private static GameObject commandSignatureText;
         private static CombatDirector bossDirector;
         private static bool skipSpawnIfTooCheapBackup;
 
@@ -44,8 +46,11 @@ namespace DebugToolkit
             RoR2Application.onLoad += Spawners.InitPortals;
             RoR2Application.onLoad += AutoCompleteManager.RegisterAutoCompleteCommands;
             Run.onRunStartGlobal += Items.CollectItemTiers;
+            On.RoR2.UI.ConsoleWindow.Start += AddConCommandSignatureHint;
+            On.RoR2.UI.ConsoleWindow.OnInputFieldValueChanged += UpdateCommandSignature;
             IL.RoR2.UI.ConsoleWindow.ApplyAutoComplete += ApplyTextWithoutColorTags;
             IL.RoR2.UI.ConsoleWindow.Update += SmoothDropDownSuggestionNavigation;
+
             IL.RoR2.Networking.NetworkManagerSystem.CCSetScene += EnableCheatsInCCSetScene;
             On.RoR2.Networking.NetworkManagerSystem.CCSceneList += OverrideVanillaSceneList;
             On.RoR2.SaveSystem.Save += Profile.PreventSave;
@@ -250,6 +255,52 @@ namespace DebugToolkit
             {
                 _origRunCmd(self, sender, concommandName, userArgs);
                 ScrollConsoleDown();
+            }
+        }
+
+        private static void AddConCommandSignatureHint(On.RoR2.UI.ConsoleWindow.orig_Start orig, RoR2.UI.ConsoleWindow self)
+        {
+            orig(self);
+
+            var footer = self.gameObject.transform.GetChild(0).GetChild(1);
+            commandSignatureText = new GameObject("CommandHint", typeof(RectTransform));
+            commandSignatureText.transform.SetParent(footer);
+
+            var transform = commandSignatureText.transform as RectTransform;
+            transform.anchorMin = new Vector2(0f, 0f);
+            transform.anchorMax = new Vector2(1f, 1);
+            transform.pivot = new Vector2(0f, 0.5f);
+            transform.offsetMin = new Vector2(14f, 29f);
+            transform.offsetMax = new Vector2(-26f, 19f);
+            transform.localScale = footer.transform.GetChild(0).localScale;
+
+            var text = commandSignatureText.AddComponent<RoR2.UI.HGTextMeshProUGUI>();
+            text.fontSize = 14;
+            text.overflowMode = TMPro.TextOverflowModes.Ellipsis;
+            text.enableWordWrapping = false;
+        }
+
+        private static void UpdateCommandSignature(On.RoR2.UI.ConsoleWindow.orig_OnInputFieldValueChanged orig, RoR2.UI.ConsoleWindow self, string text)
+        {
+            orig(self, text);
+            if (!commandSignatureText || !commandSignatureText.TryGetComponent<RoR2.UI.HGTextMeshProUGUI>(out var textGui))
+            {
+                return;
+            }
+            // If arriving here from submitting a command
+            if (text == "")
+            {
+                AutoCompleteManager.ClearCommandOptions();
+            }
+            var command = AutoCompleteManager.CurrentCommand;
+            var signature = AutoCompleteManager.CurrentSignature;
+            if (command == null || signature == null)
+            {
+                textGui.text = "";
+            }
+            else
+            {
+                textGui.text = string.Format(COMMAND_SIGNATURE, command, signature);
             }
         }
 
