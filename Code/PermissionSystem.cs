@@ -167,6 +167,7 @@ namespace DebugToolkit.Permissions
         }
 
         [ConCommand(commandName = "perm_enable", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.PERM_ENABLE_HELP)]
+        [AutoComplete(Lang.PERM_ENABLE_ARGS)]
         [RequiredLevel(Level.Admin)]
         private static void CCPermissionEnable(ConCommandArgs args)
         {
@@ -192,6 +193,7 @@ namespace DebugToolkit.Permissions
         }
 
         [ConCommand(commandName = "perm_mod", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.PERM_MOD_HELP)]
+        [AutoComplete(Lang.PERM_MOD_ARGS)]
         [RequiredLevel(Level.Admin)]
         private static void CCPermissionAddUser(ConCommandArgs args)
         {

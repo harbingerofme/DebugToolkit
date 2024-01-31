@@ -73,7 +73,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "spawn_as", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SPAWNAS_HELP)]
-        [AutoCompletion(typeof(BodyCatalog), "bodyPrefabBodyComponents", "baseNameToken")]
+        [AutoComplete(Lang.SPAWNAS_ARGS)]
         private static void CCSpawnAs(ConCommandArgs args)
         {
             if (!Run.instance)
@@ -127,8 +127,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "respawn", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.RESPAWN_HELP)]
-        [AutoCompletion(typeof(NetworkUser), "instancesList", "userName", true)]
-        //[AutoCompletion(typeof(NetworkUser), "instancesList", "_id/value", true)] // ideathhd : breaks the whole console for me
+        [AutoComplete(Lang.RESPAWN_ARGS)]
         private static void CCRespawnPlayer(ConCommandArgs args)
         {
             if (!Run.instance)
@@ -159,7 +158,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "change_team", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.CHANGETEAM_HELP)]
-        [AutoCompletion(typeof(TeamIndex))]
+        [AutoComplete(Lang.CHANGETEAM_HELP)]
         private static void CCChangeTeam(ConCommandArgs args)
         {
             if (!Run.instance)
@@ -201,6 +200,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "dump_stats", flags = ConVarFlags.None, helpText = Lang.DUMPSTATS_HELP)]
+        [AutoComplete(Lang.DUMPSTATS_ARGS)]
         private static void CCDumpStats(ConCommandArgs args)
         {
             if (args.Count == 0)
@@ -241,6 +241,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "dump_state", flags = ConVarFlags.None, helpText = Lang.DUMPSTATE_HELP)]
+        [AutoComplete(Lang.DUMPSTATE_ARGS)]
         private static void CCDumpState(ConCommandArgs args)
         {
             bool isDedicatedServer = args.sender == null;
@@ -366,6 +367,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "loadout_set_skin_variant", flags = ConVarFlags.None, helpText = Lang.LOADOUTSKIN_HELP)]
+        [AutoComplete(Lang.LOADOUTSKIN_ARGS)]
         public static void CCLoadoutSetSkinVariant(ConCommandArgs args)
         {
             if (args.Count < 2)

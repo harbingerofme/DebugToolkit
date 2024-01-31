@@ -10,6 +10,7 @@ namespace DebugToolkit.Commands
     class Buffs
     {
         [ConCommand(commandName = "list_buff", flags = ConVarFlags.None, helpText = Lang.LISTBUFF_HELP)]
+        [AutoComplete(Lang.LISTQUERY_ARGS)]
         private static void CCListBuff(ConCommandArgs args)
         {
             var sb = new StringBuilder();
@@ -25,6 +26,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "list_dot", flags = ConVarFlags.None, helpText = Lang.LISTDOT_HELP)]
+        [AutoComplete(Lang.LISTQUERY_ARGS)]
         private static void CCListDot(ConCommandArgs args)
         {
             var sb = new StringBuilder();
@@ -65,7 +67,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "give_buff", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.GIVEBUFF_HELP)]
-        [AutoCompletion(typeof(BuffCatalog), "buffDefs")]
+        [AutoComplete(Lang.GIVEBUFF_ARGS)]
         private static void CCGiveBuff(ConCommandArgs args)
         {
             if (!Run.instance)
@@ -147,7 +149,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "remove_buff", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.REMOVEBUFF_HELP)]
-        [AutoCompletion(typeof(BuffCatalog), "buffDefs")]
+        [AutoComplete(Lang.REMOVEBUFF_ARGS)]
         private static void CCRemoveBuff(ConCommandArgs args)
         {
             if (!Run.instance)
@@ -228,7 +230,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "remove_buff_stacks", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.REMOVEBUFFSTACKS_HELP)]
-        [AutoCompletion(typeof(BuffCatalog), "buffDefs")]
+        [AutoComplete(Lang.REMOVEBUFFSTACKS_ARGS)]
         private static void CCRemoveBuffStacks(ConCommandArgs args)
         {
             if (!Run.instance)
@@ -284,6 +286,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "remove_all_buffs", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.REMOVEALLBUFFS_HELP)]
+        [AutoComplete(Lang.REMOVEALLBUFFS_ARGS)]
         private static void CCRemoveAllBuffs(ConCommandArgs args)
         {
             if (!Run.instance)
@@ -329,7 +332,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "give_dot", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.GIVEDOT_HELP)]
-        [AutoCompletion(typeof(DotController.DotIndex))]
+        [AutoComplete(Lang.GIVEDOT_ARGS)]
         private static void CCGiveDot(ConCommandArgs args)
         {
             if (!Run.instance)
@@ -411,7 +414,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "remove_dot", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.REMOVEDOT_HELP)]
-        [AutoCompletion(typeof(DotController.DotIndex))]
+        [AutoComplete(Lang.REMOVEDOT_ARGS)]
         private static void CCRemoveDot(ConCommandArgs args)
         {
             if (!Run.instance)
@@ -471,7 +474,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "remove_dot_stacks", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.REMOVEDOTSTACKS_HELP)]
-        [AutoCompletion(typeof(DotController.DotIndex))]
+        [AutoComplete(Lang.REMOVEDOTSTACKS_ARGS)]
         private static void CCRemoveDotStacks(ConCommandArgs args)
         {
             if (!Run.instance)
@@ -523,6 +526,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "remove_all_dots", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.REMOVEALLDOTS_HELP)]
+        [AutoComplete(Lang.REMOVEALLDOTS_ARGS)]
         private static void CCRemoveAllDots(ConCommandArgs args)
         {
             if (!Run.instance)

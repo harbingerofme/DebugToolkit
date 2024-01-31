@@ -22,6 +22,7 @@ namespace DebugToolkit.Commands
         internal static GameObject selectedWavePrefab;
 
         [ConCommand(commandName = "add_portal", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.ADDPORTAL_HELP)]
+        [AutoComplete(Lang.ADDPORTAL_ARGS)]
         private static void CCAddPortal(ConCommandArgs args)
         {
             if (!Run.instance)
@@ -131,7 +132,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "kill_all", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.KILLALL_HELP)]
-        [AutoCompletion(typeof(TeamIndex))]
+        [AutoComplete(Lang.KILLALL_ARGS)]
         private static void CCKillAll(ConCommandArgs args)
         {
             if (!Run.instance)
@@ -164,6 +165,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "time_scale", flags = ConVarFlags.Engine | ConVarFlags.ExecuteOnServer, helpText = Lang.TIMESCALE_HELP)]
+        [AutoComplete(Lang.TIMESCALE_ARGS)]
         private static void CCTimeScale(ConCommandArgs args)
         {
             if (args.Count == 0)
@@ -190,7 +192,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "next_boss", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.NEXTBOSS_HELP)]
-        [AutoCompletion(typeof(StringFinder), "characterSpawnCard", "spawnCard", true)]
+        [AutoComplete(Lang.NEXTBOSS_ARGS)]
         private static void CCNextBoss(ConCommandArgs args)
         {
             if (args.Count == 0)
@@ -255,7 +257,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "next_stage", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.NEXTSTAGE_HELP)]
-        [AutoCompletion(typeof(SceneCatalog), "indexToSceneDef", "_cachedName")]
+        [AutoComplete(Lang.NEXTSTAGE_ARGS)]
         private static void CCNextStage(ConCommandArgs args)
         {
             if (!Run.instance)
@@ -301,6 +303,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "run_set_waves_cleared", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.RUNSETWAVESCLEARED_HELP)]
+        [AutoComplete(Lang.RUNSETWAVESCLEARED_ARGS)]
         private static void CCRunSetWavesCleared(ConCommandArgs args)
         {
             if (!Run.instance || !(Run.instance is InfiniteTowerRun))
@@ -328,6 +331,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "force_wave", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.FORCEWAVE_HELP)]
+        [AutoComplete(Lang.FORCEWAVE_ARGS)]
         private static void CCForceWave(ConCommandArgs args)
         {
             if (!Run.instance || !(Run.instance is InfiniteTowerRun))
@@ -366,6 +370,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "seed", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SEED_HELP)]
+        [AutoComplete(Lang.SEED_ARGS)]
         private static void CCUseSeed(ConCommandArgs args)
         {
             if (args.Count == 0)
@@ -408,6 +413,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "fixed_time", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.FIXEDTIME_HELP)]
+        [AutoComplete(Lang.FIXEDTIME_ARGS)]
         private static void CCSetTime(ConCommandArgs args)
         {
             if (!Run.instance)

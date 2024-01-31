@@ -17,7 +17,7 @@ namespace DebugToolkit.Commands
 
         [ConCommand(commandName = "spawn_interactable", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SPAWNINTERACTABLE_HELP)]
         [ConCommand(commandName = "spawn_interactible", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SPAWNINTERACTABLE_HELP)]
-        [AutoCompletion(typeof(StringFinder), "interactableSpawnCards", "", true)]
+        [AutoComplete(Lang.SPAWNINTERACTABLE_ARGS)]
         private static void CCSpawnInteractable(ConCommandArgs args)
         {
             if (!Run.instance)
@@ -65,6 +65,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "spawn_portal", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SPAWNPORTAL_HELP)]
+        [AutoComplete(Lang.SPAWNPORTAL_ARGS)]
         private static void CCSpawnPortal(ConCommandArgs args)
         {
             if (!Run.instance)
@@ -130,7 +131,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "spawn_ai", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SPAWNAI_HELP)]
-        [AutoCompletion(typeof(MasterCatalog), "aiMasterPrefabs")]
+        [AutoComplete(Lang.SPAWNAI_ARGS)]
         private static void CCSpawnAI(ConCommandArgs args)
         {
             if (!Run.instance)
@@ -296,7 +297,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "spawn_body", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SPAWNBODY_HELP)]
-        [AutoCompletion(typeof(BodyCatalog), "bodyPrefabBodyComponents", "baseNameToken")]
+        [AutoComplete(Lang.SPAWNBODY_ARGS)]
         private static void CCSpawnBody(ConCommandArgs args)
         {
             if (!Run.instance)

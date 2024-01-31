@@ -10,6 +10,7 @@ namespace DebugToolkit.Commands
     class Money
     {
         [ConCommand(commandName = "give_lunar", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.GIVELUNAR_HELP)]
+        [AutoComplete(Lang.GIVELUNAR_ARGS)]
         private static void CCGiveLunar(ConCommandArgs args)
         {
             if (!Run.instance)
@@ -45,6 +46,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "give_money", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.GIVEMONEY_HELP)]
+        [AutoComplete(Lang.GIVEMONEY_ARGS)]
         private static void CCGiveMoney(ConCommandArgs args)
         {
             if (!Run.instance)

@@ -6,6 +6,7 @@ namespace DebugToolkit.Commands
     class Miscellaneous
     {
         [ConCommand(commandName = "post_sound_event", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.POSTSOUNDEVENT_HELP)]
+        [AutoComplete(Lang.POSTSOUNDEVENT_ARGS)]
         private static void CCPostSoundEvent(ConCommandArgs args)
         {
             if (args.sender == null)
