@@ -4,7 +4,7 @@ This mod adds various debugging commands to the console. See below for all comma
 
 [Harb](https://thunderstore.io/package/Harb/), [iDeathHD](https://thunderstore.io/package/xiaoxiao921/) and ['s](https://thunderstore.io/package/paddywan/) reimplementation of [Morris1927's](https://thunderstore.io/package/Morris1927/) [RoR2Cheats](https://thunderstore.io/package/Morris1927/RoR2Cheats/). Derived with permission. 
 
-Also adds autocompletion for arguments and networked commands giving their information to the right people to the console.
+Also adds autocompletion for arguments and networked commands giving their information to the right people to the console. Read [here](https://github.com/harbingerofme/DebugToolkit/tree/master/Code/AutoCompletion) to see how you can use the autocompletion feature for your own mod.
 
 Track update progress, get support and suggest new features over at the [DebugToolkit discord](https://discord.gg/yTfsMWP).
 
