@@ -729,7 +729,7 @@ namespace DebugToolkit
 
         public static string RemoveSpacesAndAlike(string input)
         {
-            return Regex.Replace(input, @"[ '-()]|\{\d+\}", string.Empty);
+            return Regex.Replace(input, @"[ '(),-]|\{\d+\}", string.Empty);
         }
 
         public static string GetInteractableName(GameObject prefab)
