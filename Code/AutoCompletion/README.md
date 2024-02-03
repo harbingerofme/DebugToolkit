@@ -6,6 +6,8 @@ Command Autocomplete is an enhancement by DebugToolkit which provides autofill o
 
 It also features partial string highlighting and allows multiple strings as aliases for the same option. The match ordering will take into consideration the closest match for each option.
 
+QoL change: `Tab` and `LeftCtrl + Tab` can also be used similarly to the down/up arrows to cycle through the options.
+
 ## Usage
 
 Pair `AutoCompleteAttribute` with any `ConCommandAttribute`s in your mod and then use `AutoCompleteParser` to register the autocompletion options.

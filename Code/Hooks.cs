@@ -494,6 +494,36 @@ namespace DebugToolkit
             cursor.Prev.Operand = getKey;
             cursor.EmitDelegate<Func<bool, bool>>(LimitChangeItemFrequency);
 
+            cursor.GotoNext(
+                x => x.MatchLdloc(3),
+                x => x.MatchBrfalse(out _)
+            );
+            cursor.Index += 1;
+            cursor.EmitDelegate<Func<bool, bool>>(ScrollAutocompleteNextWithTab);
+
+            for (int i = 0; i < 3; i++)
+            {
+                if (i != 1)
+                {
+                    cursor.GotoNext(
+                        x => x.MatchLdloc(3),
+                        x => x.MatchBrfalse(out _)
+                    );
+                    cursor.Index += 1;
+                    cursor.EmitDelegate<Func<bool, bool>>(ScrollAutocompleteNextWithTab);
+                }
+            }
+
+            cursor.GotoNext(
+                x => x.MatchLdloc(2),
+                x => x.MatchBrfalse(out _)
+            );
+            cursor.Index += 1;
+            cursor.EmitDelegate<Func<bool, bool>>(previousKeyPressed =>
+            {
+                return previousKeyPressed || (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Tab));
+            });
+
             bool LimitChangeItemFrequency(bool canChangeItem)
             {
                 if (canChangeItem)
@@ -512,6 +542,11 @@ namespace DebugToolkit
                 }
 
                 return canChangeItem;
+            }
+
+            bool ScrollAutocompleteNextWithTab(bool isNextKeyPressed)
+            {
+                return isNextKeyPressed || (!Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Tab));
             }
         }
 
