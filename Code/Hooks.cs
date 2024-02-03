@@ -368,6 +368,14 @@ namespace DebugToolkit
                 if (!newSearchString.EndsWith(tokens[tokens.Count - 1]))
                 {
                     tokenIndex++;
+                    // We don't want the option index to persist when switching arguments
+                    var dropdown = RoR2.UI.ConsoleWindow.instance.autoCompleteDropdown;
+                    if (dropdown != null)
+                    {
+                        dropdown.SetValue(0, false);
+                        dropdown.Hide();
+                        RoR2.UI.ConsoleWindow.instance.inputField.Select();
+                    }
                 }
                 var commandName = tokens[lastCommandNameIndex].ToLowerInvariant();
                 if (commandName != AutoCompleteManager.CurrentCommand)
