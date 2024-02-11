@@ -19,7 +19,7 @@
             FORCEWAVE_ARGS = "Requires 0 or 1 argument [wave_prefab]",
             GIVEBUFF_ARGS = "Requires 1 (4 if from server) arguments: {buff} [count:1] [duration:0] [target (player|'pinged'):<self>]",
             GIVEDOT_ARGS = "Requires 1 (4 if from server) argument: {dot} [count:1] [target (player|'pinged'):<self>] [attacker (player|'pinged'):<self>]",
-            GIVEEQUIP_ARGS = "Requires 1 (2 if from server) argument: {equip} [target (player|'pinged'|'evolution'|'simulacrum'|'voidfields'):<self>]",
+            GIVEEQUIP_ARGS = "Requires 1 (2 if from server) argument: {equip (equip|'random')} [target (player|'pinged'|'evolution'|'simulacrum'|'voidfields'):<self>]",
             GIVEITEM_ARGS = "Requires 1 (3 if from server) argument: {item} [count:1] [target (player|'pinged'|'evolution'|'simulacrum'|'voidfields'):<self>]",
             GIVELUNAR_ARGS = "Requires 0 arguments: [amount:1]",
             GIVEMONEY_ARGS = "Requires 1 argument: {amount} [target (player|'all')]",
