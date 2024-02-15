@@ -23,19 +23,18 @@ namespace DebugToolkit
         /// <summary>
         /// Find the target CharacterMaster for a matched player string or pinged entity.
         /// </summary>
-        /// <param name="args">(string[])args array</param>
+        /// <param name="args">(ConCommandArgs)command arguments</param>
         /// <param name="index">(int)on the string array, at which index the target string is</param>
-        /// <param name="isDedicatedServer">whether the command has been submitted from a dedicated server</param>
         /// <returns>Returns the found master. Null otherwise</returns>
-        internal static CharacterMaster GetTargetFromArgs(List<string> args, int index, bool isDedicatedServer)
+        internal static CharacterMaster GetTargetFromArgs(ConCommandArgs args, int index)
         {
             if (args.Count > 0 && index < args.Count)
             {
-                if (!isDedicatedServer && args[index].ToUpperInvariant() == Lang.PINGED)
+                if (args.sender != null && args[index].ToUpperInvariant() == Lang.PINGED)
                 {
-                    return Hooks.GetPingedMaster();
+                    return Hooks.GetPingedTarget(args.senderMaster).master;
                 }
-                return GetNetUserFromString(args, index)?.master;
+                return GetNetUserFromString(args.userArgs, index)?.master;
             }
             return null;
         }

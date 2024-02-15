@@ -253,7 +253,7 @@ namespace DebugToolkit.Commands
             CharacterMaster target = args.senderMaster;
             if (args.Count > 0 && args[0] != Lang.DEFAULT_VALUE)
             {
-                target = Util.GetTargetFromArgs(args.userArgs, 0, isDedicatedServer);
+                target = Util.GetTargetFromArgs(args, 0);
                 if (target == null && !isDedicatedServer && args[0].ToUpperInvariant() == Lang.PINGED)
                 {
                     Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
