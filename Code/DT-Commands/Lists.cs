@@ -55,6 +55,22 @@ namespace DebugToolkit.Commands
             }
         }
 
+        [ConCommand(commandName = "list_artifact", flags = ConVarFlags.None, helpText = Lang.LISTARTIFACT_HELP)]
+        private static void CCListArtifact(ConCommandArgs args)
+        {
+            StringBuilder sb = new StringBuilder();
+            var arg = args.Count > 0 ? args[0] : "";
+            var indices = StringFinder.Instance.GetArtifactsFromPartial(arg);
+            foreach (var index in indices)
+            {
+                var artifact = ArtifactCatalog.GetArtifactDef(index);
+                var langInvar = StringFinder.GetLangInvar(artifact.nameToken);
+                sb.AppendLine($"[{(int)index}]{artifact.cachedName}={langInvar}");
+            }
+            var s = sb.Length > 0 ? sb.ToString().TrimEnd('\n') : string.Format(Lang.NOMATCH_ERROR, "artifacts", arg);
+            Log.MessageNetworked(s, args, LogLevel.MessageClientOnly);
+        }
+
         [ConCommand(commandName = "list_ai", flags = ConVarFlags.None, helpText = Lang.LISTAI_HELP)]
         [AutoComplete(Lang.LISTQUERY_ARGS)]
         private static void CCListAI(ConCommandArgs args)
