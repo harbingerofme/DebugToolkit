@@ -53,6 +53,7 @@ Commands:
 * **run_set_waves_cleared** - Set the Simulacrum waves cleared. Must be positive. `set_run_waves_cleared {wave}`
 * **add_portal** - Add a portal to the current Teleporter on completion. `add_portal {portal ('blue'|'celestial'|'gold'|'void'|'all')}`.
 * **seed** - Set the seed for all next runs this session. `seed [new_seed]`. Use `0` to specify the game should generate its own seed. If used without argument, it's equivalent to the vanilla `run_get_seed`.
+* **set_artifact** - Enable/disable an Artifact. `set_artifact {artifact (artifact|'all')} {enable (0|1)}`
 * **kill_all** - Kills all members of a specified team. `kill_all [team:Monster]`.
 * **true_kill** - Truly kill a player, ignoring revival effects. `true_kill *[player:<self>]`
 * **respawn** - Respawn a player at the map spawnpoint. `respawn *[player:<self>]`
@@ -68,6 +69,7 @@ List Commands:
 * **list_ai** - List all Masters and their language invariants.
 * **list_elite** - List all Elites and their language invariants.
 * **list_team** - List all Teams and their language invariants.
+* **list_artifact** - List all Artifacts and their language invariants.
 * **list_buff** - List all Buffs and if they are stackable.
 * **list_dot** - List all DoT effects.
 * **list_itemtier** - List all Item Tiers.

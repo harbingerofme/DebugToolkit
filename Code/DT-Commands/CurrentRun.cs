@@ -365,6 +365,79 @@ namespace DebugToolkit.Commands
             Log.MessageNetworked("Wave prefab not found. You can choose from: " + string.Join(", ", waves.Keys), args, LogLevel.MessageClientOnly);
         }
 
+        [ConCommand(commandName = "set_artifact", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SETARTIFACT_HELP)]
+        [AutoCompletion(typeof(ArtifactCatalog), "artifactDefs", "nameToken")]
+        private static void CCSetArtifact(ConCommandArgs args)
+        {
+            if (!Run.instance || !RunArtifactManager.instance) // the manager check is superfluous but just in case
+            {
+                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            if (args.Count < 2)
+            {
+                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.SETARTIFACT_ARGS, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            if (!Util.TryParseBool(args[1], out var enabled))
+            {
+                Log.MessageNetworked(string.Format(Lang.PARSE_ERROR, "enable", "int or bool"), args, LogLevel.MessageClientOnly);
+                return;
+            }
+
+            if (args[0].ToUpperInvariant() == Lang.ALL)
+            {
+                // Cleaning up after Kin because the game won't
+                if (!enabled && Stage.instance)
+                {
+                    Stage.instance.singleMonsterTypeBodyIndex = BodyIndex.None;
+                }
+                // Toggling Evolution triggers a UI refresh to update the Kin monster
+                var willRefresh = RunArtifactManager.instance.IsArtifactEnabled(RoR2Content.Artifacts.MonsterTeamGainsItems) != enabled;
+                foreach (var artifact in ArtifactCatalog.artifactDefs)
+                {
+                    RunArtifactManager.instance.SetArtifactEnabled(artifact, enabled);
+                }
+                if (!willRefresh)
+                {
+                    RoR2.UI.EnemyInfoPanel.RefreshAll();
+                }
+                Log.MessageNetworked($"All artifacts are {(enabled ? "enabled" : "disabled")}", args);
+            }
+            else
+            {
+                var artifactIndex = StringFinder.Instance.GetArtifactFromPartial(args[0]);
+                if (artifactIndex == ArtifactIndex.None)
+                {
+                    Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "artifact", args[0]), args, LogLevel.MessageClientOnly);
+                    return;
+                }
+                var artifact = ArtifactCatalog.GetArtifactDef(artifactIndex);
+                if (RunArtifactManager.instance.IsArtifactEnabled(artifact) == enabled)
+                {
+                    Log.MessageNetworked("Nothing happened", args);
+                    return;
+                }
+                RunArtifactManager.instance.SetArtifactEnabled(artifact, enabled);
+                if (artifact == RoR2Content.Artifacts.SingleMonsterType && Stage.instance)
+                {
+                    if (!enabled)
+                    {
+                        Stage.instance.singleMonsterTypeBodyIndex = BodyIndex.None;
+                    }
+                    RoR2.UI.EnemyInfoPanel.RefreshAll();
+                }
+                else if (artifact == RoR2Content.Artifacts.MixEnemy)
+                {
+                    if (RunArtifactManager.instance.IsArtifactEnabled(RoR2Content.Artifacts.SingleMonsterType))
+                    {
+                        RoR2.UI.EnemyInfoPanel.RefreshAll();
+                    }
+                }
+                Log.MessageNetworked($"{artifact.cachedName} is {(enabled ? "enabled" : "disabled")}", args);
+            }
+        }
+
         [ConCommand(commandName = "seed", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SEED_HELP)]
         private static void CCUseSeed(ConCommandArgs args)
         {
