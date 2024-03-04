@@ -1,6 +1,21 @@
 
 ## Changelog ##
 
+### 3.14 ###
+
+* **3.14.0**
+    * This update is carried by [SChinchi](https://github.com/SChinchi), thanks!
+    * Added `set_artifact`: Enable/disable any Artifact.
+    * Added `list_artifact`
+    * Added `charge_zone`: Set the charge of all active holdout zones between 0 and 100.
+    * Updated `kill_all`: Fixes a crash when a killed entity instantly spawns a new one, e.g., Mending Elites.
+    * Updated `spawn_as`: Now internally uses CharacterMaster.TransformBody for simplicity. This has no effect in functionality.
+    * Updated `teleport_on_cursor`: Now internally uses TeleportHelper for simplicity. Also fixes a crash when used with survivors that lack a KinematicCharacterMotor component.
+    * Updated package references.
+    * Fixed the NetWeaver not working. Now a fork can build a networked version with the workflow already in place.
+    * Fixed the ping functionality to refer to the correct entity for commands that are submitted by a client to the server.
+    * Updated the command autocompletion functionality. Now features autocompletion for all arguments past the first one, match highlighting, and match aliases for each option. A reminder of the command's signature also appears above the input field while typing. This functionality is open to other mods to make use of. More info [here](https://github.com/harbingerofme/DebugToolkit/tree/master/Code/AutoCompletion).
+
 ### 3.13 ###
 
 * **3.13.0**
