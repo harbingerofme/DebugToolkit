@@ -4,9 +4,10 @@
     "website_url": "https://github.com/harbingerofme/DebugToolkit",
     "description": "Adds console command for debugging mods.",
     "dependencies": [
-      "RiskofThunder-R2API_ContentManagement-1.0.1",
+      "bbepis-BepInExPack-5.4.2113",
+      "RiskofThunder-R2API_Core-5.0.11",
+      "RiskofThunder-R2API_ContentManagement-1.0.4",
       "RiskofThunder-R2API_Networking-1.0.2",
-      "RiskofThunder-R2API_Prefab-1.0.1",
-      "RiskofThunder-R2API_Core-5.0.4"
+      "RiskofThunder-R2API_Prefab-1.0.3"
     ]
 }
