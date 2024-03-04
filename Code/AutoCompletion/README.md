@@ -4,13 +4,25 @@
 
 Command Autocomplete is an enhancement by DebugToolkit which provides autofill options for any argument in a command.
 
-It also features partial string highlighting and allows multiple strings as aliases for the same option. The match ordering will take into consideration the closest match for each option.
+It also features partial string highlighting and allows multiple strings as aliases for the same option. The match ordering will take into consideration the closest match for each option and whether the match is at the beginning of a string.
 
 QoL change: `Tab` and `LeftCtrl + Tab` can also be used similarly to the down/up arrows to cycle through the options.
 
 ## Usage
 
-Pair `AutoCompleteAttribute` with any `ConCommandAttribute`s in your mod and then use `AutoCompleteParser` to register the autocompletion options.
+Download the dll and include it in your project file
+
+```
+<ItemGroup>
+  <Reference Include="DebugToolkit">
+    <HintPath>path\to\file\DebugToolkit.dll</HintPath>
+  </Reference>
+</ItemGroup>
+```
+
+Pair `AutoCompleteAttribute` with any `ConCommandAttribute`s in your mod and then use `AutoCompleteParser` to register the autocompletion options. See [example](#example) at the bottom.
+
+Finally add a dependency in your manifest for `"IHarbHD-DebugToolkit-x.y.z"`.
 
 ### Attribute
 The string in the attribute is scanned for any tokens containing brackets, .e.g., `{}`, `[]`, and `<>`, which are used to define what options are available for each argument. The pattern within these brackets falls under two categories:
@@ -38,7 +50,9 @@ While scanning the assembly any unregistered variables encountered will be ignor
 
 ### Example
 
-```
+```cs
+using DebugToolkit;
+
 private void Awake()
 {
     RoR2Application.onLoad += delegate()
