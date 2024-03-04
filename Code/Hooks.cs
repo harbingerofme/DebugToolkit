@@ -22,13 +22,13 @@ namespace DebugToolkit
         private const ConVarFlags AllFlagsNoCheat = ConVarFlags.None | ConVarFlags.Archive | ConVarFlags.Engine | ConVarFlags.ExecuteOnServer | ConVarFlags.SenderMustBeServer;
 
         private static On.RoR2.Console.orig_RunCmd _origRunCmd;
-        private static CharacterBody pingedBody;
-        private static CharacterMaster pingedMaster;
         private static bool buddha;
         private static bool god;
 
         private static CombatDirector bossDirector;
         private static bool skipSpawnIfTooCheapBackup;
+
+        private static readonly Dictionary<CharacterMaster, PingCache> pingedTargets = new Dictionary<CharacterMaster, PingCache>();
 
         public static void InitializeHooks()
         {
@@ -100,26 +100,40 @@ namespace DebugToolkit
             });
         }
 
+        internal struct PingCache
+        {
+            internal CharacterBody body;
+            internal CharacterMaster master;
+        }
+
         private static void InterceptPing(On.RoR2.PingerController.orig_RebuildPing orig, PingerController self, PingerController.PingInfo pingInfo)
         {
             orig(self, pingInfo);
+            var master = self.GetComponent<CharacterMaster>();
+            if (!master)
+            {
+                return;
+            }
             if (self.pingIndicator && self.pingIndicator.pingTarget)
             {
                 var body = self.pingIndicator.pingTarget.GetComponent<CharacterBody>();
                 if (body != null)
                 {
-                    pingedBody = body;
-                    pingedMaster = body.master;
+                    pingedTargets[master] = new PingCache
+                    {
+                        body = body,
+                        master = body.master
+                    };
                 }
                 else
                 {
-                    pingedBody = null;
-                    pingedMaster = null;
+                    pingedTargets[master] = default;
                 }
-                return;
             }
-            pingedBody = null;
-            pingedMaster = null;
+            else
+            {
+                pingedTargets[master] = default;
+            }
         }
 
         private static void OverrideVanillaSceneList(On.RoR2.Networking.NetworkManagerSystem.orig_CCSceneList orig, ConCommandArgs args)
@@ -522,14 +536,13 @@ namespace DebugToolkit
             return;
         }
 
-        internal static CharacterBody GetPingedBody()
+        internal static PingCache GetPingedTarget(CharacterMaster player)
         {
-            return pingedBody;
-        }
-
-        internal static CharacterMaster GetPingedMaster()
-        {
-            return pingedMaster;
+            if (pingedTargets.TryGetValue(player, out var ping))
+            {
+                return ping;
+            }
+            return default;
         }
 
         internal static bool ToggleBuddha()

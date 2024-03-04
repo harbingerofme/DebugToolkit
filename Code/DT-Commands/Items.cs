@@ -580,7 +580,7 @@ namespace DebugToolkit.Commands
                 else
                 {
                     var isDedicatedServer = args.sender == null;
-                    var target = Util.GetTargetFromArgs(args.userArgs, index, isDedicatedServer);
+                    var target = Util.GetTargetFromArgs(args, index);
                     if (target == null && !isDedicatedServer && targetArg == Lang.PINGED)
                     {
                         Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);

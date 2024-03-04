@@ -556,11 +556,11 @@ namespace DebugToolkit.Commands
             {
                 // Try to get target from the master initially to account for ping -> target revival
                 // as in that case the cached pinged body would be stale.
-                var targetMaster = Util.GetTargetFromArgs(args.userArgs, index, isDedicatedServer);
+                var targetMaster = Util.GetTargetFromArgs(args, index);
                 if (targetMaster == null && !isDedicatedServer && args[index].ToUpperInvariant() == Lang.PINGED)
                 {
                     // Account for masterless bodies
-                    target = Hooks.GetPingedBody();
+                    target = Hooks.GetPingedTarget(args.senderMaster).body;
                     if (target == null)
                     {
                         Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
