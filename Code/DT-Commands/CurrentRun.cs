@@ -365,6 +365,66 @@ namespace DebugToolkit.Commands
             Log.MessageNetworked("Wave prefab not found. You can choose from: " + string.Join(", ", waves.Keys), args, LogLevel.MessageClientOnly);
         }
 
+        [ConCommand(commandName = "charge_zone", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.CHARGEZONE_HELP)]
+        private static void CCChargeZone(ConCommandArgs args)
+        {
+            if (!Run.instance)
+            {
+                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            if (args.Count == 0)
+            {
+                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.CHARGEZONE_ARGS, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            if (!TextSerialization.TryParseInvariant(args[0], out float charge))
+            {
+                Log.MessageNetworked(string.Format(Lang.PARSE_ERROR, "charge", "float"), args, LogLevel.MessageClientOnly);
+                return;
+            }
+            charge /= 100f;
+
+            foreach (var zone in InstanceTracker.GetInstancesList<HoldoutZoneController>())
+            {
+                zone.charge = charge;
+                // Trigger the onCharged event manually, since Pillars of Soul discharging means the
+                // zone will be deactivated without updating the mission tracker successfully.
+                var charged = charge >= 1f;
+                if (charged && zone.wasCharged != charged && zone.onCharged != null)
+                {
+                    zone.wasCharged = charged;
+                    zone.onCharged.Invoke(zone);
+                }
+                // For the teleporter the zone is not deactivated at full charge with the boss
+                // still alive, so we can reduce the charge again. However, we must manually
+                // reactivate the combat director related to it.
+                // This also means that if a mod subscribes an event which removes itself
+                // upon getting triggered, we have no way of resubscribing it.
+                var teleporterInteraction = zone.GetComponent<TeleporterInteraction>();
+                if (teleporterInteraction && charge < 1f)
+                {
+                    teleporterInteraction.bonusDirector.enabled = true;
+                }
+                // The zone recreates the Lepton Daisy generators when the zone toggles
+                // "isCharging" for each team. Therefore, if the player is charging the
+                // teleporter and reduces the charge, the heal won't be triggered when
+                // crossing a previously triggered threshold unless the player leaves and
+                // reenters the zone.
+                foreach (var novaGenerator in zone.healingNovaGeneratorsByTeam)
+                {
+                    if (novaGenerator && novaGenerator.TryGetComponent<EntityStateMachine>(out var esm))
+                    {
+                        var state = esm.state as EntityStates.TeleporterHealNovaController.TeleporterHealNovaGeneratorMain;
+                        if (state != null)
+                        {
+                            state.previousPulseFraction = charge;
+                        }
+                    }
+                }
+            }
+        }
+      
         [ConCommand(commandName = "set_artifact", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SETARTIFACT_HELP)]
         [AutoCompletion(typeof(ArtifactCatalog), "artifactDefs", "nameToken")]
         private static void CCSetArtifact(ConCommandArgs args)
