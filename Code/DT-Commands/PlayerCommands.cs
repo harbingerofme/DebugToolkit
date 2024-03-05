@@ -66,7 +66,7 @@ namespace DebugToolkit.Commands
             }
             if (!args.senderBody)
             {
-                Log.MessageNetworked("Can't toggle noclip while you're dead. " + Lang.USE_RESPAWN, args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked("Can't teleport while you're dead. " + Lang.USE_RESPAWN, args, LogLevel.MessageClientOnly);
                 return;
             }
             TeleportNet.Invoke(args.sender); // callback
@@ -116,14 +116,7 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            RoR2.ConVar.BoolConVar stage1pod = Stage.stage1PodConVar;
-            bool oldVal = stage1pod.value;
-            stage1pod.SetBool(false);
-            var pcmc = master.playerCharacterMasterController;
-            master.playerCharacterMasterController = null; // prevent metamorphosis rerolling the body for players
-            master.Respawn(master.GetBody().transform.position, master.GetBody().transform.rotation);
-            master.playerCharacterMasterController = pcmc;
-            stage1pod.SetBool(oldVal);
+            master.TransformBody(newBody.name);
         }
 
         [ConCommand(commandName = "respawn", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.RESPAWN_HELP)]
