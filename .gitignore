@@ -355,6 +355,9 @@ DebugToolkit.zip
 CurrentCommit
 
 NetworkWeaver/*
+!NetworkWeaver/Unity.Cecil.dll
+!NetworkWeaver/Unity.Cecil.Mdb.dll
+!NetworkWeaver/Unity.Cecil.Pdb.dll
 !NetworkWeaver/Unity.UNetWeaver.exe
 
 *.prepatch
