@@ -1,5 +1,6 @@
 ﻿using R2API.Utils;
 using RoR2;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -60,16 +61,54 @@ namespace DebugToolkit
         }
 
         /// <summary>
-        /// Scan the assembly for commands with autocompletion options.
+        /// Scan an assembly for commands with autocompletion options.
         /// </summary>
-        public void ScanAssembly()
+        /// <param name="assembly">The assembly to scan</param>
+        public void Scan(Assembly assembly)
         {
-            foreach (var methodInfo in Assembly.GetCallingAssembly().GetTypes().SelectMany(x => x.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)))
+            if (assembly == null)
             {
-                var autoCompletionAttribute = methodInfo.GetCustomAttributes(false).OfType<AutoCompleteAttribute>().DefaultIfEmpty(null).FirstOrDefault();
+                Log.Message($"Null assembly encountered for autocompletion scanning", Log.LogLevel.Warning, Log.Target.Bepinex);
+                return;
+            }
+            Type[] types;
+            try
+            {
+                types = assembly.GetTypes();
+            }
+            catch (ReflectionTypeLoadException ex)
+            {
+                types = ex.Types.Where(x => x != null).ToArray();
+                foreach (var e in ex.LoaderExceptions)
+                {
+                    Log.Message(ex.Message, Log.LogLevel.Error, Log.Target.Bepinex);
+                }
+            }
+            foreach (var methodInfo in types.SelectMany(x => x.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)))
+            {
+                object[] attributes;
+                try
+                {
+                    attributes = methodInfo.GetCustomAttributes(false);
+                }
+                catch (TypeLoadException ex)
+                {
+                    Log.Message(ex.Message, Log.LogLevel.Error, Log.Target.Bepinex);
+                    continue;
+                }
+                catch (InvalidOperationException ex)
+                {
+                    Log.Message(ex.Message, Log.LogLevel.Error, Log.Target.Bepinex);
+                    continue;
+                }
+                if (attributes == null)
+                {
+                    continue;
+                }
+                var autoCompletionAttribute = attributes.OfType<AutoCompleteAttribute>().DefaultIfEmpty(null).FirstOrDefault();
                 if (autoCompletionAttribute != null)
                 {
-                    var conCommandAttributes = methodInfo.GetCustomAttributes(false).OfType<ConCommandAttribute>().ToArray();
+                    var conCommandAttributes = attributes.OfType<ConCommandAttribute>().ToArray();
                     if (conCommandAttributes.Length > 0)
                     {
                         var p = autoCompletionAttribute.Parse(this);

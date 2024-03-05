@@ -88,7 +88,7 @@ namespace DebugToolkit
             parser.RegisterDynamicVariable("interactable", StringFinder.Instance.InteractableSpawnCards);
             parser.RegisterDynamicVariable("player", NetworkUser.instancesList, "userName");
 
-            parser.ScanAssembly();
+            parser.Scan(System.Reflection.Assembly.GetExecutingAssembly());
         }
 
         private static IEnumerable<string> CollectEnumNames(Type enumType, Type castTo)

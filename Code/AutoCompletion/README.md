@@ -60,7 +60,7 @@ private void Awake()
         var parser = new AutoCompleteParser();
         parser.RegisterStaticVariable("action", new string[] { "1", "2", "3" });
         parser.RegisterDynamicVariable("player", NetworkUser.instancesList, "userName");
-        parser.ScanAssembly();
+        parser.Scan(System.Reflection.Assembly.GetExecutingAssembly());
     };
 }
 
