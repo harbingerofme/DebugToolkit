@@ -21,6 +21,7 @@ namespace DebugToolkit
 
             Log.InitRPC();
             Command_Noclip.InitRPC();
+            Command_Teleport.InitRPC();
             DebugToolKitComponents.AddComponent<TimescaleNet>();
 
             ApplyHook();
