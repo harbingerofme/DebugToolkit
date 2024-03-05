@@ -1,5 +1,4 @@
-﻿using KinematicCharacterController;
-using RoR2;
+﻿using RoR2;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -20,12 +19,14 @@ namespace DebugToolkit.Commands
         {
             if (PlayerCommands.UpdateCurrentPlayerBody(out _, out _currentBody))
             {
-                var playerTransform = _currentBody.GetComponentInChildren<KinematicCharacterMotor>().transform;
-                var aimDirection = _currentBody.GetComponentInChildren<InputBankTest>().aimDirection;
-
-                if (Physics.Raycast(playerTransform.position, aimDirection, out var hit, Mathf.Infinity, 1 << 11))
+                var inputBank = _currentBody.inputBank;
+                if (inputBank)
                 {
-                    _currentBody.GetComponentInChildren<KinematicCharacterMotor>().SetPosition(hit.point + new Vector3(0, 5));
+                    if (Physics.Raycast(inputBank.aimOrigin, inputBank.aimDirection, out var hit, Mathf.Infinity, 1 << 11))
+                    {
+                        var footOffset = _currentBody.transform.position - _currentBody.footPosition;
+                        TeleportHelper.TeleportGameObject(_currentBody.gameObject, hit.point + footOffset);
+                    }
                 }
             }
         }

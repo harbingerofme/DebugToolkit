@@ -66,7 +66,7 @@ namespace DebugToolkit.Commands
             }
             if (!args.senderBody)
             {
-                Log.MessageNetworked("Can't toggle noclip while you're dead. " + Lang.USE_RESPAWN, args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked("Can't teleport while you're dead. " + Lang.USE_RESPAWN, args, LogLevel.MessageClientOnly);
                 return;
             }
             TeleportNet.Invoke(args.sender); // callback
