@@ -370,6 +370,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "charge_zone", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.CHARGEZONE_HELP)]
+        [AutoComplete(Lang.CHARGEZONE_ARGS)]
         private static void CCChargeZone(ConCommandArgs args)
         {
             if (!Run.instance)
@@ -430,7 +431,7 @@ namespace DebugToolkit.Commands
         }
       
         [ConCommand(commandName = "set_artifact", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SETARTIFACT_HELP)]
-        [AutoCompletion(typeof(ArtifactCatalog), "artifactDefs", "nameToken")]
+        [AutoComplete(Lang.SETARTIFACT_ARGS)]
         private static void CCSetArtifact(ConCommandArgs args)
         {
             if (!Run.instance || !RunArtifactManager.instance) // the manager check is superfluous but just in case
