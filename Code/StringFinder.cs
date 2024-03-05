@@ -211,12 +211,21 @@ namespace DebugToolkit
                 yield break;
             }
             name = name.ToUpperInvariant();
+            var matches = new List<MatchSimilarity>();
             foreach (var buff in BuffCatalog.buffDefs)
             {
                 if (buff.name.ToUpper().Contains(name))
                 {
-                    yield return buff.buffIndex;
+                    matches.Add(new MatchSimilarity
+                    {
+                        similarity = GetSimilarity(buff.name, name),
+                        item = buff.buffIndex
+                    });
                 }
+            }
+            foreach (var match in matches.OrderByDescending(m => m.similarity))
+            {
+                yield return (BuffIndex)match.item;
             }
         }
 
@@ -247,15 +256,24 @@ namespace DebugToolkit
                 yield break;
             }
             name = name.ToUpperInvariant();
+            var matches = new List<MatchSimilarity>();
             foreach (var dot in Enum.GetValues(typeof(DotController.DotIndex)).Cast<DotController.DotIndex>())
             {
                 if (dot >= DotController.DotIndex.Bleed && dot < DotController.DotIndex.Count)
                 {
                     if (dot.ToString().ToUpper().Contains(name))
                     {
-                        yield return dot;
+                        matches.Add(new MatchSimilarity
+                        {
+                            similarity = GetSimilarity(dot.ToString(), name),
+                            item = dot
+                        });
                     }
                 }
+            }
+            foreach (var match in matches.OrderByDescending(m => m.similarity))
+            {
+                yield return (DotController.DotIndex)match.item;
             }
         }
 
@@ -286,13 +304,22 @@ namespace DebugToolkit
                 yield break;
             }
             name = name.ToUpperInvariant();
+            var matches = new List<MatchSimilarity>();
             foreach (var equip in EquipmentCatalog.equipmentDefs)
             {
                 var langInvar = GetLangInvar(equip.nameToken).ToUpper();
-                if (equip.name.ToUpper().Contains(name) || langInvar.Contains(RemoveSpacesAndAlike(name)))
+                if (equip.name.ToUpper().Contains(name) || langInvar.Contains(name))
                 {
-                    yield return equip.equipmentIndex;
+                    matches.Add(new MatchSimilarity
+                    {
+                        similarity = Math.Max(GetSimilarity(equip.name, name), GetSimilarity(langInvar, name)),
+                        item = equip.equipmentIndex
+                    });
                 }
+            }
+            foreach (var match in matches.OrderByDescending(m => m.similarity))
+            {
+                yield return (EquipmentIndex)match.item;
             }
         }
 
@@ -328,12 +355,21 @@ namespace DebugToolkit
                 yield break;
             }
             name = name.ToUpperInvariant();
+            var matches = new List<MatchSimilarity>();
             foreach (var tierDef in allItemTierDefs)
             {
                 if (tierDef.name.ToUpper().Contains(name))
                 {
-                    yield return tierDef.tier;
+                    matches.Add(new MatchSimilarity
+                    {
+                        similarity = GetSimilarity(tierDef.name, name),
+                        item = tierDef.tier
+                    });
                 }
+            }
+            foreach (var match in matches.OrderByDescending(m => m.similarity))
+            {
+                yield return (ItemTier)match.item;
             }
         }
 
@@ -364,13 +400,22 @@ namespace DebugToolkit
                 yield break;
             }
             name = name.ToUpperInvariant();
+            var matches = new List<MatchSimilarity>();
             foreach (var item in ItemCatalog.allItemDefs)
             {
                 var langInvar = GetLangInvar(item.nameToken).ToUpper();
-                if (item.name.ToUpper().Contains(name) || langInvar.Contains(RemoveSpacesAndAlike(name)))
+                if (item.name.ToUpper().Contains(name) || langInvar.Contains(name))
                 {
-                    yield return item.itemIndex;
+                    matches.Add(new MatchSimilarity
+                    {
+                        similarity = Math.Max(GetSimilarity(item.name, name), GetSimilarity(langInvar, name)),
+                        item = item.itemIndex
+                    });
                 }
+            }
+            foreach (var match in matches.OrderByDescending(m => m.similarity))
+            {
+                yield return (ItemIndex)match.item;
             }
         }
 
@@ -400,12 +445,21 @@ namespace DebugToolkit
                 yield break;
             }
             name = name.ToUpperInvariant();
+            var matches = new List<MatchSimilarity>();
             foreach (var user in NetworkUser.readOnlyInstancesList)
             {
                 if (user.userName.ToUpper().Contains(name))
                 {
-                    yield return user;
+                    matches.Add(new MatchSimilarity
+                    {
+                        similarity = GetSimilarity(user.userName, name),
+                        item = user
+                    });
                 }
+            }
+            foreach (var match in matches.OrderByDescending(m => m.similarity))
+            {
+                yield return (NetworkUser)match.item;
             }
         }
 
@@ -436,15 +490,24 @@ namespace DebugToolkit
                 yield break;
             }
             name = name.ToUpperInvariant();
+            var matches = new List<MatchSimilarity>();
             foreach (var team in Enum.GetValues(typeof(TeamIndex)).Cast<TeamIndex>().OrderBy(t => t))
             {
                 if (team >= TeamIndex.None && team < TeamIndex.Count)
                 {
                     if (team.ToString().ToUpper().Contains(name))
                     {
-                        yield return team;
+                        matches.Add(new MatchSimilarity
+                        {
+                            similarity = GetSimilarity(team.ToString(), name),
+                            item = team
+                        });
                     }
                 }
+            }
+            foreach (var match in matches.OrderByDescending(m => m.similarity))
+            {
+                yield return (TeamIndex)match.item;
             }
         }
 
@@ -479,17 +542,30 @@ namespace DebugToolkit
                 yield break;
             }
             name = name.ToUpperInvariant();
+            var matches = new List<MatchSimilarity>();
             if ("NONE".Contains(name))
             {
-                yield return EliteIndex.None;
+                matches.Add(new MatchSimilarity
+                {
+                    similarity = GetSimilarity("None", name),
+                    item = EliteIndex.None
+                });
             }
             foreach (var elite in EliteCatalog.eliteDefs)
             {
-                var langInvar = GetLangInvar(elite.modifierToken).Replace("{0}", "").ToUpper();
+                var langInvar = GetLangInvar(elite.modifierToken).ToUpper();
                 if (elite.name.ToUpper().Contains(name) || langInvar.Contains(name))
                 {
-                    yield return elite.eliteIndex;
+                    matches.Add(new MatchSimilarity
+                    {
+                        similarity = Math.Max(GetSimilarity(elite.name, name), GetSimilarity(langInvar, name)),
+                        item = elite.eliteIndex
+                    });
                 }
+            }
+            foreach (var match in matches.OrderByDescending(m => m.similarity))
+            {
+                yield return (EliteIndex)match.item;
             }
         }
 
@@ -519,12 +595,21 @@ namespace DebugToolkit
                 yield break;
             }
             name = name.ToUpperInvariant();
+            var matches = new List<MatchSimilarity>();
             foreach (var dc in characterSpawnCard)
             {
                 if (dc.spawnCard.name.ToUpper().Contains(name))
                 {
-                    yield return dc;
+                    matches.Add(new MatchSimilarity
+                    {
+                        similarity = GetSimilarity(dc.spawnCard.name, name),
+                        item = dc
+                    });
                 }
+            }
+            foreach (var match in matches.OrderByDescending(m => m.similarity))
+            {
+                yield return (DirectorCard)match.item;
             }
         }
 
@@ -554,13 +639,22 @@ namespace DebugToolkit
                 yield break;
             }
             name = name.ToUpperInvariant();
+            var matches = new List<MatchSimilarity>();
             foreach (var isc in interactableSpawnCards)
             {
                 var langInvar = GetLangInvar(GetInteractableName(isc.prefab)).ToUpper();
                 if (isc.name.ToUpper().Contains(name) || langInvar.Contains(name))
                 {
-                    yield return isc;
+                    matches.Add(new MatchSimilarity
+                    {
+                        similarity = Math.Max(GetSimilarity(isc.name, name), GetSimilarity(langInvar, name)),
+                        item = isc
+                    });
                 }
+            }
+            foreach (var match in matches.OrderByDescending(m => m.similarity))
+            {
+                yield return (InteractableSpawnCard)match.item;
             }
         }
 
@@ -591,13 +685,22 @@ namespace DebugToolkit
                 yield break;
             }
             name = name.ToUpperInvariant();
+            var matches = new List<MatchSimilarity>();
             foreach (var body in BodyCatalog.allBodyPrefabBodyBodyComponents)
             {
                 var langInvar = GetLangInvar(body.baseNameToken).ToUpper();
-                if (body.name.ToUpper().Contains(name) || langInvar.Contains(RemoveSpacesAndAlike(name)))
+                if (body.name.ToUpper().Contains(name) || langInvar.Contains(name))
                 {
-                    yield return body.bodyIndex;
+                    matches.Add(new MatchSimilarity
+                    {
+                        similarity = Math.Max(GetSimilarity(body.name, name), GetSimilarity(langInvar, name)),
+                        item = body.bodyIndex
+                    });
                 }
+            }
+            foreach (var match in matches.OrderByDescending(m => m.similarity))
+            {
+                yield return (BodyIndex)match.item;
             }
         }
 
@@ -628,13 +731,22 @@ namespace DebugToolkit
                 yield break;
             }
             name = name.ToUpperInvariant();
+            var matches = new List<MatchSimilarity>();
             foreach (var ai in MasterCatalog.allAiMasters)
             {
                 var langInvar = GetLangInvar(GetMasterName(ai)).ToUpper();
                 if (ai.name.ToUpper().Contains(name) || langInvar.Contains(name))
                 {
-                    yield return ai.masterIndex;
+                    matches.Add(new MatchSimilarity
+                    {
+                        similarity = Math.Max(GetSimilarity(ai.name, name), GetSimilarity(langInvar, name)),
+                        item = ai.masterIndex
+                    });
                 }
+            }
+            foreach (var match in matches.OrderByDescending(m => m.similarity))
+            {
+                yield return (MasterCatalog.MasterIndex)match.item;
             }
         }
 
@@ -654,7 +766,7 @@ namespace DebugToolkit
 
         public static string RemoveSpacesAndAlike(string input)
         {
-            return Regex.Replace(input, @"[ '-]", string.Empty);
+            return Regex.Replace(input, @"[ '(),-]|\{\d+\}", string.Empty);
         }
 
         public static string GetInteractableName(GameObject prefab)
@@ -692,6 +804,22 @@ namespace DebugToolkit
                 return body.GetDisplayName();
             }
             return NAME_NOTFOUND;
+        }
+
+        private struct MatchSimilarity
+        {
+            public int similarity;
+            public object item;
+        }
+
+        private static int GetSimilarity(string s, string partial)
+        {
+            if (string.IsNullOrEmpty(partial) || !s.ToUpper().Contains(partial))
+            {
+                return int.MinValue;
+            }
+            var offset = s.StartsWith(partial, StringComparison.InvariantCultureIgnoreCase) ? 1000 : 0;
+            return offset + partial.Length - s.Length;
         }
 
         /// <summary>

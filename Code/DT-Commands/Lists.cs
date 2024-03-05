@@ -10,6 +10,7 @@ namespace DebugToolkit.Commands
     {
         [ConCommand(commandName = "list_interactables", flags = ConVarFlags.None, helpText = Lang.LISTINTERACTABLE_HELP)]
         [ConCommand(commandName = "list_interactibles", flags = ConVarFlags.None, helpText = Lang.LISTINTERACTABLE_HELP)]
+        [AutoComplete(Lang.LISTQUERY_ARGS)]
         private static void CCListInteractables(ConCommandArgs args)
         {
             StringBuilder sb = new StringBuilder();
@@ -29,6 +30,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "list_player", flags = ConVarFlags.None, helpText = Lang.LISTPLAYER_HELP)]
+        [AutoComplete(Lang.LISTQUERY_ARGS)]
         private static void CCListPlayer(ConCommandArgs args)
         {
             StringBuilder sb = new StringBuilder();
@@ -70,6 +72,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "list_ai", flags = ConVarFlags.None, helpText = Lang.LISTAI_HELP)]
+        [AutoComplete(Lang.LISTQUERY_ARGS)]
         private static void CCListAI(ConCommandArgs args)
         {
             StringBuilder sb = new StringBuilder();
@@ -86,6 +89,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "list_body", flags = ConVarFlags.None, helpText = Lang.LISTBODY_HELP)]
+        [AutoComplete(Lang.LISTQUERY_ARGS)]
         private static void CCListBody(ConCommandArgs args)
         {
             StringBuilder sb = new StringBuilder();
@@ -102,6 +106,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "list_elite", flags = ConVarFlags.None, helpText = Lang.LISTELITE_HELP)]
+        [AutoComplete(Lang.LISTQUERY_ARGS)]
         private static void CCListElites(ConCommandArgs args)
         {
             StringBuilder sb = new StringBuilder();
@@ -119,6 +124,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "list_team", flags = ConVarFlags.None, helpText = Lang.LISTTEAM_HELP)]
+        [AutoComplete(Lang.LISTQUERY_ARGS)]
         private static void CCListTeams(ConCommandArgs args)
         {
             StringBuilder sb = new StringBuilder();
@@ -133,6 +139,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "list_directorcards", flags = ConVarFlags.None, helpText = Lang.LISTDIRECTORCARDS_HELP)]
+        [AutoComplete(Lang.LISTQUERY_ARGS)]
         private static void CCListDirectorCards(ConCommandArgs args)
         {
             StringBuilder sb = new StringBuilder();
@@ -152,6 +159,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "list_skin", flags = ConVarFlags.None, helpText = Lang.LISTSKIN_HELP)]
+        [AutoComplete(Lang.LISTSKIN_ARGS)]
         private static void CCListSkin(ConCommandArgs args)
         {
             //string langInvar;

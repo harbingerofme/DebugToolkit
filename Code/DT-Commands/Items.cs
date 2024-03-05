@@ -16,6 +16,7 @@ namespace DebugToolkit.Commands
         private static GameObject potentialPrefab;
 
         [ConCommand(commandName = "list_itemtier", flags = ConVarFlags.None, helpText = Lang.LISTITEMTIER_HELP)]
+        [AutoComplete(Lang.LISTQUERY_ARGS)]
         private static void CCListItemTier(ConCommandArgs args)
         {
             var sb = new StringBuilder();
@@ -30,6 +31,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "list_item", flags = ConVarFlags.None, helpText = Lang.LISTITEM_HELP)]
+        [AutoComplete(Lang.LISTQUERY_ARGS)]
         private static void CCListItem(ConCommandArgs args)
         {
             var sb = new StringBuilder();
@@ -47,6 +49,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "list_equip", flags = ConVarFlags.None, helpText = Lang.LISTEQUIP_HELP)]
+        [AutoComplete(Lang.LISTQUERY_ARGS)]
         private static void CCListEquip(ConCommandArgs args)
         {
             var sb = new StringBuilder();
@@ -105,7 +108,7 @@ namespace DebugToolkit.Commands
 
         [ConCommand(commandName = "give_item", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.GIVEITEM_HELP)]
         [ConCommand(commandName = "remove_item", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.REMOVEITEM_HELP)]
-        [AutoCompletion(typeof(ItemCatalog), "itemDefs", "nameToken")]
+        [AutoComplete(Lang.GIVEITEM_ARGS)]
         private static void CCGiveItem(ConCommandArgs args)
         {
             if (!Run.instance)
@@ -163,6 +166,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "random_items", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.RANDOMITEM_HELP)]
+        [AutoComplete(Lang.RANDOMITEM_ARGS)]
         private static void CCRandomItems(ConCommandArgs args)
         {
             if (!Run.instance)
@@ -216,7 +220,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "give_equip", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.GIVEEQUIP_HELP)]
-        [AutoCompletion(typeof(EquipmentCatalog), "equipmentDefs", "nameToken")]
+        [AutoComplete(Lang.GIVEEQUIP_ARGS)]
         private static void CCGiveEquipment(ConCommandArgs args)
         {
             if (!Run.instance)
@@ -258,8 +262,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "create_pickup", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.CREATEPICKUP_HELP)]
-        [AutoCompletion(typeof(EquipmentCatalog), "equipmentDefs", "nameToken")]
-        [AutoCompletion(typeof(ItemCatalog), "itemDefs", "nameToken")]
+        [AutoComplete(Lang.CREATEPICKUP_ARGS)]
         private static void CCCreatePickup(ConCommandArgs args)
         {
             if (!Run.instance)
@@ -355,7 +358,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "create_potential", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.CREATEPOTENTIAL_HELP)]
-        [AutoCompletion(typeof(ItemTierCatalog), "itemTierDefs")]
+        [AutoComplete(Lang.CREATEPOTENTIAL_ARGS)]
         private static void CCCreatePotential(ConCommandArgs args)
         {
             if (!Run.instance)
@@ -424,7 +427,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "remove_item_stacks", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.REMOVEITEMSTACKS_HELP)]
-        [AutoCompletion(typeof(ItemCatalog), "itemDefs", "nameToken")]
+        [AutoComplete(Lang.REMOVEITEMSTACKS_ARGS)]
         private static void CCRemoveItemStacks(ConCommandArgs args)
         {
             if (!Run.instance)
@@ -457,6 +460,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "remove_all_items", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.REMOVEALLITEMS_HELP)]
+        [AutoComplete(Lang.REMOVEALLITEMS_ARGS)]
         private static void CCRemoveAllItems(ConCommandArgs args)
         {
             if (!Run.instance)
@@ -483,6 +487,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "remove_equip", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.REMOVEEQUIP_HELP)]
+        [AutoComplete(Lang.REMOVEEQUIP_ARGS)]
         private static void CCRemoveEquipment(ConCommandArgs args)
         {
             if (!Run.instance)
@@ -507,6 +512,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "restock_equip", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.RESTOCKEQUIP_HELP)]
+        [AutoComplete(Lang.RESTOCKEQUIP_ARGS)]
         private static void CCRestockEquip(ConCommandArgs args)
         {
             if (!Run.instance)
