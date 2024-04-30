@@ -20,7 +20,19 @@ namespace DebugToolkit.Commands
                 Log.Message(Lang.INSUFFICIENT_ARGS + Lang.POSTSOUNDEVENT_ARGS);
                 return;
             }
-            AkSoundEngine.PostEvent(args[0], CameraRigController.readOnlyInstancesList[0].gameObject);
+            uint result;
+            if (TextSerialization.TryParseInvariant(args[0], out uint eventId))
+            {
+                result = AkSoundEngine.PostEvent(eventId, CameraRigController.readOnlyInstancesList[0].gameObject);
+            }
+            else
+            {
+                result = AkSoundEngine.PostEvent(args[0], CameraRigController.readOnlyInstancesList[0].gameObject);
+            }
+            if (result == 0)
+            {
+                Log.Message("Sound not found.");
+            }
         }
 
         [ConCommand(commandName = "reload_all_config", flags = ConVarFlags.None, helpText = Lang.RELOADCONFIG_HELP)]

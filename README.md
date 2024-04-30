@@ -60,7 +60,7 @@ Commands:
 * **respawn** - Respawn a player at the map spawnpoint. `respawn *[player:<self>]`
 * **teleport_on_cursor** -  Teleport you to where your cursor is currently aiming at. `teleport_on_cursor`
 * **time_scale** -  Sets the timescale of the game. 0.5 would mean everything happens at half speed. `time_scale [time_scale]`. If no argument is supplied, gives the current timescale.
-* **post_sound_event** - Post a sound event to the AkSoundEngine (WWise) by its event name: `post_sound_event {event_name}`
+* **post_sound_event** - Post a sound event to the AkSoundEngine (WWise) either by its event name or event ID. `post_sound_event {sound_event (event_name|event_id)}`
 
 List Commands:
 
