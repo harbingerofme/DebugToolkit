@@ -5,21 +5,22 @@ namespace DebugToolkit.Commands
 {
     class Miscellaneous
     {
-        [ConCommand(commandName = "post_sound_event", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.POSTSOUNDEVENT_HELP)]
+        [ConCommand(commandName = "post_sound_event", flags = ConVarFlags.None, helpText = Lang.POSTSOUNDEVENT_HELP)]
         [AutoComplete(Lang.POSTSOUNDEVENT_ARGS)]
         private static void CCPostSoundEvent(ConCommandArgs args)
         {
-            if (args.sender == null)
+            // Hack to not substitute the value of the constant as the DS game version has a different value
+            if ((bool)typeof(RoR2Application).GetField("isDedicatedServer").GetValue(RoR2Application.instance))
             {
                 Log.MessageWarning(Lang.DS_NOTAVAILABLE);
                 return;
             }
             if (args.Count == 0)
             {
-                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.POSTSOUNDEVENT_ARGS, args, Log.LogLevel.MessageClientOnly);
+                Log.Message(Lang.INSUFFICIENT_ARGS + Lang.POSTSOUNDEVENT_ARGS);
                 return;
             }
-            AkSoundEngine.PostEvent(args[0], CameraRigController.readOnlyInstancesList[0].localUserViewer.currentNetworkUser.master.GetBodyObject());
+            AkSoundEngine.PostEvent(args[0], CameraRigController.readOnlyInstancesList[0].gameObject);
         }
 
         [ConCommand(commandName = "reload_all_config", flags = ConVarFlags.None, helpText = Lang.RELOADCONFIG_HELP)]
