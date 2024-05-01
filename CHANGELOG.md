@@ -1,6 +1,12 @@
 
 ## Changelog ##
 
+### 3.15 ###
+
+* **3.15.0**
+    * Updated `post_sound_event`: Now works client-side and also accepts either an event name or event ID.
+    * The console now prints a message if a server command is used offline, e.g., on the main menu.
+
 ### 3.14 ###
 
 * **3.14.0**
