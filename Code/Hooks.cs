@@ -283,6 +283,9 @@ namespace DebugToolkit
                 Log.Message("Failed to patch RoR2.Console.RunCmd", Log.LogLevel.Error, Log.Target.Bepinex);
                 return;
             }
+            var nextInstruction = c.Next;
+            c.Emit<NetworkSession>(OpCodes.Call, "get_instance");
+            c.Emit(OpCodes.Brtrue_S, nextInstruction);
             c.Emit(OpCodes.Ldstr, "This command requires a network or game session.");
             c.Emit<Debug>(OpCodes.Call, "Log");
         }
