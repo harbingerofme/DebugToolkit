@@ -65,6 +65,7 @@ namespace DebugToolkit
             internal string name;
             internal CharacterBody body;
             internal Inventory inventory;
+            internal DevotionInventoryController devotionController;
         }
     }
 }

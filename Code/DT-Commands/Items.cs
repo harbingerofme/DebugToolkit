@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
+using UnityEngine.Networking;
 using static DebugToolkit.Log;
 using static DebugToolkit.Util;
 
@@ -167,6 +168,10 @@ namespace DebugToolkit.Commands
             {
                 Log.MessageNetworked("Nothing happened", args);
             }
+            if (target.devotionController)
+            {
+                target.devotionController.UpdateAllMinions(false);
+            }
         }
 
         [ConCommand(commandName = "random_items", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.RANDOMITEM_HELP)]
@@ -216,6 +221,10 @@ namespace DebugToolkit.Commands
                     var pickupIndex = weightedSelection.Evaluate(UnityEngine.Random.value);
                     var pickupDef = PickupCatalog.GetPickupDef(pickupIndex);
                     target.inventory.GiveItem((pickupDef != null) ? pickupDef.itemIndex : ItemIndex.None, 1);
+                }
+                if (target.devotionController)
+                {
+                    target.devotionController.UpdateAllMinions(false);
                 }
                 Log.MessageNetworked($"Generated {iCount} items for {target.name}!", args);
             }
@@ -468,6 +477,10 @@ namespace DebugToolkit.Commands
             var name = ItemCatalog.GetItemDef(item).name;
             int iCount = inventory.GetItemCount(item);
             inventory.RemoveItem(item, iCount);
+            if (target.devotionController)
+            {
+                target.devotionController.UpdateAllMinions(false);
+            }
             Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT, iCount, name, target.name), args);
         }
 
@@ -497,6 +510,10 @@ namespace DebugToolkit.Commands
             var tempObj = new GameObject();
             target.inventory.CopyItemsFrom(tempObj.AddComponent<Inventory>());
             UnityEngine.Object.Destroy(tempObj);
+            if (target.devotionController)
+            {
+                target.devotionController.UpdateAllMinions(false);
+            }
             Log.MessageNetworked($"Reseting inventory for {target.name}", args);
         }
 
@@ -573,6 +590,7 @@ namespace DebugToolkit.Commands
             string failMessage = null;
             Inventory inventory = null;
             string targetName = null;
+            DevotionInventoryController devotionController = null;
             if (args.Count > index && args[index] != Lang.DEFAULT_VALUE)
             {
                 var targetArg = args[index].ToUpperInvariant();
@@ -600,6 +618,28 @@ namespace DebugToolkit.Commands
                     }
                     inventory = mission.inventory;
                     targetName = inventory?.gameObject.name;
+                }
+                else if (targetArg == Lang.DEVOTION)
+                {
+                    if (args.sender == null)
+                    {
+                        failMessage = String.Format(Lang.DS_INVALIDARG, "devotion");
+                    }
+                    else
+                    {
+                        var target = args.senderMaster;
+                        if (target == null)
+                        {
+                            failMessage = Lang.PLAYER_NOTFOUND;
+                        }
+                        else
+                        {
+                            devotionController = GetDevotionController(target);
+                            inventory = devotionController._devotionMinionInventory;
+                            var player = target.playerCharacterMasterController?.networkUser;
+                            targetName = (player?.masterController.GetDisplayName() ?? target.gameObject.name) + "'s Devotion Inventory";
+                        }
+                    }
                 }
                 else
                 {
@@ -643,7 +683,8 @@ namespace DebugToolkit.Commands
             return new CommandTarget
             {
                 name = targetName,
-                inventory = inventory
+                inventory = inventory,
+                devotionController = devotionController
             };
         }
 
@@ -751,6 +792,28 @@ namespace DebugToolkit.Commands
                     availableDropLists[tier.Key] = tier.Value;
                 }
             }
+        }
+
+        private static DevotionInventoryController GetDevotionController(CharacterMaster master)
+        {
+            DevotionInventoryController controller = null;
+            foreach (var thisController in DevotionInventoryController.InstanceList)
+            {
+                if (thisController.SummonerMaster == master)
+                {
+                    controller = thisController;
+                    break;
+                }
+            }
+            if (controller == null)
+            {
+                GameObject gameObject = GameObject.Instantiate(Addressables.LoadAssetAsync<GameObject>("RoR2/CU8/LemurianEgg/DevotionMinionInventory.prefab").WaitForCompletion());
+                controller = gameObject.GetComponent<DevotionInventoryController>();
+                controller.GetComponent<TeamFilter>().teamIndex = TeamIndex.Player;
+                controller.SummonerMaster = master;
+                NetworkServer.Spawn(gameObject);
+            }
+            return controller;
         }
     }
 }
