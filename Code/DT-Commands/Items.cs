@@ -422,7 +422,7 @@ namespace DebugToolkit.Commands
                 position = body.transform.position,
                 rotation = Quaternion.identity,
                 pickupIndex = PickupCatalog.FindPickupIndex(firstItemTier)
-            }, body.transform.position, body.inputBank.aimDirection * 30f);
+            }, body.inputBank.aimDirection * 30f);
             Log.MessageNetworked(string.Format(Lang.CREATEPICKUP_SUCCESS_2, Math.Min(iCount, droptable.selector.Count)), args);
         }
 
