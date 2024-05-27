@@ -58,5 +58,13 @@ namespace DebugToolkit
             }
             return false;
         }
+
+        internal struct CommandTarget
+        {
+            internal string failMessage;
+            internal string name;
+            internal CharacterBody body;
+            internal Inventory inventory;
+        }
     }
 }

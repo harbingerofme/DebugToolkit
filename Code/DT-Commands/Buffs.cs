@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using static DebugToolkit.Log;
+using static DebugToolkit.Util;
 
 namespace DebugToolkit.Commands
 {
@@ -106,8 +107,10 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            if (!TryParseTarget(args, 3, out var body, out string targetName))
+            var target = ParseTarget(args, 3);
+            if (target.failMessage != null)
             {
+                Log.MessageNetworked(target.failMessage, args, LogLevel.MessageClientOnly);
                 return;
             }
 
@@ -122,6 +125,7 @@ namespace DebugToolkit.Commands
             // we both accurately report how many stacks are granted, and also to avoid giving
             // 1000 stacks, for example, to a buff with no effect.
             var canStack = BuffCatalog.GetBuffDef(buff).canStack;
+            var body = target.body;
             if (duration == 0f)
             {
                 if (!canStack)
@@ -132,7 +136,7 @@ namespace DebugToolkit.Commands
                 {
                     body.AddBuff(buff);
                 }
-                Log.MessageNetworked(string.Format(Lang.GIVEOBJECT, iCount, name, targetName), args);
+                Log.MessageNetworked(string.Format(Lang.GIVEOBJECT, iCount, name, target.name), args);
             }
             else
             {
@@ -144,7 +148,7 @@ namespace DebugToolkit.Commands
                 {
                     body.AddTimedBuff(buff, duration);
                 }
-                Log.MessageNetworked($"Gave {iCount} {buff} to {targetName} for {duration} seconds", args);
+                Log.MessageNetworked($"Gave {iCount} {buff} to {target.name} for {duration} seconds", args);
             }
         }
 
@@ -183,8 +187,10 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            if (!TryParseTarget(args, 3, out var body, out var targetName))
+            var target = ParseTarget(args, 3);
+            if (target.failMessage != null)
             {
+                Log.MessageNetworked(target.failMessage, args, LogLevel.MessageClientOnly);
                 return;
             }
 
@@ -195,6 +201,7 @@ namespace DebugToolkit.Commands
                 return;
             }
             var name = BuffCatalog.GetBuffDef(buff).name;
+            var body = target.body;
             if (isTimed)
             {
                 var timedBuffCount = 0;
@@ -217,7 +224,7 @@ namespace DebugToolkit.Commands
                         body.RemoveOldestTimedBuff(buff);
                     }
                 }
-                Log.MessageNetworked($"Removed the {iCount} oldest timed {buff} from {targetName}", args);
+                Log.MessageNetworked($"Removed the {iCount} oldest timed {buff} from {target.name}", args);
             }
             else
             {
@@ -225,7 +232,7 @@ namespace DebugToolkit.Commands
                 {
                     body.RemoveBuff(buff);
                 }
-                Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT, iCount, name, targetName), args);
+                Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT, iCount, name, target.name), args);
             }
         }
 
@@ -252,8 +259,10 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            if (!TryParseTarget(args, 2, out var body, out var targetName))
+            var target = ParseTarget(args, 2);
+            if (target.failMessage != null)
             {
+                Log.MessageNetworked(target.failMessage, args, LogLevel.MessageClientOnly);
                 return;
             }
 
@@ -264,6 +273,7 @@ namespace DebugToolkit.Commands
                 return;
             }
             var name = BuffCatalog.GetBuffDef(buff).name;
+            var body = target.body;
             if (isTimed)
             {
                 var stacks = 0;
@@ -275,13 +285,13 @@ namespace DebugToolkit.Commands
                     }
                 }
                 body.ClearTimedBuffs(buff);
-                Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT, stacks, "timed " + name, targetName), args);
+                Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT, stacks, "timed " + name, target.name), args);
             }
             else
             {
                 var stacks = body.GetBuffCount(buff);
                 body.SetBuffCount(buff, 0);
-                Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT, stacks, name, targetName), args);
+                Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT, stacks, name, target.name), args);
             }
         }
 
@@ -308,18 +318,21 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            if (!TryParseTarget(args, 1, out var body, out var targetName))
+            var target = ParseTarget(args, 1);
+            if (target.failMessage != null)
             {
+                Log.MessageNetworked(target.failMessage, args, LogLevel.MessageClientOnly);
                 return;
             }
 
+            var body = target.body;
             if (isTimed)
             {
                 for (int i = 0; i < BuffCatalog.buffCount; i++)
                 {
                     body.ClearTimedBuffs((BuffIndex)i);
                 }
-                Log.MessageNetworked($"Reset all timed buffs for {targetName}", args);
+                Log.MessageNetworked($"Reset all timed buffs for {target.name}", args);
             }
             else
             {
@@ -327,7 +340,7 @@ namespace DebugToolkit.Commands
                 {
                     body.SetBuffCount((BuffIndex)i, 0);
                 }
-                Log.MessageNetworked($"Reset all buffs for {targetName}", args);
+                Log.MessageNetworked($"Reset all buffs for {target.name}", args);
             }
         }
 
@@ -354,17 +367,19 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            if (!TryParseTarget(args, 2, out var targetBody, out var targetName))
+            var target = ParseTarget(args, 2);
+            if (target.failMessage != null)
             {
+                Log.MessageNetworked(target.failMessage, args, LogLevel.MessageClientOnly);
                 return;
             }
-            GameObject target = targetBody.gameObject;
 
-            if (!TryParseTarget(args, 3, out var attackerBody, out var attackerName))
+            var attacker = ParseTarget(args, 3);
+            if (attacker.failMessage != null)
             {
+                Log.MessageNetworked(attacker.failMessage, args, LogLevel.MessageClientOnly);
                 return;
             }
-            GameObject attacker = attackerBody.gameObject;
 
             var dot = StringFinder.Instance.GetDotFromPartial(args[0]);
             if (dot == DotController.DotIndex.None)
@@ -397,7 +412,7 @@ namespace DebugToolkit.Commands
                     break;
                 case DotController.DotIndex.StrongerBurn:
                     duration = 3f;
-                    var inventory = attacker.GetComponent<CharacterBody>().inventory;
+                    var inventory = attacker.body.inventory;
                     // Let's have at least one stack
                     int stacks = (inventory != null) ? Math.Max(inventory.GetItemCount(DLC1Content.Items.StrengthenBurn), 1) : 1;
                     damageMultiplier = (1 + 3 * stacks);
@@ -408,9 +423,9 @@ namespace DebugToolkit.Commands
             }
             for (int i = 0; i < iCount; i++)
             {
-                DotController.InflictDot(target, attacker, dot, duration, damageMultiplier);
+                DotController.InflictDot(target.body.gameObject, attacker.body.gameObject, dot, duration, damageMultiplier);
             }
-            Log.MessageNetworked($"Added {iCount} {dot} to {targetName} from {attackerName}", args);
+            Log.MessageNetworked($"Added {iCount} {dot} to {target.name} from {attacker.name}", args);
         }
 
         [ConCommand(commandName = "remove_dot", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.REMOVEDOT_HELP)]
@@ -436,11 +451,12 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            if (!TryParseTarget(args, 2, out var target, out var targetName))
+            var target = ParseTarget(args, 2);
+            if (target.failMessage != null)
             {
+                Log.MessageNetworked(target.failMessage, args, LogLevel.MessageClientOnly);
                 return;
             }
-            GameObject body = target.gameObject;
 
             var dot = StringFinder.Instance.GetDotFromPartial(args[0]);
             if (dot == DotController.DotIndex.None)
@@ -448,7 +464,7 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "dot", args[0]), args, LogLevel.MessageClientOnly);
                 return;
             }
-            var controller = DotController.FindDotController(body);
+            var controller = DotController.FindDotController(target.body.gameObject);
             if (controller == null)
             {
                 Log.MessageNetworked(Lang.DOTCONTROLLER_NOTFOUND, args, LogLevel.MessageClientOnly);
@@ -470,7 +486,7 @@ namespace DebugToolkit.Commands
             {
                 controller.RemoveDotStackAtServer(dotStacks[i].Key);
             }
-            Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT, iCount, dot, targetName), args);
+            Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT, iCount, dot, target.name), args);
         }
 
         [ConCommand(commandName = "remove_dot_stacks", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.REMOVEDOTSTACKS_HELP)]
@@ -489,11 +505,12 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            if (!TryParseTarget(args, 1, out var target, out var targetName))
+            var target = ParseTarget(args, 1);
+            if (target.failMessage != null)
             {
+                Log.MessageNetworked(target.failMessage, args, LogLevel.MessageClientOnly);
                 return;
             }
-            GameObject body = target.gameObject;
 
             var dot = StringFinder.Instance.GetDotFromPartial(args[0]);
             if (dot == DotController.DotIndex.None)
@@ -501,7 +518,7 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "dot", args[0]), args, LogLevel.MessageClientOnly);
                 return;
             }
-            var controller = DotController.FindDotController(body);
+            var controller = DotController.FindDotController(target.body.gameObject);
             if (controller == null)
             {
                 Log.MessageNetworked(Lang.DOTCONTROLLER_NOTFOUND, args, LogLevel.MessageClientOnly);
@@ -522,7 +539,7 @@ namespace DebugToolkit.Commands
             {
                 UnityEngine.Object.Destroy(controller.gameObject);
             }
-            Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT, stacks, dot, targetName), args);
+            Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT, stacks, dot, target.name), args);
         }
 
         [ConCommand(commandName = "remove_all_dots", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.REMOVEALLDOTS_HELP)]
@@ -541,20 +558,22 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            if (!TryParseTarget(args, 0, out var target, out var targetName))
+            var target = ParseTarget(args, 0);
+            if (target.failMessage != null)
             {
+                Log.MessageNetworked(target.failMessage, args, LogLevel.MessageClientOnly);
                 return;
             }
-            GameObject body = target.gameObject;
 
-            DotController.RemoveAllDots(body);
-            Log.MessageNetworked($"Reseting DoTs for {targetName}", args);
+            DotController.RemoveAllDots(target.body.gameObject);
+            Log.MessageNetworked($"Reseting DoTs for {target.name}", args);
         }
 
-        private static bool TryParseTarget(ConCommandArgs args, int index, out CharacterBody target, out string targetName)
+        private static CommandTarget ParseTarget(ConCommandArgs args, int index)
         {
-            target = args.senderBody;
-            targetName = "";
+            string failMessage = null;
+            var target = args.senderBody;
+            string targetName = null;
             var isDedicatedServer = args.sender == null;
             if (args.Count > index && args[index] != Lang.DEFAULT_VALUE)
             {
@@ -567,8 +586,7 @@ namespace DebugToolkit.Commands
                     target = Hooks.GetPingedTarget(args.senderMaster).body;
                     if (target == null)
                     {
-                        Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
-                        return false;
+                        failMessage = Lang.PINGEDBODY_NOTFOUND;
                     }
                 }
                 else
@@ -578,13 +596,23 @@ namespace DebugToolkit.Commands
             }
             if (target == null)
             {
-                Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
-                return false;
+                failMessage = Lang.PLAYER_NOTFOUND;
             }
 
+            if (failMessage != null)
+            {
+                return new CommandTarget
+                {
+                    failMessage = failMessage
+                };
+            }
             var player = target.master?.playerCharacterMasterController?.networkUser;
             targetName = (player != null) ? player.masterController.GetDisplayName() : target.gameObject.name;
-            return true;
+            return new CommandTarget
+            {
+                body = target,
+                name = targetName
+            };
         }
     }
 }
