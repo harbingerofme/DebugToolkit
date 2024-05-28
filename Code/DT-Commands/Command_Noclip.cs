@@ -1,5 +1,4 @@
 using KinematicCharacterController;
-using MonoMod.RuntimeDetour;
 using RoR2;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -12,13 +11,6 @@ namespace DebugToolkit.Commands
     // ReSharper disable once UnusedMember.Global
     internal static class Command_Noclip
     {
-        internal delegate void d_ServerChangeScene(UnityEngine.Networking.NetworkManager instance, string newSceneName);
-        internal static d_ServerChangeScene origServerChangeScene;
-        internal static Hook OnServerChangeSceneHook;
-        internal delegate void d_ClientChangeScene(UnityEngine.Networking.NetworkManager instance, string newSceneName, bool forceReload);
-        internal static d_ClientChangeScene origClientChangeScene;
-        internal static Hook OnClientChangeSceneHook;
-
         internal static bool IsActivated;
 
         private static NetworkUser _currentNetworkUser;
@@ -94,8 +86,6 @@ namespace DebugToolkit.Commands
         {
             if (!IsActivated)
             {
-                OnServerChangeSceneHook.Apply();
-                OnClientChangeSceneHook.Apply();
                 On.RoR2.Networking.NetworkManagerSystem.OnStopClient += DisableOnStopClient;
                 On.RoR2.MapZone.TeleportBody += DisableOOBCheck;
             }
@@ -105,8 +95,6 @@ namespace DebugToolkit.Commands
         {
             if (IsActivated)
             {
-                OnServerChangeSceneHook.Undo();
-                OnClientChangeSceneHook.Undo();
                 On.RoR2.Networking.NetworkManagerSystem.OnStopClient -= DisableOnStopClient;
                 On.RoR2.MapZone.TeleportBody -= DisableOOBCheck;
             }
@@ -175,22 +163,6 @@ namespace DebugToolkit.Commands
             }
         }
 
-        private static void DisableOnServerSceneChange(UnityEngine.Networking.NetworkManager instance, string newSceneName)
-        {
-            if (IsActivated)
-                Console.instance.SubmitCmd(LocalUserManager.GetFirstLocalUser().currentNetworkUser, "noclip");
-
-            origServerChangeScene(instance, newSceneName);
-        }
-
-        private static void DisableOnClientSceneChange(UnityEngine.Networking.NetworkManager instance, string newSceneName, bool forceReload)
-        {
-            if (IsActivated)
-                Console.instance.SubmitCmd(LocalUserManager.GetFirstLocalUser().currentNetworkUser, "noclip");
-
-            origClientChangeScene(instance, newSceneName, forceReload);
-        }
-
         private static void DisableOnStopClient(On.RoR2.Networking.NetworkManagerSystem.orig_OnStopClient orig, RoR2.Networking.NetworkManagerSystem self)
         {
             if (IsActivated)
@@ -205,6 +177,14 @@ namespace DebugToolkit.Commands
         {
             if (!characterBody.isPlayerControlled)
                 orig(self, characterBody);
+        }
+
+        internal static void DisableOnRunDestroy(Run run)
+        {
+            if (IsActivated)
+            {
+                InternalToggle(true);
+            }
         }
     }
 

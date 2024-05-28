@@ -57,14 +57,10 @@ namespace DebugToolkit
             On.RoR2.PingerController.RebuildPing += InterceptPing;
             IL.RoR2.InfiniteTowerRun.BeginNextWave += InfiniteTowerRun_BeginNextWave;
 
-            // Noclip hooks
-            var hookConfig = new HookConfig { ManualApply = true };
-            Command_Noclip.OnServerChangeSceneHook = new Hook(typeof(UnityEngine.Networking.NetworkManager).GetMethodCached("ServerChangeScene"),
-    typeof(Command_Noclip).GetMethodCached("DisableOnServerSceneChange"), hookConfig);
-            Command_Noclip.origServerChangeScene = Command_Noclip.OnServerChangeSceneHook.GenerateTrampoline<Command_Noclip.d_ServerChangeScene>();
-            Command_Noclip.OnClientChangeSceneHook = new Hook(typeof(UnityEngine.Networking.NetworkManager).GetMethodCached("ClientChangeScene"),
-                typeof(Command_Noclip).GetMethodCached("DisableOnClientSceneChange"), hookConfig);
-            Command_Noclip.origClientChangeScene = Command_Noclip.OnClientChangeSceneHook.GenerateTrampoline<Command_Noclip.d_ClientChangeScene>();
+            // Networking and noclip hooks
+            On.RoR2.NetworkSession.Start += NetworkManager.CreateNetworkObject;
+            On.RoR2.NetworkSession.OnDestroy += NetworkManager.DestroyNetworkObject;
+            Run.onRunDestroyGlobal += Command_Noclip.DisableOnRunDestroy;
 
             //Buddha Mode hook
             On.RoR2.HealthComponent.TakeDamage += NonLethatDamage;
