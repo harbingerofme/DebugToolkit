@@ -29,7 +29,7 @@ namespace DebugToolkit.Commands
             NetworkManager.DebugToolKitComponents.AddComponent<NoclipNet>();
         }
 
-        internal static void InternalToggle()
+        internal static void InternalToggle(bool shouldLog)
         {
             if (PlayerCommands.UpdateCurrentPlayerBody(out _currentNetworkUser, out _currentBody))
             {
@@ -84,7 +84,10 @@ namespace DebugToolkit.Commands
                 ApplyHooks();
             }
             IsActivated = !IsActivated;
-            Log.Message(string.Format(Lang.NOCLIP_TOGGLE, IsActivated));
+            if (shouldLog)
+            {
+                Log.Message(string.Format(Lang.NOCLIP_TOGGLE, IsActivated));
+            }
         }
 
         private static void ApplyHooks()
@@ -124,8 +127,8 @@ namespace DebugToolkit.Commands
             {
                 if (kcm.CollidableLayers != 0)
                 {
-                    InternalToggle();
-                    InternalToggle();
+                    InternalToggle(false);
+                    InternalToggle(false);
                 }
             }
             else if (rigid)
@@ -133,8 +136,8 @@ namespace DebugToolkit.Commands
                 var collider = rigid.GetComponent<Collider>();
                 if (collider && !collider.isTrigger)
                 {
-                    InternalToggle();
-                    InternalToggle();
+                    InternalToggle(false);
+                    InternalToggle(false);
                 }
             }
 
@@ -192,7 +195,7 @@ namespace DebugToolkit.Commands
         {
             if (IsActivated)
             {
-                InternalToggle();
+                InternalToggle(true);
             }
             orig(self);
         }
@@ -202,11 +205,6 @@ namespace DebugToolkit.Commands
         {
             if (!characterBody.isPlayerControlled)
                 orig(self, characterBody);
-        }
-
-        public static void SetUseGravity(this CharacterMotor motor, bool value)
-        {
-            typeof(CharacterMotor).GetProperty(nameof(CharacterMotor.useGravity)).GetSetMethod(true).Invoke(motor, new object[] { value });
         }
     }
 
@@ -231,7 +229,7 @@ namespace DebugToolkit.Commands
         [TargetRpc]
         private void TargetToggle(NetworkConnection _)
         {
-            Command_Noclip.InternalToggle();
+            Command_Noclip.InternalToggle(true);
         }
     }
 }
