@@ -54,7 +54,6 @@ namespace DebugToolkit.Commands
                     {
                         motor.useGravity = motor.gravityParameters.CheckShouldUseGravity();
                     }
-                    UndoHooks();
                 }
                 else
                 {
@@ -74,12 +73,18 @@ namespace DebugToolkit.Commands
                     {
                         motor.useGravity = false;
                     }
-                    ApplyHooks();
                 }
-
-                IsActivated = !IsActivated;
-                Log.Message(string.Format(Lang.NOCLIP_TOGGLE, IsActivated));
             }
+            if (IsActivated)
+            {
+                UndoHooks();
+            }
+            else
+            {
+                ApplyHooks();
+            }
+            IsActivated = !IsActivated;
+            Log.Message(string.Format(Lang.NOCLIP_TOGGLE, IsActivated));
         }
 
         private static void ApplyHooks()
@@ -88,7 +93,7 @@ namespace DebugToolkit.Commands
             {
                 OnServerChangeSceneHook.Apply();
                 OnClientChangeSceneHook.Apply();
-                On.RoR2.Networking.NetworkManagerSystem.Disconnect += DisableOnDisconnect;
+                On.RoR2.Networking.NetworkManagerSystem.OnStopClient += DisableOnStopClient;
                 On.RoR2.MapZone.TeleportBody += DisableOOBCheck;
             }
         }
@@ -99,7 +104,7 @@ namespace DebugToolkit.Commands
             {
                 OnServerChangeSceneHook.Undo();
                 OnClientChangeSceneHook.Undo();
-                On.RoR2.Networking.NetworkManagerSystem.Disconnect -= DisableOnDisconnect;
+                On.RoR2.Networking.NetworkManagerSystem.OnStopClient -= DisableOnStopClient;
                 On.RoR2.MapZone.TeleportBody -= DisableOOBCheck;
             }
         }
@@ -183,29 +188,12 @@ namespace DebugToolkit.Commands
             origClientChangeScene(instance, newSceneName, forceReload);
         }
 
-        private static void DisableOnDisconnect(On.RoR2.Networking.NetworkManagerSystem.orig_Disconnect orig, RoR2.Networking.NetworkManagerSystem self)
+        private static void DisableOnStopClient(On.RoR2.Networking.NetworkManagerSystem.orig_OnStopClient orig, RoR2.Networking.NetworkManagerSystem self)
         {
             if (IsActivated)
             {
-                if (_currentBody)
-                {
-                    var kcm = _currentBody.GetComponent<KinematicCharacterMotor>();
-                    if (kcm)
-                    {
-                        kcm.RebuildCollidableLayers();
-                    }
-                    var motor = _currentBody.characterMotor;
-                    if (motor)
-                    {
-                        motor.useGravity = motor.gravityParameters.CheckShouldUseGravity();
-                    }
-                }
-
-                UndoHooks();
-                IsActivated = !IsActivated;
-                Log.Message(string.Format(Lang.NOCLIP_TOGGLE, IsActivated));
+                InternalToggle();
             }
-
             orig(self);
         }
 
