@@ -1,4 +1,5 @@
 ﻿using RoR2;
+using System;
 using static DebugToolkit.Log;
 
 namespace DebugToolkit.Commands
@@ -20,7 +21,7 @@ namespace DebugToolkit.Commands
                 }
                 canSaveProfile = !result;
             }
-            Log.MessageNetworked($"Prevent writing is {(!canSaveProfile ? "enabled" : "disabled")}.", args, LogLevel.MessageClientOnly);
+            Log.MessageNetworked(String.Format(!canSaveProfile ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, "Prevent writing"), args);
         }
 
         internal static bool PreventSave(On.RoR2.SaveSystem.orig_Save orig, SaveSystem self, UserProfile data, bool blocking)

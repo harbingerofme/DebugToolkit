@@ -1,5 +1,6 @@
 using KinematicCharacterController;
 using RoR2;
+using System;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -78,7 +79,7 @@ namespace DebugToolkit.Commands
             IsActivated = !IsActivated;
             if (shouldLog)
             {
-                Log.Message(string.Format(Lang.NOCLIP_TOGGLE, IsActivated));
+                Log.Message(String.Format(IsActivated ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, "noclip"));
             }
         }
 

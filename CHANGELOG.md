@@ -4,8 +4,13 @@
 ### 3.15 ###
 
 * **3.15.0**
+    * Updated project for the Devotion Update. Fixes `create_potential` that was broken because of it.
+    * Added the keyword `devotion` for the target of item commands to modify the player's devotion inventory.
+    * Updated `noclip`: Allows toggling the setting while dead and it does not disable itself when changing scenes.
+    * Updated `set_artifact`: Fixes disabling all artifacts not removing the Kin display.
     * Updated `post_sound_event`: Now works client-side and also accepts either an event name or event ID.
     * The console now prints a message if a server command is used offline, e.g., on the main menu.
+    * Enabled/disabled toggling messages are now color-coded green/red.
 
 ### 3.14 ###
 

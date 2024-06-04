@@ -114,7 +114,7 @@ namespace DebugToolkit.Commands
             {
                 SceneDirector.onPrePopulateSceneServer -= Hooks.OnPrePopulateSetMonsterCreditZero;
             }
-            Log.MessageNetworked("no_enemies set to " + CurrentRun.noEnemies, args);
+            Log.MessageNetworked(String.Format(noEnemies ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, "no_enemies"), args);
         }
 
         [ConCommand(commandName = "lock_exp", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.LOCKEXP_HELP)]
@@ -129,7 +129,7 @@ namespace DebugToolkit.Commands
             {
                 On.RoR2.ExperienceManager.AwardExperience -= Hooks.DenyExperience;
             }
-            Log.MessageNetworked("lock_exp set to " + CurrentRun.lockExp, args);
+            Log.MessageNetworked(String.Format(lockExp ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, "lock_exp"), args);
         }
 
         [ConCommand(commandName = "kill_all", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.KILLALL_HELP)]
@@ -456,22 +456,22 @@ namespace DebugToolkit.Commands
 
             if (args[0].ToUpperInvariant() == Lang.ALL)
             {
-                // Cleaning up after Kin because the game won't
-                if (!enabled && Stage.instance)
-                {
-                    Stage.instance.singleMonsterTypeBodyIndex = BodyIndex.None;
-                }
                 // Toggling Evolution triggers a UI refresh to update the Kin monster
                 var willRefresh = RunArtifactManager.instance.IsArtifactEnabled(RoR2Content.Artifacts.MonsterTeamGainsItems) != enabled;
                 foreach (var artifact in ArtifactCatalog.artifactDefs)
                 {
                     RunArtifactManager.instance.SetArtifactEnabled(artifact, enabled);
                 }
+                // Cleaning up after Kin because the game won't
+                if (!enabled && Stage.instance)
+                {
+                    Stage.instance.singleMonsterTypeBodyIndex = BodyIndex.None;
+                }
                 if (!willRefresh)
                 {
                     RoR2.UI.EnemyInfoPanel.RefreshAll();
                 }
-                Log.MessageNetworked($"All artifacts are {(enabled ? "enabled" : "disabled")}", args);
+                Log.MessageNetworked(String.Format(enabled ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, "All artifacts"), args);
             }
             else
             {
@@ -503,7 +503,7 @@ namespace DebugToolkit.Commands
                         RoR2.UI.EnemyInfoPanel.RefreshAll();
                     }
                 }
-                Log.MessageNetworked($"{artifact.cachedName} is {(enabled ? "enabled" : "disabled")}", args);
+                Log.MessageNetworked(String.Format(enabled ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, artifact.cachedName), args);
             }
         }
 
