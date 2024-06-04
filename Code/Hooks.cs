@@ -40,6 +40,7 @@ namespace DebugToolkit
             var runCmdHook = new Hook(typeof(Console).GetMethodCached("RunCmd"),
                 typeof(Hooks).GetMethodCached(nameof(LogNetworkCommandsAndCheckPermissions)), new HookConfig { Priority = 1 });
             _origRunCmd = runCmdHook.GenerateTrampoline<On.RoR2.Console.orig_RunCmd>();
+            IL.RoR2.Console.RunCmd += WarnUserOfServerCommandOffline;
 
             On.RoR2.Console.AutoComplete.SetSearchString += BetterAutoCompletion;
             RoR2Application.onLoad += Items.InitDroptableData;
@@ -266,6 +267,23 @@ namespace DebugToolkit
                 _origRunCmd(self, sender, concommandName, userArgs);
                 ScrollConsoleDown();
             }
+        }
+
+        private static void WarnUserOfServerCommandOffline(ILContext il)
+        {
+            var c = new ILCursor(il);
+            if (!c.TryGotoNext(
+                MoveType.After,
+                x => x.MatchCallOrCallvirt<Console>("ForwardCmdToServer")))
+            {
+                Log.Message("Failed to patch RoR2.Console.RunCmd", Log.LogLevel.Error, Log.Target.Bepinex);
+                return;
+            }
+            var nextInstruction = c.Next;
+            c.Emit<NetworkSession>(OpCodes.Call, "get_instance");
+            c.Emit(OpCodes.Brtrue_S, nextInstruction);
+            c.Emit(OpCodes.Ldstr, "This command requires a network or game session.");
+            c.Emit<Debug>(OpCodes.Call, "Log");
         }
 
         private static void AddConCommandSignatureHint(On.RoR2.UI.ConsoleWindow.orig_Start orig, RoR2.UI.ConsoleWindow self)
