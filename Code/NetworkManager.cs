@@ -1,8 +1,8 @@
 ﻿using DebugToolkit.Commands;
 using R2API;
+using RoR2;
 using UnityEngine;
 using UnityEngine.Networking;
-using UnityEngine.SceneManagement;
 using UnityObject = UnityEngine.Object;
 
 namespace DebugToolkit
@@ -23,28 +23,27 @@ namespace DebugToolkit
             Command_Noclip.InitRPC();
             Command_Teleport.InitRPC();
             DebugToolKitComponents.AddComponent<TimescaleNet>();
-
-            ApplyHook();
+            DebugToolKitComponents.AddComponent<SetDontDestroyOnLoad>();
         }
 
-        private static void ApplyHook()
+        internal static void CreateNetworkObject(On.RoR2.NetworkSession.orig_Start orig, NetworkSession self)
         {
-            SceneManager.sceneLoaded += EnsureDTNetwork;
-        }
-
-        internal static void UndoHook()
-        {
-            SceneManager.sceneLoaded -= EnsureDTNetwork;
-        }
-
-        private static void EnsureDTNetwork(Scene _, LoadSceneMode __)
-        {
+            orig(self);
             if (!_debugToolKitComponentsSpawned && NetworkServer.active)
             {
                 _debugToolKitComponentsSpawned = UnityObject.Instantiate(DebugToolKitComponents);
-
                 NetworkServer.Spawn(_debugToolKitComponentsSpawned);
             }
+        }
+
+        internal static void DestroyNetworkObject(On.RoR2.NetworkSession.orig_OnDestroy orig, NetworkSession self)
+        {
+            if (_debugToolKitComponentsSpawned && NetworkServer.active)
+            {
+                NetworkServer.Destroy(_debugToolKitComponentsSpawned);
+                _debugToolKitComponentsSpawned = null;
+            }
+            orig(self);
         }
     }
 }

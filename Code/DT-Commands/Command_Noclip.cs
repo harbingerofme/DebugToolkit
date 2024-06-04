@@ -1,5 +1,4 @@
 using KinematicCharacterController;
-using MonoMod.RuntimeDetour;
 using RoR2;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -12,13 +11,6 @@ namespace DebugToolkit.Commands
     // ReSharper disable once UnusedMember.Global
     internal static class Command_Noclip
     {
-        internal delegate void d_ServerChangeScene(UnityEngine.Networking.NetworkManager instance, string newSceneName);
-        internal static d_ServerChangeScene origServerChangeScene;
-        internal static Hook OnServerChangeSceneHook;
-        internal delegate void d_ClientChangeScene(UnityEngine.Networking.NetworkManager instance, string newSceneName, bool forceReload);
-        internal static d_ClientChangeScene origClientChangeScene;
-        internal static Hook OnClientChangeSceneHook;
-
         internal static bool IsActivated;
 
         private static NetworkUser _currentNetworkUser;
@@ -29,7 +21,7 @@ namespace DebugToolkit.Commands
             NetworkManager.DebugToolKitComponents.AddComponent<NoclipNet>();
         }
 
-        internal static void InternalToggle()
+        internal static void InternalToggle(bool shouldLog)
         {
             if (PlayerCommands.UpdateCurrentPlayerBody(out _currentNetworkUser, out _currentBody))
             {
@@ -54,7 +46,6 @@ namespace DebugToolkit.Commands
                     {
                         motor.useGravity = motor.gravityParameters.CheckShouldUseGravity();
                     }
-                    UndoHooks();
                 }
                 else
                 {
@@ -74,10 +65,19 @@ namespace DebugToolkit.Commands
                     {
                         motor.useGravity = false;
                     }
-                    ApplyHooks();
                 }
-
-                IsActivated = !IsActivated;
+            }
+            if (IsActivated)
+            {
+                UndoHooks();
+            }
+            else
+            {
+                ApplyHooks();
+            }
+            IsActivated = !IsActivated;
+            if (shouldLog)
+            {
                 Log.Message(string.Format(Lang.NOCLIP_TOGGLE, IsActivated));
             }
         }
@@ -86,9 +86,7 @@ namespace DebugToolkit.Commands
         {
             if (!IsActivated)
             {
-                OnServerChangeSceneHook.Apply();
-                OnClientChangeSceneHook.Apply();
-                On.RoR2.Networking.NetworkManagerSystem.Disconnect += DisableOnDisconnect;
+                On.RoR2.Networking.NetworkManagerSystem.OnStopClient += DisableOnStopClient;
                 On.RoR2.MapZone.TeleportBody += DisableOOBCheck;
             }
         }
@@ -97,9 +95,7 @@ namespace DebugToolkit.Commands
         {
             if (IsActivated)
             {
-                OnServerChangeSceneHook.Undo();
-                OnClientChangeSceneHook.Undo();
-                On.RoR2.Networking.NetworkManagerSystem.Disconnect -= DisableOnDisconnect;
+                On.RoR2.Networking.NetworkManagerSystem.OnStopClient -= DisableOnStopClient;
                 On.RoR2.MapZone.TeleportBody -= DisableOOBCheck;
             }
         }
@@ -119,8 +115,8 @@ namespace DebugToolkit.Commands
             {
                 if (kcm.CollidableLayers != 0)
                 {
-                    InternalToggle();
-                    InternalToggle();
+                    InternalToggle(false);
+                    InternalToggle(false);
                 }
             }
             else if (rigid)
@@ -128,8 +124,8 @@ namespace DebugToolkit.Commands
                 var collider = rigid.GetComponent<Collider>();
                 if (collider && !collider.isTrigger)
                 {
-                    InternalToggle();
-                    InternalToggle();
+                    InternalToggle(false);
+                    InternalToggle(false);
                 }
             }
 
@@ -167,45 +163,12 @@ namespace DebugToolkit.Commands
             }
         }
 
-        private static void DisableOnServerSceneChange(UnityEngine.Networking.NetworkManager instance, string newSceneName)
-        {
-            if (IsActivated)
-                Console.instance.SubmitCmd(LocalUserManager.GetFirstLocalUser().currentNetworkUser, "noclip");
-
-            origServerChangeScene(instance, newSceneName);
-        }
-
-        private static void DisableOnClientSceneChange(UnityEngine.Networking.NetworkManager instance, string newSceneName, bool forceReload)
-        {
-            if (IsActivated)
-                Console.instance.SubmitCmd(LocalUserManager.GetFirstLocalUser().currentNetworkUser, "noclip");
-
-            origClientChangeScene(instance, newSceneName, forceReload);
-        }
-
-        private static void DisableOnDisconnect(On.RoR2.Networking.NetworkManagerSystem.orig_Disconnect orig, RoR2.Networking.NetworkManagerSystem self)
+        private static void DisableOnStopClient(On.RoR2.Networking.NetworkManagerSystem.orig_OnStopClient orig, RoR2.Networking.NetworkManagerSystem self)
         {
             if (IsActivated)
             {
-                if (_currentBody)
-                {
-                    var kcm = _currentBody.GetComponent<KinematicCharacterMotor>();
-                    if (kcm)
-                    {
-                        kcm.RebuildCollidableLayers();
-                    }
-                    var motor = _currentBody.characterMotor;
-                    if (motor)
-                    {
-                        motor.useGravity = motor.gravityParameters.CheckShouldUseGravity();
-                    }
-                }
-
-                UndoHooks();
-                IsActivated = !IsActivated;
-                Log.Message(string.Format(Lang.NOCLIP_TOGGLE, IsActivated));
+                InternalToggle(true);
             }
-
             orig(self);
         }
 
@@ -216,9 +179,12 @@ namespace DebugToolkit.Commands
                 orig(self, characterBody);
         }
 
-        public static void SetUseGravity(this CharacterMotor motor, bool value)
+        internal static void DisableOnRunDestroy(Run run)
         {
-            typeof(CharacterMotor).GetProperty(nameof(CharacterMotor.useGravity)).GetSetMethod(true).Invoke(motor, new object[] { value });
+            if (IsActivated)
+            {
+                InternalToggle(true);
+            }
         }
     }
 
@@ -243,7 +209,7 @@ namespace DebugToolkit.Commands
         [TargetRpc]
         private void TargetToggle(NetworkConnection _)
         {
-            Command_Noclip.InternalToggle();
+            Command_Noclip.InternalToggle(true);
         }
     }
 }
