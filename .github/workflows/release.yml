@@ -26,8 +26,6 @@ jobs:
 
     - name: Build and Publish
       run: |
-        set -x
-
         dotnet build --configuration Release
 
         cd Thunderstore
