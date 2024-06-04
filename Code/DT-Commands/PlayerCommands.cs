@@ -17,7 +17,7 @@ namespace DebugToolkit.Commands
                 playerInstance.master.godMode = modeOn;
                 playerInstance.master.UpdateBodyGodMode();
             }
-            Log.MessageNetworked($"God mode {(modeOn ? "enabled" : "disabled")}.", args);
+            Log.MessageNetworked(String.Format(modeOn ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, "God mode"), args);
         }
 
         [ConCommand(commandName = "buddha", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.BUDDHA_HELP)]
@@ -27,7 +27,7 @@ namespace DebugToolkit.Commands
         private static void CCBuddhaModeToggle(ConCommandArgs args)
         {
             bool modeOn = Hooks.ToggleBuddha();
-            Log.MessageNetworked($"Buddha mode {(modeOn ? "enabled" : "disabled")}.", args);
+            Log.MessageNetworked(String.Format(modeOn ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, "Buddha mode"), args);
         }
 
         [ConCommand(commandName = "noclip", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.NOCLIP_HELP)]
