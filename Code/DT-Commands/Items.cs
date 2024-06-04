@@ -5,7 +5,9 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
+using UnityEngine.Networking;
 using static DebugToolkit.Log;
+using static DebugToolkit.Util;
 
 namespace DebugToolkit.Commands
 {
@@ -130,8 +132,10 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            if (!TryParseTarget(args, 2, out var inventory, out var targetName))
+            var target = ParseTarget(args, 2);
+            if (target.failMessage != null)
             {
+                Log.MessageNetworked(target.failMessage, args, LogLevel.MessageClientOnly);
                 return;
             }
 
@@ -143,6 +147,7 @@ namespace DebugToolkit.Commands
             }
             var name = ItemCatalog.GetItemDef(item).name;
             var amount = (args.commandName == "give_item" ? 1 : -1) * iCount;
+            var inventory = target.inventory;
             if (amount > 0)
             {
                 if (Run.instance.IsItemExpansionLocked(item))
@@ -151,17 +156,21 @@ namespace DebugToolkit.Commands
                     return;
                 }
                 inventory.GiveItem(item, amount);
-                Log.MessageNetworked(string.Format(Lang.GIVEOBJECT, amount, name, targetName), args);
+                Log.MessageNetworked(string.Format(Lang.GIVEOBJECT, amount, name, target.name), args);
             }
             else if (amount < 0)
             {
                 amount = Math.Min(-amount, inventory.GetItemCount(item));
                 inventory.RemoveItem(item, amount);
-                Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT, amount, name, targetName), args);
+                Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT, amount, name, target.name), args);
             }
             else
             {
                 Log.MessageNetworked("Nothing happened", args);
+            }
+            if (target.devotionController)
+            {
+                target.devotionController.UpdateAllMinions(false);
             }
         }
 
@@ -193,8 +202,10 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            if (!TryParseTarget(args, 2, out var inventory, out var targetName))
+            var target = ParseTarget(args, 2);
+            if (target.failMessage != null)
             {
+                Log.MessageNetworked(target.failMessage, args, LogLevel.MessageClientOnly);
                 return;
             }
 
@@ -209,9 +220,13 @@ namespace DebugToolkit.Commands
                 {
                     var pickupIndex = weightedSelection.Evaluate(UnityEngine.Random.value);
                     var pickupDef = PickupCatalog.GetPickupDef(pickupIndex);
-                    inventory.GiveItem((pickupDef != null) ? pickupDef.itemIndex : ItemIndex.None, 1);
+                    target.inventory.GiveItem((pickupDef != null) ? pickupDef.itemIndex : ItemIndex.None, 1);
                 }
-                Log.MessageNetworked($"Generated {iCount} items for {targetName}!", args);
+                if (target.devotionController)
+                {
+                    target.devotionController.UpdateAllMinions(false);
+                }
+                Log.MessageNetworked($"Generated {iCount} items for {target.name}!", args);
             }
             else
             {
@@ -235,11 +250,14 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            if (!TryParseTarget(args, 1, out var inventory, out var targetName))
+            var target = ParseTarget(args, 1);
+            if (target.failMessage != null)
             {
+                Log.MessageNetworked(target.failMessage, args, LogLevel.MessageClientOnly);
                 return;
             }
 
+            var inventory = target.inventory;
             var equip = EquipmentIndex.None;
             if (args[0].ToUpperInvariant() == Lang.RANDOM)
             {
@@ -258,7 +276,7 @@ namespace DebugToolkit.Commands
             }
             var name = EquipmentCatalog.GetEquipmentDef(equip).name;
 
-            Log.MessageNetworked($"Gave {name} to {targetName}", args);
+            Log.MessageNetworked($"Gave {name} to {target.name}", args);
         }
 
         [ConCommand(commandName = "create_pickup", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.CREATEPICKUP_HELP)]
@@ -422,7 +440,7 @@ namespace DebugToolkit.Commands
                 position = body.transform.position,
                 rotation = Quaternion.identity,
                 pickupIndex = PickupCatalog.FindPickupIndex(firstItemTier)
-            }, body.transform.position, body.inputBank.aimDirection * 30f);
+            }, body.inputBank.aimDirection * 30f);
             Log.MessageNetworked(string.Format(Lang.CREATEPICKUP_SUCCESS_2, Math.Min(iCount, droptable.selector.Count)), args);
         }
 
@@ -442,11 +460,14 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            if (!TryParseTarget(args, 1, out var inventory, out var targetName))
+            var target = ParseTarget(args, 1);
+            if (target.failMessage != null)
             {
+                Log.MessageNetworked(target.failMessage, args, LogLevel.MessageClientOnly);
                 return;
             }
 
+            var inventory = target.inventory;
             var item = StringFinder.Instance.GetItemFromPartial(args[0]);
             if (item == ItemIndex.None)
             {
@@ -456,7 +477,11 @@ namespace DebugToolkit.Commands
             var name = ItemCatalog.GetItemDef(item).name;
             int iCount = inventory.GetItemCount(item);
             inventory.RemoveItem(item, iCount);
-            Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT, iCount, name, targetName), args);
+            if (target.devotionController)
+            {
+                target.devotionController.UpdateAllMinions(false);
+            }
+            Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT, iCount, name, target.name), args);
         }
 
         [ConCommand(commandName = "remove_all_items", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.REMOVEALLITEMS_HELP)]
@@ -475,15 +500,21 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            if (!TryParseTarget(args, 0, out var inventory, out var targetName))
+            var target = ParseTarget(args, 0);
+            if (target.failMessage != null)
             {
+                Log.MessageNetworked(target.failMessage, args, LogLevel.MessageClientOnly);
                 return;
             }
 
             var tempObj = new GameObject();
-            inventory.CopyItemsFrom(tempObj.AddComponent<Inventory>());
+            target.inventory.CopyItemsFrom(tempObj.AddComponent<Inventory>());
             UnityEngine.Object.Destroy(tempObj);
-            Log.MessageNetworked($"Reseting inventory for {targetName}", args);
+            if (target.devotionController)
+            {
+                target.devotionController.UpdateAllMinions(false);
+            }
+            Log.MessageNetworked($"Reseting inventory for {target.name}", args);
         }
 
         [ConCommand(commandName = "remove_equip", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.REMOVEEQUIP_HELP)]
@@ -502,13 +533,15 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            if (!TryParseTarget(args, 0, out var inventory, out var targetName))
+            var target = ParseTarget(args, 0);
+            if (target.failMessage != null)
             {
+                Log.MessageNetworked(target.failMessage, args, LogLevel.MessageClientOnly);
                 return;
             }
 
-            inventory.SetEquipmentIndex(EquipmentIndex.None);
-            Log.MessageNetworked($"Removed current Equipment from {targetName}", args);
+            target.inventory.SetEquipmentIndex(EquipmentIndex.None);
+            Log.MessageNetworked($"Removed current Equipment from {target.name}", args);
         }
 
         [ConCommand(commandName = "restock_equip", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.RESTOCKEQUIP_HELP)]
@@ -537,22 +570,27 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(string.Format(Lang.NEGATIVE_ARG, "count"), args, LogLevel.MessageClientOnly);
                 return;
             }
-            if (!TryParseTarget(args, 1, out var inventory, out var targetName))
+            var target = ParseTarget(args, 1);
+            if (target.failMessage != null)
             {
+                Log.MessageNetworked(target.failMessage, args, LogLevel.MessageClientOnly);
                 return;
             }
 
+            var inventory = target.inventory;
             var currentSlot = inventory.activeEquipmentSlot;
             var chargesBefore = inventory.GetEquipment(currentSlot).charges;
             inventory.RestockEquipmentCharges(currentSlot, iCount);
             var chargesAfter = inventory.GetEquipment(currentSlot).charges;
-            Log.MessageNetworked($"Restocked {chargesAfter - chargesBefore} for the current equipment of {targetName}", args);
+            Log.MessageNetworked($"Restocked {chargesAfter - chargesBefore} for the current equipment of {target.name}", args);
         }
 
-        private static bool TryParseTarget(ConCommandArgs args, int index, out Inventory inventory, out string targetName)
+        private static CommandTarget ParseTarget(ConCommandArgs args, int index)
         {
-            inventory = null;
-            targetName = null;
+            string failMessage = null;
+            Inventory inventory = null;
+            string targetName = null;
+            DevotionInventoryController devotionController = null;
             if (args.Count > index && args[index] != Lang.DEFAULT_VALUE)
             {
                 var targetArg = args[index].ToUpperInvariant();
@@ -566,8 +604,7 @@ namespace DebugToolkit.Commands
                     var run = Run.instance as InfiniteTowerRun;
                     if (!run)
                     {
-                        Log.MessageNetworked(Lang.NOTINASIMULACRUMRUN_ERROR, args, LogLevel.MessageClientOnly);
-                        return false;
+                        failMessage = Lang.NOTINASIMULACRUMRUN_ERROR;
                     }
                     inventory = run.enemyInventory;
                     targetName = inventory?.gameObject.name;
@@ -577,11 +614,32 @@ namespace DebugToolkit.Commands
                     var mission = ArenaMissionController.instance;
                     if (!mission)
                     {
-                        Log.MessageNetworked(Lang.NOTINVOIDFIELDS_ERROR, args, LogLevel.MessageClientOnly);
-                        return false;
+                        failMessage = Lang.NOTINVOIDFIELDS_ERROR;
                     }
                     inventory = mission.inventory;
                     targetName = inventory?.gameObject.name;
+                }
+                else if (targetArg == Lang.DEVOTION)
+                {
+                    if (args.sender == null)
+                    {
+                        failMessage = String.Format(Lang.DS_INVALIDARG, "devotion");
+                    }
+                    else
+                    {
+                        var target = args.senderMaster;
+                        if (target == null)
+                        {
+                            failMessage = Lang.PLAYER_NOTFOUND;
+                        }
+                        else
+                        {
+                            devotionController = GetDevotionController(target);
+                            inventory = devotionController._devotionMinionInventory;
+                            var player = target.playerCharacterMasterController?.networkUser;
+                            targetName = (player?.masterController.GetDisplayName() ?? target.gameObject.name) + "'s Devotion Inventory";
+                        }
+                    }
                 }
                 else
                 {
@@ -589,13 +647,11 @@ namespace DebugToolkit.Commands
                     var target = Util.GetTargetFromArgs(args, index);
                     if (target == null && !isDedicatedServer && targetArg == Lang.PINGED)
                     {
-                        Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
-                        return false;
+                        failMessage = Lang.PINGEDBODY_NOTFOUND;
                     }
                     if (target == null)
                     {
-                        Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
-                        return false;
+                        failMessage = Lang.PLAYER_NOTFOUND;
                     }
                     inventory = target.inventory;
                     var player = target.playerCharacterMasterController?.networkUser;
@@ -607,8 +663,7 @@ namespace DebugToolkit.Commands
                 var target = args.senderMaster;
                 if (target == null)
                 {
-                    Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
-                    return false;
+                    failMessage = Lang.PLAYER_NOTFOUND;
                 }
                 inventory = target.inventory;
                 var player = target.playerCharacterMasterController?.networkUser;
@@ -616,10 +671,21 @@ namespace DebugToolkit.Commands
             }
             if (inventory == null)
             {
-                Log.MessageNetworked(Lang.INVENTORY_ERROR, args, LogLevel.MessageClientOnly);
-                return false;
+                failMessage = Lang.INVENTORY_ERROR;
             }
-            return true;
+            if (failMessage != null)
+            {
+                return new CommandTarget
+                {
+                    failMessage = failMessage
+                };
+            }
+            return new CommandTarget
+            {
+                name = targetName,
+                inventory = inventory,
+                devotionController = devotionController
+            };
         }
 
         private static BasicPickupDropTable ParseDroptable(ConCommandArgs args, int index, bool canDropBeReplaced)
@@ -726,6 +792,28 @@ namespace DebugToolkit.Commands
                     availableDropLists[tier.Key] = tier.Value;
                 }
             }
+        }
+
+        private static DevotionInventoryController GetDevotionController(CharacterMaster master)
+        {
+            DevotionInventoryController controller = null;
+            foreach (var thisController in DevotionInventoryController.InstanceList)
+            {
+                if (thisController.SummonerMaster == master)
+                {
+                    controller = thisController;
+                    break;
+                }
+            }
+            if (controller == null)
+            {
+                GameObject gameObject = GameObject.Instantiate(Addressables.LoadAssetAsync<GameObject>("RoR2/CU8/LemurianEgg/DevotionMinionInventory.prefab").WaitForCompletion());
+                controller = gameObject.GetComponent<DevotionInventoryController>();
+                controller.GetComponent<TeamFilter>().teamIndex = TeamIndex.Player;
+                controller.SummonerMaster = master;
+                NetworkServer.Spawn(gameObject);
+            }
+            return controller;
         }
     }
 }
