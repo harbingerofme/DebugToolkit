@@ -456,16 +456,16 @@ namespace DebugToolkit.Commands
 
             if (args[0].ToUpperInvariant() == Lang.ALL)
             {
-                // Cleaning up after Kin because the game won't
-                if (!enabled && Stage.instance)
-                {
-                    Stage.instance.singleMonsterTypeBodyIndex = BodyIndex.None;
-                }
                 // Toggling Evolution triggers a UI refresh to update the Kin monster
                 var willRefresh = RunArtifactManager.instance.IsArtifactEnabled(RoR2Content.Artifacts.MonsterTeamGainsItems) != enabled;
                 foreach (var artifact in ArtifactCatalog.artifactDefs)
                 {
                     RunArtifactManager.instance.SetArtifactEnabled(artifact, enabled);
+                }
+                // Cleaning up after Kin because the game won't
+                if (!enabled && Stage.instance)
+                {
+                    Stage.instance.singleMonsterTypeBodyIndex = BodyIndex.None;
                 }
                 if (!willRefresh)
                 {
