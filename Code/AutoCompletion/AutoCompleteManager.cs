@@ -79,7 +79,7 @@ namespace DebugToolkit
             );
             parser.RegisterStaticVariable("equip", EquipmentCatalog.equipmentDefs.Select(i => $"{i.equipmentIndex}|{i.name}|{StringFinder.GetLangInvar(i.nameToken)}"));
             parser.RegisterStaticVariable("item", ItemCatalog.allItemDefs.Select(i => $"{i.itemIndex}|{i.name}|{StringFinder.GetLangInvar(i.nameToken)}"));
-            parser.RegisterStaticVariable("specific_stage", SceneCatalog.indexToSceneDef.Select(i => i._cachedName));
+            parser.RegisterStaticVariable("specific_stage", SceneCatalog.allSceneDefs.Where(i => !i.isOfflineScene).Select(i => $"{(int)i.sceneDefIndex}|{i.cachedName}|{StringFinder.GetLangInvar(i.nameToken)}"));
 
             parser.RegisterStaticVariable("dot", CollectEnumNames(typeof(DotController.DotIndex), typeof(sbyte)).Skip(1));
             parser.RegisterStaticVariable("permission_level", CollectEnumNames(typeof(Permissions.Level), typeof(int)));

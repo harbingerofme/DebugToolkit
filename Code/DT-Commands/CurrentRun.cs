@@ -276,18 +276,20 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            string stageString = args[0];
-            var def = Hooks.BetterSceneDefFinder(stageString);
-
-            if (def)
-            {
-                Run.instance.AdvanceStage(def);
-                Log.MessageNetworked($"Stage advanced to {stageString}.", args);
-            }
-            else
+            var sceneIndex = StringFinder.Instance.GetSceneFromPartial(args[0], false);
+            if (sceneIndex == SceneIndex.Invalid)
             {
                 Log.MessageNetworked(Lang.STAGE_NOTFOUND, args, LogLevel.MessageClientOnly);
+                return;
             }
+            var def = SceneCatalog.GetSceneDef(sceneIndex);
+            if (def.requiredExpansion != null && !Run.instance.IsExpansionEnabled(def.requiredExpansion))
+            {
+                Log.MessageNetworked("An expansion is required for this stage.", args, LogLevel.MessageClientOnly);
+                return;
+            }
+            Run.instance.AdvanceStage(def);
+            Log.MessageNetworked($"Stage advanced to {def.cachedName}.", args);
         }
 
         [ConCommand(commandName = "next_wave", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.NEXTWAVE_HELP)]
