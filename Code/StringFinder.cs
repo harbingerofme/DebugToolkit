@@ -750,6 +750,43 @@ namespace DebugToolkit
             }
         }
 
+        public SceneIndex GetSceneFromPartial(string name, bool includeOffline)
+        {
+            return GetScenesFromPartial(name, includeOffline).DefaultIfEmpty(SceneIndex.Invalid).FirstOrDefault();
+        }
+
+        public IEnumerable<SceneIndex> GetScenesFromPartial(string name, bool includeOffline)
+        {
+            if (TextSerialization.TryParseInvariant(name, out int i))
+            {
+                var index = (SceneIndex)i;
+                var scene = SceneCatalog.GetSceneDef(index);
+                if (scene != null && (includeOffline || !scene.isOfflineScene))
+                {
+                    yield return index;
+                }
+                yield break;
+            }
+            name = name.ToUpperInvariant();
+            var matches = new List<MatchSimilarity>();
+            foreach (var scene in SceneCatalog.allSceneDefs)
+            {
+                var langInvar = GetLangInvar(scene.nameToken).ToUpper();
+                if ((scene.cachedName.ToUpper().Contains(name) || langInvar.Contains(name)) && (includeOffline || !scene.isOfflineScene))
+                {
+                    matches.Add(new MatchSimilarity
+                    {
+                        similarity = Math.Max(GetSimilarity(scene.cachedName, name), GetSimilarity(scene.nameToken, name)),
+                        item = scene.sceneDefIndex
+                    });
+                }
+            }
+            foreach (var match in matches.OrderByDescending(m => m.similarity))
+            {
+                yield return (SceneIndex)match.item;
+            }
+        }
+
         /// <summary>
         /// Returns a special char stripped language invariant when provided with a BaseNameToken.
         /// </summary>

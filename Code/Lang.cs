@@ -98,6 +98,7 @@
             LISTITEMTIER_HELP = "List all item tiers. " + LISTQUERY_ARGS,
             LISTITEM_HELP = "List all items and their availability. " + LISTQUERY_ARGS,
             LISTPLAYER_HELP = "List all players and their ID. " + LISTQUERY_ARGS,
+            LISTSCENE_HELP = "List all scenes and their language invariants. " + LISTQUERY_ARGS,
             LISTSKIN_HELP = "List all bodies with skins. " + LISTSKIN_ARGS,
             LISTTEAM_HELP = "List all Teams and their language invariants. " + LISTQUERY_ARGS,
             LOADOUTSKIN_HELP = "Change your loadout's skin.  " + LOADOUTSKIN_ARGS,
