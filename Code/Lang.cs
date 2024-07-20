@@ -185,7 +185,7 @@
             PINGEDBODY_NOTFOUND = "Pinged target not found. Either the last ping was not a character, or it has been destroyed since.",
             PLAYER_NOTFOUND = "Specified player not found or isn't alive. Please use list_player for options.",
             SPAWN_ERROR = "Could not spawn: ",
-            STAGE_NOTFOUND = "Stage not found. Please use scene_list for options.",
+            STAGE_NOTFOUND = "Stage not found. Please use list_scene for options.",
             TEAM_NOTFOUND = "Team type not found. Please use list_team for options."
             ;
 
