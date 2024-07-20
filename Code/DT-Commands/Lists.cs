@@ -158,6 +158,23 @@ namespace DebugToolkit.Commands
             Log.MessageNetworked(s, args, LogLevel.MessageClientOnly);
         }
 
+        [ConCommand(commandName = "list_scene", flags = ConVarFlags.None, helpText = Lang.LISTSCENE_HELP)]
+        [AutoComplete(Lang.LISTQUERY_ARGS)]
+        private static void CCListScene(ConCommandArgs args)
+        {
+            StringBuilder sb = new StringBuilder();
+            var arg = args.Count > 0 ? args[0] : "";
+            var indices = StringFinder.Instance.GetScenesFromPartial(arg, true);
+            foreach (var index in indices)
+            {
+                var scene = SceneCatalog.GetSceneDef(index);
+                var langInvar = StringFinder.GetLangInvar(scene.nameToken);
+                sb.AppendLine($"[{index}]{scene.cachedName}={langInvar} (offline={scene.isOfflineScene})");
+            }
+            var s = sb.Length > 0 ? sb.ToString().TrimEnd('\n') : string.Format(Lang.NOMATCH_ERROR, "scenes", arg);
+            Log.MessageNetworked(s, args, LogLevel.MessageClientOnly);
+        }
+
         [ConCommand(commandName = "list_skin", flags = ConVarFlags.None, helpText = Lang.LISTSKIN_HELP)]
         [AutoComplete(Lang.LISTSKIN_ARGS)]
         private static void CCListSkin(ConCommandArgs args)

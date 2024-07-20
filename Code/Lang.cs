@@ -98,6 +98,7 @@
             LISTITEMTIER_HELP = "List all item tiers. " + LISTQUERY_ARGS,
             LISTITEM_HELP = "List all items and their availability. " + LISTQUERY_ARGS,
             LISTPLAYER_HELP = "List all players and their ID. " + LISTQUERY_ARGS,
+            LISTSCENE_HELP = "List all scenes and their language invariants. " + LISTQUERY_ARGS,
             LISTSKIN_HELP = "List all bodies with skins. " + LISTSKIN_ARGS,
             LISTTEAM_HELP = "List all Teams and their language invariants. " + LISTQUERY_ARGS,
             LOADOUTSKIN_HELP = "Change your loadout's skin.  " + LOADOUTSKIN_ARGS,
@@ -184,7 +185,7 @@
             PINGEDBODY_NOTFOUND = "Pinged target not found. Either the last ping was not a character, or it has been destroyed since.",
             PLAYER_NOTFOUND = "Specified player not found or isn't alive. Please use list_player for options.",
             SPAWN_ERROR = "Could not spawn: ",
-            STAGE_NOTFOUND = "Stage not found. Please use scene_list for options.",
+            STAGE_NOTFOUND = "Stage not found. Please use list_scene for options.",
             TEAM_NOTFOUND = "Team type not found. Please use list_team for options."
             ;
 

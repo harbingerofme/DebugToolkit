@@ -78,6 +78,7 @@ List Commands:
 * **list_equip** - List all Equipment, their language invariants, and if they are in the current drop pool.
 * **list_interactables/list_interactibles** List all Interactables.
 * **list_directorcards** List all Director Cards. Mainly used for the `next_boss` command.
+* **list_scene** List all Scenes, their language invariants, and if are they an offline scene.
 * **list_skins** List all Body Skins and the language invariant of the current one in use.
 
 Dump Commands:
