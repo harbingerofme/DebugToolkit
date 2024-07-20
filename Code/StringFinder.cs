@@ -776,7 +776,7 @@ namespace DebugToolkit
                 {
                     matches.Add(new MatchSimilarity
                     {
-                        similarity = Math.Max(GetSimilarity(scene.cachedName, name), GetSimilarity(scene.nameToken, name)),
+                        similarity = Math.Max(GetSimilarity(scene.cachedName, name), GetSimilarity(langInvar, name)),
                         item = scene.sceneDefIndex
                     });
                 }
