@@ -1,6 +1,13 @@
 
 ## Changelog ##
 
+### 3.16 ###
+
+* **3.16.0**
+    * Added `list_scene`
+    * Updated `next_stage`: Adds partial and case-insensitive name matching and also supports the stage language names. Filters out offline scenes from the autocompletion as they are invalid inputs.
+    * Fixed throwing an error when an expansion-locked stage was used for `next_stage` and `set_scene`. A friendly message is printed instead.
+
 ### 3.15 ###
 
 * **3.15.0**
