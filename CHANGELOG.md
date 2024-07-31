@@ -3,6 +3,9 @@
 
 ### 3.16 ###
 
+* **3.16.1**
+    * Fixes macros not working in Photomode
+
 * **3.16.0**
     * Added `list_scene`
     * Updated `next_stage`: Adds partial and case-insensitive name matching and also supports the stage language names. Filters out offline scenes from the autocompletion as they are invalid inputs.
