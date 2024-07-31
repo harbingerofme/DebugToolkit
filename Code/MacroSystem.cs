@@ -207,7 +207,7 @@ namespace DebugToolkit.Code
         internal static void Update()
         {
             if (!IsAnyInputFieldActive()
-                && !PauseManager.pauseScreenInstance
+                && (!PauseManager.pauseScreenInstance || !PauseManager.pauseScreenInstance.activeSelf)
                 && (AllowKeybindsWithUi.Value || !IsAnyUIWindowOpen())
             )
             {
