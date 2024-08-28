@@ -274,7 +274,7 @@ namespace DebugToolkit.Permissions
 
         private static Level GetPermissionLevel(this NetworkUser networkUser)
         {
-            var userSteamId = (ulong)networkUser.GetNetworkPlayerName().steamId.value;
+            var userSteamId = (ulong)networkUser.GetNetworkPlayerName().playerId.value;
 
             if (AdminSteamIdList.Contains(userSteamId))
                 return Level.Admin;

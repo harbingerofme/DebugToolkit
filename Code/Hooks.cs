@@ -34,7 +34,15 @@ namespace DebugToolkit
 
         public static void InitializeHooks()
         {
-            IL.RoR2.Console.Awake += UnlockConsole;
+            var allFlags = (System.Reflection.BindingFlags)(-1);
+
+            var moveNext = typeof(RoR2.Console).
+                GetNestedTypes(allFlags).
+                FirstOrDefault(t => t.Name.Contains(nameof(Console.AwakeCoroutine))).
+                GetMethods(allFlags).
+                FirstOrDefault(m => m.Name.Contains("MoveNext"));
+            new ILHook(moveNext, UnlockConsole);
+
             On.RoR2.Console.InitConVars += InitCommandsAndFreeConvars;
 
             var runCmdHook = new Hook(typeof(Console).GetMethodCached("RunCmd"),
@@ -77,11 +85,13 @@ namespace DebugToolkit
             }
         }
 
-        private static void NonLethatDamage(On.RoR2.HealthComponent.orig_TakeDamage orig,HealthComponent self,DamageInfo damageInfo){
-            if(buddha && self.body.isPlayerControlled){
-              damageInfo.damageType |= DamageType.NonLethal;
+        private static void NonLethatDamage(On.RoR2.HealthComponent.orig_TakeDamage orig, HealthComponent self, DamageInfo damageInfo)
+        {
+            if (buddha && self.body.isPlayerControlled)
+            {
+                damageInfo.damageType |= DamageType.NonLethal;
             }
-            orig(self,damageInfo);
+            orig(self, damageInfo);
         }
 
         private static void InfiniteTowerRun_BeginNextWave(ILContext il)
@@ -601,7 +611,7 @@ namespace DebugToolkit
             return true;
         }
 
-        internal static void ForceFamilyEvent(On.RoR2.ClassicStageInfo.orig_RebuildCards orig, ClassicStageInfo self)
+        internal static void ForceFamilyEvent(On.RoR2.ClassicStageInfo.orig_RebuildCards orig, ClassicStageInfo self, DirectorCardCategorySelection forcedMonsterCategory, DirectorCardCategorySelection forcedInteractableCategory)
         {
             On.RoR2.DccsPool.GenerateWeightedSelection += ForceFamilyEventForDccsPoolStages;
             var originalEventChance = ClassicStageInfo.monsterFamilyChance;
@@ -621,7 +631,7 @@ namespace DebugToolkit
                 };
             }
             self.possibleMonsterFamilies = newFamilyCategories;
-            orig(self);
+            orig(self, forcedMonsterCategory, forcedInteractableCategory);
             On.RoR2.DccsPool.GenerateWeightedSelection -= ForceFamilyEventForDccsPoolStages;
             ClassicStageInfo.monsterFamilyChance = originalEventChance;
             self.possibleMonsterFamilies = originalFamilyCategories;
