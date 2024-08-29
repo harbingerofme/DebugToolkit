@@ -71,14 +71,14 @@ namespace DebugToolkit
             parser.RegisterStaticVariable("1", "1");
             parser.RegisterStaticVariable("ai", MasterCatalog.allAiMasters.Select(i => $"{(int)i.masterIndex}|{i.name}|{StringFinder.GetLangInvar(StringFinder.GetMasterName(i))}"));
             parser.RegisterStaticVariable("artifact", ArtifactCatalog.artifactDefs.Select(i => $"{(int)i.artifactIndex}|{i.cachedName}|{StringFinder.GetLangInvar(i.nameToken)}"));
-            parser.RegisterStaticVariable("body", BodyCatalog.allBodyPrefabBodyBodyComponents.Select(i => $"{i.bodyIndex}|{i.name}|{StringFinder.GetLangInvar(i.baseNameToken)}"));
-            parser.RegisterStaticVariable("buff", BuffCatalog.buffDefs.Select(i => $"{i.buffIndex}|{StringFinder.GetLangInvar(i.name)}"));
+            parser.RegisterStaticVariable("body", BodyCatalog.allBodyPrefabBodyBodyComponents.Select(i => $"{(int)i.bodyIndex}|{i.name}|{StringFinder.GetLangInvar(i.baseNameToken)}"));
+            parser.RegisterStaticVariable("buff", BuffCatalog.buffDefs.Select(i => $"{(int)i.buffIndex}|{StringFinder.GetLangInvar(i.name)}"));
             parser.RegisterStaticVariable("droptable", ItemTierCatalog.allItemTierDefs.OrderBy(i => i.tier).Select(i => $"{(int)i.tier}|{i.name}"));
             parser.RegisterStaticVariable("elite", new string[] { "-1|None" }.
-                Concat(EliteCatalog.eliteDefs.Select(i => $"{i.eliteIndex}|{i.name}|{StringFinder.GetLangInvar(i.modifierToken)}"))
+                Concat(EliteCatalog.eliteDefs.Select(i => $"{(int)i.eliteIndex}|{i.name}|{StringFinder.GetLangInvar(i.modifierToken)}"))
             );
-            parser.RegisterStaticVariable("equip", EquipmentCatalog.equipmentDefs.Select(i => $"{i.equipmentIndex}|{i.name}|{StringFinder.GetLangInvar(i.nameToken)}"));
-            parser.RegisterStaticVariable("item", ItemCatalog.allItemDefs.Select(i => $"{i.itemIndex}|{i.name}|{StringFinder.GetLangInvar(i.nameToken)}"));
+            parser.RegisterStaticVariable("equip", EquipmentCatalog.equipmentDefs.Select(i => $"{(int)i.equipmentIndex}|{i.name}|{StringFinder.GetLangInvar(i.nameToken)}"));
+            parser.RegisterStaticVariable("item", ItemCatalog.allItemDefs.Select(i => $"{(int)i.itemIndex}|{i.name}|{StringFinder.GetLangInvar(i.nameToken)}"));
             parser.RegisterStaticVariable("specific_stage", SceneCatalog.allSceneDefs.Where(i => !i.isOfflineScene).Select(i => $"{(int)i.sceneDefIndex}|{i.cachedName}|{StringFinder.GetLangInvar(i.nameToken)}"));
 
             parser.RegisterStaticVariable("dot", CollectEnumNames(typeof(DotController.DotIndex), typeof(sbyte)).Skip(1));
