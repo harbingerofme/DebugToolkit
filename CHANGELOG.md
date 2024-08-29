@@ -3,6 +3,10 @@
 
 ### 3.16 ###
 
+* **3.16.2**
+    * Updated to work with Seekers of the Storm update.
+    * Fixed a bug with autocompletion where if the parameter were a number, e.g. "01", the dropdown would match that with the language text instead of its catalog index.
+
 * **3.16.1**
     * Fixes macros not working in Photomode
 
