@@ -420,6 +420,10 @@ namespace DebugToolkit
                     }
                     else
                     {
+                        if (TextSerialization.TryParseInvariant(tokenName, out int tokenAsInt))
+                        {
+                            tokenName = tokenAsInt.ToString();
+                        }
                         foreach (var suggestion in suggestions)
                         {
                             if (suggestion.IndexOf(tokenName, StringComparison.InvariantCultureIgnoreCase) >= 0)
