@@ -114,7 +114,7 @@
 	<Target Name="Weave" AfterTargets="CopyToOut" Condition="'$(Configuration)|$(Platform)'!='NO-UNET|AnyCPU' and '$(Configuration)|$(Platform)'!='AnyCPU'">
 		<Exec Command="robocopy $(TargetDir) $(ProjectDir)NetworkWeaver\ $(TargetFileName) &gt; nul" IgnoreExitCode="true" />
 		<Exec Command="echo moved to NetworkWeaver" />
-		<Exec Command="$(ProjectDir)NetworkWeaver\Unity.UNetWeaver.exe &quot;$(PkgUnityEngine_Modules)\lib\netstandard2.0\UnityEngine.CoreModule.dll&quot; &quot;$(PkgRiskOfRain2_GameLibs)\lib\netstandard2.0\com.unity.multiplayer-hlapi.Runtime.dll&quot; &quot;$(ProjectDir)\NetworkWeaver\Patched/&quot; &quot;$(ProjectDir)NetworkWeaver\$(TargetFileName)&quot;  &quot;$(ProjectDir)\libs&quot;  &quot;$(PkgUnityEngine_Modules)\lib\netstandard2.0&quot; &quot;$(PkgRiskOfRain2_GameLibs)\lib\netstandard2.0\s&quot;" />
+		<Exec Command="$(ProjectDir)NetworkWeaver\Unity.UNetWeaver.exe &quot;$(PkgUnityEngine_Modules)\lib\netstandard2.0\UnityEngine.CoreModule.dll&quot; &quot;$(PkgRiskOfRain2_GameLibs)\lib\netstandard2.0\com.unity.multiplayer-hlapi.Runtime.dll&quot; &quot;$(ProjectDir)\NetworkWeaver\Patched/&quot; &quot;$(ProjectDir)NetworkWeaver\$(TargetFileName)&quot;  &quot;$(ProjectDir)\libs&quot;  &quot;$(PkgUnityEngine_Modules)\lib\netstandard2.0&quot; &quot;$(PkgRiskOfRain2_GameLibs)\lib\netstandard2.0&quot; &quot;$(PkgRiskOfRain2_GameLibs)\..\..\netstandard.library.ref\2.1.0\ref\netstandard2.1&quot;" />
 		<Exec Command="echo weaved" />
 		<Exec Command="ren $(TargetFileName) $(TargetFileName).prepatch" IgnoreExitCode="true" />
 		<Exec Command="echo renamed prenetwork file to prepatch for backup" />
