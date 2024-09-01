@@ -43,7 +43,7 @@ namespace DebugToolkit
                 FirstOrDefault(m => m.Name.Contains("MoveNext"));
             new ILHook(moveNext, UnlockConsole);
 
-            On.RoR2.Console.InitConVars += InitCommandsAndFreeConvars;
+            On.RoR2.Console.CacheConVars += InitCommandsAndFreeConvars;
 
             var runCmdHook = new Hook(typeof(Console).GetMethodCached("RunCmd"),
                 typeof(Hooks).GetMethodCached(nameof(LogNetworkCommandsAndCheckPermissions)), new HookConfig { Priority = 1 });
@@ -210,7 +210,7 @@ namespace DebugToolkit
                 });
         }
 
-        private static void InitCommandsAndFreeConvars(On.RoR2.Console.orig_InitConVars orig, Console self)
+        private static void InitCommandsAndFreeConvars(On.RoR2.Console.orig_CacheConVars orig, Console self)
         {
             void RemoveCheatFlag(BaseConVar cv)
             {
