@@ -1,10 +1,14 @@
 
 ## Changelog ##
 
-### 3.16 ###
+### 3.17 ###
 
-* **3.16.3**
+* **3.17.0**
+    * Updated `add_portal` and `spawn_portal`: Adds the green portal.
+    * Updated `set_artifact`: The enable argument is now optional for individual artifacts and will toggle their state if not supplied. It is still required for "all" artifacts.
     * Fixed cheat ConVars not getting unlocked.
+
+### 3.16 ###
 
 * **3.16.2**
     * Updated to work with Seekers of the Storm update.
