@@ -59,6 +59,7 @@ namespace DebugToolkit
             On.RoR2.UI.ConsoleWindow.OnInputFieldValueChanged += UpdateCommandSignature;
             IL.RoR2.UI.ConsoleWindow.ApplyAutoComplete += ApplyTextWithoutColorTags;
             IL.RoR2.UI.ConsoleWindow.Update += SmoothDropDownSuggestionNavigation;
+            IL.RoR2.UI.HUD.Update += AllowTabAutocompleteConCommands;
 
             IL.RoR2.Networking.NetworkManagerSystem.CCSetScene += EnableCheatsInCCSetScene;
             On.RoR2.Networking.NetworkManagerSystem.CCSceneList += OverrideVanillaSceneList;
@@ -578,6 +579,31 @@ namespace DebugToolkit
             {
                 return isNextKeyPressed || (!Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Tab));
             }
+        }
+
+        private static void AllowTabAutocompleteConCommands(ILContext il)
+        {
+            var c = new ILCursor(il);
+            ILLabel jumpLabel = null;
+            if (!c.TryGotoNext(
+                    x => x.MatchLdstr("info"),
+                    x => x.MatchCallOrCallvirt<Rewired.Player>("GetButtonDown")) ||
+                !c.TryGotoNext(
+                    MoveType.After,
+                    x => x.MatchCallOrCallvirt<RoR2.UI.HUD>("get_targetBodyObject"),
+                    x => x.MatchCallOrCallvirt<UnityEngine.Object>("op_Implicit"),
+                    x => x.MatchBrfalse(out jumpLabel)))
+            {
+                Log.Message("Failed to patch RoR2.UI.HUD.Update", Log.LogLevel.Error, Log.Target.Bepinex);
+                return;
+            }
+            c.Emit(OpCodes.Ldarg_0);
+            c.EmitDelegate<Func<RoR2.UI.HUD, bool>>(self =>
+            {
+                var uiObject = self.eventSystemProvider?.eventSystem?.currentSelectedGameObject;
+                return !(uiObject && uiObject == RoR2.UI.ConsoleWindow.instance?.inputField?.gameObject);
+            });
+            c.Emit(OpCodes.Brfalse_S, jumpLabel.Target);
         }
 
         internal static WeightedSelection<DirectorCardCategorySelection> ForceFamilyEventForDccsPoolStages(On.RoR2.DccsPool.orig_GenerateWeightedSelection orig, DccsPool self)
