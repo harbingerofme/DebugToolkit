@@ -471,15 +471,24 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
                 return;
             }
-            if (args.Count < 2)
+            if (args.Count < 1)
             {
                 Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.SETARTIFACT_ARGS, args, LogLevel.MessageClientOnly);
                 return;
             }
-            if (!Util.TryParseBool(args[1], out var enabled))
+            if (args[0].ToUpperInvariant() == Lang.ALL && args.Count < 2)
             {
-                Log.MessageNetworked(string.Format(Lang.PARSE_ERROR, "enable", "int or bool"), args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked("The 'enable' argument is required when using 'all'", args, LogLevel.MessageClientOnly);
                 return;
+            }
+            var enabled = false;
+            if (args.Count > 1)
+            {
+                if (!Util.TryParseBool(args[1], out enabled))
+                {
+                    Log.MessageNetworked(string.Format(Lang.PARSE_ERROR, "enable", "int or bool"), args, LogLevel.MessageClientOnly);
+                    return;
+                }
             }
 
             if (args[0].ToUpperInvariant() == Lang.ALL)
@@ -510,6 +519,10 @@ namespace DebugToolkit.Commands
                     return;
                 }
                 var artifact = ArtifactCatalog.GetArtifactDef(artifactIndex);
+                if (args.Count < 2)
+                {
+                    enabled = !RunArtifactManager.instance.IsArtifactEnabled(artifact);
+                }
                 if (RunArtifactManager.instance.IsArtifactEnabled(artifact) == enabled)
                 {
                     Log.MessageNetworked("Nothing happened", args);

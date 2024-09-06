@@ -54,7 +54,7 @@ Commands:
 * **add_portal** - Add a portal to the current Teleporter on completion. `add_portal {portal ('blue'|'celestial'|'gold'|'green'|'void'|'all')}`.
 * **charge_zone** - Set the charge of all active holdout zones. `charge_zone {charge}`. The value is a float between 0 and 100.
 * **seed** - Set the seed for all next runs this session. `seed [new_seed]`. Use `0` to specify the game should generate its own seed. If used without argument, it's equivalent to the vanilla `run_get_seed`.
-* **set_artifact** - Enable/disable an Artifact. `set_artifact {artifact (artifact|'all')} {enable (0|1)}`
+* **set_artifact** - Enable/disable an Artifact. `set_artifact {artifact (artifact|'all')} [enable (0|1)]`. If enable isn't supplied, it will toggle the artifact's current state. However, it is required when using "all".
 * **kill_all** - Kills all members of a specified team. `kill_all [team:Monster]`.
 * **true_kill** - Truly kill a player, ignoring revival effects. `true_kill *[player:<self>]`
 * **respawn** - Respawn a player at the map spawnpoint. `respawn *[player:<self>]`

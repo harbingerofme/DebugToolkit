@@ -50,7 +50,7 @@
             RESTOCKEQUIP_ARGS = "Requires 0 (2 if from server) arguments: [count:1] *[target (player|'pinged'|'evolution'|'simulacrum'|'voidfields'|'devotion'):<self>]",
             RUNSETWAVESCLEARED_ARGS = "Requires 1 argument {wave}",
             SEED_ARGS = "Requires 0 or 1 argument: [new_seed]",
-            SETARTIFACT_ARGS = "Requires 2 arguments: {artifact (artifact|'all')} {enable (0|1)}",
+            SETARTIFACT_ARGS = "Requires 1 (2 if using 'all') argument: {artifact (artifact|'all')} [enable (0|1)]",
             SPAWNAI_ARGS = "Requires 1 argument: {ai} [count:1] [elite:None] [braindead (0|1):0/false] [team:Monster]",
             SPAWNAS_ARGS = "Requires 1 (2 if from server) argument: {body} [player:<self>]",
             SPAWNBODY_ARGS = "Requires 1 argument: {body}",
