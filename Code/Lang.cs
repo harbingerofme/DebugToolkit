@@ -55,7 +55,7 @@
             SPAWNAS_ARGS = "Requires 1 (2 if from server) argument: {body} [player:<self>]",
             SPAWNBODY_ARGS = "Requires 1 argument: {body}",
             SPAWNINTERACTABLE_ARGS = "Requires 1 argument: {interactable}",
-            SPAWNPORTAL_ARGS = "Requires 1 argument: {portal ('artifact'|'blue'|'celestial'|'deepvoid'|'gold'|'null'|'void')}",
+            SPAWNPORTAL_ARGS = "Requires 1 argument: {portal ('artifact'|'blue'|'celestial'|'deepvoid'|'gold'|'green'|'null'|'void')}",
             TIMESCALE_ARGS = "Requires 1 argument: {time_scale}",
             TRUEKILL_ARGS = "Requires 0 (1 if from server) arguments: [player:<self>]"
             ;
