@@ -6,7 +6,7 @@
 
         // Command arguments
         public const string
-            ADDPORTAL_ARGS = "Requires 1 argument: {portal ('blue'|'celestial'|'gold'|'void'|'all')}",
+            ADDPORTAL_ARGS = "Requires 1 argument: {portal ('blue'|'celestial'|'gold'|'green'|'void'|'all')}",
             BAN_ARGS = "Requires 1 argument: {player}",
             BIND_ARGS = "Requires 2 arguments: {key} {console_commands}",
             BIND_DELETE_ARGS = "Requires 1 argument: {key}",

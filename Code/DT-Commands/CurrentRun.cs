@@ -52,48 +52,74 @@ namespace DebugToolkit.Commands
                 case "GOLD":
                     teleporterInteraction.shouldAttemptToSpawnGoldshoresPortal = true;
                     break;
+                case "GREEN":
+                    QueuePortal("GREEN");
+                    break;
                 case "CELESTIAL":
                     teleporterInteraction.shouldAttemptToSpawnMSPortal = true;
                     break;
                 case "VOID":
-                    QueueVoidPortal();
+                    QueuePortal("VOID");
                     break;
                 case Lang.ALL:
                     teleporterInteraction.shouldAttemptToSpawnShopPortal = true;
                     teleporterInteraction.shouldAttemptToSpawnMSPortal = true;
                     teleporterInteraction.shouldAttemptToSpawnGoldshoresPortal = true;
-                    QueueVoidPortal();
+                    QueuePortal("GREEN");
+                    QueuePortal("VOID");
                     break;
                 default:
                     Log.MessageNetworked(string.Format(Lang.INVALID_ARG_VALUE, "portal"), args, LogLevel.MessageClientOnly);
                     return;
             }
 
-            void QueueVoidPortal()
+            void QueuePortal(string portalName)
             {
+                string spawnCardName;
+                // Fix the initial spawning position of an orb in case it overlaps with another.
+                // For example, the void portal copies the celestial portal's starting location
+                // and it is extremely likely they forgot to use a unique value. This should be
+                // revisited when new orbs are added to ensure no interference.
+                Quaternion? rotation = null;
+                switch (portalName)
+                {
+                    case "GREEN":
+                        spawnCardName = "iscColossusPortal";
+                        break;
+                    case "VOID":
+                        spawnCardName = "iscVoidPortal";
+                        rotation = Quaternion.Euler(0f, 0f, 270f);
+                        break;
+                    default:
+                        Log.MessageNetworked(Lang.NOMESSAGE, args, LogLevel.MessageClientOnly);
+                        return;
+                }
+
                 foreach (var portal in teleporterInteraction.portalSpawners)
                 {
-                    if (portal.portalSpawnCard.name == "iscVoidPortal"
+                    if (portal.portalSpawnCard.name == spawnCardName
                         && portal.previewChild
                         && portal.previewChild.activeSelf == false) //False to make it not double run
                     {
                         if (portal.requiredExpansion && !Run.instance.IsExpansionEnabled(portal.requiredExpansion))
                         {
-                            Log.MessageNetworked("The void portal requires an expansion to be enabled.", args, LogLevel.MessageClientOnly);
+                            Log.MessageNetworked($"The {portalName.ToLower()} portal requires an expansion to be enabled.", args, LogLevel.MessageClientOnly);
                             return;
                         }
                         if (!string.IsNullOrEmpty(portal.bannedEventFlag) && Run.instance.GetEventFlag(portal.bannedEventFlag))
                         {
-                            Log.MessageNetworked("The void portal cannot spawn in this game mode.", args, LogLevel.MessageClientOnly);
+                            Log.MessageNetworked($"The {portalName.ToLower()} portal cannot spawn in this game mode.", args, LogLevel.MessageClientOnly);
                             return;
                         }
                         portal.spawnChance = 1f;
                         portal.minStagesCleared = 0;
-                        // The portal's orb copies the celestial portal's starting location, therefore
-                        // making this invisible if they are spawned at the same time. This fix makes
-                        // all orbs equidistant now (as intended?), but if the developers add new
-                        // orbs later, we may have to review whether we are intefering with anything.
-                        portal.previewChild.transform.localRotation = Quaternion.Euler(0f, 0f, 270f);
+                        portal.validStages = [];
+                        portal.invalidStages = [];
+                        portal.validStageTiers = [];
+                        if (rotation != null)
+                        {
+                            portal.previewChild.transform.localRotation = rotation.Value;
+                        }
                         portal.Start();
                         return;
                     }

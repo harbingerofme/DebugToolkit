@@ -51,7 +51,7 @@ Commands:
 * **next_wave** - Advance to the next Simulacrum wave. `next_wave`
 * **force_wave** - Set the next wave prefab. `force_wave [wave_prefab]`. If no input is supplied, prints all available options and clears any previous selection.
 * **run_set_waves_cleared** - Set the Simulacrum waves cleared. Must be positive. `set_run_waves_cleared {wave}`
-* **add_portal** - Add a portal to the current Teleporter on completion. `add_portal {portal ('blue'|'celestial'|'gold'|'void'|'all')}`.
+* **add_portal** - Add a portal to the current Teleporter on completion. `add_portal {portal ('blue'|'celestial'|'gold'|'green'|'void'|'all')}`.
 * **charge_zone** - Set the charge of all active holdout zones. `charge_zone {charge}`. The value is a float between 0 and 100.
 * **seed** - Set the seed for all next runs this session. `seed [new_seed]`. Use `0` to specify the game should generate its own seed. If used without argument, it's equivalent to the vanilla `run_get_seed`.
 * **set_artifact** - Enable/disable an Artifact. `set_artifact {artifact (artifact|'all')} {enable (0|1)}`
