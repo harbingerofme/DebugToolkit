@@ -7,6 +7,7 @@
     * Updated `add_portal` and `spawn_portal`: Adds the green portal.
     * Updated `set_artifact`: The enable argument is now optional for individual artifacts and will toggle their state if not supplied. It is still required for "all" artifacts.
     * Fixed cheat ConVars not getting unlocked.
+    * Fixed autocompletion not working when pressing tab during a run.
 
 ### 3.16 ###
 

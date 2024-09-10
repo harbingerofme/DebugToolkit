@@ -73,7 +73,7 @@ namespace DebugToolkit
             Run.onRunDestroyGlobal += Command_Noclip.DisableOnRunDestroy;
 
             //Buddha Mode hook
-            On.RoR2.HealthComponent.TakeDamage += NonLethatDamage;
+            On.RoR2.HealthComponent.TakeDamage += NonLethalDamage;
             On.RoR2.CharacterMaster.Awake += SetGodMode;
         }
 
@@ -86,7 +86,7 @@ namespace DebugToolkit
             }
         }
 
-        private static void NonLethatDamage(On.RoR2.HealthComponent.orig_TakeDamage orig, HealthComponent self, DamageInfo damageInfo)
+        private static void NonLethalDamage(On.RoR2.HealthComponent.orig_TakeDamage orig, HealthComponent self, DamageInfo damageInfo)
         {
             if (buddha && self.body.isPlayerControlled)
             {
