@@ -8,6 +8,7 @@
     * Updated `set_artifact`: The enable argument is now optional for individual artifacts and will toggle their state if not supplied. It is still required for "all" artifacts.
     * Fixed cheat ConVars not getting unlocked.
     * Fixed autocompletion not working when pressing tab during a run.
+    * Fixed `help` and `find` from vanilla not printing any output. Let us know if there are more such commands you frequently rely on.
 
 ### 3.16 ###
 

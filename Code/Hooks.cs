@@ -75,6 +75,38 @@ namespace DebugToolkit
             //Buddha Mode hook
             On.RoR2.HealthComponent.TakeDamage += NonLethalDamage;
             On.RoR2.CharacterMaster.Awake += SetGodMode;
+
+            // Console logging fixes - temporary
+            IL.RoR2.Console.ShowHelpText += FixCommandHelpText;
+            IL.RoR2.Console.CCFind += FixCCFind;
+        }
+
+        private static void FixCommandHelpText(ILContext il)
+        {
+            var c = new ILCursor(il);
+            if (c.Instrs.Count > 1)
+            {
+                Log.Message("Skipped patching the command help text method. Maybe fixed already?", Log.LogLevel.Warning, Log.Target.Bepinex);
+                return;
+            }
+            c.Emit(OpCodes.Ldarg_0);
+            c.Emit<Console>(OpCodes.Call, "GetHelpText");
+            c.Emit<Debug>(OpCodes.Call, "Log");
+        }
+
+        private static void FixCCFind(ILContext il)
+        {
+            var c = new ILCursor(il);
+            if (!c.TryGotoNext(
+                x => x.MatchCallOrCallvirt<Console>("Find"),
+                x => x.MatchPop()))
+            {
+                Log.Message("Could not patch \"find\" command. Maybe fixed already?", Log.LogLevel.Warning, Log.Target.Bepinex);
+                return;
+            }
+            c.Index += 1;
+            c.Emit<Debug>(OpCodes.Call, "Log");
+            c.Remove();
         }
 
         private static void SetGodMode(On.RoR2.CharacterMaster.orig_Awake orig, CharacterMaster self)
