@@ -789,10 +789,10 @@ namespace DebugToolkit
             }
         }
 
-        internal static void OnPrePopulateSetMonsterCreditZero(SceneDirector director)
+        internal static void DenyMapSpawns(On.RoR2.CombatDirector.orig_SpendAllCreditsOnMapSpawns orig, CombatDirector self, Transform mapSpawnTarget)
         {
-            //Note that this is not a hook, but an event subscription.
-            director.SetFieldValue("monsterCredit", 0);
+            self.monsterCredit = 0f;
+            orig(self, mapSpawnTarget);
         }
 
         internal static void DenyExperience(On.RoR2.ExperienceManager.orig_AwardExperience orig, ExperienceManager self, Vector3 origin, CharacterBody body, ulong amount)

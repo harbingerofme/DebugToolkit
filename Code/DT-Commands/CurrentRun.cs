@@ -131,14 +131,14 @@ namespace DebugToolkit.Commands
         private static void CCNoEnemies(ConCommandArgs args)
         {
             noEnemies = !noEnemies;
-            typeof(CombatDirector).GetFieldValue<RoR2.ConVar.BoolConVar>("cvDirectorCombatDisable").SetBool(noEnemies);
+            CombatDirector.cvDirectorCombatDisable.SetBool(noEnemies);
             if (noEnemies)
             {
-                SceneDirector.onPrePopulateSceneServer += Hooks.OnPrePopulateSetMonsterCreditZero;
+                On.RoR2.CombatDirector.SpendAllCreditsOnMapSpawns += Hooks.DenyMapSpawns;
             }
             else
             {
-                SceneDirector.onPrePopulateSceneServer -= Hooks.OnPrePopulateSetMonsterCreditZero;
+                On.RoR2.CombatDirector.SpendAllCreditsOnMapSpawns -= Hooks.DenyMapSpawns;
             }
             Log.MessageNetworked(String.Format(noEnemies ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, "no_enemies"), args);
         }
