@@ -116,13 +116,16 @@ namespace DebugToolkit
         private void AddCurrentStageIscsToCache(On.RoR2.ClassicStageInfo.orig_Start orig, ClassicStageInfo self)
         {
             orig(self);
-            var iscsOfCurrentStage =
-                self.interactableCategories.categories.
-                SelectMany(category => category.cards).
-                Select(directorCard => directorCard.spawnCard).
-                Where(spawnCard => interactableSpawnCards.All(existingIsc => existingIsc.name != spawnCard.name)).
-                Cast<InteractableSpawnCard>();
-            interactableSpawnCards.AddRange(iscsOfCurrentStage);
+            if (self.interactableCategories != null)
+            {
+                var iscsOfCurrentStage =
+                    self.interactableCategories.categories.
+                    SelectMany(category => category.cards).
+                    Select(directorCard => directorCard.spawnCard).
+                    Where(spawnCard => interactableSpawnCards.All(existingIsc => existingIsc.name != spawnCard.name)).
+                    Cast<InteractableSpawnCard>();
+                interactableSpawnCards.AddRange(iscsOfCurrentStage);
+            }
         }
 
         /// <summary>
