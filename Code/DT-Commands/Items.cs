@@ -507,9 +507,7 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            var tempObj = new GameObject();
-            target.inventory.CopyItemsFrom(tempObj.AddComponent<Inventory>());
-            UnityEngine.Object.Destroy(tempObj);
+            target.inventory.CleanInventory();
             if (target.devotionController)
             {
                 target.devotionController.UpdateAllMinions(false);
