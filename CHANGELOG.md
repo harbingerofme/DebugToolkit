@@ -12,6 +12,7 @@
     * Fixed `no_enemies` not preventing enemies from spawning from Halcyon Shrines and the event trigger on Prime Meridian.
     * Fixed an NRE on stages that have no interactable categories.
     * Fixed an NRE for item giving commands when the target argument is invalid.
+    * Fixed the wording in the object not found message.
 
 ### 3.16 ###
 
