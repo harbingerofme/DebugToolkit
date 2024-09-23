@@ -606,8 +606,11 @@ namespace DebugToolkit.Commands
                     {
                         failMessage = Lang.NOTINASIMULACRUMRUN_ERROR;
                     }
-                    inventory = run.enemyInventory;
-                    targetName = inventory?.gameObject.name;
+                    else
+                    {
+                        inventory = run.enemyInventory;
+                        targetName = inventory?.gameObject.name;
+                    }
                 }
                 else if (targetArg == Lang.VOIDFIELDS)
                 {
@@ -616,8 +619,11 @@ namespace DebugToolkit.Commands
                     {
                         failMessage = Lang.NOTINVOIDFIELDS_ERROR;
                     }
-                    inventory = mission.inventory;
-                    targetName = inventory?.gameObject.name;
+                    else
+                    {
+                        inventory = mission.inventory;
+                        targetName = inventory?.gameObject.name;
+                    }
                 }
                 else if (targetArg == Lang.DEVOTION)
                 {
@@ -649,13 +655,16 @@ namespace DebugToolkit.Commands
                     {
                         failMessage = Lang.PINGEDBODY_NOTFOUND;
                     }
-                    if (target == null)
+                    else if (target == null)
                     {
                         failMessage = Lang.PLAYER_NOTFOUND;
                     }
-                    inventory = target.inventory;
-                    var player = target.playerCharacterMasterController?.networkUser;
-                    targetName = player?.masterController.GetDisplayName() ?? target.gameObject.name;
+                    else
+                    {
+                        inventory = target.inventory;
+                        var player = target.playerCharacterMasterController?.networkUser;
+                        targetName = player?.masterController.GetDisplayName() ?? target.gameObject.name;
+                    }
                 }
             }
             else
@@ -665,11 +674,14 @@ namespace DebugToolkit.Commands
                 {
                     failMessage = Lang.PLAYER_NOTFOUND;
                 }
-                inventory = target.inventory;
-                var player = target.playerCharacterMasterController?.networkUser;
-                targetName = player?.masterController.GetDisplayName() ?? target.gameObject.name;
+                else
+                {
+                    inventory = target.inventory;
+                    var player = target.playerCharacterMasterController?.networkUser;
+                    targetName = player?.masterController.GetDisplayName() ?? target.gameObject.name;
+                }
             }
-            if (inventory == null)
+            if (failMessage == null && inventory == null)
             {
                 failMessage = Lang.INVENTORY_ERROR;
             }
