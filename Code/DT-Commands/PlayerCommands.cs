@@ -232,6 +232,11 @@ namespace DebugToolkit.Commands
         [AutoComplete(Lang.DUMPSTATE_ARGS)]
         private static void CCDumpState(ConCommandArgs args)
         {
+            if (!Run.instance)
+            {
+                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
+                return;
+            }
             bool isDedicatedServer = args.sender == null;
             if (args.Count < 1 && isDedicatedServer)
             {
@@ -322,7 +327,7 @@ namespace DebugToolkit.Commands
                     var equip = slot.equipmentDef;
                     if (equip != null)
                     {
-                        sb.AppendLine($"Equipment {i + 1}: {equip.name} {slot.charges}/{inventory.GetEquipmentSlotMaxCharges((byte)i)} ({slot.chargeFinishTime.timeUntil}/{equip.cooldown} cooldown)");
+                        sb.AppendLine($"Equipment {i + 1}: {equip.name} {slot.charges}/{inventory.GetEquipmentSlotMaxCharges((byte)i)} ({slot.chargeFinishTime.timeUntil}/{equip.cooldown * inventory.CalculateEquipmentCooldownScale()} cooldown)");
                     }
                     else
                     {
