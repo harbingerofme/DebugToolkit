@@ -122,7 +122,7 @@ namespace DebugToolkit
                     self.interactableCategories.categories.
                     SelectMany(category => category.cards).
                     Select(directorCard => directorCard.spawnCard).
-                    Where(spawnCard => interactableSpawnCards.All(existingIsc => existingIsc.name != spawnCard.name)).
+                    Where(spawnCard => spawnCard is InteractableSpawnCard && interactableSpawnCards.All(existingIsc => existingIsc.name != spawnCard.name)).
                     Cast<InteractableSpawnCard>();
                 interactableSpawnCards.AddRange(iscsOfCurrentStage);
             }

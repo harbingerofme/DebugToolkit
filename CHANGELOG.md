@@ -10,7 +10,7 @@
     * Fixed autocompletion not working when pressing tab during a run.
     * Fixed `help` and `find` from vanilla not printing any output. Let us know if there are more such commands you frequently rely on.
     * Fixed `no_enemies` not preventing enemies from spawning from Halcyon Shrines and the event trigger on Prime Meridian.
-    * Fixed an NRE on stages that have no interactable categories.
+    * Fixed an NRE on stages that have no interactable categories or when they contain a non-interactable spawn card.
     * Fixed an NRE for item giving commands when the target argument is invalid.
     * Fixed the wording in the object not found message.
 
