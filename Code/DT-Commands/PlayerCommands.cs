@@ -225,7 +225,7 @@ namespace DebugToolkit.Commands
         private static string FormatLevelStat(float value)
         {
             // Done so the value is formatted properly as +value or -value, e.g., Heretic negative regen
-            return value.ToString("+0;-#");
+            return value.ToString("+0.##;-0.##;+0");
         }
 
         [ConCommand(commandName = "dump_state", flags = ConVarFlags.None, helpText = Lang.DUMPSTATE_HELP)]
