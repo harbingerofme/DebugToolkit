@@ -46,18 +46,42 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(Lang.INTERACTABLE_NOTFOUND, args, LogLevel.MessageClientOnly);
                 return;
             }
-            var result = isc.DoSpawn(args.senderBody.footPosition, new Quaternion(), new DirectorSpawnRequest(
-                isc,
-                new DirectorPlacementRule  // unused internally
+            // Putting interactables with a collider just far enough to not cause any clipping
+            // or spawn under the character's feet. The few exceptions with MeshCollider aren't
+            // treated but they aren't much of an issue.
+            var colliders = isc.prefab.GetComponentsInChildren<Collider>();
+            var distance = 0f;
+            foreach (var collider in colliders)
+            {
+                if (!collider.isTrigger && collider.enabled)
                 {
-                    placementMode = DirectorPlacementRule.PlacementMode.NearestNode,
-                    maxDistance = 100f,
-                    minDistance = 20f,
-                    position = args.senderBody.transform.position,
-                    preventOverhead = true
-                },
-                RoR2Application.rng)
-            );
+                    var box = collider as BoxCollider;
+                    var capsule = collider as CapsuleCollider;
+                    var sphere = collider as SphereCollider;
+                    var scale = collider.transform.lossyScale;
+                    if (box)
+                    {
+                        var x = box.size.x * scale.x;
+                        var y = box.size.y * scale.y;
+                        distance = Mathf.Max(distance, Mathf.Sqrt(x * x + y * y) * 0.5f);
+                    }
+                    else if (capsule)
+                    {
+                        distance = Mathf.Max(distance, capsule.radius);
+                    }
+                    else if (sphere)
+                    {
+                        distance = Mathf.Max(distance, sphere.radius);
+                    }
+                }
+            }
+            var position = args.senderBody.footPosition;
+            if (distance > 0f)
+            {
+                var direction = args.senderBody.inputBank.aimDirection;
+                position = position + (args.senderBody.radius + distance) * new Vector3(direction.x, 0f, direction.z);
+            }
+            var result = isc.DoSpawn(position, new Quaternion(), new DirectorSpawnRequest(isc, null, RoR2Application.rng));
             if (!result.success)
             {
                 Log.MessageNetworked("Failed to spawn interactable.", args, LogLevel.MessageClientOnly);
