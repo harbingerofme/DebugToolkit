@@ -140,9 +140,25 @@ namespace DebugToolkit.Commands
                 master = player.master;
             }
 
-            Transform spawnPoint = Stage.instance.GetPlayerSpawnTransform();
-            master.Respawn(spawnPoint.position, spawnPoint.rotation);
-            Log.MessageNetworked(string.Format(Lang.SPAWN_ATTEMPT_1, master.name), args);
+            var body = master.GetBody() ?? master.bodyPrefab.GetComponent<CharacterBody>();
+            var position = master.hasBody ? master.GetBody().footPosition : master.deathFootPosition;
+            var rotation = Quaternion.Euler(0f, UnityEngine.Random.Range(0f, 360f), 0f);
+            if (DirectorCore.instance)
+            {
+                position = Run.instance.FindSafeTeleportPositionSimplified(body.hullClassification, position);
+            }
+            else
+            {
+                position = Vector3.zero;
+                var spawnPoint = Stage.instance.GetPlayerSpawnTransform();
+                if (spawnPoint)
+                {
+                    position = spawnPoint.position;
+                    rotation = spawnPoint.rotation;
+                }
+            }
+            master.Respawn(position, rotation);
+            Log.MessageNetworked(string.Format(Lang.SPAWN_ATTEMPT_1, master.playerCharacterMasterController.GetDisplayName()), args);
         }
 
         [ConCommand(commandName = "change_team", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.CHANGETEAM_HELP)]
