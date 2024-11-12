@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using UnityEngine;
 using static DebugToolkit.Log;
 using static DebugToolkit.Util;
 
@@ -148,7 +147,7 @@ namespace DebugToolkit.Commands
                 {
                     body.AddTimedBuff(buff, duration);
                 }
-                Log.MessageNetworked($"Gave {iCount} {buff} to {target.name} for {duration} seconds", args);
+                Log.MessageNetworked($"Gave {iCount} {name} to {target.name} for {duration} seconds", args);
             }
         }
 
@@ -224,14 +223,13 @@ namespace DebugToolkit.Commands
                         body.RemoveOldestTimedBuff(buff);
                     }
                 }
-                Log.MessageNetworked($"Removed the {iCount} oldest timed {buff} from {target.name}", args);
+                Log.MessageNetworked($"Removed the {iCount} oldest timed {name} from {target.name}", args);
             }
             else
             {
-                for (int i = 0; i < iCount; i++)
-                {
-                    body.RemoveBuff(buff);
-                }
+                var buffStacks = body.GetBuffCount(buff);
+                iCount = Math.Min(iCount, buffStacks);
+                body.SetBuffCount(buff, buffStacks - iCount);
                 Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT, iCount, name, target.name), args);
             }
         }

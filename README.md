@@ -99,8 +99,6 @@ Buff Commands:
 * **remove_dot_stacks** - Removes all stacks of a DoT effect from a character: `remove_dot_stacks {dot} *[target (player|'pinged'):<self>]`
 * **remove_all_dots** - Removes all DoT effects from a character: `remove_all_dot *[target (player|'pinged'):<self>]`
 
-***Note:*** _The game does not protect against negative buff stacks, which can lead to unintended behaviors. Gaining a timed buff gives a permanent stack which is taken away upon expiration._ `give_buff bleed 5 10; remove_buff_stacks bleed` _will lead to -5 bleed stacks when the timed buff expires. Having a DoT active is also similar to a timed buff._
-
 Item Commands:
 
 * **give_item** - Give an item directly to a target's inventory. A negative amount is an alias for `remove_item`: `give_item {item} [count:1] *[target (player|'pinged'|'evolution'|'simulacrum'|'voidfields'|'devotion'):<self>]`
