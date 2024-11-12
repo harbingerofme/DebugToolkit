@@ -1,10 +1,10 @@
 ﻿using BepInEx.Configuration;
-using R2API.MiscHelpers;
 using RoR2;
 using RoR2.UI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using UnityEngine;
 
 namespace DebugToolkit.Code
@@ -28,19 +28,24 @@ namespace DebugToolkit.Code
 
             private static string[] SplitBindCmd(string bindCmdBlob)
             {
-                return bindCmdBlob.Split(new[] { ' ' }, 3, StringSplitOptions.RemoveEmptyEntries);
+                var match = Regex.Match(bindCmdBlob, @"dt_bind\s+(\((?<key>.+)\)\s+(?<command>.+)|(?<key>[^\s]+)\s+(?<command>.+))");
+                if (match.Success)
+                {
+                    return [match.Groups["key"].Value, match.Groups["command"].Value];
+                }
+                return [];
             }
 
             internal bool IsCorrectlyFormatted()
             {
-                if (BlobArray.Length < 3)
+                if (BlobArray.Length < 2)
                 {
                     Log.Message($"Missing parameters for macro config entry called {ConfigEntry.Definition.Key}.", Log.LogLevel.ErrorClientOnly);
                     return false;
                 }
 
-                KeyBind = BlobArray[1];
-                _consoleCommandsBlob = BlobArray[2];
+                KeyBind = BlobArray[0];
+                _consoleCommandsBlob = BlobArray[1];
                 ConsoleCommands = SplitConsoleCommandsBlob(_consoleCommandsBlob);
 
                 try
@@ -78,13 +83,17 @@ namespace DebugToolkit.Code
         private const string MACRO_MINI_TUTORIAL =
             "\nMust start with dt_bind {KeyBind} {ConsoleCommands}.\n" +
             "Example : dt_bind x noclip;kill_all\n" +
-            "When you'll press x key on keyboard it'll activate noclip and kill every monsters.\n" +
+            "When you'll press x key on keyboard it'll activate noclip and kill every monster.\n" +
             "For adding new macros, just add new lines under the example, must be formatted like this :\n" +
             "Macro 2 = dt_bind z no_enemies;give_item hoof 10\n" +
             "Macro 3 = dt_bind x give_item dagger 5;give_item syringe 10\n" +
             "Or use the in-game console and use the dt_bind console command.\n" +
             "When doing it from the in game console, don't forget to use double quotes, especially when chaining commands !\n" +
-            "dt_bind b \"give_item dio 1;spawn_ai 1 beetle\"\n" +
+            "dt_bind b \"give_item dio 1;spawn_ai beetle 1\"\n" +
+            "Binding a key whose name has a space also requires double quotes from the console:\n" +
+            "dt_bind \"page down\" kill_all\n" +
+            "While here it is formatted with brackets like this:\n" +
+            "dt_bind (page down) kill_all\n" +
             "You can also delete existing bind like this:\n" +
             "dt_bind_delete {KeyBind}";
 
@@ -251,7 +260,18 @@ namespace DebugToolkit.Code
                 BindExampleMacro();
 
                 // We only want 2 substrings. (the key bind, and the console commands)
-                var bindCmdBlob = "dt_bind " + string.Join(" ", args.userArgs);
+                // We need to identify keys that can have spaces, e.g. "page down", since
+                // the bind arguments are parsed from the config by space splitting.
+                // Quotes seem to get messed up in the config file, so brackets it is.
+                var bindCmdBlob = "dt_bind ";
+                if (args[0].Contains(" "))
+                {
+                    bindCmdBlob += $"({args[0]}) {args[1]}";
+                }
+                else
+                {
+                    bindCmdBlob += string.Join(" ", args.userArgs);
+                }
 
                 var keyBind = args[0];
                 var consoleCommandsBlob = args[1];
