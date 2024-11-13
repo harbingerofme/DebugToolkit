@@ -243,36 +243,71 @@ namespace DebugToolkit.Permissions
         [RequiredLevel(Level.Admin)]
         private static void CCPermissionAddUser(ConCommandArgs args)
         {
-            if (args.Count == 0)
+            if (!IsEnabled.Value)
             {
-                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.PERM_MOD_ARGS, args, Log.LogLevel.Error);
+                Log.MessageNetworked("The permission system is currently disabled, enable it first with perm_enable", args);
                 return;
             }
-            try
+            if (args.Count < 2)
             {
-                NetworkUser nu = Util.GetNetUserFromString(args.userArgs);
-
-                if (IsEnabled.Value)
-                {
-                    if (Enum.TryParse(args[0], out Level level))
-                    {
-                        // TODO: finish that lol
-                        Log.MessageNetworked("Please edit the users permissions through the config file for now and reload using perm_reload in the console", args, Log.LogLevel.Error);
-                    }
-                    else
-                    {
-                        Log.MessageNetworked($"Couldn't parse correctly the level you provided ({args[0]})", args, Log.LogLevel.Error);
-                    }
-                }
-                else
-                {
-                    Log.MessageNetworked("The permission system is currently disabled, enable it first with perm_enable", args, Log.LogLevel.Error);
-                }
+                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.PERM_MOD_ARGS, args, Log.LogLevel.MessageClientOnly);
+                return;
             }
-            catch
+            NetworkUser nu = Util.GetNetUserFromString(args.userArgs, 1);
+            if (nu == null)
             {
-                Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, Log.LogLevel.Error);
+                Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, Log.LogLevel.MessageClientOnly);
+                return;
             }
+            var userSteamId = (ulong)nu.GetNetworkPlayerName().playerId.value;
+            if (!Enum.TryParse(args[0], out Level level))
+            {
+                Log.MessageNetworked(string.Format(Lang.PARSE_ERROR, "permission_level", "Level"), args, Log.LogLevel.MessageClientOnly);
+                return;
+            }
+            switch (level)
+            {
+                case Level.Admin:
+                    if (!AdminSteamIdList.Contains(userSteamId))
+                    {
+                        AdminSteamIdList.Add(userSteamId);
+                        _adminList.Value = string.Join(", ", AdminSteamIdList);
+                    }
+                    if (SubAdminSteamIdList.Contains(userSteamId))
+                    {
+                        SubAdminSteamIdList.Remove(userSteamId);
+                        _subAdminList.Value = string.Join(", ", SubAdminSteamIdList);
+                    }
+                    break;
+                case Level.SubAdmin:
+                    if (AdminSteamIdList.Contains(userSteamId))
+                    {
+                        AdminSteamIdList.Remove(userSteamId);
+                        _adminList.Value = string.Join(", ", AdminSteamIdList);
+                    }
+                    if (!SubAdminSteamIdList.Contains(userSteamId))
+                    {
+                        SubAdminSteamIdList.Add(userSteamId);
+                        _subAdminList.Value = string.Join(", ", SubAdminSteamIdList);
+                    }
+                    break;
+                case Level.None:
+                    if (AdminSteamIdList.Contains(userSteamId))
+                    {
+                        AdminSteamIdList.Remove(userSteamId);
+                        _adminList.Value = string.Join(", ", AdminSteamIdList);
+                    }
+                    if (SubAdminSteamIdList.Contains(userSteamId))
+                    {
+                        SubAdminSteamIdList.Remove(userSteamId);
+                        _subAdminList.Value = string.Join(", ", SubAdminSteamIdList);
+                    }
+                    break;
+                default:
+                    Log.MessageNetworked("Inappropriate value for 'permission level', available levels : None (0), SubAdmin (1), Admin (2)", args, Log.LogLevel.MessageClientOnly);
+                    return;
+            }
+            Log.MessageNetworked($"{nu.userName}'s permission level has been updated to {level}", args);
         }
 
         public static bool CanUserExecute(NetworkUser networkUser, string conCommandName, List<string> userArgs)
