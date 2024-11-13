@@ -177,7 +177,7 @@ namespace DebugToolkit.Permissions
             }
             else
             {
-                if (!bool.TryParse(args[0], out bool value))
+                if (!Util.TryParseBool(args[0], out bool value))
                 {
                     Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "value", "bool"), args, Log.LogLevel.ErrorClientOnly);
                     return;
@@ -185,8 +185,13 @@ namespace DebugToolkit.Permissions
                 IsEnabled.Value = value;
             }
 
-            var res = IsEnabled.Value ? "enabled. Saving and reloading the permission system" : "disabled";
-            Log.MessageNetworked($"Permission System is {res}.", args, Log.LogLevel.Info);
+            var res = string.Format(IsEnabled.Value ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, "Permission System");
+            if (IsEnabled.Value)
+            {
+                res += ". Saving and reloading the permission system.";
+            }
+
+            Log.MessageNetworked(res, args, Log.LogLevel.Info);
 
             DebugToolkit.Configuration.Save();
             Init();
