@@ -141,18 +141,59 @@ namespace DebugToolkit.Permissions
             if (assembly == null)
                 assembly = Assembly.GetCallingAssembly();
 
-            foreach (var methodInfo in assembly.GetTypes().SelectMany(x => x.GetMethods(BindingFlags.NonPublic | BindingFlags.Static)))
+            Type[] types;
+            try
             {
-                var adminCommandAttribute = methodInfo.GetCustomAttribute<RequiredLevel>(false);
-                var conCommandAttribute = (ConCommandAttribute)methodInfo.GetCustomAttributes(false).FirstOrDefault(x => x is ConCommandAttribute);
-                if (conCommandAttribute != null)
+                types = assembly.GetTypes();
+            }
+            catch (ReflectionTypeLoadException ex)
+            {
+                types = ex.Types.Where(x => x != null).ToArray();
+                foreach (var e in ex.LoaderExceptions)
                 {
+                    Log.Message(ex.Message, Log.LogLevel.Error, Log.Target.Bepinex);
+                }
+            }
+            foreach (var methodInfo in types.SelectMany(x => x.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)))
+            {
+                object[] attributes;
+                try
+                {
+                    attributes = methodInfo.GetCustomAttributes(false);
+                }
+                catch (TypeLoadException ex)
+                {
+                    Log.Message(ex.Message, Log.LogLevel.Error, Log.Target.Bepinex);
+                    continue;
+                }
+                catch (InvalidOperationException ex)
+                {
+                    Log.Message(ex.Message, Log.LogLevel.Error, Log.Target.Bepinex);
+                    continue;
+                }
+                if (attributes == null)
+                {
+                    continue;
+                }
+                var conCommandAttributes = attributes.OfType<ConCommandAttribute>().ToArray();
+                if (conCommandAttributes.Length > 0)
+                {
+                    var adminCommandAttribute = methodInfo.GetCustomAttribute<RequiredLevel>(false);
                     var usedPermissionLevel = adminCommandAttribute?.Level ?? _defaultPermissionLevel.Value;
+                    foreach (var conCommand in conCommandAttributes)
+                    {
+                        if ((conCommand.flags & ConVarFlags.ExecuteOnServer) == ConVarFlags.ExecuteOnServer)
+                        {
+                            if (conCommand.commandName == "say")
+                            {
+                                usedPermissionLevel = Level.None;
+                            }
+                            var overrideConfigEntry = DebugToolkit.Configuration.Bind("Permission System", $"Override: {conCommand.commandName}", usedPermissionLevel,
+                                $"Override Required Permission Level for the {conCommand.commandName} command");
 
-                    var overrideConfigEntry = DebugToolkit.Configuration.Bind("Permission System", $"Override: {conCommandAttribute.commandName}", usedPermissionLevel,
-                        $"Override Required Permission Level for the {conCommandAttribute.commandName} command");
-
-                    AdminCommands.Add(conCommandAttribute.commandName, overrideConfigEntry);
+                            AdminCommands.Add(conCommand.commandName, overrideConfigEntry);
+                        }
+                    }
                 }
             }
         }
