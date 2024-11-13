@@ -17,6 +17,7 @@ namespace DebugToolkit.Code
             private string[] BlobArray { get; }
 
             internal string KeyBind { get; private set; }
+            internal string[] Keys { get; private set; }
             internal string[] ConsoleCommands { get; set; }
             private string _consoleCommandsBlob;
 
@@ -45,17 +46,22 @@ namespace DebugToolkit.Code
                 }
 
                 KeyBind = BlobArray[0];
+                // Split key combinations with +, but '+' and '[+]' can be legitimate keys
+                Keys = Regex.Matches(KeyBind, @"(.+?)(?:(?<!\[)\+(?!\])|$)").Select(x => x.Groups[1].Value).ToArray();
                 _consoleCommandsBlob = BlobArray[1];
                 ConsoleCommands = SplitConsoleCommandsBlob(_consoleCommandsBlob);
 
-                try
+                foreach (var key in Keys)
                 {
-                    Input.GetKeyDown(KeyBind);
-                }
-                catch (ArgumentException)
-                {
-                    Log.Message($"Specified key : {KeyBind} for the macro : {_consoleCommandsBlob} does not exist.", Log.LogLevel.ErrorClientOnly);
-                    return false;
+                    try
+                    {
+                        Input.GetKeyDown(key);
+                    }
+                    catch (ArgumentException)
+                    {
+                        Log.Message($"Specified key '{key}' for the macro '{_consoleCommandsBlob}' does not exist.", Log.LogLevel.ErrorClientOnly);
+                        return false;
+                    }
                 }
 
                 return true;
@@ -94,6 +100,8 @@ namespace DebugToolkit.Code
             "dt_bind \"page down\" kill_all\n" +
             "While here it is formatted with brackets like this:\n" +
             "dt_bind (page down) kill_all\n" +
+            "It is also possible to define a key combination with \"+\":\n" +
+            "dt_bind \"left shift+r\" respawn\n" +
             "You can also delete existing bind like this:\n" +
             "dt_bind_delete {KeyBind}";
 
@@ -226,7 +234,8 @@ namespace DebugToolkit.Code
                 {
                     if (MacroConfigEntries.TryGetValue(keyBind, out var macroConfigEntry))
                     {
-                        if (Input.GetKeyDown(keyBind))
+                        var keys = macroConfigEntry.Keys;
+                        if (keys[0..^1].All(Input.GetKey) && Input.GetKeyDown(keys[^1]))
                         {
                             foreach (var consoleCommand in macroConfigEntry.ConsoleCommands)
                             {
