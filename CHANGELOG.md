@@ -1,6 +1,18 @@
 
 ## Changelog ##
 
+### 3.18 ###
+
+* **3.18.0**
+    * Updated `spawn_interactable` : Interactables with collision do not clip the player into the ground or spawn under their feet.
+    * Updated `respawn` : Now places the player at the closest ground node instead of back at the spawn point.
+    * Updated `remove_buff` : Correctly reports how many stacks are removed since negative stacks are not possible anymore. A related note in the README has also been removed.
+    * Updated `dt_bind` : Key names with a space are parsed correctly, e.g. "page down". Key combinations are now also possible, e.g. "left shift+x".
+    * Various updates to the permission system:
+        * `perm_enable` can parse integers as bool.
+        * The functionality for `perm_mod` has been implemented.
+        * Permission registration is more robust to errors and now only considers server commands. The `say` command from vanilla has been whitelisted so users can still use the chat.
+
 ### 3.17 ###
 
 * **3.17.0**
