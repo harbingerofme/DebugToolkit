@@ -139,7 +139,7 @@ Cheat Commands:
 
 Bind Commands:
 
-* **dt_bind** - Bind a key to execute specific commands. `dt_bind {key} {<consolecommands seperated by ;>}`
+* **dt_bind** - Bind a key to execute specific commands. `dt_bind {key} {<consolecommands seperated by ;>}`. See [here](https://docs.unity3d.com/Manual/class-InputManager.html) for a list of possible key names. Alt, Ctrl, and Shift can also be used for key combinations, e.g. `"left shift+left ctrl+x"`.
 * **dt_bind_delete** Remove a custom bind. `dt_bind_delete {key}`
 * **dt_bind_reload** Reload the macro system from file. `dt_bind_reload` 
 

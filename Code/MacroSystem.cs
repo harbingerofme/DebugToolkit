@@ -11,13 +11,24 @@ namespace DebugToolkit.Code
 {
     internal static class MacroSystem
     {
+        private static readonly string[] MODIFIERS = [
+            "left alt",
+            "left ctrl",
+            "left shift",
+            "right alt",
+            "right ctrl",
+            "right shift"
+        ];
+
         private class MacroConfigEntry
         {
             internal ConfigEntry<string> ConfigEntry { get; }
             private string[] BlobArray { get; }
 
             internal string KeyBind { get; private set; }
-            internal string[] Keys { get; private set; }
+            internal string Key { get; private set; }
+            internal string[] Modifiers { get; private set; }
+            internal string[] MissingModifiers { get; private set; }
             internal string[] ConsoleCommands { get; set; }
             private string _consoleCommandsBlob;
 
@@ -46,22 +57,46 @@ namespace DebugToolkit.Code
                 }
 
                 KeyBind = BlobArray[0];
-                // Split key combinations with +, but '+' and '[+]' can be legitimate keys
-                Keys = Regex.Matches(KeyBind, @"(.+?)(?:(?<!\[)\+(?!\])|$)").Select(x => x.Groups[1].Value).ToArray();
                 _consoleCommandsBlob = BlobArray[1];
                 ConsoleCommands = SplitConsoleCommandsBlob(_consoleCommandsBlob);
-
-                foreach (var key in Keys)
+                // Split key combinations with +, but '+' and '[+]' can be legitimate keys
+                var keys = Regex.Matches(KeyBind, @"(.+?)(?:(?<!\[)\+(?!\])|$)").Select(x => x.Groups[1].Value).ToHashSet();
+                var modifiers = new List<string>();
+                var missingModifiers = new List<string>();
+                foreach (var modifier in MODIFIERS)
                 {
-                    try
+                    if (keys.Contains(modifier))
                     {
-                        Input.GetKeyDown(key);
+                        modifiers.Add(modifier);
+                        keys.Remove(modifier);
                     }
-                    catch (ArgumentException)
+                    else
                     {
-                        Log.Message($"Specified key '{key}' for the macro '{_consoleCommandsBlob}' does not exist.", Log.LogLevel.ErrorClientOnly);
-                        return false;
+                        missingModifiers.Add(modifier);
                     }
+                }
+                if (keys.Count == 0)
+                {
+                    Log.Message($"No key was defined for the macro '{KeyBind}'.", Log.LogLevel.ErrorClientOnly);
+                    return false;
+                }
+                else if (keys.Count > 1)
+                {
+                    Log.Message($"Multiple keys '{string.Join("+", keys)}' were defined for the macro '{KeyBind}'.", Log.LogLevel.ErrorClientOnly);
+                    return false;
+                }
+                Modifiers = [..modifiers];
+                MissingModifiers = [..missingModifiers];
+                Key = keys.First();
+
+                try
+                {
+                    Input.GetKeyDown(Key);
+                }
+                catch (ArgumentException)
+                {
+                    Log.Message($"Specified key '{Key}' for the macro '{KeyBind}' does not exist.", Log.LogLevel.ErrorClientOnly);
+                    return false;
                 }
 
                 return true;
@@ -100,7 +135,7 @@ namespace DebugToolkit.Code
             "dt_bind \"page down\" kill_all\n" +
             "While here it is formatted with brackets like this:\n" +
             "dt_bind (page down) kill_all\n" +
-            "It is also possible to define a key combination with \"+\":\n" +
+            "It is also possible to define a key combination with \"+\" and any combination of \"alt\", \"ctrl\", or \"shift\" as modifiers:\n" +
             "dt_bind \"left shift+r\" respawn\n" +
             "You can also delete existing bind like this:\n" +
             "dt_bind_delete {KeyBind}";
@@ -234,8 +269,9 @@ namespace DebugToolkit.Code
                 {
                     if (MacroConfigEntries.TryGetValue(keyBind, out var macroConfigEntry))
                     {
-                        var keys = macroConfigEntry.Keys;
-                        if (keys[0..^1].All(Input.GetKey) && Input.GetKeyDown(keys[^1]))
+                        if (Input.GetKeyDown(macroConfigEntry.Key)
+                            && macroConfigEntry.Modifiers.All(Input.GetKey)
+                            && !macroConfigEntry.MissingModifiers.Any(Input.GetKey))
                         {
                             foreach (var consoleCommand in macroConfigEntry.ConsoleCommands)
                             {
