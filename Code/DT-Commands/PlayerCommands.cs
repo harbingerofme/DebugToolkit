@@ -1,5 +1,6 @@
 using System;
 using RoR2;
+using RoR2.ExpansionManagement;
 using System.Collections.Generic;
 using UnityEngine;
 using static DebugToolkit.Log;
@@ -100,6 +101,13 @@ namespace DebugToolkit.Commands
                     return;
                 }
                 master = player.master;
+            }
+
+            var expansion = newBody.GetComponent<ExpansionRequirementComponent>();
+            if (expansion && !expansion.PlayerCanUseBody(master.playerCharacterMasterController))
+            {
+                Log.MessageNetworked(string.Format(Lang.EXPANSION_LOCKED, "body", Util.GetExpansion(expansion.requiredExpansion)), args, LogLevel.MessageClientOnly);
+                return;
             }
 
             master.bodyPrefab = newBody;

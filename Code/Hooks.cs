@@ -220,7 +220,7 @@ namespace DebugToolkit
             {
                 return def;
             }
-            Debug.Log("An expansion is required for this scene.");
+            Debug.Log(string.Format(Lang.EXPANSION_LOCKED, "scene", Util.GetExpansion(def.requiredExpansion)));
             return null;
         }
 

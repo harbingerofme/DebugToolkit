@@ -170,6 +170,7 @@
             BODY_NOTFOUND = "Specified body not found. Please use list_body for options.",
             DOTCONTROLLER_NOTFOUND = "The selected target has no DoTs.",
             ELITE_NOTFOUND = "Elite type not recognized. Please use list_elite for options.",
+            EXPANSION_LOCKED = "An expansion is required for this {0}: {1}",
             INSUFFICIENT_ARGS = "Insufficient number of arguments. ",
             INTERACTABLE_NOTFOUND = "Interactable not found. Please use list_interactables for options.",
             INVALID_ARG_VALUE = "Invalid value for {0}.",

@@ -1,4 +1,5 @@
 ﻿using RoR2;
+using RoR2.ExpansionManagement;
 using System.Collections.Generic;
 
 namespace DebugToolkit
@@ -37,6 +38,16 @@ namespace DebugToolkit
                 return GetNetUserFromString(args.userArgs, index)?.master;
             }
             return null;
+        }
+
+        /// <summary>
+        /// Get the user-friendly expansion name.
+        /// </summary>
+        /// <param name="expansion">(ExpansionDef)expansion definition</param>
+        /// <returns>Returns the expansion name or the empty string</returns>
+        internal static string GetExpansion(ExpansionDef expansion)
+        {
+            return expansion && !string.IsNullOrEmpty(expansion.nameToken) ? Language.GetString(expansion.nameToken) : "";
         }
 
         /// <summary>

@@ -145,14 +145,15 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "item", args[0]), args, LogLevel.MessageClientOnly);
                 return;
             }
-            var name = ItemCatalog.GetItemDef(item).name;
+            var itemDef = ItemCatalog.GetItemDef(item);
+            var name = itemDef.name;
             var amount = (args.commandName == "give_item" ? 1 : -1) * iCount;
             var inventory = target.inventory;
             if (amount > 0)
             {
                 if (Run.instance.IsItemExpansionLocked(item))
                 {
-                    Log.MessageNetworked("Additional content enabled is required to grant this item.", args, LogLevel.MessageClientOnly);
+                    Log.MessageNetworked(string.Format(Lang.EXPANSION_LOCKED, "item", Util.GetExpansion(itemDef.requiredExpansion)), args, LogLevel.MessageClientOnly);
                     return;
                 }
                 inventory.GiveItem(item, amount);
@@ -270,6 +271,11 @@ namespace DebugToolkit.Commands
                 if (equip == EquipmentIndex.None)
                 {
                     Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "equip", args[0]), args, LogLevel.MessageClientOnly);
+                    return;
+                }
+                if (Run.instance.IsEquipmentExpansionLocked(equip))
+                {
+                    Log.MessageNetworked(string.Format(Lang.EXPANSION_LOCKED, "equipment", Util.GetExpansion(EquipmentCatalog.GetEquipmentDef(equip).requiredExpansion)), args, LogLevel.MessageClientOnly);
                     return;
                 }
                 inventory.SetEquipmentIndex(equip);
@@ -474,8 +480,14 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "item", args[0]), args, LogLevel.MessageClientOnly);
                 return;
             }
-            var name = ItemCatalog.GetItemDef(item).name;
+            var itemDef = ItemCatalog.GetItemDef(item);
+            var name = itemDef.name;
             int iCount = inventory.GetItemCount(item);
+            if (Run.instance.IsItemExpansionLocked(item))
+            {
+                Log.MessageNetworked(string.Format(Lang.EXPANSION_LOCKED, "item", Util.GetExpansion(itemDef.requiredExpansion)), args, LogLevel.MessageClientOnly);
+                return;
+            }
             inventory.RemoveItem(item, iCount);
             if (target.devotionController)
             {

@@ -311,7 +311,7 @@ namespace DebugToolkit.Commands
             var def = SceneCatalog.GetSceneDef(sceneIndex);
             if (def.requiredExpansion != null && !Run.instance.IsExpansionEnabled(def.requiredExpansion))
             {
-                Log.MessageNetworked("An expansion is required for this stage.", args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(string.Format(Lang.EXPANSION_LOCKED, "scene", Util.GetExpansion(def.requiredExpansion)), args, LogLevel.MessageClientOnly);
                 return;
             }
             Run.instance.AdvanceStage(def);
@@ -497,7 +497,10 @@ namespace DebugToolkit.Commands
                 var willRefresh = RunArtifactManager.instance.IsArtifactEnabled(RoR2Content.Artifacts.MonsterTeamGainsItems) != enabled;
                 foreach (var artifact in ArtifactCatalog.artifactDefs)
                 {
-                    RunArtifactManager.instance.SetArtifactEnabled(artifact, enabled);
+                    if (!artifact.requiredExpansion || Run.instance.IsExpansionEnabled(artifact.requiredExpansion))
+                    {
+                        RunArtifactManager.instance.SetArtifactEnabled(artifact, enabled);
+                    }
                 }
                 // Cleaning up after Kin because the game won't
                 if (!enabled && Stage.instance)
@@ -519,6 +522,11 @@ namespace DebugToolkit.Commands
                     return;
                 }
                 var artifact = ArtifactCatalog.GetArtifactDef(artifactIndex);
+                if (artifact.requiredExpansion && !Run.instance.IsExpansionEnabled(artifact.requiredExpansion))
+                {
+                    Log.MessageNetworked(string.Format(Lang.EXPANSION_LOCKED, "artifact", Util.GetExpansion(artifact.requiredExpansion)), args, LogLevel.MessageClientOnly);
+                    return;
+                }
                 if (args.Count < 2)
                 {
                     enabled = !RunArtifactManager.instance.IsArtifactEnabled(artifact);
