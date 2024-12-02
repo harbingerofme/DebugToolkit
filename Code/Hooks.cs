@@ -67,6 +67,12 @@ namespace DebugToolkit
             On.RoR2.PingerController.RebuildPing += InterceptPing;
             IL.RoR2.InfiniteTowerRun.BeginNextWave += InfiniteTowerRun_BeginNextWave;
 
+            // Next boss hooks
+            On.RoR2.CombatDirector.SetNextSpawnAsBoss += SetNextBossForDirector;
+            On.RoR2.InfiniteTowerExplicitSpawnWaveController.Initialize += SetNextBossForSimulacrumDirector;
+            On.RoR2.CombatDirector.AttemptSpawnOnTarget += OverrideBossCombatDirectorSpawnResult;
+            Run.onRunDestroyGlobal += delegate(Run _) { CurrentRun.ResetNextBoss(); };
+
             // Networking and noclip hooks
             On.RoR2.NetworkSession.Start += NetworkManager.CreateNetworkObject;
             On.RoR2.NetworkSession.OnDestroy += NetworkManager.DestroyNetworkObject;
@@ -703,7 +709,7 @@ namespace DebugToolkit
             On.RoR2.ClassicStageInfo.RebuildCards -= ForceFamilyEvent;
         }
 
-        internal static void CombatDirector_SetNextSpawnAsBoss(On.RoR2.CombatDirector.orig_SetNextSpawnAsBoss orig, CombatDirector self)
+        internal static void SetNextBossForDirector(On.RoR2.CombatDirector.orig_SetNextSpawnAsBoss orig, CombatDirector self)
         {
             orig(self);
             /* This method is called for the following:
@@ -711,7 +717,7 @@ namespace DebugToolkit
              * - Simulacrum boss wave (except from the augments of Mithrix and Scav)
              * - Deep Void Signals: ignore this
              */
-            if (self.gameObject.name.Contains("DeepVoidPortalBattery"))
+            if (CurrentRun.nextBoss == null || self.gameObject.name.Contains("DeepVoidPortalBattery"))
             {
                 return;
             }
@@ -732,8 +738,6 @@ namespace DebugToolkit
             self.skipSpawnIfTooCheap = false;
 
             Log.Message($"The director credits have been set to {self.monsterCredit} to spawn {count} {eliteName} {selectedBossCard.spawnCard.name}", Log.LogLevel.Info);
-
-            On.RoR2.CombatDirector.AttemptSpawnOnTarget += OverrideBossCombatDirectorSpawnResult;
         }
 
         private static bool OverrideBossCombatDirectorSpawnResult(On.RoR2.CombatDirector.orig_AttemptSpawnOnTarget orig, CombatDirector self, Transform spawnTarget, DirectorPlacementRule.PlacementMode placementMode)
@@ -747,14 +751,14 @@ namespace DebugToolkit
             if (bossDirector.spawnCountInCurrentWave >= CurrentRun.nextBossCount || !success)
             {
                 self.skipSpawnIfTooCheap = skipSpawnIfTooCheapBackup;
-                On.RoR2.CombatDirector.AttemptSpawnOnTarget -= OverrideBossCombatDirectorSpawnResult;
-                UndoNextBossHooks();
+                bossDirector = null;
+                CurrentRun.ResetNextBoss();
                 return false;
             }
             return success;
         }
 
-        internal static void InfiniteTowerExplicitSpawnWaveController_Initialize(On.RoR2.InfiniteTowerExplicitSpawnWaveController.orig_Initialize orig, InfiniteTowerExplicitSpawnWaveController self, int waveIndex, Inventory enemyInventory, GameObject spawnTargetObject)
+        internal static void SetNextBossForSimulacrumDirector(On.RoR2.InfiniteTowerExplicitSpawnWaveController.orig_Initialize orig, InfiniteTowerExplicitSpawnWaveController self, int waveIndex, Inventory enemyInventory, GameObject spawnTargetObject)
         {
             self.spawnList = new InfiniteTowerExplicitSpawnWaveController.SpawnInfo[]
             {
@@ -766,20 +770,7 @@ namespace DebugToolkit
                 }
             };
             orig(self, waveIndex, enemyInventory, spawnTargetObject);
-
-            UndoNextBossHooks();
-        }
-
-        internal static void ApplyNextBossHooks()
-        {
-            On.RoR2.CombatDirector.SetNextSpawnAsBoss += CombatDirector_SetNextSpawnAsBoss;
-            On.RoR2.InfiniteTowerExplicitSpawnWaveController.Initialize += InfiniteTowerExplicitSpawnWaveController_Initialize;
-        }
-
-        internal static void UndoNextBossHooks()
-        {
-            On.RoR2.CombatDirector.SetNextSpawnAsBoss -= CombatDirector_SetNextSpawnAsBoss;
-            On.RoR2.InfiniteTowerExplicitSpawnWaveController.Initialize -= InfiniteTowerExplicitSpawnWaveController_Initialize;
+            CurrentRun.ResetNextBoss();
         }
 
         internal static void SeedHook(On.RoR2.PreGameController.orig_Awake orig, PreGameController self)

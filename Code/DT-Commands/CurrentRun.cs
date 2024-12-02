@@ -22,6 +22,13 @@ namespace DebugToolkit.Commands
         internal static EliteDef nextBossElite;
         internal static GameObject selectedWavePrefab;
 
+        internal static void ResetNextBoss()
+        {
+            nextBoss = null;
+            nextBossCount = 0;
+            nextBossElite = null;
+        }
+
         [ConCommand(commandName = "add_portal", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.ADDPORTAL_HELP)]
         [AutoComplete(Lang.ADDPORTAL_ARGS)]
         private static void CCAddPortal(ConCommandArgs args)
@@ -245,6 +252,7 @@ namespace DebugToolkit.Commands
             {
                 if (!TextSerialization.TryParseInvariant(args[1], out int count))
                 {
+                    ResetNextBoss();
                     Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "count", "int"), args, LogLevel.MessageClientOnly);
                     return;
                 }
@@ -269,6 +277,7 @@ namespace DebugToolkit.Commands
                 var eliteIndex = StringFinder.Instance.GetEliteFromPartial(args[2]);
                 if (eliteIndex == StringFinder.EliteIndex_NotFound)
                 {
+                    ResetNextBoss();
                     Log.MessageNetworked(Lang.ELITE_NOTFOUND, args, LogLevel.MessageClientOnly);
                     return;
                 }
@@ -281,8 +290,6 @@ namespace DebugToolkit.Commands
             }
 
             // Unsub the last in case the user already used the command and want to change their mind.
-            Hooks.UndoNextBossHooks();
-            Hooks.ApplyNextBossHooks();
             Log.MessageNetworked(s.ToString(), args);
         }
 
