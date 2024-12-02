@@ -70,6 +70,8 @@ namespace DebugToolkit
             // Networking and noclip hooks
             On.RoR2.NetworkSession.Start += NetworkManager.CreateNetworkObject;
             On.RoR2.NetworkSession.OnDestroy += NetworkManager.DestroyNetworkObject;
+            On.RoR2.Networking.NetworkManagerSystem.OnStopClient += Command_Noclip.DisableOnStopClient;
+            On.RoR2.MapZone.TeleportBody += Command_Noclip.DisableOOBCheck;
             Run.onRunDestroyGlobal += Command_Noclip.DisableOnRunDestroy;
 
             //Buddha Mode hook

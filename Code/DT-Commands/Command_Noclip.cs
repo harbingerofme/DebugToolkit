@@ -68,39 +68,12 @@ namespace DebugToolkit.Commands
                     }
                 }
             }
-            if (IsActivated)
-            {
-                UndoHooks();
-            }
-            else
-            {
-                ApplyHooks();
-            }
             IsActivated = !IsActivated;
             if (shouldLog)
             {
                 Log.Message(String.Format(IsActivated ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, "noclip"));
             }
         }
-
-        private static void ApplyHooks()
-        {
-            if (!IsActivated)
-            {
-                On.RoR2.Networking.NetworkManagerSystem.OnStopClient += DisableOnStopClient;
-                On.RoR2.MapZone.TeleportBody += DisableOOBCheck;
-            }
-        }
-
-        private static void UndoHooks()
-        {
-            if (IsActivated)
-            {
-                On.RoR2.Networking.NetworkManagerSystem.OnStopClient -= DisableOnStopClient;
-                On.RoR2.MapZone.TeleportBody -= DisableOOBCheck;
-            }
-        }
-
 
         internal static void Update()
         {
@@ -164,7 +137,7 @@ namespace DebugToolkit.Commands
             }
         }
 
-        private static void DisableOnStopClient(On.RoR2.Networking.NetworkManagerSystem.orig_OnStopClient orig, RoR2.Networking.NetworkManagerSystem self)
+        internal static void DisableOnStopClient(On.RoR2.Networking.NetworkManagerSystem.orig_OnStopClient orig, RoR2.Networking.NetworkManagerSystem self)
         {
             if (IsActivated)
             {
@@ -174,9 +147,9 @@ namespace DebugToolkit.Commands
         }
 
         // ReSharper disable once InconsistentNaming
-        private static void DisableOOBCheck(On.RoR2.MapZone.orig_TeleportBody orig, MapZone self, CharacterBody characterBody)
+        internal static void DisableOOBCheck(On.RoR2.MapZone.orig_TeleportBody orig, MapZone self, CharacterBody characterBody)
         {
-            if (!characterBody.isPlayerControlled)
+            if (!IsActivated || !characterBody.isPlayerControlled)
                 orig(self, characterBody);
         }
 
