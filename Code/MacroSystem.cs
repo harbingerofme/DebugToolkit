@@ -235,8 +235,26 @@ namespace DebugToolkit.Code
 
         private static ConfigEntry<string> BindNewConfigEntry(string customValue)
         {
+            var macroAffix = "Macro ";
+            var existingNumbers = new HashSet<int>();
+            foreach (var configDef in DebugToolkit.Configuration.Keys)
+            {
+                if (configDef.Section == MACRO_SECTION_NAME)
+                {
+                    if (configDef.Key.StartsWith(macroAffix) && int.TryParse(configDef.Key.Substring(macroAffix.Length - 1), out var n))
+                    {
+                        existingNumbers.Add(n);
+                    }
+                }
+            }
+            var newIndex = 2;
+            while (existingNumbers.Contains(newIndex))
+            {
+                newIndex++;
+            }
+
             var configEntry = DebugToolkit.Configuration.Bind(MACRO_SECTION_NAME,
-                "Macro " + (MacroConfigEntries.Count + 1), DEFAULT_MACRO_VALUE, DEFAULT_MACRO_DESCRIPTION);
+                macroAffix + newIndex, DEFAULT_MACRO_VALUE, DEFAULT_MACRO_DESCRIPTION);
             configEntry.Value = customValue;
 
             return configEntry;
