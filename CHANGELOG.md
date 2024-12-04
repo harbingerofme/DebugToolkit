@@ -3,6 +3,19 @@
 
 ### 3.18 ###
 
+* **3.18.1**
+    * Updated `noclip`: Apply its hooks once per session to prevent stutter when toggling the command.
+    * Updated `next_boss`: Also apply its hooks once per session. Futhermore, the next boss state does not persist between runs anymore if it is not consumed in the current run.
+    * Items, equipment, and survivors are blocked internally by ror2 if the relevant expansion is currently disabled. A message is shown in such cases. Affects `give_item`, `remove_item_stacks`, `give_equip`, and `spawn_as`.
+    * Updated `set_artifact`: Also ignores expansion-locked artifacts.
+    * Fixed `dump_stats`: Report correct attack speed base value while also removing level stat values that are most likely pointless, e.g., levelCrit.
+    * Various fixes for `dt_bind`:
+        * Binds with overlapping sets of keys are not triggered at the same time, e.g., "x" and "x+y". Key binds can now be a combination of only a set of specific modifiers ("left shift", "left ctrl", "left alt", and their "right" equivalent ones) and a single other key.
+        * Key combos are now treated as invariants; "x+y" and "y+x" are not unique combinations anymore.
+        * Fixes the command sometimes overwriting an existing macro if another macro had been previously deleted.
+        * The orange command hint now appears above the command when typing it. This also applies to `dt_bind_delete`.
+    * Added a section in the README for when to use quotes in command arguments. Read about it at "Command Parsing".
+
 * **3.18.0**
     * Updated `spawn_interactable` : Interactables with collision do not clip the player into the ground or spawn under their feet.
     * Updated `respawn` : Now places the player at the closest ground node instead of back at the spawn point.

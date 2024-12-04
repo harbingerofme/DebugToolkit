@@ -4,7 +4,7 @@ schemaVersion = "0.0.1"
 [package]
 namespace = "IHarbHD"
 name = "DebugToolkit"
-versionNumber = "3.18.0"
+versionNumber = "3.18.1"
 description = "Adds console command for debugging mods."
 websiteUrl = "https://github.com/harbingerofme/DebugToolkit"
 containsNsfwContent = false
