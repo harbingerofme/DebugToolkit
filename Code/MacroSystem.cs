@@ -20,6 +20,46 @@ namespace DebugToolkit.Code
             "right shift"
         ];
 
+        private static readonly string MACRO_DTBIND_1 = "dt_bind {0} {1}";
+        private static readonly string MACRO_DTBIND_2 = "dt_bind ({0}) {1}";
+
+        private static (string[], string[], string[]) KeyBindParser(string keyBind)
+        {
+            // Split key combinations with +, but '+' and '[+]' can be legitimate keys
+            var keys = Regex.Matches(keyBind, @"(.+?)(?:(?<!\[)\+(?!\])|$)").Select(x => x.Groups[1].Value).ToHashSet();
+            var modifiers = new List<string>();
+            var missingModifiers = new List<string>();
+            foreach (var modifier in MODIFIERS)
+            {
+                if (keys.Contains(modifier))
+                {
+                    modifiers.Add(modifier);
+                    keys.Remove(modifier);
+                }
+                else
+                {
+                    missingModifiers.Add(modifier);
+                }
+            }
+            return (modifiers.ToArray(), missingModifiers.ToArray(), keys.OrderBy(x => x).ToArray());
+        }
+
+        private static string GetKeyBindInvariant(string keyBind)
+        {
+            (var modifiers, _, var keys) = KeyBindParser(keyBind);
+            return GetKeyBindInvariant(modifiers, keys);
+        }
+
+        private static string GetKeyBindInvariant(string[] modifiers, string[] keys)
+        {
+            var keyBind = string.Join("+", keys);
+            if (modifiers.Length > 0)
+            {
+                return $"{string.Join("+", modifiers)}+{keyBind}";
+            }
+            return keyBind;
+        }
+
         private class MacroConfigEntry
         {
             internal ConfigEntry<string> ConfigEntry { get; }
@@ -59,35 +99,18 @@ namespace DebugToolkit.Code
                 KeyBind = BlobArray[0];
                 _consoleCommandsBlob = BlobArray[1];
                 ConsoleCommands = SplitConsoleCommandsBlob(_consoleCommandsBlob);
-                // Split key combinations with +, but '+' and '[+]' can be legitimate keys
-                var keys = Regex.Matches(KeyBind, @"(.+?)(?:(?<!\[)\+(?!\])|$)").Select(x => x.Groups[1].Value).ToHashSet();
-                var modifiers = new List<string>();
-                var missingModifiers = new List<string>();
-                foreach (var modifier in MODIFIERS)
-                {
-                    if (keys.Contains(modifier))
-                    {
-                        modifiers.Add(modifier);
-                        keys.Remove(modifier);
-                    }
-                    else
-                    {
-                        missingModifiers.Add(modifier);
-                    }
-                }
-                if (keys.Count == 0)
+                (Modifiers, MissingModifiers, var keys) = KeyBindParser(KeyBind);
+                if (keys.Length == 0)
                 {
                     Log.Message($"No key was defined for the macro '{KeyBind}'.", Log.LogLevel.ErrorClientOnly);
                     return false;
                 }
-                else if (keys.Count > 1)
+                else if (keys.Length > 1)
                 {
                     Log.Message($"Multiple keys '{string.Join("+", keys)}' were defined for the macro '{KeyBind}'.", Log.LogLevel.ErrorClientOnly);
                     return false;
                 }
-                Modifiers = [..modifiers];
-                MissingModifiers = [..missingModifiers];
-                Key = keys.First();
+                Key = keys[0];
 
                 try
                 {
@@ -97,6 +120,13 @@ namespace DebugToolkit.Code
                 {
                     Log.Message($"Specified key '{Key}' for the macro '{KeyBind}' does not exist.", Log.LogLevel.ErrorClientOnly);
                     return false;
+                }
+
+                var invariantKeyBind = GetKeyBindInvariant(Modifiers, [Key]);
+                if (invariantKeyBind != KeyBind)
+                {
+                    KeyBind = invariantKeyBind;
+                    ConfigEntry.Value = string.Format(KeyBind.Contains(" ") ? MACRO_DTBIND_2 : MACRO_DTBIND_1, KeyBind, _consoleCommandsBlob);
                 }
 
                 return true;
@@ -326,17 +356,9 @@ namespace DebugToolkit.Code
                 // We need to identify keys that can have spaces, e.g. "page down", since
                 // the bind arguments are parsed from the config by space splitting.
                 // Quotes seem to get messed up in the config file, so brackets it is.
-                var bindCmdBlob = "dt_bind ";
-                if (args[0].Contains(" "))
-                {
-                    bindCmdBlob += $"({args[0]}) {args[1]}";
-                }
-                else
-                {
-                    bindCmdBlob += string.Join(" ", args.userArgs);
-                }
+                var bindCmdBlob = string.Format(args[0].Contains(" ") ? MACRO_DTBIND_2 : MACRO_DTBIND_1, args[0], args[1]);
 
-                var keyBind = args[0];
+                var keyBind = GetKeyBindInvariant(args[0]);
                 var consoleCommandsBlob = args[1];
                 if (MacroConfigEntries.TryGetValue(keyBind, out var existingMacro))
                 {
@@ -350,7 +372,7 @@ namespace DebugToolkit.Code
             }
             else if (args.Count == 1)
             {
-                Log.Message(MacroConfigEntries.TryGetValue(args[0], out var existingMacro)
+                Log.Message(MacroConfigEntries.TryGetValue(GetKeyBindInvariant(args[0]), out var existingMacro)
                     ? existingMacro.ConfigEntry.Value
                     : "This key has no macro associated to it.");
             }
@@ -374,6 +396,7 @@ namespace DebugToolkit.Code
                     return;
                 }
 
+                keyBind = GetKeyBindInvariant(keyBind);
                 if (MacroConfigEntries.TryGetValue(keyBind, out var macroEntry))
                 {
                     DebugToolkit.Configuration.Remove(macroEntry.ConfigEntry.Definition);
