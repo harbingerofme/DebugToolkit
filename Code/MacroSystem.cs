@@ -344,11 +344,11 @@ namespace DebugToolkit.Code
                 || (UnityEngine.EventSystems.EventSystem.current && UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject);
         }
 
-        [ConCommand(commandName = "dt_bind", flags = ConVarFlags.None,
-            helpText = "Bind a key to execute specific commands." + Lang.BIND_ARGS)]
+        [ConCommand(commandName = "dt_bind", flags = ConVarFlags.None, helpText = Lang.BIND_HELP)]
+        [AutoComplete(Lang.BIND_HELP)]
         private static void CCBindMacro(ConCommandArgs args)
         {
-            if (args.Count == 2)
+            if (args.Count >= 2)
             {
                 BindExampleMacro();
 
@@ -378,12 +378,12 @@ namespace DebugToolkit.Code
             }
             else
             {
-                Log.Message("Usage Error. " + Lang.BIND_ARGS, Log.LogLevel.ErrorClientOnly);
+                Log.Message(Lang.INSUFFICIENT_ARGS + Lang.BIND_ARGS, Log.LogLevel.ErrorClientOnly);
             }
         }
 
-        [ConCommand(commandName = "dt_bind_delete", flags = ConVarFlags.None,
-            helpText = "Remove a custom bind from the macro system of DebugToolkit." + Lang.BIND_DELETE_ARGS)]
+        [ConCommand(commandName = "dt_bind_delete", flags = ConVarFlags.None, helpText = Lang.BIND_DELETE_HELP)]
+        [AutoComplete(Lang.BIND_DELETE_ARGS)]
         private static void CCBindDeleteMacro(ConCommandArgs args)
         {
             if (args.Count == 1)
@@ -406,12 +406,11 @@ namespace DebugToolkit.Code
             }
             else
             {
-                Log.Message("Usage Error. " + Lang.BIND_DELETE_ARGS, Log.LogLevel.ErrorClientOnly);
+                Log.Message(Lang.INSUFFICIENT_ARGS + Lang.BIND_DELETE_ARGS, Log.LogLevel.ErrorClientOnly);
             }
         }
 
-        [ConCommand(commandName = "dt_bind_reload", flags = ConVarFlags.None,
-            helpText = "Reload the macro system of DebugToolkit." + Lang.BIND_DELETE_ARGS)]
+        [ConCommand(commandName = "dt_bind_reload", flags = ConVarFlags.None, helpText = Lang.BIND_RELOAD_HELP)]
         private static void CCBindReloadMacro(ConCommandArgs _)
         {
             Reload();

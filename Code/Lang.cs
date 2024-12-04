@@ -8,7 +8,7 @@
         public const string
             ADDPORTAL_ARGS = "Requires 1 argument: {portal ('blue'|'celestial'|'gold'|'green'|'void'|'all')}",
             BAN_ARGS = "Requires 1 argument: {player}",
-            BIND_ARGS = "Requires 2 arguments: {key} {console_commands}",
+            BIND_ARGS = "Requires 2 arguments: {key} [console_commands]",
             BIND_DELETE_ARGS = "Requires 1 argument: {key}",
             CHANGETEAM_ARGS = "Requires 1 (2 if from server) argument: {team} [player:<self>]",
             CHARGEZONE_ARGS = "Requires 1 argument: {charge}",
@@ -64,7 +64,10 @@
         public const string
             ADDPORTAL_HELP = "Add a portal to the current Teleporter on completion. " + ADDPORTAL_ARGS,
             BAN_HELP = "Bans the specified player from the session. " + BAN_ARGS,
-            BUDDHA_HELP = "Become immortal. Instead of refusing damage you just refuse to take lethal damage.\nIt works by giving all damage a player takes DamageType.NonLethal" + NO_ARGS,
+            BIND_HELP = "Bind a key to execute specific commands. " + BIND_ARGS,
+            BIND_DELETE_HELP = "Remove a custom bind from the macro system of DebugToolkit. " + BIND_DELETE_ARGS,
+            BIND_RELOAD_HELP = "Reload the macro system of DebugToolkit. " + NO_ARGS,
+            BUDDHA_HELP = "Become immortal. Instead of refusing damage you just refuse to take lethal damage.\nIt works by giving all damage a player takes DamageType.NonLethal. " + NO_ARGS,
             CHANGETEAM_HELP = "Change the specified player to the specified team. " + CHANGETEAM_ARGS,
             CHARGEZONE_HELP = "Set the charge of all active holdout zones. " + CHARGEZONE_ARGS,
             CREATEPICKUP_HELP = "Creates a PickupDroplet infront of your position. " + CREATEPICKUP_ARGS,
