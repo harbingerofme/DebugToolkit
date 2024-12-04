@@ -37,9 +37,13 @@ You may contact us at any time through [issues on GitHub](https://github.com/har
 
 ## COMMANDS ##
 
+Command Parsing:
+- Multiple commands can be combined with `;`.
+- Only alphanumeric characters and the symbols `._-:` are allowed. Any other character requires being surrounded by quotes in order to be parsed literally. Both `"` and `'` work, while `\"` and `\'` also work when nesting quotes.
+
 Verbiage:
 - The brackets encapsulating arguments mean `{needed}`, `(choose one)`, and `[optional]`.
-- If an optional argument has a default value, it will be indicated with `:`. Any preceeding optional arguments from the one entered become necessary, but empty double quotes can be used as a placeholder for the default value. If an optional argument is required from a dedicated server, it will be preceeded by `*`.
+- If an optional argument has a default value, it will be indicated with `:`. Any preceeding optional arguments from the one entered become necessary, but empty double quotes (`""`) can be used as a placeholder for the default value. If an optional argument is required from a dedicated server, it will be preceeded by `*`.
 - Player, body, AI, item, equipment, team, elite, interactable, and director card values can be declared by either their ID, or their string name. The latter can be written in freeform and it will be matched to the first result that contains the string. See the related `list_` commands for options and which result would take precedence if there are multiple matches.
 
 Commands:
