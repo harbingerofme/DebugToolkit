@@ -3,6 +3,9 @@
 
 ### 3.18 ###
 
+* **3.18.2**
+    * Fixed explicit simulacrum waves from crashing when `next_boss` is not set.
+
 * **3.18.1**
     * Updated `noclip`: Apply its hooks once per session to prevent stutter when toggling the command.
     * Updated `next_boss`: Also apply its hooks once per session. Futhermore, the next boss state does not persist between runs anymore if it is not consumed in the current run.
