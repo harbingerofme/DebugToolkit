@@ -760,15 +760,18 @@ namespace DebugToolkit
 
         internal static void SetNextBossForSimulacrumDirector(On.RoR2.InfiniteTowerExplicitSpawnWaveController.orig_Initialize orig, InfiniteTowerExplicitSpawnWaveController self, int waveIndex, Inventory enemyInventory, GameObject spawnTargetObject)
         {
-            self.spawnList = new InfiniteTowerExplicitSpawnWaveController.SpawnInfo[]
+            if (CurrentRun.nextBoss != null)
             {
-                new InfiniteTowerExplicitSpawnWaveController.SpawnInfo
+                self.spawnList = new InfiniteTowerExplicitSpawnWaveController.SpawnInfo[]
                 {
-                    spawnCard = (CharacterSpawnCard)CurrentRun.nextBoss.spawnCard,
-                    eliteDef = CurrentRun.nextBossElite,
-                    count = CurrentRun.nextBossCount
-                }
-            };
+                    new InfiniteTowerExplicitSpawnWaveController.SpawnInfo
+                    {
+                        spawnCard = (CharacterSpawnCard)CurrentRun.nextBoss.spawnCard,
+                        eliteDef = CurrentRun.nextBossElite,
+                        count = CurrentRun.nextBossCount
+                    }
+                };
+            }
             orig(self, waveIndex, enemyInventory, spawnTargetObject);
             CurrentRun.ResetNextBoss();
         }
