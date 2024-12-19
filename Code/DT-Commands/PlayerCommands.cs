@@ -1,6 +1,6 @@
-using System;
 using RoR2;
 using RoR2.ExpansionManagement;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using static DebugToolkit.Log;

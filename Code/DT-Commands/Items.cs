@@ -91,7 +91,9 @@ namespace DebugToolkit.Commands
                     if (count != 0)
                     {
                         var itemDef = ItemCatalog.GetItemDef(itemIndex);
+#pragma warning disable CS0618 // Type or member is obsolete
                         var colorHexString = ColorCatalog.GetColorHexString(itemDef.colorIndex);
+#pragma warning restore CS0618 // Type or member is obsolete
                         var name = itemDef.nameToken != "" ? Language.GetString(itemDef.nameToken) : itemDef.name;
                         sb.AppendLine($"<color=#{colorHexString}>{name}</color> {count}");
                     }

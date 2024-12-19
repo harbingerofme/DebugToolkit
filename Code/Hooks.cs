@@ -71,7 +71,7 @@ namespace DebugToolkit
             On.RoR2.CombatDirector.SetNextSpawnAsBoss += SetNextBossForDirector;
             On.RoR2.InfiniteTowerExplicitSpawnWaveController.Initialize += SetNextBossForSimulacrumDirector;
             On.RoR2.CombatDirector.AttemptSpawnOnTarget += OverrideBossCombatDirectorSpawnResult;
-            Run.onRunDestroyGlobal += delegate(Run _) { CurrentRun.ResetNextBoss(); };
+            Run.onRunDestroyGlobal += delegate (Run _) { CurrentRun.ResetNextBoss(); };
 
             // Networking and noclip hooks
             On.RoR2.NetworkSession.Start += NetworkManager.CreateNetworkObject;

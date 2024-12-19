@@ -1,4 +1,3 @@
-using System.Linq;
 using BepInEx;
 using BepInEx.Configuration;
 using DebugToolkit.Code;
@@ -6,6 +5,7 @@ using DebugToolkit.Commands;
 using DebugToolkit.Permissions;
 using R2API.Utils;
 using RoR2;
+using System.Linq;
 using LogLevel = DebugToolkit.Log.LogLevel;
 
 namespace DebugToolkit

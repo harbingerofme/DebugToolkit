@@ -1,4 +1,3 @@
-using R2API.Utils;
 using RoR2;
 using System;
 using System.Collections.Generic;
@@ -468,7 +467,7 @@ namespace DebugToolkit.Commands
                 }
             }
         }
-      
+
         [ConCommand(commandName = "set_artifact", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SETARTIFACT_HELP)]
         [AutoComplete(Lang.SETARTIFACT_ARGS)]
         private static void CCSetArtifact(ConCommandArgs args)
