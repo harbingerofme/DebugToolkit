@@ -3,6 +3,9 @@
 
 ### 3.18 ###
 
+* **3.18.3**
+    * Fixed `give_money`: Properly grants War Bonds buff stacks when given a positive amount of gold.
+
 * **3.18.2**
     * Fixed explicit simulacrum waves from crashing when `next_boss` is not set.
 
