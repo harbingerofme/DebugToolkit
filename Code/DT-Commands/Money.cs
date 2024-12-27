@@ -99,6 +99,11 @@ namespace DebugToolkit.Commands
 
         private static void GiveMasterMoney(CharacterMaster master, int amount)
         {
+            if (amount > 0)
+            {
+                master.GiveMoney((uint)amount);
+                return;
+            }
             master.money = (uint)Math.Max(0, master.money + amount);
         }
 
