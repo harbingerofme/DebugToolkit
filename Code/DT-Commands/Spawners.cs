@@ -204,6 +204,11 @@ namespace DebugToolkit.Commands
                     return;
                 }
                 eliteDef = EliteCatalog.GetEliteDef(eliteIndex);
+                if (eliteDef.eliteEquipmentDef && Run.instance.IsEquipmentExpansionLocked(eliteDef.eliteEquipmentDef.equipmentIndex))
+                {
+                    var expansion = Util.GetExpansion(eliteDef.eliteEquipmentDef.requiredExpansion);
+                    Log.MessageNetworked(string.Format(Lang.EXPANSION_LOCKED, "elite equipment", expansion), args, LogLevel.WarningClientOnly);
+                }
             }
 
             bool braindead = false;
