@@ -385,7 +385,7 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "dot", args[0]), args, LogLevel.MessageClientOnly);
                 return;
             }
-            float duration = 8f; // PercentBurn will have this
+            float duration = 5f; // Fallback default
             float damageMultiplier = 1f;
             switch (dot)
             {
@@ -398,6 +398,9 @@ namespace DebugToolkit.Commands
                     break;
                 case DotController.DotIndex.Helfire:
                     duration = 12f;
+                    break;
+                case DotController.DotIndex.PercentBurn:
+                    duration = 8f;
                     break;
                 case DotController.DotIndex.Poison:
                     duration = 10f;
@@ -417,6 +420,12 @@ namespace DebugToolkit.Commands
                     break;
                 case DotController.DotIndex.Fracture:
                     duration = DotController.GetDotDef(DotController.DotIndex.Fracture).interval;
+                    break;
+                case DotController.DotIndex.LunarRuin:
+                    duration = 5f;
+                    break;
+                default:
+                    Log.MessageNetworked($"No explicit duration set for this DoT, defaulting to {duration}. " + Lang.NOMESSAGE, args, LogLevel.MessageClientOnly);
                     break;
             }
             for (int i = 0; i < iCount; i++)
