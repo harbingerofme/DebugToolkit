@@ -169,6 +169,88 @@ namespace DebugToolkit.Commands
             Log.MessageNetworked(string.Format(Lang.SPAWN_ATTEMPT_1, master.playerCharacterMasterController.GetDisplayName()), args);
         }
 
+        [ConCommand(commandName = "hurt", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.HURT_HELP)]
+        [AutoComplete(Lang.HURT_ARGS)]
+        private static void CCHurt(ConCommandArgs args)
+        {
+            if (!Run.instance)
+            {
+                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            if (args.Count == 0 || (args.sender == null && (args.Count < 2 || args[1] == Lang.DEFAULT_VALUE)))
+            {
+                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.HURT_ARGS, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            var target = Buffs.ParseTarget(args, 1);
+            if (target.failMessage != null)
+            {
+                Log.MessageNetworked(target.failMessage, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            if (!TextSerialization.TryParseInvariant(args[0], out float amount))
+            {
+                Log.MessageNetworked(string.Format(Lang.PARSE_ERROR, "value", "float"), args, LogLevel.MessageClientOnly);
+                return;
+            }
+            if (amount < 0f)
+            {
+                Log.MessageNetworked(string.Format(Lang.NEGATIVE_ARG, "value"), args, LogLevel.MessageClientOnly);
+                return;
+            }
+            if (amount == 0f)
+            {
+                Log.MessageNetworked("Nothing happened.", args, LogLevel.MessageClientOnly);
+                return;
+            }
+            target.body.healthComponent.TakeDamage(new DamageInfo()
+            {
+                damage = amount,
+                position = target.body.corePosition,
+            });
+            Log.MessageNetworked($"Damaged {target.name} for {amount} hp.", args);
+        }
+
+        [ConCommand(commandName = "heal", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.HEAL_HELP)]
+        [AutoComplete(Lang.HEAL_ARGS)]
+        private static void CCHeal(ConCommandArgs args)
+        {
+            if (!Run.instance)
+            {
+                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            if (args.Count == 0 || (args.sender == null && (args.Count < 2 || args[1] == Lang.DEFAULT_VALUE)))
+            {
+                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.HEAL_ARGS, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            var target = Buffs.ParseTarget(args, 1);
+            if (target.failMessage != null)
+            {
+                Log.MessageNetworked(target.failMessage, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            if (!TextSerialization.TryParseInvariant(args[0], out float amount))
+            {
+                Log.MessageNetworked(string.Format(Lang.PARSE_ERROR, "amount", "float"), args, LogLevel.MessageClientOnly);
+                return;
+            }
+            if (amount < 0f)
+            {
+                Log.MessageNetworked(string.Format(Lang.NEGATIVE_ARG, "amount"), args, LogLevel.MessageClientOnly);
+                return;
+            }
+            if (amount == 0f)
+            {
+                Log.MessageNetworked("Nothing happened.", args, LogLevel.MessageClientOnly);
+                return;
+            }
+            target.body.healthComponent.Heal(amount, default);
+            Log.MessageNetworked($"Healed {target.name} for {amount} hp.", args);
+        }
+
         [ConCommand(commandName = "change_team", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.CHANGETEAM_HELP)]
         [AutoComplete(Lang.CHANGETEAM_HELP)]
         private static void CCChangeTeam(ConCommandArgs args)
