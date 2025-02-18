@@ -107,6 +107,7 @@
             LISTPLAYER_HELP = "List all players and their ID. " + LISTQUERY_ARGS,
             LISTSCENE_HELP = "List all scenes and their language invariants. " + LISTQUERY_ARGS,
             LISTSKIN_HELP = "List all bodies with skins. " + LISTSKIN_ARGS,
+            LISTSURVIVOR_HELP = "List all survivors and their body/ai names. " + LISTQUERY_ARGS,
             LISTTEAM_HELP = "List all Teams and their language invariants. " + LISTQUERY_ARGS,
             LOADOUTSKIN_HELP = "Change your loadout's skin.  " + LOADOUTSKIN_ARGS,
             LOCKEXP_HELP = "Toggle Experience gain. " + NO_ARGS,

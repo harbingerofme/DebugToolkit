@@ -86,6 +86,7 @@ List Commands:
 * **list_directorcards** List all Director Cards. Mainly used for the `next_boss` command.
 * **list_scene** List all Scenes, their language invariants, and if are they an offline scene.
 * **list_skins** List all Body Skins and the language invariant of the current one in use.
+* **list_survivor** List all Survivors and their body/ai names.
 
 Dump Commands:
 

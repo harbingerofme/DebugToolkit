@@ -105,6 +105,27 @@ namespace DebugToolkit.Commands
             Log.MessageNetworked(s, args, LogLevel.MessageClientOnly);
         }
 
+        [ConCommand(commandName = "list_survivor", flags = ConVarFlags.None, helpText = Lang.LISTSURVIVOR_HELP)]
+        [AutoComplete(Lang.LISTQUERY_ARGS)]
+        private static void CCListSurvivor(ConCommandArgs args)
+        {
+            StringBuilder sb = new StringBuilder();
+            var arg = args.Count > 0 ? args[0] : "";
+            var indices = StringFinder.Instance.GetSurvivorsFromPartial(arg);
+            foreach (var index in indices)
+            {
+                var survivor = SurvivorCatalog.GetSurvivorDef(index);
+                var langInvar = StringFinder.GetLangInvar(survivor.displayNameToken);
+                var bodyName = survivor.bodyPrefab?.name ?? StringFinder.NAME_NOTFOUND;
+                var body = survivor.bodyPrefab?.GetComponent<CharacterBody>();
+                var masterIndex = body ? MasterCatalog.FindAiMasterIndexForBody(body.bodyIndex) : MasterCatalog.MasterIndex.none;
+                var masterName = MasterCatalog.GetMasterPrefab(masterIndex)?.name ?? StringFinder.NAME_NOTFOUND;
+                sb.AppendLine($"[{(int)index}]{survivor.cachedName}={langInvar} ({bodyName}, {masterName})");
+            }
+            var s = sb.Length > 0 ? sb.ToString().TrimEnd('\n') : string.Format(Lang.NOMATCH_ERROR, "survivors", arg);
+            Log.MessageNetworked(s, args, LogLevel.MessageClientOnly);
+        }
+
         [ConCommand(commandName = "list_elite", flags = ConVarFlags.None, helpText = Lang.LISTELITE_HELP)]
         [AutoComplete(Lang.LISTQUERY_ARGS)]
         private static void CCListElites(ConCommandArgs args)

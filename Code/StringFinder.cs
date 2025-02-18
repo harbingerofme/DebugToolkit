@@ -24,7 +24,7 @@ namespace DebugToolkit
         private static StringFinder instance;
         private static readonly List<DirectorCard> characterSpawnCard = new List<DirectorCard>();
         private static readonly List<InteractableSpawnCard> interactableSpawnCards = new List<InteractableSpawnCard>();
-        private static readonly string NAME_NOTFOUND = "???";
+        internal static readonly string NAME_NOTFOUND = "???";
 
         public static EliteIndex EliteIndex_NotFound = (EliteIndex)(-2);
         public static ItemTier ItemTier_NotFound = (ItemTier)(-1);
@@ -753,6 +753,52 @@ namespace DebugToolkit
             }
         }
 
+        /// <summary>
+        /// Returns a SurvivorIndex when provided with an index or partial/invariant.
+        /// </summary>
+        /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>
+        /// <returns>Returns the SurvivorIndex if a match is found, or returns SurvivorIndex.None</returns>
+        public SurvivorIndex GetSurvivorFromPartial(string name)
+        {
+            return GetSurvivorsFromPartial(name).DefaultIfEmpty(SurvivorIndex.None).First();
+        }
+
+        /// <summary>
+        /// Returns an iterator of SurvivorIndex's when provided with an index or partial/invariant.
+        /// </summary>
+        /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>
+        /// <returns>Returns an iterator with all SurvivorIndex's matched</returns>
+        public IEnumerable<SurvivorIndex> GetSurvivorsFromPartial(string name)
+        {
+            if (TextSerialization.TryParseInvariant(name, out int i))
+            {
+                var index = (SurvivorIndex)i;
+                if (SurvivorCatalog.GetSurvivorDef(index) != null)
+                {
+                    yield return index;
+                }
+                yield break;
+            }
+            name = name.ToUpperInvariant();
+            var matches = new List<MatchSimilarity>();
+            foreach (var survivor in SurvivorCatalog.allSurvivorDefs)
+            {
+                var langInvar = GetLangInvar(survivor.displayNameToken).ToUpper();
+                if (survivor.cachedName.ToUpper().Contains(name) || langInvar.Contains(name))
+                {
+                    matches.Add(new MatchSimilarity
+                    {
+                        similarity = Math.Max(GetSimilarity(survivor.cachedName, name), GetSimilarity(langInvar, name)),
+                        item = survivor.survivorIndex
+                    });
+                }
+            }
+            foreach (var match in matches.OrderByDescending(m => m.similarity))
+            {
+                yield return (SurvivorIndex)match.item;
+            }
+        }
+
         public SceneIndex GetSceneFromPartial(string name, bool includeOffline)
         {
             return GetScenesFromPartial(name, includeOffline).DefaultIfEmpty(SceneIndex.Invalid).FirstOrDefault();
@@ -838,7 +884,7 @@ namespace DebugToolkit
             {
                 return NAME_NOTFOUND;
             }
-            var body = master?.bodyPrefab.GetComponent<CharacterBody>();
+            var body = master.bodyPrefab?.GetComponent<CharacterBody>();
             if (body != null)
             {
                 return body.GetDisplayName();
