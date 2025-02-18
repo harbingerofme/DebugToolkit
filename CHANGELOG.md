@@ -1,6 +1,15 @@
 
 ## Changelog ##
 
+### 3.19 ###
+
+* **3.19.0**
+    * Added `hurt`
+    * Added `heal`
+    * Added `list_survivor`
+    * Updated `spawn_ai`: Prints a message if the selected elite is from a disabled expansion.
+    * Updated `give_dot`: Adds an explicit duration for Lunar Ruin and also prints a message if a selected DoT does not have one.
+
 ### 3.18 ###
 
 * **3.18.3**
