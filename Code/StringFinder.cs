@@ -14,13 +14,6 @@ namespace DebugToolkit
     /// </summary>
     public sealed class StringFinder
     {
-        private static readonly Dictionary<string, string[]> BodyAlias = new Dictionary<string, string[]>();
-        private static readonly Dictionary<string, string[]> MasterAlias = new Dictionary<string, string[]>();
-        private static readonly Dictionary<string, string[]> BuffAlias = new Dictionary<string, string[]>();
-        private static readonly Dictionary<string, string[]> DotAlias = new Dictionary<string, string[]>();
-        private static readonly Dictionary<string, string[]> ItemAlias = new Dictionary<string, string[]>();
-        private static readonly Dictionary<string, string[]> EquipAlias = new Dictionary<string, string[]>();
-        private static readonly Dictionary<string, string[]> SkinAlias = new Dictionary<string, string[]>();
         private static StringFinder instance;
         private static readonly List<DirectorCard> characterSpawnCard = new List<DirectorCard>();
         private static readonly List<InteractableSpawnCard> interactableSpawnCards = new List<InteractableSpawnCard>();
@@ -40,26 +33,6 @@ namespace DebugToolkit
         /// </summary>
         private StringFinder()
         {
-            BodyAlias.Add("ToolbotBody", new string[] { "MULT", "MUL-T", "ShoppingTrolly" });
-            BodyAlias.Add("MercBody", new string[] { "Mercenary", "Ninja" });
-            BodyAlias.Add("MageBody", new string[] { "Artificer", "Arti" });
-            BodyAlias.Add("EngiBody", new string[] { "Engineer" });
-            BodyAlias.Add("HANDBody", new string[] { "HAN-D" });
-            BodyAlias.Add("TreebotBody", new string[] { "Treebot", "REX", "PlantBot", "Shrub" });
-            BodyAlias.Add("CrocoBody", new string[] { "barney" });
-            BodyAlias.Add("RoboBallBossBody", new string[] { "SCU", "roboboss" });
-            BodyAlias.Add("SuperRoboBallBossBody", new string[] { "AWU" });
-
-            MasterAlias.Add("LemurianBruiserMasterFire", new string[] { "LemurianBruiserFire", "BruiserFire" });
-            MasterAlias.Add("LemurianBruiserMasterIce", new string[] { "LemurianBruiserIce", "BruiserIce" });
-            MasterAlias.Add("LemurianBruiserMasterHaunted", new string[] { "LemurianBruiserHaunted", "BruiserHaunter" });
-            MasterAlias.Add("LemurianBruiserMasterPoison", new string[] { "LemurianBruiserPoison", "LemurianBruiserBlight", "LemurianBruisermalechite" });
-            MasterAlias.Add("MercMonsterMaster", new string[] { "MercMonster" });
-            MasterAlias.Add("RoboBallBossMaster", new string[] { "SCU", "roboboss" });
-            MasterAlias.Add("SuperRoboBallBossMaster", new string[] { "AWU" });
-
-            ItemAlias.Add("Syringe", new string[] { "drugs" });
-
             GatherCSCs();
             GatherISCs();
         }
@@ -799,11 +772,21 @@ namespace DebugToolkit
             }
         }
 
+        /// <summary>
+        /// Returns a SceneIndex when provided with an index or partial/invariant.
+        /// </summary>
+        /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>
+        /// <returns>Returns the SceneIndex if a match is found, or returns SceneIndex.Invalid</returns>
         public SceneIndex GetSceneFromPartial(string name, bool includeOffline)
         {
             return GetScenesFromPartial(name, includeOffline).DefaultIfEmpty(SceneIndex.Invalid).FirstOrDefault();
         }
 
+        /// <summary>
+        /// Returns an iterator of SceneIndex's when provided with an index or partial/invariant.
+        /// </summary>
+        /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>
+        /// <returns>Returns an iterator with all SceneIndex's matched</returns>
         public IEnumerable<SceneIndex> GetScenesFromPartial(string name, bool includeOffline)
         {
             if (TextSerialization.TryParseInvariant(name, out int i))
