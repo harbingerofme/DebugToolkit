@@ -3,6 +3,9 @@
 
 ### 3.19 ###
 
+* **3.19.1**
+    * Fixed `spawn_ai`: Fixes NRE when explicitly using -1/None for the elite argument.
+
 * **3.19.0**
     * Added `hurt`
     * Added `heal`
