@@ -11,8 +11,8 @@ containsNsfwContent = false
 
 [package.dependencies]
 bbepis-BepInExPack = "5.4.2117"
-RiskofThunder-R2API_Core = "5.1.3"
-RiskofThunder-R2API_ContentManagement = "1.0.6"
+RiskofThunder-R2API_Core = "5.1.5"
+RiskofThunder-R2API_ContentManagement = "1.0.8"
 RiskofThunder-R2API_Networking = "1.0.3"
 RiskofThunder-R2API_Prefab = "1.0.4"
 
