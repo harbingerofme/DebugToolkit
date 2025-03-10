@@ -16,6 +16,8 @@ namespace DebugToolkit.Commands
         internal static bool lockExp = false;
         internal static ulong seed;
 
+        internal static bool forceFamilyEvent = false;
+
         internal static DirectorCard nextBoss;
         internal static int nextBossCount = 1;
         internal static EliteDef nextBossElite;
@@ -222,8 +224,7 @@ namespace DebugToolkit.Commands
         [ConCommand(commandName = "force_family_event", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.FAMILYEVENT_HELP)]
         private static void CCFamilyEvent(ConCommandArgs args)
         {
-            On.RoR2.ClassicStageInfo.RebuildCards -= Hooks.ForceFamilyEvent;
-            On.RoR2.ClassicStageInfo.RebuildCards += Hooks.ForceFamilyEvent;
+            forceFamilyEvent = true;
             Log.MessageNetworked("The next stage will contain a family event if available!", args);
         }
 

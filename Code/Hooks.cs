@@ -67,11 +67,18 @@ namespace DebugToolkit
             On.RoR2.PingerController.RebuildPing += InterceptPing;
             IL.RoR2.InfiniteTowerRun.BeginNextWave += InfiniteTowerRun_BeginNextWave;
 
-            // Next boss hooks
+            // Next boss and family event hooks
             On.RoR2.CombatDirector.SetNextSpawnAsBoss += SetNextBossForDirector;
             On.RoR2.InfiniteTowerExplicitSpawnWaveController.Initialize += SetNextBossForSimulacrumDirector;
             On.RoR2.CombatDirector.AttemptSpawnOnTarget += OverrideBossCombatDirectorSpawnResult;
-            Run.onRunDestroyGlobal += delegate (Run _) { CurrentRun.ResetNextBoss(); };
+            On.RoR2.ClassicStageInfo.RebuildCards += ForceFamilyEvent;
+            On.RoR2.DccsPool.GenerateWeightedCategorySelection += ForceFamilyEventForDccsPoolStages;
+            On.RoR2.FamilyDirectorCardCategorySelection.IsAvailable += ForceFamilyDirectorCardCategorySelectionToBeAvailable;
+            Run.onRunDestroyGlobal += delegate (Run _)
+            {
+                CurrentRun.ResetNextBoss();
+                CurrentRun.forceFamilyEvent = false;
+            };
 
             // Networking and noclip hooks
             On.RoR2.NetworkSession.Start += NetworkManager.CreateNetworkObject;
@@ -646,67 +653,36 @@ namespace DebugToolkit
             c.Emit(OpCodes.Brfalse_S, jumpLabel.Target);
         }
 
-        internal static WeightedSelection<DirectorCardCategorySelection> ForceFamilyEventForDccsPoolStages(On.RoR2.DccsPool.orig_GenerateWeightedSelection orig, DccsPool self)
+        private static WeightedSelection<DccsPool.Category> ForceFamilyEventForDccsPoolStages(On.RoR2.DccsPool.orig_GenerateWeightedCategorySelection orig, DccsPool self)
         {
-            if (ClassicStageInfo.instance.monsterDccsPool != self)
+            var selectedCategories = orig(self);
+            if (CurrentRun.forceFamilyEvent)
             {
-                return orig(self);
-            }
-
-            On.RoR2.FamilyDirectorCardCategorySelection.IsAvailable += ForceFamilyDirectorCardCategorySelectionToBeAvailable;
-            var weightedSelection = orig(self);
-            On.RoR2.FamilyDirectorCardCategorySelection.IsAvailable -= ForceFamilyDirectorCardCategorySelectionToBeAvailable;
-
-            var newChoices = new List<WeightedSelection<DirectorCardCategorySelection>.ChoiceInfo>();
-            foreach (var choice in weightedSelection.choices)
-            {
-                if (choice.value && choice.value is FamilyDirectorCardCategorySelection)
+                var familyCategories = new WeightedSelection<DccsPool.Category>();
+                foreach (var category in self.poolCategories)
                 {
-                    newChoices.Add(choice);
+                    if (ClassicStageInfo.instance.IsCategorySelectionAFamily(category))
+                    {
+                        familyCategories.AddChoice(category, category.categoryWeight);
+                    }
+                }
+                if (familyCategories.Count > 0)
+                {
+                    return familyCategories;
                 }
             }
-
-            if (newChoices.Count > 0)
-            {
-                weightedSelection.choices = newChoices.ToArray();
-                weightedSelection.Count = newChoices.Count;
-                weightedSelection.RecalculateTotalWeight();
-            }
-
-            return weightedSelection;
+            return selectedCategories;
         }
 
         private static bool ForceFamilyDirectorCardCategorySelectionToBeAvailable(On.RoR2.FamilyDirectorCardCategorySelection.orig_IsAvailable orig, FamilyDirectorCardCategorySelection self)
         {
-            return true;
+            return orig(self) || CurrentRun.forceFamilyEvent;
         }
 
         internal static void ForceFamilyEvent(On.RoR2.ClassicStageInfo.orig_RebuildCards orig, ClassicStageInfo self, DirectorCardCategorySelection forcedMonsterCategory, DirectorCardCategorySelection forcedInteractableCategory)
         {
-            On.RoR2.DccsPool.GenerateWeightedSelection += ForceFamilyEventForDccsPoolStages;
-            var originalEventChance = ClassicStageInfo.monsterFamilyChance;
-            var originalFamilyCategories = self.possibleMonsterFamilies;
-            ClassicStageInfo.monsterFamilyChance = 1f;
-            var newFamilyCategories = new ClassicStageInfo.MonsterFamily[originalFamilyCategories.Length];
-            for (int i = 0; i < self.possibleMonsterFamilies.Length; i++)
-            {
-                var category = self.possibleMonsterFamilies[i];
-                newFamilyCategories[i] = new ClassicStageInfo.MonsterFamily
-                {
-                    monsterFamilyCategories = category.monsterFamilyCategories,
-                    familySelectionChatString = category.familySelectionChatString,
-                    selectionWeight = category.selectionWeight,
-                    minimumStageCompletion = 0,
-                    maximumStageCompletion = int.MaxValue
-                };
-            }
-            self.possibleMonsterFamilies = newFamilyCategories;
             orig(self, forcedMonsterCategory, forcedInteractableCategory);
-            On.RoR2.DccsPool.GenerateWeightedSelection -= ForceFamilyEventForDccsPoolStages;
-            ClassicStageInfo.monsterFamilyChance = originalEventChance;
-            self.possibleMonsterFamilies = originalFamilyCategories;
-
-            On.RoR2.ClassicStageInfo.RebuildCards -= ForceFamilyEvent;
+            CurrentRun.forceFamilyEvent = false;
         }
 
         internal static void SetNextBossForDirector(On.RoR2.CombatDirector.orig_SetNextSpawnAsBoss orig, CombatDirector self)
