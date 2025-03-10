@@ -3,12 +3,15 @@
 
 ### 3.19 ###
 
+* **3.19.2**
+    * Fixed `force_family_event`: Update hooks for 1.3.7 and modify the command to only apply its hooks once.
+
 * **3.19.1**
     * Fixed `spawn_ai`: Fixes NRE when explicitly using -1/None for the elite argument.
 
 * **3.19.0**
-    * Added `hurt`
-    * Added `heal`
+    * Added `hurt`: Damage yourself or another target.
+    * Added `heal`: Heal yourself or another target.
     * Added `list_survivor`
     * Updated `spawn_ai`: Prints a message if the selected elite is from a disabled expansion.
     * Updated `give_dot`: Adds an explicit duration for Lunar Ruin and also prints a message if a selected DoT does not have one.
