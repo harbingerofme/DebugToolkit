@@ -556,28 +556,32 @@ namespace DebugToolkit
 
             var getKey = il.Import(typeof(Input).GetMethodCached("GetKey", new[] { typeof(KeyCode) }));
 
+            var inputKey = (int)KeyCode.UpArrow;
             cursor.GotoNext(
                 MoveType.After,
-                x => x.MatchLdcI4(0x111),
+                x => x.MatchLdcI4(inputKey),
                 x => x.MatchCallOrCallvirt<Input>("GetKeyDown")
             );
             cursor.Prev.Operand = getKey;
-            cursor.EmitDelegate<Func<bool, bool>>(LimitChangeItemFrequency);
+            cursor.Emit(OpCodes.Ldc_I4, inputKey);
+            cursor.EmitDelegate(LimitChangeItemFrequency);
 
+            inputKey = (int)KeyCode.DownArrow;
             cursor.GotoNext(
                 MoveType.After,
-                x => x.MatchLdcI4(0x112),
+                x => x.MatchLdcI4(inputKey),
                 x => x.MatchCallOrCallvirt<Input>("GetKeyDown")
             );
             cursor.Prev.Operand = getKey;
-            cursor.EmitDelegate<Func<bool, bool>>(LimitChangeItemFrequency);
+            cursor.Emit(OpCodes.Ldc_I4, inputKey);
+            cursor.EmitDelegate(LimitChangeItemFrequency);
 
             cursor.GotoNext(
                 x => x.MatchLdloc(3),
                 x => x.MatchBrfalse(out _)
             );
             cursor.Index += 1;
-            cursor.EmitDelegate<Func<bool, bool>>(ScrollAutocompleteNextWithTab);
+            cursor.EmitDelegate(ScrollAutocompleteNextWithTab);
 
             for (int i = 0; i < 3; i++)
             {
@@ -588,7 +592,7 @@ namespace DebugToolkit
                         x => x.MatchBrfalse(out _)
                     );
                     cursor.Index += 1;
-                    cursor.EmitDelegate<Func<bool, bool>>(ScrollAutocompleteNextWithTab);
+                    cursor.EmitDelegate(ScrollAutocompleteNextWithTab);
                 }
             }
 
@@ -602,12 +606,12 @@ namespace DebugToolkit
                 return previousKeyPressed || (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Tab));
             });
 
-            bool LimitChangeItemFrequency(bool canChangeItem)
+            bool LimitChangeItemFrequency(bool canChangeItem, int key)
             {
-                if (canChangeItem)
+                if (canChangeItem && Time.timeScale > 0f)
                 {
                     var timeNow = Time.time;
-                    if (timeNow > changeSelectedItemTimer + _lastSelectedItemChange)
+                    if (timeNow > changeSelectedItemTimer * Time.timeScale + _lastSelectedItemChange)
                     {
                         _lastSelectedItemChange = timeNow;
 
@@ -617,6 +621,10 @@ namespace DebugToolkit
                     {
                         return false;
                     }
+                }
+                else if (Time.timeScale <= 0f)
+                {
+                    return Input.GetKeyDown((KeyCode)key);
                 }
 
                 return canChangeItem;
