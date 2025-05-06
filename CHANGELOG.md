@@ -3,6 +3,9 @@
 
 ### 3.19 ###
 
+* **3.19.3**
+    * Holding the arrow key in the console window for smooth scrolling now works as expected for all time scales. However, when time is frozen it requires a new key press to cycle to the next/previous command.
+
 * **3.19.2**
     * Fixed `force_family_event`: Update hooks for 1.3.7 and modify the command to only apply its hooks once.
 
