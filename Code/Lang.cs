@@ -148,6 +148,7 @@
             SPAWNBODY_HELP = "Spawns the specified dummy body. " + SPAWNBODY_ARGS,
             SPAWNINTERACTABLE_HELP = "Spawns the specified interactable. List_Interactable for options. " + SPAWNINTERACTABLE_ARGS,
             SPAWNPORTAL_HELP = "Spawns a portal in front of the player. " + SPAWNPORTAL_ARGS,
+            STOPTIMER_HELP = "Pause/unpause the run timer. " + NO_ARGS,
             TIMESCALE_HELP = "Sets the Time Delta. " + TIMESCALE_ARGS,
             TRUEKILL_HELP = "Ignore Dio's and kill the entity. " + TRUEKILL_ARGS
             ;

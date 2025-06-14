@@ -221,6 +221,29 @@ namespace DebugToolkit.Commands
             TimescaleNet.Invoke(scale);
         }
 
+        [ConCommand(commandName = "stop_timer", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.STOPTIMER_HELP)]
+        private static void CCPauseTimer(ConCommandArgs args)
+        {
+            if (!Run.instance)
+            {
+                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
+                return;
+            }
+
+            var currentSceneDef = SceneCatalog.mostRecentSceneDef;
+            var canPauseTimer = currentSceneDef.sceneType == SceneType.Stage || currentSceneDef.sceneType == SceneType.TimedIntermission;
+
+            if (canPauseTimer)
+            {
+                Run.instance.SetForcePauseRunStopwatch(!Run.instance.isRunStopwatchPaused);
+                Log.MessageNetworked(String.Format(Run.instance.isRunStopwatchPaused ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, "Paused timer"), args, LogLevel.MessageClientOnly);
+            }
+            else
+            {
+                Log.MessageNetworked("The run timer can't be changed for this stage.", args, LogLevel.MessageClientOnly);
+            }
+        }
+
         [ConCommand(commandName = "force_family_event", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.FAMILYEVENT_HELP)]
         private static void CCFamilyEvent(ConCommandArgs args)
         {

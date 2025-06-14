@@ -52,6 +52,7 @@ Commands:
 * **force_family_event** - Forces a Family Event to happen in the next stage, takes no arguments. `force_family_event`
 * **next_boss** - Sets the next teleporter/simulacrum boss to the specified boss. Get a list of potential boss with `list_directorcards`. `next_boss {director_card} [count:1] [elite:None]`
 * **fixed_time** - Sets the time that has progressed in the run. Affects difficulty. `fixed_time [time]`. If no time is supplied, prints the current time to console.
+* **stop_timer** - Pause/unpause the run timer. `pause_timer`. Only works for "Stage" and "TimedIntermission" stages.
 * **next_wave** - Advance to the next Simulacrum wave. `next_wave`
 * **force_wave** - Set the next wave prefab. `force_wave [wave_prefab]`. If no input is supplied, prints all available options and clears any previous selection.
 * **run_set_waves_cleared** - Set the Simulacrum waves cleared. Must be positive. `set_run_waves_cleared {wave}`
