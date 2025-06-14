@@ -21,9 +21,11 @@ namespace DebugToolkit
         public const string GUID = "iHarbHD." + modname;
 
         internal static ConfigFile Configuration;
+        internal static DebugToolkit Instance { get; private set; }
 
         private void Awake()
         {
+            Instance = this;
             Configuration = base.Config;
 
             new Log(Logger);

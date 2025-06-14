@@ -1,5 +1,7 @@
 ﻿using BepInEx.Bootstrap;
 using RoR2;
+using System.Collections;
+using UnityEngine;
 
 namespace DebugToolkit.Commands
 {
@@ -49,6 +51,32 @@ namespace DebugToolkit.Commands
                 {
                     Log.MessageNetworked($"The config file for {pluginInfo} doesn't exist or has a custom name.", args, Log.LogLevel.Warning);
                 }
+            }
+        }
+
+        [ConCommand(commandName = "delay", flags = ConVarFlags.None, helpText = Lang.DELAY_HELP)]
+        [AutoComplete(Lang.DELAY_ARGS)]
+        private static void CCDelay(ConCommandArgs args)
+        {
+            if (args.Count < 2)
+            {
+                Log.Message(Lang.INSUFFICIENT_ARGS + Lang.DELAY_ARGS);
+                return;
+            }
+
+            string cmd = args[1];
+            if (!TextSerialization.TryParseInvariant(args[0], out float delay))
+            {
+                Log.Message(string.Format(Lang.PARSE_ERROR, "delay", "float"));
+                return;
+            }
+
+            DebugToolkit.Instance.StartCoroutine(InvokeRoutine(() => Console.instance.SubmitCmd(args.sender, cmd), delay));
+
+            static IEnumerator InvokeRoutine(System.Action action, float delay)
+            {
+                yield return new WaitForSeconds(delay);
+                action();
             }
         }
     }

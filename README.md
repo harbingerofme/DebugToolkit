@@ -67,6 +67,7 @@ Commands:
 * **teleport_on_cursor** -  Teleport you to where your cursor is currently aiming at. `teleport_on_cursor`
 * **time_scale** -  Sets the timescale of the game. 0.5 would mean everything happens at half speed. `time_scale [time_scale]`. If no argument is supplied, gives the current timescale.
 * **post_sound_event** - Post a sound event to the AkSoundEngine (WWise) either by its event name or event ID. `post_sound_event {sound_event (event_name|event_id)}`
+* **delay** - Execute any commands after a delay in seconds. `delay {delay} {<consolecommands separated by ;>}`
 
 List Commands:
 
@@ -146,7 +147,7 @@ Cheat Commands:
 
 Bind Commands:
 
-* **dt_bind** - Bind a key to execute specific commands. `dt_bind {key} [<consolecommands seperated by ;>]`. See [here](https://docs.unity3d.com/Manual/class-InputManager.html) for a list of possible key names. Alt, Ctrl, and Shift can also be used for key combinations, e.g. `"left shift+left ctrl+x"`. If no commands are provided, it prints information about the key.
+* **dt_bind** - Bind a key to execute specific commands. `dt_bind {key} [<consolecommands separated by ;>]`. See [here](https://docs.unity3d.com/Manual/class-InputManager.html) for a list of possible key names. Alt, Ctrl, and Shift can also be used for key combinations, e.g. `"left shift+left ctrl+x"`. If no commands are provided, it prints information about the key.
 * **dt_bind_delete** Remove a custom bind. `dt_bind_delete {key}`
 * **dt_bind_reload** Reload the macro system from file. `dt_bind_reload` 
 
