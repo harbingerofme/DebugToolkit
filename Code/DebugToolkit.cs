@@ -5,6 +5,7 @@ using DebugToolkit.Commands;
 using DebugToolkit.Permissions;
 using R2API.Utils;
 using RoR2;
+using RoR2.UI;
 using System.Linq;
 using LogLevel = DebugToolkit.Log.LogLevel;
 
@@ -38,6 +39,9 @@ namespace DebugToolkit
             PermissionSystem.Init();
             Hooks.InitializeHooks();
             NetworkManager.Init();
+
+            ConsoleWindow.cvConsoleEnabled.defaultValue = "1";
+            ConsoleWindow.cvConsoleEnabled.SetBool(true);
         }
 
         private void LogBuildInfo()

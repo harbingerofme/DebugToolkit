@@ -143,6 +143,7 @@ namespace DebugToolkit.Code
             (Dictionary<ConfigDefinition, string>)OrphanedEntriesProperty.GetValue(DebugToolkit.Configuration);
 
         private static ConfigEntry<bool> AllowKeybindsWithUi;
+        internal static ConfigEntry<KeyCode> ConsoleKey;
 
         private const string MACRO_SECTION_NAME = "Macros";
         private const string DEFAULT_MACRO_NAME = "Do not remove this example macro";
@@ -261,6 +262,8 @@ namespace DebugToolkit.Code
         {
             AllowKeybindsWithUi = DebugToolkit.Configuration.Bind("Macros.Settings", "AllowKeybindsWithUi", true,
                 "Allow keybinds to execute when a UI window is open, e.g., Console or an Inspector.");
+            ConsoleKey = DebugToolkit.Configuration.Bind("Console", "Console Key", KeyCode.PageUp,
+                "Custom key to toggle the console window. Ignores current language. Set to 'None' to disable the feature.");
         }
 
         private static ConfigEntry<string> BindNewConfigEntry(string customValue)

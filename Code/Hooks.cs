@@ -1,3 +1,4 @@
+using DebugToolkit.Code;
 using DebugToolkit.Commands;
 using DebugToolkit.Permissions;
 using Mono.Cecil.Cil;
@@ -50,6 +51,8 @@ namespace DebugToolkit
             _origRunCmd = runCmdHook.GenerateTrampoline<On.RoR2.Console.orig_RunCmd>();
             IL.RoR2.Console.RunCmd += WarnUserOfServerCommandOffline;
 
+            IL.RoR2.UI.ConsoleWindow.CheckConsoleKey += ToggleConsoleWindowWithCustomKey;
+
             On.RoR2.Console.AutoComplete.SetSearchString += BetterAutoCompletion;
             RoR2Application.onLoad += Items.InitDroptableData;
             RoR2Application.onLoad += Spawners.InitPortals;
@@ -94,6 +97,27 @@ namespace DebugToolkit
             // Console logging fixes - temporary
             IL.RoR2.Console.ShowHelpText += FixCommandHelpText;
             IL.RoR2.Console.CCFind += FixCCFind;
+        }
+
+        private static void ToggleConsoleWindowWithCustomKey(ILContext il)
+        {
+            var c = new ILCursor(il);
+            if (!c.TryGotoNext(
+                MoveType.After,
+                x => x.MatchCallOrCallvirt<Input>("GetKeyDown")))
+            {
+                Log.Message("Failed to patch " + il.Method.Name);
+                return;
+            }
+            c.EmitDelegate<Func<bool, bool>>(isKeyPressed =>
+            {
+                if (isKeyPressed)
+                {
+                    return true;
+                }
+                var customKey = MacroSystem.ConsoleKey.Value;
+                return customKey != KeyCode.None && Input.GetKeyDown(customKey);
+            });
         }
 
         private static void FixCommandHelpText(ILContext il)
