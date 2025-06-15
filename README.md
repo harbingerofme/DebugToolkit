@@ -11,7 +11,9 @@ Track update progress, get support and suggest new features over at the [DebugTo
 Some vanilla console functions you might not know:
 
 * The console can be opened with `ctrl+alt+~`.
-* `help {command}` may be used to get help for a specific command
+  * **DebugToolkit automatically enables the console so there is no need to do this.** In fact doing this would lock the console and you would have to press the combination to unlock it again. Just press `~` to toggle the window.
+  * We have also added `Page Up` as an alternative to the default key since the latter is language dependent. Configurable.
+* `help {command}` may be used to get help for a specific command.
 * `find {term}` can be used to find commands with that term.
 * `max_messages {nr}` changes how much scroll back the console has. We auto change this to 100 for you if it's on default.
 
