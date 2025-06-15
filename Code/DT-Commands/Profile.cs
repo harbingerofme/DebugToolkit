@@ -9,7 +9,7 @@ namespace DebugToolkit.Commands
         private static bool canSaveProfile = true;
 
         [ConCommand(commandName = "prevent_profile_writing", flags = ConVarFlags.None, helpText = Lang.PREVENT_PROFILE_WRITING_HELP)]
-        [AutoComplete(Lang.PREVENT_PROFILE_WRITING_ARGS)]
+        [AutoComplete(Lang.ENABLE_ARGS)]
         private static void CCPreventProfileWriting(ConCommandArgs args)
         {
             if (args.Count > 0)

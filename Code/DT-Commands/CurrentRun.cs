@@ -136,9 +136,19 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "no_enemies", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.NOENEMIES_HELP)]
+        [AutoComplete(Lang.ENABLE_ARGS)]
         private static void CCNoEnemies(ConCommandArgs args)
         {
-            noEnemies = !noEnemies;
+            bool enabled = !noEnemies;
+            if (args.Count > 0)
+            {
+                if (!Util.TryParseBool(args[0], out enabled))
+                {
+                    Log.MessageNetworked(string.Format(Lang.PARSE_ERROR, "enable", "bool"), args, LogLevel.MessageClientOnly);
+                    return;
+                }
+            }
+            noEnemies = enabled;
             CombatDirector.cvDirectorCombatDisable.SetBool(noEnemies);
             if (noEnemies)
             {
@@ -152,9 +162,19 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "lock_exp", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.LOCKEXP_HELP)]
+        [AutoComplete(Lang.ENABLE_ARGS)]
         private static void CCLockExperience(ConCommandArgs args)
         {
-            lockExp = !lockExp;
+            bool enabled = !lockExp;
+            if (args.Count > 0)
+            {
+                if (!Util.TryParseBool(args[0], out enabled))
+                {
+                    Log.MessageNetworked(string.Format(Lang.PARSE_ERROR, "enable", "bool"), args, LogLevel.MessageClientOnly);
+                    return;
+                }
+            }
+            lockExp = enabled;
             if (lockExp)
             {
                 On.RoR2.ExperienceManager.AwardExperience += Hooks.DenyExperience;
@@ -222,6 +242,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "stop_timer", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.STOPTIMER_HELP)]
+        [AutoComplete(Lang.ENABLE_ARGS)]
         private static void CCPauseTimer(ConCommandArgs args)
         {
             if (!Run.instance)
@@ -233,15 +254,23 @@ namespace DebugToolkit.Commands
             var currentSceneDef = SceneCatalog.mostRecentSceneDef;
             var canPauseTimer = currentSceneDef.sceneType == SceneType.Stage || currentSceneDef.sceneType == SceneType.TimedIntermission;
 
-            if (canPauseTimer)
-            {
-                Run.instance.SetForcePauseRunStopwatch(!Run.instance.isRunStopwatchPaused);
-                Log.MessageNetworked(String.Format(Run.instance.isRunStopwatchPaused ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, "Paused timer"), args, LogLevel.MessageClientOnly);
-            }
-            else
+            if (!canPauseTimer)
             {
                 Log.MessageNetworked("The run timer can't be changed for this stage.", args, LogLevel.MessageClientOnly);
+                return;
             }
+
+            bool enabled = !Run.instance.isRunStopwatchPaused;
+            if (args.Count > 0)
+            {
+                if (!Util.TryParseBool(args[0], out enabled))
+                {
+                    Log.MessageNetworked(string.Format(Lang.PARSE_ERROR, "enable", "bool"), args, LogLevel.MessageClientOnly);
+                    return;
+                }
+            }
+            Run.instance.SetForcePauseRunStopwatch(enabled);
+            Log.MessageNetworked(String.Format(Run.instance.isRunStopwatchPaused ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, "Paused timer"), args, LogLevel.MessageClientOnly);
         }
 
         [ConCommand(commandName = "force_family_event", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.FAMILYEVENT_HELP)]

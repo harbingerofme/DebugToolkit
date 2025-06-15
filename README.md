@@ -54,7 +54,7 @@ Commands:
 * **force_family_event** - Forces a Family Event to happen in the next stage, takes no arguments. `force_family_event`
 * **next_boss** - Sets the next teleporter/simulacrum boss to the specified boss. Get a list of potential boss with `list_directorcards`. `next_boss {director_card} [count:1] [elite:None]`
 * **fixed_time** - Sets the time that has progressed in the run. Affects difficulty. `fixed_time [time]`. If no time is supplied, prints the current time to console.
-* **stop_timer** - Pause/unpause the run timer. `pause_timer`. Only works for "Stage" and "TimedIntermission" stages.
+* **stop_timer** - Pause/unpause the run timer. `pause_timer [enable (0|1)]`. If no argument is supplied, toggles the current state. Only works for "Stage" and "TimedIntermission" stages.
 * **next_wave** - Advance to the next Simulacrum wave. `next_wave`
 * **force_wave** - Set the next wave prefab. `force_wave [wave_prefab]`. If no input is supplied, prints all available options and clears any previous selection.
 * **run_set_waves_cleared** - Set the Simulacrum waves cleared. Must be positive. `set_run_waves_cleared {wave}`
@@ -138,14 +138,14 @@ Spawn Commands:
 
 Profile Commands:
 
-* **prevent_profile_writing** - Prevent saving the user profile to avoid bogus data. Enable before doing something and keep it until the end of the session. `prevent_profile_writing [flag (0|1)]`. If no argument is supplied, prints the current state. Disabled by default.
+* **prevent_profile_writing** - Prevent saving the user profile to avoid bogus data. Enable before doing something and keep it until the end of the session. `prevent_profile_writing [enable (0|1)]`. If no argument is supplied, prints the current state. Disabled by default.
 
 Cheat Commands:
 
-* **no_enemies** - Toggles enemy spawns.
-* **god** - Toggles HealthComponent.TakeDamage for all players. AKA: you can't take damage.
-* **buddha** / **budha** / **buda** / **budda** - Turns damage taken `NonLethal` for all players. AKA: you can't die.
-* **lock_exp** - Prevents EXP gain for the player team.
+* **no_enemies** - Prevents enemy spawns. `no_enemies [enable (0|1)]`. If no argument is supplied, toggles the current state.
+* **god** - Prevents players from taking any damage. `god [enable (0|1)]`. If no argument is supplied, toggles the current state.
+* **buddha** / **budha** / **buda** / **budda** - Turns damage taken `NonLethal` for all players. AKA: you can't die. `buddha [enable (0|1)]`. If no argument is supplied, toggles the current state.
+* **lock_exp** - Prevents EXP gain for the player team. `lock_exp [enable (0|1)]`. If no argument is supplied, toggles the current state.
 * **noclip** - Toggles noclip. Allow you to fly and going through objects. Sprinting will double the speed.
 
 Bind Commands:

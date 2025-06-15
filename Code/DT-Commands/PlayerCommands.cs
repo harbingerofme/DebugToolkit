@@ -10,9 +10,22 @@ namespace DebugToolkit.Commands
     class PlayerCommands
     {
         [ConCommand(commandName = "god", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.GOD_HELP)]
+        [AutoComplete(Lang.ENABLE_ARGS)]
         private static void CCGodModeToggle(ConCommandArgs args)
         {
-            var modeOn = Hooks.ToggleGod();
+            bool modeOn;
+            if (args.Count > 0)
+            {
+                if (!Util.TryParseBool(args[0], out modeOn))
+                {
+                    Log.MessageNetworked(string.Format(Lang.PARSE_ERROR, "enable", "bool"), args, LogLevel.MessageClientOnly);
+                    return;
+                }
+            }
+            else
+            {
+                modeOn = Hooks.ToggleGod();
+            }
             foreach (var playerInstance in PlayerCharacterMasterController.instances)
             {
                 playerInstance.master.godMode = modeOn;
@@ -25,9 +38,22 @@ namespace DebugToolkit.Commands
         [ConCommand(commandName = "budha", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.BUDDHA_HELP)]
         [ConCommand(commandName = "buda", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.BUDDHA_HELP)]
         [ConCommand(commandName = "budda", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.BUDDHA_HELP)]
+        [AutoComplete(Lang.ENABLE_ARGS)]
         private static void CCBuddhaModeToggle(ConCommandArgs args)
         {
-            bool modeOn = Hooks.ToggleBuddha();
+            bool modeOn;
+            if (args.Count > 0)
+            {
+                if (!Util.TryParseBool(args[0], out modeOn))
+                {
+                    Log.MessageNetworked(string.Format(Lang.PARSE_ERROR, "enable", "bool"), args, LogLevel.MessageClientOnly);
+                    return;
+                }
+            }
+            else
+            {
+                modeOn = Hooks.ToggleBuddha();
+            }
             Log.MessageNetworked(String.Format(modeOn ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, "Buddha mode"), args);
         }
 
