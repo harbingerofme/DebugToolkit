@@ -1,6 +1,21 @@
 
 ## Changelog ##
 
+### 3.20 ###
+
+* **3.20.0**
+    * Console changes:
+        * **THE CONSOLE IS ENABLED BY DEFAULT.** There is no need to do `Ctrl+Alt+~` after launch anymore.
+        * We have added `Page Up` as an additional key to toggle the console window if you can't figure out which key does it for your language. Configurable and can be turned off.
+    * Added `delay`: Execute a set of commands after a period of time.
+    * Added `stop_timer`: Pause/unpause the run timer. Only works for "Stage" and "TimedIntermission" stages and can be used to lock the difficulty. This only pauses the stopwatch and not the game physics, for the latter use `time_scale 0`.
+    * Added optional explicit "enable" argument for toggle commands. Useful for macros that require deterministic results, e.g., `god 1; no_enemies 1`. Affects the following commands:
+        * `god`
+        * `buddha`
+        * `noclip`
+        * `no_enemies`
+        * `lock_exp`
+
 ### 3.19 ###
 
 * **3.19.3**
