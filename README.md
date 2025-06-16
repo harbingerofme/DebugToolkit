@@ -146,7 +146,7 @@ Cheat Commands:
 * **god** - Prevents players from taking any damage. `god [enable (0|1)]`. If no argument is supplied, toggles the current state.
 * **buddha** / **budha** / **buda** / **budda** - Turns damage taken `NonLethal` for all players. AKA: you can't die. `buddha [enable (0|1)]`. If no argument is supplied, toggles the current state.
 * **lock_exp** - Prevents EXP gain for the player team. `lock_exp [enable (0|1)]`. If no argument is supplied, toggles the current state.
-* **noclip** - Toggles noclip. Allow you to fly and going through objects. Sprinting will double the speed.
+* **noclip** - Toggles noclip. Allow you to fly and going through objects. Sprinting will double the speed. `noclip [enable (0|1)]`. If no argument is supplied, toggles the current state.
 
 Bind Commands:
 

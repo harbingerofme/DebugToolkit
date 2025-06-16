@@ -22,53 +22,56 @@ namespace DebugToolkit.Commands
             NetworkManager.DebugToolKitComponents.AddComponent<NoclipNet>();
         }
 
-        internal static void InternalToggle(bool shouldLog)
+        internal static void InternalToggle(bool enabled, bool shouldLog)
         {
-            if (PlayerCommands.UpdateCurrentPlayerBody(out _currentNetworkUser, out _currentBody))
+            if (enabled != IsActivated)
             {
-                var kcm = _currentBody.GetComponent<KinematicCharacterMotor>();
-                var rigid = _currentBody.GetComponent<Rigidbody>();
-                var motor = _currentBody.characterMotor;
-                if (IsActivated)
+                if (PlayerCommands.UpdateCurrentPlayerBody(out _currentNetworkUser, out _currentBody))
                 {
-                    if (kcm)
+                    var kcm = _currentBody.GetComponent<KinematicCharacterMotor>();
+                    var rigid = _currentBody.GetComponent<Rigidbody>();
+                    var motor = _currentBody.characterMotor;
+                    if (IsActivated)
                     {
-                        kcm.RebuildCollidableLayers();
-                    }
-                    else if (rigid)
-                    {
-                        var collider = rigid.GetComponent<Collider>();
-                        if (collider)
+                        if (kcm)
                         {
-                            collider.isTrigger = false;
+                            kcm.RebuildCollidableLayers();
+                        }
+                        else if (rigid)
+                        {
+                            var collider = rigid.GetComponent<Collider>();
+                            if (collider)
+                            {
+                                collider.isTrigger = false;
+                            }
+                        }
+                        if (motor)
+                        {
+                            motor.useGravity = motor.gravityParameters.CheckShouldUseGravity();
                         }
                     }
-                    if (motor)
+                    else
                     {
-                        motor.useGravity = motor.gravityParameters.CheckShouldUseGravity();
-                    }
-                }
-                else
-                {
-                    if (kcm)
-                    {
-                        kcm.CollidableLayers = 0;
-                    }
-                    else if (rigid)
-                    {
-                        var collider = rigid.GetComponent<Collider>();
-                        if (collider)
+                        if (kcm)
                         {
-                            collider.isTrigger = true;
+                            kcm.CollidableLayers = 0;
+                        }
+                        else if (rigid)
+                        {
+                            var collider = rigid.GetComponent<Collider>();
+                            if (collider)
+                            {
+                                collider.isTrigger = true;
+                            }
+                        }
+                        if (motor)
+                        {
+                            motor.useGravity = false;
                         }
                     }
-                    if (motor)
-                    {
-                        motor.useGravity = false;
-                    }
                 }
+                IsActivated = !IsActivated;
             }
-            IsActivated = !IsActivated;
             if (shouldLog)
             {
                 Log.Message(String.Format(IsActivated ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, "noclip"));
@@ -89,8 +92,8 @@ namespace DebugToolkit.Commands
             {
                 if (kcm.CollidableLayers != 0)
                 {
-                    InternalToggle(false);
-                    InternalToggle(false);
+                    InternalToggle(false, shouldLog: false);
+                    InternalToggle(true, shouldLog: false);
                 }
             }
             else if (rigid)
@@ -98,8 +101,8 @@ namespace DebugToolkit.Commands
                 var collider = rigid.GetComponent<Collider>();
                 if (collider && !collider.isTrigger)
                 {
-                    InternalToggle(false);
-                    InternalToggle(false);
+                    InternalToggle(false, shouldLog: false);
+                    InternalToggle(true, shouldLog: false);
                 }
             }
 
@@ -141,7 +144,7 @@ namespace DebugToolkit.Commands
         {
             if (IsActivated)
             {
-                InternalToggle(true);
+                InternalToggle(false, shouldLog: true);
             }
             orig(self);
         }
@@ -157,7 +160,7 @@ namespace DebugToolkit.Commands
         {
             if (IsActivated)
             {
-                InternalToggle(true);
+                InternalToggle(false, shouldLog: true);
             }
         }
     }
@@ -175,15 +178,15 @@ namespace DebugToolkit.Commands
             _instance = this;
         }
 
-        internal static void Invoke(NetworkUser argsSender)
+        internal static void Invoke(NetworkUser argsSender, bool enabled)
         {
-            _instance.TargetToggle(argsSender.connectionToClient);
+            _instance.TargetToggle(argsSender.connectionToClient, enabled);
         }
 
         [TargetRpc]
-        private void TargetToggle(NetworkConnection _)
+        private void TargetToggle(NetworkConnection _, bool enabled)
         {
-            Command_Noclip.InternalToggle(true);
+            Command_Noclip.InternalToggle(enabled, shouldLog: true);
         }
     }
 }

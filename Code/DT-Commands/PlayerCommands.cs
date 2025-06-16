@@ -58,6 +58,7 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "noclip", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.NOCLIP_HELP)]
+        [AutoComplete(Lang.ENABLE_ARGS)]
         private static void CCNoclip(ConCommandArgs args)
         {
             if (args.sender == null)
@@ -70,7 +71,16 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
                 return;
             }
-            NoclipNet.Invoke(args.sender); // callback
+            bool enabled = !Command_Noclip.IsActivated;
+            if (args.Count > 0)
+            {
+                if (!Util.TryParseBool(args[0], out enabled))
+                {
+                    Log.MessageNetworked(string.Format(Lang.PARSE_ERROR, "enable", "bool"), args, LogLevel.MessageClientOnly);
+                    return;
+                }
+            }
+            NoclipNet.Invoke(args.sender, enabled); // callback
         }
 
         [ConCommand(commandName = "teleport_on_cursor", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.CURSORTELEPORT_HELP)]

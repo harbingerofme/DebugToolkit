@@ -118,7 +118,7 @@
             NEXTBOSS_HELP = "Sets the next teleporter/simulacrum boss to the specified boss. " + NEXTBOSS_ARGS,
             NEXTSTAGE_HELP = "Forces a stage change to the specified stage. " + NEXTSTAGE_ARGS,
             NEXTWAVE_HELP = "Advance to the next Simulacrum wave. " + NO_ARGS,
-            NOCLIP_HELP = "Allow flying and going through objects. Sprinting will double the speed. " + NO_ARGS,
+            NOCLIP_HELP = "Allow flying and going through objects. Sprinting will double the speed. " + ENABLE_ARGS,
             NOENEMIES_HELP = "Prevent Monster spawning. " + ENABLE_ARGS,
             PERM_ENABLE_HELP = "Enable or disable the permission system." + ENABLE_ARGS,
             PERM_MOD_HELP = "Change the permission level of the specified playerid/username" + PERM_MOD_ARGS,
