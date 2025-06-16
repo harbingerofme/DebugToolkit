@@ -284,7 +284,7 @@ namespace DebugToolkit.Commands
 
         private static void AppendSkinIndices(StringBuilder stringBuilder, CharacterBody body)
         {
-            var skins = BodyCatalog.GetBodySkins(body.bodyIndex);
+            var skins = SkinCatalog.GetBodySkinDefs(body.bodyIndex);
             if (skins.Length > 0)
             {
                 var langInvar = StringFinder.GetLangInvar(body.baseNameToken);

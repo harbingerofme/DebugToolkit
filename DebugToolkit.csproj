@@ -88,14 +88,14 @@
 
 	<ItemGroup>
 		<PackageReference Include="BepInEx.Core" Version="5.4.21" GeneratePathProperty="true" />
-		<PackageReference Include="MMHOOK.RoR2" Version="2025.5.5" NoWarn="NU1701" />
-		<PackageReference Include="RiskOfRain2.GameLibs" Version="1.3.8-r.0" GeneratePathProperty="true" />
+		<PackageReference Include="MMHOOK.RoR2" Version="2025.6.3" NoWarn="NU1701" />
+		<PackageReference Include="RiskOfRain2.GameLibs" Version="1.3.9-r.0" GeneratePathProperty="true" />
 		<PackageReference Include="UnityEngine.Modules" Version="2021.3.33" GeneratePathProperty="true" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="R2API.Core" Version="5.1.5" />
-		<PackageReference Include="R2API.ContentManagement" Version="1.0.9" />
+		<PackageReference Include="R2API.ContentManagement" Version="1.0.10" />
 		<PackageReference Include="R2API.Networking" Version="1.0.3" />
 		<PackageReference Include="R2API.Prefab" Version="1.0.4" />
 
