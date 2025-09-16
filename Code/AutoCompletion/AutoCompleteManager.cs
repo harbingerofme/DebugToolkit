@@ -104,12 +104,15 @@ namespace DebugToolkit
                 Log.Message("Input type is not enum: " + enumType.Name, Log.LogLevel.Warning, Log.Target.Bepinex);
                 yield break;
             }
-            foreach (var field in enumType.GetFields())
+
+            string[] enumNames = Enum.GetNames(enumType);
+            Array enumValues = Enum.GetValues(enumType);
+
+            for (int i = 0; i < enumValues.Length; i++)
             {
-                var name = field.Name;
-                if (name != "value__" && name != "Count")
+                if (enumNames[i] != "Count")
                 {
-                    yield return $"{Convert.ChangeType(Enum.Parse(enumType, name), castTo)}|{name}";
+                    yield return $"{Convert.ChangeType(enumValues.GetValue(i), castTo)}|{enumNames[i]}";
                 }
             }
         }
