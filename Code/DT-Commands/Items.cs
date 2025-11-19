@@ -124,7 +124,7 @@ namespace DebugToolkit.Commands
                 return;
             }
             bool isDedicatedServer = args.sender == null;
-            if (args.Count == 0 || (isDedicatedServer && (args.Count < 3 || args[2] == Lang.DEFAULT_VALUE)))
+            if (args.Count == 0 || (isDedicatedServer && (args.Count < 4 || args[3] == Lang.DEFAULT_VALUE)))
             {
                 Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.GIVEITEM_ARGS, args, LogLevel.MessageClientOnly);
                 return;
@@ -137,7 +137,14 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            var target = ParseTarget(args, 2);
+            var type = ParseItemType(args, 2);
+            if (type == ItemType.None)
+            {
+                Log.MessageNetworked(String.Format(Lang.INVALID_ARG_VALUE, "type"), args, LogLevel.MessageClientOnly);
+                return;
+            }
+
+            var target = ParseTarget(args, 3);
             if (target.failMessage != null)
             {
                 Log.MessageNetworked(target.failMessage, args, LogLevel.MessageClientOnly);
@@ -161,13 +168,13 @@ namespace DebugToolkit.Commands
                     Log.MessageNetworked(string.Format(Lang.EXPANSION_LOCKED, "item", Util.GetExpansion(itemDef.requiredExpansion)), args, LogLevel.MessageClientOnly);
                     return;
                 }
-                inventory.GiveItemPermanent(item, amount);
+                GiveItem(inventory, item, amount, type);
                 Log.MessageNetworked(string.Format(Lang.GIVEOBJECT, amount, name, target.name), args);
             }
             else if (amount < 0)
             {
-                amount = Math.Min(-amount, inventory.GetItemCountPermanent(item));
-                inventory.RemoveItemPermanent(item, amount);
+                amount = Math.Min(-amount, GetItemCount(inventory, item, type));
+                RemoveItem(inventory, item, amount, type);
                 Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT, amount, name, target.name), args);
             }
             else
@@ -190,7 +197,7 @@ namespace DebugToolkit.Commands
                 return;
             }
             bool isDedicatedServer = args.sender == null;
-            if (args.Count == 0 || (isDedicatedServer && (args.Count < 3 || args[2] == Lang.DEFAULT_VALUE)))
+            if (args.Count == 0 || (isDedicatedServer && (args.Count < 4 || args[3] == Lang.DEFAULT_VALUE)))
             {
                 Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.RANDOMITEM_ARGS, args, LogLevel.MessageClientOnly);
                 return;
@@ -208,7 +215,14 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            var target = ParseTarget(args, 2);
+            var type = ParseItemType(args, 2);
+            if (type == ItemType.None)
+            {
+                Log.MessageNetworked(String.Format(Lang.INVALID_ARG_VALUE, "type"), args, LogLevel.MessageClientOnly);
+                return;
+            }
+
+            var target = ParseTarget(args, 3);
             if (target.failMessage != null)
             {
                 Log.MessageNetworked(target.failMessage, args, LogLevel.MessageClientOnly);
@@ -226,7 +240,8 @@ namespace DebugToolkit.Commands
                 {
                     var uniquePickup = weightedSelection.Evaluate(UnityEngine.Random.value);
                     var pickupDef = PickupCatalog.GetPickupDef(uniquePickup.pickupIndex);
-                    target.inventory.GiveItemPermanent((pickupDef != null) ? pickupDef.itemIndex : ItemIndex.None, 1);
+                    var item = pickupDef?.itemIndex ?? ItemIndex.None;
+                    GiveItem(target.inventory, item, 1, type);
                 }
                 if (target.devotionController)
                 {
@@ -299,15 +314,15 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
                 return;
             }
-            if (args.Count == 0 || (args.Count < 3 && args.sender == null))
+            if (args.Count == 0 || (args.Count < 4 && args.sender == null))
             {
                 Log.Message(Lang.INSUFFICIENT_ARGS + Lang.CREATEPICKUP_ARGS, LogLevel.MessageClientOnly);
                 return;
             }
             NetworkUser player = args.sender;
-            if (args.Count > 2)
+            if (args.Count > 3)
             {
-                player = Util.GetNetUserFromString(args.userArgs, 2);
+                player = Util.GetNetUserFromString(args.userArgs, 3);
                 if (player == null)
                 {
                     Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
@@ -322,10 +337,17 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            bool searchEquip = true, searchItem = true;
-            if (args.Count > 1 && args[1] != Lang.DEFAULT_VALUE)
+            var type = ParseItemType(args, 1);
+            if (type == ItemType.None)
             {
-                switch (args[1].ToUpperInvariant())
+                Log.MessageNetworked(String.Format(Lang.INVALID_ARG_VALUE, "type"), args, LogLevel.MessageClientOnly);
+                return;
+            }
+
+            bool searchEquip = true, searchItem = true;
+            if (args.Count > 2 && args[2] != Lang.DEFAULT_VALUE)
+            {
+                switch (args[2].ToUpperInvariant())
                 {
                     case Lang.BOTH:
                         break;
@@ -385,7 +407,11 @@ namespace DebugToolkit.Commands
             Log.MessageNetworked(string.Format(Lang.CREATEPICKUP_SUCCESS_1, final), args);
             PickupDropletController.CreatePickupDroplet(new GenericPickupController.CreatePickupInfo
             {
-                pickup = new UniquePickup(final)
+                pickup = new UniquePickup
+                {
+                    pickupIndex = final,
+                    decayValue = type == ItemType.Temp ? 1f : 0f,
+                },
             }, body.transform.position, body.inputBank.aimDirection * 30f);
         }
 
@@ -490,18 +516,19 @@ namespace DebugToolkit.Commands
             }
             var itemDef = ItemCatalog.GetItemDef(item);
             var name = itemDef.name;
-            int iCount = inventory.GetItemCountPermanent(item);
+            int count = inventory.GetItemCountPermanent(item) + inventory.GetItemCountTemp(item);
             if (Run.instance.IsItemExpansionLocked(item))
             {
                 Log.MessageNetworked(string.Format(Lang.EXPANSION_LOCKED, "item", Util.GetExpansion(itemDef.requiredExpansion)), args, LogLevel.MessageClientOnly);
                 return;
             }
-            inventory.RemoveItemPermanent(item, iCount);
+            inventory.RemoveItemPermanent(item, count);
+            inventory.RemoveItemTemp(item, count);
             if (target.devotionController)
             {
                 target.devotionController.UpdateAllMinions(false);
             }
-            Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT, iCount, name, target.name), args);
+            Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT, count, name, target.name), args);
         }
 
         [ConCommand(commandName = "remove_all_items", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.REMOVEALLITEMS_HELP)]
@@ -527,7 +554,19 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            target.inventory.CleanInventory();
+            using (new Inventory.InventoryChangeScope(target.inventory))
+            {
+                // CleanInventory does not reset temp items, so we have to do it ourselves
+                target.inventory.CleanInventory();
+                using (HG.CollectionPool<ItemIndex, List<ItemIndex>>.RentCollection(out var itemList))
+                {
+                    target.inventory.tempItemsStorage.GetNonZeroIndices(itemList);
+                    foreach (var itemIndex in itemList)
+                    {
+                        target.inventory.ResetItemTemp(itemIndex);
+                    }
+                }
+            }
             if (target.devotionController)
             {
                 target.devotionController.UpdateAllMinions(false);
@@ -602,6 +641,68 @@ namespace DebugToolkit.Commands
             inventory.RestockEquipmentCharges(currentSlot, currentSet, iCount);
             var chargesAfter = inventory.GetEquipment(currentSlot, currentSet).charges;
             Log.MessageNetworked($"Restocked {chargesAfter - chargesBefore} for the current equipment of {target.name}", args);
+        }
+
+        internal enum ItemType
+        {
+            None,
+            Permanent,
+            Temp,
+        }
+
+        private static int GetItemCount(Inventory inventory, ItemIndex itemIndex, ItemType type)
+        {
+            switch (type)
+            {
+                case ItemType.Permanent:
+                    return inventory.GetItemCountPermanent(itemIndex);
+                case ItemType.Temp:
+                    return inventory.GetItemCountTemp(itemIndex);
+                default:
+                    Log.Message(Lang.NOMESSAGE, LogLevel.Warning);
+                    return 0;
+            }
+        }
+
+        private static void GiveItem(Inventory inventory, ItemIndex itemIndex, int count, ItemType type)
+        {
+            switch (type)
+            {
+                case ItemType.Permanent:
+                    inventory.GiveItemPermanent(itemIndex, count);
+                    break;
+                case ItemType.Temp:
+                    inventory.GiveItemTemp(itemIndex, count);
+                    break;
+                default:
+                    Log.Message(Lang.NOMESSAGE, LogLevel.Warning);
+                    break;
+            }
+        }
+
+        private static void RemoveItem(Inventory inventory, ItemIndex itemIndex, int count, ItemType type)
+        {
+            switch (type)
+            {
+                case ItemType.Permanent:
+                    inventory.RemoveItemPermanent(itemIndex, count);
+                    break;
+                case ItemType.Temp:
+                    inventory.RemoveItemTemp(itemIndex, count);
+                    break;
+                default:
+                    Log.Message(Lang.NOMESSAGE, LogLevel.Warning);
+                    break;
+            }
+        }
+
+        private static ItemType ParseItemType(ConCommandArgs args, int index)
+        {
+            if (args.Count > index && args[index] != Lang.DEFAULT_VALUE)
+            {
+                return Enum.TryParse(args[index], true, out ItemType itemType) ? itemType : ItemType.None;
+            }
+            return ItemType.Permanent;
         }
 
         private static CommandTarget ParseTarget(ConCommandArgs args, int index)
