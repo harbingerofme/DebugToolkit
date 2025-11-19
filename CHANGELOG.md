@@ -1,6 +1,20 @@
 
 ## Changelog ##
 
+### 3.21 ###
+
+* **3.21.0**
+    * Updated for the Alloyed Collective.
+    * Added temp item support for item-related commands. A new `type` parameter is added to some commands before the `target` parameter, e.g., `give_item item count type target`. While this may interfere with pre-existing scripts that assume `target` is the third parameter, we expect `type` to be more frequently used which justifies this breaking change. Apologies for any inconvenience caused. The affected commands are:
+        * `give_item`
+        * `remove_item`
+        * `random_items`
+        * `create_pickup`
+    * Modified `remove_item_stacks` and `remove_all_stacks`: They now remove both permanent and temporary stacks.
+    * Modified the autocompletion to use the internal name of the selected option instead of its index. The index used to have some edge cases, e.g. in `create_pickup` it would be impossible to differentiate between item and equipment indices. This fix introduced a change in the Autocompletion API, but no mods are currently making use of it, so we're good.
+    * Fixed the `team` and `dot` autocompletion to not rely on hardcoded enum values. They are now robust to future game updates and also allow compatibility with TeamsAPI. This feature was contributed by [Goorakh](https://github.com/Goorakh), thanks!
+    * Fixed `noclip`: The command used to not work for the client if they simply toggled the value without an explicit on/off state.
+
 ### 3.20 ###
 
 * **3.20.0**
