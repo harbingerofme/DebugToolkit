@@ -235,7 +235,7 @@ namespace DebugToolkit
             var matches = new List<MatchSimilarity>();
             foreach (var dot in Enum.GetValues(typeof(DotController.DotIndex)).Cast<DotController.DotIndex>())
             {
-                if (dot >= DotController.DotIndex.Bleed && dot < DotController.DotIndex.Count)
+                if (DotController.GetDotDef(dot) != null)
                 {
                     if (dot.ToString().ToUpper().Contains(name))
                     {
@@ -459,7 +459,7 @@ namespace DebugToolkit
             if (TextSerialization.TryParseInvariant(name, out int i))
             {
                 var index = (TeamIndex)i;
-                if (index >= TeamIndex.None && index < TeamIndex.Count)
+                if (index == TeamIndex.None || TeamCatalog.GetTeamDef(index) != null)
                 {
                     yield return index;
                 }
@@ -469,7 +469,7 @@ namespace DebugToolkit
             var matches = new List<MatchSimilarity>();
             foreach (var team in Enum.GetValues(typeof(TeamIndex)).Cast<TeamIndex>().OrderBy(t => t))
             {
-                if (team >= TeamIndex.None && team < TeamIndex.Count)
+                if (team == TeamIndex.None || TeamCatalog.GetTeamDef(team) != null)
                 {
                     if (team.ToString().ToUpper().Contains(name))
                     {
