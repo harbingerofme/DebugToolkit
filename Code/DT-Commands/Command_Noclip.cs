@@ -180,13 +180,24 @@ namespace DebugToolkit.Commands
 
         internal static void Invoke(NetworkUser argsSender, bool enabled)
         {
-            _instance.TargetToggle(argsSender.connectionToClient, enabled);
+            _instance.TargetNoclipSet(argsSender.connectionToClient, enabled);
         }
 
         [TargetRpc]
-        private void TargetToggle(NetworkConnection _, bool enabled)
+        private void TargetNoclipSet(NetworkConnection _, bool enabled)
         {
             Command_Noclip.InternalToggle(enabled, shouldLog: true);
+        }
+
+        internal static void Invoke(NetworkUser argsSender)
+        {
+            _instance.TargetNoclipToggle(argsSender.connectionToClient);
+        }
+
+        [TargetRpc]
+        private void TargetNoclipToggle(NetworkConnection _)
+        {
+            Command_Noclip.InternalToggle(!Command_Noclip.IsActivated, shouldLog: true);
         }
     }
 }

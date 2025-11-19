@@ -71,14 +71,17 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
                 return;
             }
-            bool enabled = !Command_Noclip.IsActivated;
-            if (args.Count > 0)
+
+            if (args.Count == 0)
             {
-                if (!Util.TryParseBool(args[0], out enabled))
-                {
-                    Log.MessageNetworked(string.Format(Lang.PARSE_ERROR, "enable", "bool"), args, LogLevel.MessageClientOnly);
-                    return;
-                }
+                NoclipNet.Invoke(args.sender);
+                return;
+            }
+
+            if (!Util.TryParseBool(args[0], out var enabled))
+            {
+                Log.MessageNetworked(string.Format(Lang.PARSE_ERROR, "enable", "bool"), args, LogLevel.MessageClientOnly);
+                return;
             }
             NoclipNet.Invoke(args.sender, enabled); // callback
         }
