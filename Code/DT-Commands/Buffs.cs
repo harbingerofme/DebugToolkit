@@ -387,6 +387,7 @@ namespace DebugToolkit.Commands
             }
             float duration = 5f; // Fallback default
             float damageMultiplier = 1f;
+            uint? maxStacksFromAttacker = null;
             switch (dot)
             {
                 case DotController.DotIndex.Bleed:
@@ -424,6 +425,10 @@ namespace DebugToolkit.Commands
                 case DotController.DotIndex.LunarRuin:
                     duration = 5f;
                     break;
+                case DotController.DotIndex.Electrocution:
+                    duration = 4.7f;
+                    maxStacksFromAttacker = 1U;
+                    break;
                 default:
                     Log.MessageNetworked($"No explicit duration set for this DoT, defaulting to {duration}. " + Lang.NOMESSAGE, args, LogLevel.MessageClientOnly);
                     break;
@@ -435,6 +440,7 @@ namespace DebugToolkit.Commands
                 dotIndex = dot,
                 duration = duration,
                 damageMultiplier = damageMultiplier,
+                maxStacksFromAttacker = maxStacksFromAttacker,
             };
             for (int i = 0; i < iCount; i++)
             {
