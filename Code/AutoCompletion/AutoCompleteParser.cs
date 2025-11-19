@@ -12,7 +12,7 @@ namespace DebugToolkit
     /// </summary>
     public sealed class AutoCompleteParser
     {
-        private readonly Dictionary<string, string[]> staticVariables = new Dictionary<string, string[]>();
+        private readonly Dictionary<string, StaticCatalog> staticVariables = new Dictionary<string, StaticCatalog>();
         private readonly Dictionary<string, DynamicCatalog> dynamicVariables = new Dictionary<string, DynamicCatalog>();
 
         public AutoCompleteParser() { }
@@ -32,9 +32,10 @@ namespace DebugToolkit
         /// </summary>
         /// <param name="name">Name of the variable</param>
         /// <param name="values">Fixed-size iterable of the values</param>
-        public void RegisterStaticVariable(string name, IEnumerable<string> values)
+        /// <param name="autocompleteIndex">Which option is chosen for autocompletion when there are multiples. Defaults to the first one (optional)</param>
+        public void RegisterStaticVariable(string name, IEnumerable<string> values, int autocompleteIndex = 0)
         {
-            staticVariables[name] = values.ToArray();
+            staticVariables[name] = new StaticCatalog(values, autocompleteIndex);
         }
 
         /// <summary>
@@ -45,14 +46,15 @@ namespace DebugToolkit
         /// <param name="nestedField">Concatenated strings with "/" that represent the field to select (optional)</param>
         /// <param name="isToken">Whether the selected field is a language token (optional)</param>
         /// <param name="showIndex">Whether the final string will include its positional index in the collection (optional)</param>
-        public void RegisterDynamicVariable(string name, IEnumerable<object> catalog, string nestedField = "", bool isToken = false, bool showIndex = true)
+        /// <param name="autocompleteIndex">Which option is chosen for autocompletion when there are multiples. Defaults to the first one (optional)</param>
+        public void RegisterDynamicVariable(string name, IEnumerable<object> catalog, string nestedField = "", bool isToken = false, bool showIndex = true, int autocompleteIndex = 0)
         {
-            dynamicVariables[name] = new DynamicCatalog(catalog, nestedField, isToken, showIndex);
+            dynamicVariables[name] = new DynamicCatalog(catalog, nestedField, isToken, showIndex, autocompleteIndex);
         }
 
-        internal bool TryGetStaticVariable(string name, out string[] strings)
+        internal bool TryGetStaticVariable(string name, out StaticCatalog catalog)
         {
-            return staticVariables.TryGetValue(name, out strings);
+            return staticVariables.TryGetValue(name, out catalog);
         }
 
         internal bool TryGetDynamicVariable(string name, out DynamicCatalog catalog)
@@ -121,22 +123,46 @@ namespace DebugToolkit
             }
         }
 
+        internal class AutoCompleteOption
+        {
+            internal string name;
+            internal int index;
+
+            internal AutoCompleteOption(string name, int index = 0)
+            {
+                this.name = name;
+                this.index = index;
+            }
+        }
+
+        internal class StaticCatalog
+        {
+            internal readonly AutoCompleteOption[] options;
+
+            internal StaticCatalog(IEnumerable<string> catalog, int autocompleteIndex = 0)
+            {
+                options = catalog.Select(s => new AutoCompleteOption(s, autocompleteIndex)).ToArray();
+            }
+        }
+
         internal class DynamicCatalog
         {
             private readonly IEnumerable<object> catalog;
             private readonly string nestedField;
             private readonly bool isToken;
             private readonly bool showIndex;
+            private readonly int autocompleteIndex;
 
-            internal DynamicCatalog(IEnumerable<object> catalog, string nestedField, bool isToken, bool showIndex)
+            internal DynamicCatalog(IEnumerable<object> catalog, string nestedField, bool isToken, bool showIndex, int autocompleteIndex)
             {
                 this.catalog = catalog;
                 this.nestedField = nestedField;
                 this.isToken = isToken;
                 this.showIndex = showIndex;
+                this.autocompleteIndex = autocompleteIndex;
             }
 
-            internal IEnumerable<string> Rebuild()
+            internal IEnumerable<AutoCompleteOption> Rebuild()
             {
                 var block = !string.IsNullOrEmpty(nestedField) ? nestedField.Split('/') : new string[0];
                 var index = 0;
@@ -163,7 +189,8 @@ namespace DebugToolkit
                     }
 
                     itemString = isToken ? StringFinder.GetLangInvar(itemString) : StringFinder.RemoveSpacesAndAlike(itemString);
-                    yield return showIndex ? $"{index}|{itemString}" : itemString;
+                    itemString = showIndex ? $"{index}|{itemString}" : itemString;
+                    yield return new AutoCompleteOption(itemString, autocompleteIndex);
 
                     index += 1;
                 }

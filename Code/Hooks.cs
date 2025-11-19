@@ -23,6 +23,8 @@ namespace DebugToolkit
         private const string GRAY = "<color=#808080>";
         private const string COMMAND_SIGNATURE = "<color=#ffa000>{0} {1}</color>";
 
+        private static int[] autoCompleteIndices;
+
         private static On.RoR2.Console.orig_RunCmd _origRunCmd;
         private static bool buddha;
         private static bool god;
@@ -419,7 +421,7 @@ namespace DebugToolkit
             // latest command name so we can display the relevant autofill options.
             // Incidentally, if there is no semi-colon, the index will just be 0.
             var lastCommandNameIndex = tokens.LastIndexOf(";") + 1;
-            var list = new List<Console.AutoComplete.MatchInfo>();
+            var list = new List<MatchInfo>();
             if (tokens[tokens.Count - 1] == ";" || newSearchString.EndsWith(tokens[lastCommandNameIndex]))
             {
                 AutoCompleteManager.ClearCommandOptions();
@@ -434,7 +436,7 @@ namespace DebugToolkit
                     {
                         // Commands that start with the input string are prioritised
                         // The shorter the conVar length, the better the partial matching
-                        list.Add(new Console.AutoComplete.MatchInfo
+                        list.Add(new MatchInfo
                         {
                             similarity = 1000 + commandName.Length - conVar.Length,
                             str = conVar.Substring(0, commandName.Length) + GrayOutText(conVar, commandName.Length)
@@ -442,7 +444,7 @@ namespace DebugToolkit
                     }
                     else if (i > 0)
                     {
-                        list.Add(new Console.AutoComplete.MatchInfo
+                        list.Add(new MatchInfo
                         {
                             similarity = commandName.Length - conVar.Length,
                             str = GrayOutText(conVar, 0, i) + conVar.Substring(i, commandName.Length) + GrayOutText(conVar, i + commandName.Length)
@@ -483,10 +485,11 @@ namespace DebugToolkit
                     {
                         foreach (var suggestion in suggestions)
                         {
-                            list.Add(new Console.AutoComplete.MatchInfo
+                            list.Add(new MatchInfo
                             {
                                 similarity = int.MinValue,
-                                str = GrayOutText(suggestion, 0)
+                                str = GrayOutText(suggestion.name, 0),
+                                index = suggestion.index
                             });
                         }
                     }
@@ -498,11 +501,11 @@ namespace DebugToolkit
                         }
                         foreach (var suggestion in suggestions)
                         {
-                            if (suggestion.IndexOf(tokenName, StringComparison.InvariantCultureIgnoreCase) >= 0)
+                            if (suggestion.name.IndexOf(tokenName, StringComparison.InvariantCultureIgnoreCase) >= 0)
                             {
                                 var coloredStrings = new List<string>();
                                 int similarity = int.MinValue;
-                                foreach (var option in suggestion.Split('|'))
+                                foreach (var option in suggestion.name.Split('|'))
                                 {
                                     var i = option.IndexOf(tokenName, StringComparison.InvariantCultureIgnoreCase);
                                     if (i == 0)
@@ -520,10 +523,11 @@ namespace DebugToolkit
                                         coloredStrings.Add(GrayOutText(option, 0));
                                     }
                                 }
-                                list.Add(new Console.AutoComplete.MatchInfo
+                                list.Add(new MatchInfo
                                 {
                                     similarity = similarity,
-                                    str = string.Join("|", coloredStrings)
+                                    str = string.Join("|", coloredStrings),
+                                    index = suggestion.index
                                 });
                             }
                         }
@@ -531,7 +535,9 @@ namespace DebugToolkit
                 }
 
             }
-            self.resultsList = list.OrderByDescending(m => m.similarity).Select(m => m.str).ToList();
+            list = list.OrderByDescending(m => m.similarity).ToList();
+            self.resultsList = list.Select(m => m.str).ToList();
+            autoCompleteIndices = list.Select(m => m.index).ToArray();
             return true;
 
             string GrayOutText(string text, int startIndex, int length = -1)
@@ -539,6 +545,13 @@ namespace DebugToolkit
                 text = length < 0 ? text.Substring(startIndex) : text.Substring(startIndex, length);
                 return GRAY + text + "</color>";
             }
+        }
+
+        internal struct MatchInfo
+        {
+            public int similarity;
+            public string str;
+            public int index;
         }
 
         private static void ApplyTextWithoutColorTags(ILContext il)
@@ -553,9 +566,16 @@ namespace DebugToolkit
                 return;
             }
             c.Emit(OpCodes.Ldarg_0);
-            c.EmitDelegate<Func<string, RoR2.UI.ConsoleWindow, string>>((text, consoleWindow) =>
+            c.Emit(OpCodes.Ldarg_1);
+            c.EmitDelegate<Func<string, RoR2.UI.ConsoleWindow, int, string>>((text, consoleWindow, optionIndex) =>
             {
-                text = text.Split('|')[0].Replace(GRAY, "").Replace("</color>", "");
+                var options = text.Split('|');
+                var index = autoCompleteIndices[optionIndex];
+                if (index >= options.Length)
+                {
+                    index = 0;
+                }
+                text = options[index].Replace(GRAY, "").Replace("</color>", "");
                 var inputText = consoleWindow.inputField.text;
                 var tokens = new Console.Lexer(inputText).GetTokens().ToList();
                 tokens.RemoveAt(tokens.Count - 1);

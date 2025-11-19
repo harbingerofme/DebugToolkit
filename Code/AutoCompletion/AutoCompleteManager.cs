@@ -10,7 +10,7 @@ namespace DebugToolkit
         private static readonly Dictionary<string, AutoCompleteAttribute.Result> commands = new Dictionary<string, AutoCompleteAttribute.Result>();
 
         internal static string CurrentCommand { get; private set; }
-        internal static List<string>[] CurrentParameters { get; private set; }
+        internal static List<AutoCompleteParser.AutoCompleteOption>[] CurrentParameters { get; private set; }
         internal static string CurrentSignature { get; private set; }
 
         internal static void PrepareCommandOptions(string commandName)
@@ -23,28 +23,28 @@ namespace DebugToolkit
             CurrentCommand = commandName;
             if (!commands.TryGetValue(commandName, out var data))
             {
-                CurrentParameters = new List<string>[0];
+                CurrentParameters = new List<AutoCompleteParser.AutoCompleteOption>[0];
                 CurrentSignature = null;
                 return;
             }
             var parser = data.parser;
-            var options = new List<string>[data.parameters.Length];
+            var options = new List<AutoCompleteParser.AutoCompleteOption>[data.parameters.Length];
             for (int i = 0; i < options.Length; i++)
             {
-                options[i] = new List<string>();
+                options[i] = new List<AutoCompleteParser.AutoCompleteOption>();
                 foreach (var name in data.parameters[i])
                 {
                     if (name.StartsWith("'") && name.EndsWith("'"))
                     {
-                        options[i].Add(name.Trim('\''));
+                        options[i].Add(new AutoCompleteParser.AutoCompleteOption(name.Trim('\''), 0));
                     }
-                    else if (parser.TryGetStaticVariable(name, out var strings))
+                    else if (parser.TryGetStaticVariable(name, out var staticCatalog))
                     {
-                        options[i].AddRange(strings);
+                        options[i].AddRange(staticCatalog.options);
                     }
-                    else if (parser.TryGetDynamicVariable(name, out var catalog))
+                    else if (parser.TryGetDynamicVariable(name, out var dynamicCatalog))
                     {
-                        options[i].AddRange(catalog.Rebuild());
+                        options[i].AddRange(dynamicCatalog.Rebuild());
                     }
                 }
             }
@@ -69,24 +69,28 @@ namespace DebugToolkit
             var parser = new AutoCompleteParser();
             parser.RegisterStaticVariable("0", "0");
             parser.RegisterStaticVariable("1", "1");
-            parser.RegisterStaticVariable("ai", MasterCatalog.allAiMasters.Select(i => $"{(int)i.masterIndex}|{i.name}|{StringFinder.GetLangInvar(StringFinder.GetMasterName(i))}"));
-            parser.RegisterStaticVariable("artifact", ArtifactCatalog.artifactDefs.Select(i => $"{(int)i.artifactIndex}|{i.cachedName}|{StringFinder.GetLangInvar(i.nameToken)}"));
-            parser.RegisterStaticVariable("body", BodyCatalog.allBodyPrefabBodyBodyComponents.Select(i => $"{(int)i.bodyIndex}|{i.name}|{StringFinder.GetLangInvar(i.baseNameToken)}"));
-            parser.RegisterStaticVariable("buff", BuffCatalog.buffDefs.Select(i => $"{(int)i.buffIndex}|{StringFinder.GetLangInvar(i.name)}"));
-            parser.RegisterStaticVariable("droptable", ItemTierCatalog.allItemTierDefs.OrderBy(i => i.tier).Select(i => $"{(int)i.tier}|{i.name}"));
+            parser.RegisterStaticVariable("ai", MasterCatalog.allAiMasters.Select(i => $"{(int)i.masterIndex}|{i.name}|{StringFinder.GetLangInvar(StringFinder.GetMasterName(i))}"), 1);
+            parser.RegisterStaticVariable("artifact", ArtifactCatalog.artifactDefs.Select(i => $"{(int)i.artifactIndex}|{i.cachedName}|{StringFinder.GetLangInvar(i.nameToken)}"), 1);
+            parser.RegisterStaticVariable("body", BodyCatalog.allBodyPrefabBodyBodyComponents.Select(i => $"{(int)i.bodyIndex}|{i.name}|{StringFinder.GetLangInvar(i.baseNameToken)}"), 1);
+            parser.RegisterStaticVariable("buff", BuffCatalog.buffDefs.Select(i => $"{(int)i.buffIndex}|{StringFinder.GetLangInvar(i.name)}"), 1);
+            parser.RegisterStaticVariable("droptable", ItemTierCatalog.allItemTierDefs.OrderBy(i => i.tier).Select(i => $"{(int)i.tier}|{i.name}"), 1);
+            parser.RegisterStaticVariable("dot", DotController.dotDefs.Select((d, i) => $"{i}|{(DotController.DotIndex)i}"), 1);
             parser.RegisterStaticVariable("elite", new string[] { "-1|None" }.
-                Concat(EliteCatalog.eliteDefs.Select(i => $"{(int)i.eliteIndex}|{i.name}|{StringFinder.GetLangInvar(i.modifierToken)}"))
+                Concat(EliteCatalog.eliteDefs.Select(i => $"{(int)i.eliteIndex}|{i.name}|{StringFinder.GetLangInvar(i.modifierToken)}")),
+                1
             );
-            parser.RegisterStaticVariable("equip", EquipmentCatalog.equipmentDefs.Select(i => $"{(int)i.equipmentIndex}|{i.name}|{StringFinder.GetLangInvar(i.nameToken)}"));
-            parser.RegisterStaticVariable("item", ItemCatalog.allItemDefs.Select(i => $"{(int)i.itemIndex}|{i.name}|{StringFinder.GetLangInvar(i.nameToken)}"));
-            parser.RegisterStaticVariable("specific_stage", SceneCatalog.allSceneDefs.Where(i => !i.isOfflineScene).Select(i => $"{(int)i.sceneDefIndex}|{i.cachedName}|{StringFinder.GetLangInvar(i.nameToken)}"));
+            parser.RegisterStaticVariable("equip", EquipmentCatalog.equipmentDefs.Select(i => $"{(int)i.equipmentIndex}|{i.name}|{StringFinder.GetLangInvar(i.nameToken)}"), 1);
+            parser.RegisterStaticVariable("item", ItemCatalog.allItemDefs.Select(i => $"{(int)i.itemIndex}|{i.name}|{StringFinder.GetLangInvar(i.nameToken)}"), 1);
+            parser.RegisterStaticVariable("specific_stage", SceneCatalog.allSceneDefs.Where(i => !i.isOfflineScene).Select(i => $"{(int)i.sceneDefIndex}|{i.cachedName}|{StringFinder.GetLangInvar(i.nameToken)}"), 1);
+            parser.RegisterStaticVariable("team", new string[] { "-1|None" }.
+                Concat(TeamCatalog.teamDefs.Select((t, i) => $"{i}|{(TeamIndex)i}")),
+                1
+            );
 
-            parser.RegisterStaticVariable("dot", CollectEnumNames(typeof(DotController.DotIndex), typeof(sbyte)).Skip(1));
-            parser.RegisterStaticVariable("permission_level", CollectEnumNames(typeof(Permissions.Level), typeof(int)));
-            parser.RegisterStaticVariable("team", CollectEnumNames(typeof(TeamIndex), typeof(sbyte)));
+            parser.RegisterStaticVariable("permission_level", CollectEnumNames(typeof(Permissions.Level), typeof(int)), 1);
 
-            parser.RegisterDynamicVariable("director_card", StringFinder.Instance.DirectorCards, "spawnCard");
-            parser.RegisterDynamicVariable("interactable", StringFinder.Instance.InteractableSpawnCards);
+            parser.RegisterDynamicVariable("director_card", StringFinder.Instance.DirectorCards, "spawnCard", autocompleteIndex: 1);
+            parser.RegisterDynamicVariable("interactable", StringFinder.Instance.InteractableSpawnCards, autocompleteIndex: 1);
             parser.RegisterDynamicVariable("player", NetworkUser.instancesList, "userName");
 
             parser.Scan(System.Reflection.Assembly.GetExecutingAssembly());
