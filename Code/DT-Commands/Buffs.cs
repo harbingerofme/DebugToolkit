@@ -415,7 +415,7 @@ namespace DebugToolkit.Commands
                     duration = 3f;
                     var inventory = attacker.body.inventory;
                     // Let's have at least one stack
-                    int stacks = (inventory != null) ? Math.Max(inventory.GetItemCount(DLC1Content.Items.StrengthenBurn), 1) : 1;
+                    int stacks = (inventory != null) ? Math.Max(inventory.GetItemCountEffective(DLC1Content.Items.StrengthenBurn), 1) : 1;
                     damageMultiplier = (1 + 3 * stacks);
                     break;
                 case DotController.DotIndex.Fracture:
@@ -428,9 +428,17 @@ namespace DebugToolkit.Commands
                     Log.MessageNetworked($"No explicit duration set for this DoT, defaulting to {duration}. " + Lang.NOMESSAGE, args, LogLevel.MessageClientOnly);
                     break;
             }
+            var dotInfo = new InflictDotInfo
+            {
+                victimObject = target.body.gameObject,
+                attackerObject = attacker.body.gameObject,
+                dotIndex = dot,
+                duration = duration,
+                damageMultiplier = damageMultiplier,
+            };
             for (int i = 0; i < iCount; i++)
             {
-                DotController.InflictDot(target.body.gameObject, attacker.body.gameObject, dot, duration, damageMultiplier);
+                DotController.InflictDot(ref dotInfo);
             }
             Log.MessageNetworked($"Added {iCount} {dot} to {target.name} from {attacker.name}", args);
         }

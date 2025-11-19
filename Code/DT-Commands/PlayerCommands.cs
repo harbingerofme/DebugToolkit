@@ -410,7 +410,7 @@ namespace DebugToolkit.Commands
             sb.AppendLine($"Level: {body.level}");
             sb.AppendLine($"Health: {healthComponent.health}/{body.maxHealth} ({body.regen} regen/sec)");
             sb.AppendLine($"Shield: {healthComponent.shield}/{body.maxShield}");
-            sb.AppendLine($"Barrier: {healthComponent.barrier}/{body.maxBarrier} ({-body.barrierDecayRate} decay/sec)");
+            sb.AppendLine($"Barrier: {healthComponent.barrier}/{body.maxBarrier} ({-healthComponent.GetBarrierDecayRate()} decay/sec)");
             sb.AppendLine($"Acceleration: {body.acceleration}");
             string movementType;
             if (body.moveSpeed == 0f)
@@ -463,18 +463,21 @@ namespace DebugToolkit.Commands
             var inventory = body.inventory;
             if (inventory != null)
             {
-                for (int i = 0; i < inventory.GetEquipmentSlotCount(); i++)
+                for (uint slot = 0; slot < inventory.GetEquipmentSlotCount(); slot++)
                 {
-                    var slot = inventory.equipmentStateSlots[i];
-                    var equip = slot.equipmentDef;
-                    if (equip != null)
+                    for (uint set = 0; set < inventory.GetEquipmentSetCount(slot); set++)
                     {
-                        sb.AppendLine($"Equipment {i + 1}: {equip.name} {slot.charges}/{inventory.GetEquipmentSlotMaxCharges((byte)i)} ({slot.chargeFinishTime.timeUntil}/{equip.cooldown * inventory.CalculateEquipmentCooldownScale()} cooldown)");
-                    }
-                    else
-                    {
-                        // There may not be an equipment, but the cooldown still matters
-                        sb.AppendLine($"Equipment {i + 1}: - 0/0 ({slot.chargeFinishTime.timeUntil}/0 cooldown)");
+                        var state = inventory.GetEquipment(slot, set);
+                        var equip = state.equipmentDef;
+                        if (equip != null)
+                        {
+                            sb.AppendLine($"Equipment {slot + 1}: {equip.name} {state.charges}/{inventory.GetEquipmentSlotMaxCharges()} ({state.chargeFinishTime.timeUntil}/{equip.cooldown * inventory.CalculateEquipmentCooldownScale()} cooldown)");
+                        }
+                        else
+                        {
+                            // There may not be an equipment, but the cooldown still matters
+                            sb.AppendLine($"Equipment {slot + 1}: - 0/0 ({state.chargeFinishTime.timeUntil}/0 cooldown)");
+                        }
                     }
                 }
             }

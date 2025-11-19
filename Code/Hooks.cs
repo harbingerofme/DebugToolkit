@@ -793,10 +793,10 @@ namespace DebugToolkit
             }
         }
 
-        internal static void DenyMapSpawns(On.RoR2.CombatDirector.orig_SpendAllCreditsOnMapSpawns orig, CombatDirector self, Transform mapSpawnTarget)
+        internal static void DenyMapSpawns(On.RoR2.CombatDirector.orig_SpendAllCreditsOnMapSpawns_Transform_WeightedSelection1 orig, CombatDirector self, Transform mapSpawnTarget, WeightedSelection<DirectorCard> list)
         {
             self.monsterCredit = 0f;
-            orig(self, mapSpawnTarget);
+            orig(self, mapSpawnTarget, list);
         }
 
         internal static void DenyExperience(On.RoR2.ExperienceManager.orig_AwardExperience orig, ExperienceManager self, Vector3 origin, CharacterBody body, ulong amount)

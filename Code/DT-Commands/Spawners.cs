@@ -309,9 +309,9 @@ namespace DebugToolkit.Commands
                     CharacterMaster master = masterGameObject.GetComponent<CharacterMaster>();
                     if (eliteDef)
                     {
-                        master.inventory.SetEquipmentIndex(eliteDef.eliteEquipmentDef.equipmentIndex);
-                        master.inventory.GiveItem(RoR2Content.Items.BoostHp, Mathf.RoundToInt((eliteDef.healthBoostCoefficient - 1) * 10));
-                        master.inventory.GiveItem(RoR2Content.Items.BoostDamage, Mathf.RoundToInt(eliteDef.damageBoostCoefficient - 1) * 10);
+                        master.inventory.SetEquipmentIndex(eliteDef.eliteEquipmentDef.equipmentIndex, false);
+                        master.inventory.GiveItemPermanent(RoR2Content.Items.BoostHp, Mathf.RoundToInt((eliteDef.healthBoostCoefficient - 1) * 10));
+                        master.inventory.GiveItemPermanent(RoR2Content.Items.BoostDamage, Mathf.RoundToInt(eliteDef.damageBoostCoefficient - 1) * 10);
                     }
                     if (braindead)
                     {

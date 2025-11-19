@@ -152,11 +152,11 @@ namespace DebugToolkit.Commands
             CombatDirector.cvDirectorCombatDisable.SetBool(noEnemies);
             if (noEnemies)
             {
-                On.RoR2.CombatDirector.SpendAllCreditsOnMapSpawns += Hooks.DenyMapSpawns;
+                On.RoR2.CombatDirector.SpendAllCreditsOnMapSpawns_Transform_WeightedSelection1 += Hooks.DenyMapSpawns;
             }
             else
             {
-                On.RoR2.CombatDirector.SpendAllCreditsOnMapSpawns -= Hooks.DenyMapSpawns;
+                On.RoR2.CombatDirector.SpendAllCreditsOnMapSpawns_Transform_WeightedSelection1 -= Hooks.DenyMapSpawns;
             }
             Log.MessageNetworked(String.Format(noEnemies ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, "no_enemies"), args);
         }

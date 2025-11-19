@@ -87,7 +87,7 @@ namespace DebugToolkit.Commands
                 sb.AppendLine($"--- {body.name} {body.corePosition}");
                 foreach (var itemIndex in inventory.itemAcquisitionOrder)
                 {
-                    int count = inventory.GetItemCount(itemIndex);
+                    int count = inventory.GetItemCountEffective(itemIndex);
                     if (count != 0)
                     {
                         var itemDef = ItemCatalog.GetItemDef(itemIndex);
@@ -98,12 +98,15 @@ namespace DebugToolkit.Commands
                         sb.AppendLine($"<color=#{colorHexString}>{name}</color> {count}");
                     }
                 }
-                for (var slot = 0; slot < inventory.GetEquipmentSlotCount(); slot++)
+                for (uint slot = 0; slot < inventory.GetEquipmentSlotCount(); slot++)
                 {
-                    var equipmentDef = inventory.GetEquipment((uint)slot).equipmentDef;
-                    var colorHexString = ColorCatalog.GetColorHexString(ColorCatalog.ColorIndex.Equipment);
-                    var name = (equipmentDef != null) ? Language.GetString(equipmentDef.nameToken) : "<NONE>";
-                    sb.AppendLine($"<color=#{colorHexString}>{name}</color>");
+                    for (uint set = 0; set < inventory.GetEquipmentSetCount(slot); set++)
+                    {
+                        var equipmentDef = inventory.GetEquipment(slot, set).equipmentDef;
+                        var colorHexString = ColorCatalog.GetColorHexString(ColorCatalog.ColorIndex.Equipment);
+                        var name = (equipmentDef != null) ? Language.GetString(equipmentDef.nameToken) : "<NONE>";
+                        sb.AppendLine($"<color=#{colorHexString}>{name}</color>");
+                    }
                 }
                 sb.AppendLine();
             }
@@ -158,13 +161,13 @@ namespace DebugToolkit.Commands
                     Log.MessageNetworked(string.Format(Lang.EXPANSION_LOCKED, "item", Util.GetExpansion(itemDef.requiredExpansion)), args, LogLevel.MessageClientOnly);
                     return;
                 }
-                inventory.GiveItem(item, amount);
+                inventory.GiveItemPermanent(item, amount);
                 Log.MessageNetworked(string.Format(Lang.GIVEOBJECT, amount, name, target.name), args);
             }
             else if (amount < 0)
             {
-                amount = Math.Min(-amount, inventory.GetItemCount(item));
-                inventory.RemoveItem(item, amount);
+                amount = Math.Min(-amount, inventory.GetItemCountPermanent(item));
+                inventory.RemoveItemPermanent(item, amount);
                 Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT, amount, name, target.name), args);
             }
             else
@@ -221,9 +224,9 @@ namespace DebugToolkit.Commands
             {
                 for (int i = 0; i < iCount; i++)
                 {
-                    var pickupIndex = weightedSelection.Evaluate(UnityEngine.Random.value);
-                    var pickupDef = PickupCatalog.GetPickupDef(pickupIndex);
-                    target.inventory.GiveItem((pickupDef != null) ? pickupDef.itemIndex : ItemIndex.None, 1);
+                    var uniquePickup = weightedSelection.Evaluate(UnityEngine.Random.value);
+                    var pickupDef = PickupCatalog.GetPickupDef(uniquePickup.pickupIndex);
+                    target.inventory.GiveItemPermanent((pickupDef != null) ? pickupDef.itemIndex : ItemIndex.None, 1);
                 }
                 if (target.devotionController)
                 {
@@ -280,7 +283,7 @@ namespace DebugToolkit.Commands
                     Log.MessageNetworked(string.Format(Lang.EXPANSION_LOCKED, "equipment", Util.GetExpansion(EquipmentCatalog.GetEquipmentDef(equip).requiredExpansion)), args, LogLevel.MessageClientOnly);
                     return;
                 }
-                inventory.SetEquipmentIndex(equip);
+                inventory.SetEquipmentIndex(equip, false);
             }
             var name = EquipmentCatalog.GetEquipmentDef(equip).name;
 
@@ -380,7 +383,10 @@ namespace DebugToolkit.Commands
             }
 
             Log.MessageNetworked(string.Format(Lang.CREATEPICKUP_SUCCESS_1, final), args);
-            PickupDropletController.CreatePickupDroplet(final, body.transform.position, body.inputBank.aimDirection * 30f);
+            PickupDropletController.CreatePickupDroplet(new GenericPickupController.CreatePickupInfo
+            {
+                pickup = new UniquePickup(final)
+            }, body.transform.position, body.inputBank.aimDirection * 30f);
         }
 
         [ConCommand(commandName = "create_potential", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.CREATEPOTENTIAL_HELP)]
@@ -447,7 +453,7 @@ namespace DebugToolkit.Commands
                 prefabOverride = potentialPrefab,
                 position = body.transform.position,
                 rotation = Quaternion.identity,
-                pickupIndex = PickupCatalog.FindPickupIndex(firstItemTier)
+                pickup = new UniquePickup(PickupCatalog.FindPickupIndex(firstItemTier))
             }, body.transform.position, body.inputBank.aimDirection * 30f);
             Log.MessageNetworked(string.Format(Lang.CREATEPICKUP_SUCCESS_2, Math.Min(iCount, droptable.selector.Count)), args);
         }
@@ -484,13 +490,13 @@ namespace DebugToolkit.Commands
             }
             var itemDef = ItemCatalog.GetItemDef(item);
             var name = itemDef.name;
-            int iCount = inventory.GetItemCount(item);
+            int iCount = inventory.GetItemCountPermanent(item);
             if (Run.instance.IsItemExpansionLocked(item))
             {
                 Log.MessageNetworked(string.Format(Lang.EXPANSION_LOCKED, "item", Util.GetExpansion(itemDef.requiredExpansion)), args, LogLevel.MessageClientOnly);
                 return;
             }
-            inventory.RemoveItem(item, iCount);
+            inventory.RemoveItemPermanent(item, iCount);
             if (target.devotionController)
             {
                 target.devotionController.UpdateAllMinions(false);
@@ -552,7 +558,7 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            target.inventory.SetEquipmentIndex(EquipmentIndex.None);
+            target.inventory.SetEquipmentIndex(EquipmentIndex.None, true);
             Log.MessageNetworked($"Removed current Equipment from {target.name}", args);
         }
 
@@ -591,9 +597,10 @@ namespace DebugToolkit.Commands
 
             var inventory = target.inventory;
             var currentSlot = inventory.activeEquipmentSlot;
-            var chargesBefore = inventory.GetEquipment(currentSlot).charges;
-            inventory.RestockEquipmentCharges(currentSlot, iCount);
-            var chargesAfter = inventory.GetEquipment(currentSlot).charges;
+            var currentSet = inventory.activeEquipmentSet[inventory.activeEquipmentSlot];
+            var chargesBefore = inventory.GetEquipment(currentSlot, currentSet).charges;
+            inventory.RestockEquipmentCharges(currentSlot, currentSet, iCount);
+            var chargesAfter = inventory.GetEquipment(currentSlot, currentSet).charges;
             Log.MessageNetworked($"Restocked {chargesAfter - chargesBefore} for the current equipment of {target.name}", args);
         }
 
