@@ -46,7 +46,7 @@ namespace DebugToolkit
                 FirstOrDefault(m => m.Name.Contains("MoveNext"));
             new ILHook(moveNext, UnlockConsole);
 
-            On.RoR2.Console.CacheConVars += InitCommandsAndFreeConvars;
+            On.RoR2.Console.AwakeCoroutine += InitCommandsAndFreeConvars;
 
             var runCmdHook = new Hook(typeof(Console).GetMethodCached("RunCmd"),
                 typeof(Hooks).GetMethodCached(nameof(LogNetworkCommandsAndCheckPermissions)), new HookConfig { Priority = 1 });
@@ -284,24 +284,49 @@ namespace DebugToolkit
                 });
         }
 
-        private static void InitCommandsAndFreeConvars(On.RoR2.Console.orig_CacheConVars orig, Console self)
+        private static System.Collections.IEnumerator InitCommandsAndFreeConvars(On.RoR2.Console.orig_AwakeCoroutine orig, Console self)
         {
             void RemoveCheatFlag(BaseConVar cv)
             {
-                cv.flags &= AllFlagsNoCheat;
+                if (cv != null)
+                {
+                    cv.flags &= AllFlagsNoCheat;
+                }
             }
 
-            orig(self);
+            void ExpandHelpText(BaseConVar cv, string text)
+            {
+                if (cv != null)
+                {
+                    cv.helpText += text;
+                }
+            }
+
+            var iterator = orig(self);
+            while (iterator.MoveNext())
+            {
+                yield return iterator.Current;
+            }
 
             RemoveCheatFlag(self.FindConVar("sv_time_transmit_interval"));
             RemoveCheatFlag(self.FindConVar("run_scene_override"));
             RemoveCheatFlag(self.FindConVar("stage1_pod"));
+            RemoveCheatFlag(self.FindConVar("spite_bomb_coefficient"));
+            RemoveCheatFlag(self.FindConVar("bag_disable_breakout"));
+            RemoveCheatFlag(self.FindConVar("bounce_velocity"));
+            RemoveCheatFlag(self.FindConVar("junk_unlimited"));
 
-            self.FindConVar("timescale").helpText += " Use time_scale instead!";
-            self.FindConVar("director_combat_disable").helpText += " Use no_enemies instead!";
-            self.FindConVar("timestep").helpText += " Let the DebugToolkit team know if you need this convar.";
-            self.FindConVar("cmotor_safe_collision_step_threshold").helpText += " Let the DebugToolkit team know if you need this convar.";
-            self.FindConVar("cheats").helpText += " But you already have the DebugToolkit mod installed...";
+            const string MOD_MESSAGE = " Let the DebugToolkit team know if you need this convar.";
+            ExpandHelpText(self.FindConVar("timescale"), " Use time_scale instead!");
+            ExpandHelpText(self.FindConVar("director_combat_disable"), " Use no_enemies instead!");
+            ExpandHelpText(self.FindConVar("timestep"), MOD_MESSAGE);
+            ExpandHelpText(self.FindConVar("cmotor_safe_collision_step_threshold"), MOD_MESSAGE);
+            ExpandHelpText(self.FindConVar("ai_update_interval"), MOD_MESSAGE);
+            ExpandHelpText(self.FindConVar("contact_damage_update_interval"), MOD_MESSAGE);
+            ExpandHelpText(self.FindConVar("log_async_assets"), MOD_MESSAGE);
+            ExpandHelpText(self.FindConVar("preload_scenes"), MOD_MESSAGE);
+            ExpandHelpText(self.FindConVar("hitbox_show"), MOD_MESSAGE); // doesn't do anything, hence why not unlocking
+            ExpandHelpText(self.FindConVar("cheats"), " But you already have the DebugToolkit mod installed...");
         }
 
         // ReSharper disable once UnusedMember.Local
