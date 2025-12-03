@@ -17,12 +17,6 @@ Some vanilla console functions you might not know:
 * `find {term}` can be used to find commands with that term.
 * `max_messages {nr}` changes how much scroll back the console has. We auto change this to 100 for you if it's on default.
 
-Mods recommended for combined use:
-
-* [KeyBindForConsole](https://thunderstore.io/package/kristiansja/KeyBindForConsole/) for easier enabling of the console. Especially useful for non-US keyboard layouts.
-* [R2DSE](https://thunderstore.io/package/Harb/R2DSEssentials/) for running DT on dedicated servers.
-* [MidRunArtifacts](https://thunderstore.io/package/KingEnderBrine/MidRunArtifacts/) for enabling and disabling artifacts during a run.
-
 You may contact us at any time through [issues on GitHub](https://github.com/harbingerofme/DebugToolkit/issues/new/choose), the [dedicated discord server](https://discord.gg/yTfsMWP) or through the [Risk of Rain 2 modding Discord](https://discord.gg/5MbXZvd) found at the top of the Thunderstore website. 
 
 ---
