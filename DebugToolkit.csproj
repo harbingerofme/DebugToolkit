@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<TargetFramework>netstandard2.1</TargetFramework>
-		<Version>3.21.0</Version>
+		<Version>3.21.1</Version>
 		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
 		<Authors>DebugToolkit Contributors</Authors>
 		<Description>DebugToolkit is an expansive list of console commands for Risk of Rain 2, intended to make forcing specific situation easier. This is supposed to help with testing of interactions, mods, and what else.</Description>
@@ -14,8 +14,8 @@
 		<SignAssembly>false</SignAssembly>
 		<PackageIcon>icon.png</PackageIcon>
 		<Copyright>2025 DebugToolkit Contributors</Copyright>
-		<AssemblyVersion>3.21.0.0</AssemblyVersion>
-		<FileVersion>3.21.0.0</FileVersion>
+		<AssemblyVersion>3.21.1.0</AssemblyVersion>
+		<FileVersion>3.21.1.0</FileVersion>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

@@ -3,6 +3,11 @@
 
 ### 3.21 ###
 
+* **3.21.1**
+    * Fixed the cheat ConVars not getting unlocked.
+      * Also enabled the following Alloyed Collective ConVars: `bag_disable_breakout`, `bounce_velocity`, `junk_unlimited`
+    * Updated the README to mention that `ctrl+alt+f2` also opens the console and removed old recommended mods.
+
 * **3.21.0**
     * Updated for the Alloyed Collective.
     * Added temp item support for item-related commands. A new `type` parameter is added to some commands before the `target` parameter, e.g., `give_item item count type target`. While this may interfere with pre-existing scripts that assume `target` is the third parameter, we expect `type` to be more frequently used which justifies this breaking change. Apologies for any inconvenience caused. The affected commands are:
