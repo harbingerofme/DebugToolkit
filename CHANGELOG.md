@@ -1,8 +1,50 @@
 
 ## Changelog ##
+### 3.22 ###
+* **3.22.0**
 
+	* Added commands:
+		* 'give_drone': Summons drone, specified amount and tier
+		* 'list_drone', 'list_pickups'
+		* 'list_mods': Get internal name of all installed mod.
+		* 'buddhaenemy', 'invulenemy': Buddha mode for all enemies, to make them unkillable.
+		* 'goto_boss' -> Teleports you to boss, teleporter or boss arenas on stage, so you don't have to fly to Mithrix 100 times in testing.
+		* 'model': hides model, for screenshotting/recording.
+		* 'nocooldowns': disables your skill cooldowns
+		* 'evolve_lemurian': Triggers Artifact of Devotion evolution.
+		* 'give_voidcoin': Gives Void Markers.
+		* 'no_interactables': Prevent interactables
+		
+	* Added macro/short commands:
+		* 'dtscanner' -> 100 BoostEquipmentRechrage & Radar Scanner equip for easy map searching.
+		* 'dtdamage' -> x1000000 damage macro.
+		* 'random_equip' macro for 'give_equip random'
+		* 'rich', -> Set money to 2 billion.
+		* 'poor' -> Set money to 0.
+		* 'hud': shorthand toggle for 'hud_enable'
+		* 'skill': shorthand for 'loadout_set_skill_variant self'
+		* 'unlimited_junk': Toggle for 'junk_unlimited'
+		* 'cleanse': Alt for 'remove_all_buffs'
+ 
+	* Updated command functionality:
+		* Item commands can now grant/remove channeled items
+		* Item commands now mention you can type 1/2/3 instead of the name type.
+		* 'spawn_interactable' now also shows interactable names in auto complete.
+		* 'spawn_interactable' now accepts amount.		 
+		* 'spawn_as' now has second argument to permanently spawn as the new body. (Like prior to AC behaviour) //Default False
+		* 'create_pickup' now supports dropping drones or pickups.
+		* 'create_pickup' switched {type} and {permanent/temp} argument spots.
+		* 'give_equip -1' now removes your equipment.
+		* 'give_buff' now works with negative amount for removing.
+		* 'true_kill' now bypasses godmode.
+		* 'loadout_set_skill_variant' now accepts 'self'
+		* 'random_items' changed default value to not give Lunars & Voids.
+ 
+	*  Amount of spawned interactables/monsters/drones by commands capped at a 100 per command, to not crash the game if you mistype.
+	*  Fixed 'god 0/1'/'buddha 0/1' not setting the toggle's state.
+	*  Fixed 'loadout_set_skin_variant' crashing the game.
+	
 ### 3.21 ###
-
 * **3.21.1**
     * Fixed the cheat ConVars not getting unlocked.
       * Also enabled the following Alloyed Collective ConVars: `bag_disable_breakout`, `bounce_velocity`, `junk_unlimited`

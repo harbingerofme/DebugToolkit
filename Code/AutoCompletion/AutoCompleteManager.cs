@@ -73,7 +73,7 @@ namespace DebugToolkit
             parser.RegisterStaticVariable("artifact", ArtifactCatalog.artifactDefs.Select(i => $"{(int)i.artifactIndex}|{i.cachedName}|{StringFinder.GetLangInvar(i.nameToken)}"), 1);
             parser.RegisterStaticVariable("body", BodyCatalog.allBodyPrefabBodyBodyComponents.Select(i => $"{(int)i.bodyIndex}|{i.name}|{StringFinder.GetLangInvar(i.baseNameToken)}"), 1);
             parser.RegisterStaticVariable("buff", BuffCatalog.buffDefs.Select(i => $"{(int)i.buffIndex}|{StringFinder.GetLangInvar(i.name)}"), 1);
-            parser.RegisterStaticVariable("droptable", ItemTierCatalog.allItemTierDefs.OrderBy(i => i.tier).Select(i => $"{(int)i.tier}|{i.name}"), 1);
+            parser.RegisterStaticVariable("tier", ItemTierCatalog.allItemTierDefs.OrderBy(i => i.tier).Select(i => $"{(int)i.tier}|{i.name}"), 1);
             parser.RegisterStaticVariable("dot", DotController.dotDefs.Select((d, i) => $"{i}|{(DotController.DotIndex)i}"), 1);
             parser.RegisterStaticVariable("elite", new string[] { "-1|None" }.
                 Concat(EliteCatalog.eliteDefs.Select(i => $"{(int)i.eliteIndex}|{i.name}|{StringFinder.GetLangInvar(i.modifierToken)}")),
@@ -81,6 +81,7 @@ namespace DebugToolkit
             );
             parser.RegisterStaticVariable("equip", EquipmentCatalog.equipmentDefs.Select(i => $"{(int)i.equipmentIndex}|{i.name}|{StringFinder.GetLangInvar(i.nameToken)}"), 1);
             parser.RegisterStaticVariable("item", ItemCatalog.allItemDefs.Select(i => $"{(int)i.itemIndex}|{i.name}|{StringFinder.GetLangInvar(i.nameToken)}"), 1);
+            parser.RegisterStaticVariable("drone", DroneCatalog.allDroneDefs.Select(i => $"{(int)i.droneIndex}|{i.name}|{StringFinder.GetLangInvar(i.nameToken)}"), 1);
             parser.RegisterStaticVariable("specific_stage", SceneCatalog.allSceneDefs.Where(i => !i.isOfflineScene).Select(i => $"{(int)i.sceneDefIndex}|{i.cachedName}|{StringFinder.GetLangInvar(i.nameToken)}"), 1);
             parser.RegisterStaticVariable("team", new string[] { "-1|None" }.
                 Concat(TeamCatalog.teamDefs.Select((t, i) => $"{i}|{(TeamIndex)i}")),
@@ -90,8 +91,19 @@ namespace DebugToolkit
             parser.RegisterStaticVariable("permission_level", CollectEnumNames(typeof(Permissions.Level), typeof(int)), 1);
 
             parser.RegisterDynamicVariable("director_card", StringFinder.Instance.DirectorCards, "spawnCard", autocompleteIndex: 1);
-            parser.RegisterDynamicVariable("interactable", StringFinder.Instance.InteractableSpawnCards, autocompleteIndex: 1);
+            //parser.RegisterDynamicVariable("interactable", StringFinder.Instance.InteractableSpawnCards, autocompleteIndex: 1);
+            parser.RegisterDynamicVariable("interactable", StringFinder.Instance.InteractableSpawnCards.Select(i => $"{StringFinder.Instance.InteractableSpawnCards.IndexOf(i)}|{i.name}|{StringFinder.GetLangInvar(i.prefab?.GetComponent<IDisplayNameProvider>()?.GetDisplayName())}"), autocompleteIndex: 1);
+
             parser.RegisterDynamicVariable("player", NetworkUser.instancesList, "userName");
+
+            parser.RegisterStaticVariable("itemTypes", new string[] {
+                //"0|None",
+                "1|Permanent",
+                "2|Temp",
+                "3|Channelled",
+                },
+                1
+            );
 
             parser.Scan(System.Reflection.Assembly.GetExecutingAssembly());
         }

@@ -359,6 +359,16 @@ namespace DebugToolkit
             return GetItemsFromPartial(name).DefaultIfEmpty(ItemIndex.None).First();
         }
 
+        public DroneIndex GetDroneFromPartial(string name)
+        {
+            return GetDronesFromPartial(name).DefaultIfEmpty(DroneIndex.None).First();
+        }
+
+        public PickupIndex GetPickupFromPartial(string name)
+        {
+            return GetPickupsFromPartial(name).DefaultIfEmpty(PickupIndex.none).First();
+        }
+
         /// <summary>
         /// Returns an iterator of ItemIndex's when provided with an index or partial/invariant.
         /// </summary>
@@ -392,6 +402,70 @@ namespace DebugToolkit
             foreach (var match in matches.OrderByDescending(m => m.similarity))
             {
                 yield return (ItemIndex)match.item;
+            }
+        }
+
+        public IEnumerable<DroneIndex> GetDronesFromPartial(string name)
+        {
+            if (TextSerialization.TryParseInvariant(name, out int i))
+            {
+                var index = (DroneIndex)i;
+                //if (DroneCatalog.IsIndexValid(index))
+                if (index < (DroneIndex)DroneCatalog.droneCount)
+                {
+                    yield return index;
+                }
+                yield break;
+            }
+            name = name.ToUpperInvariant();
+            var matches = new List<MatchSimilarity>();
+            foreach (var drone in DroneCatalog.allDroneDefs)
+            {
+                var langInvar = GetLangInvar(drone.nameToken).ToUpper();
+                if (drone.name.ToUpper().Contains(name) || langInvar.Contains(name))
+                {
+                    matches.Add(new MatchSimilarity
+                    {
+                        similarity = Math.Max(GetSimilarity(drone.name, name), GetSimilarity(langInvar, name)),
+                        item = drone.droneIndex
+                    });
+                }
+            }
+            foreach (var match in matches.OrderByDescending(m => m.similarity))
+            {
+                yield return (DroneIndex)match.item;
+            }
+        }
+
+        public IEnumerable<PickupIndex> GetPickupsFromPartial(string name)
+        {
+            if (TextSerialization.TryParseInvariant(name, out int i))
+            {
+                var index = i;
+                if (index < PickupCatalog.pickupCount)
+                {
+                    yield return PickupIndex.none;
+                }
+                yield break;
+            }
+            name = name.ToUpperInvariant();
+            var matches = new List<MatchSimilarity>();
+            foreach (var pickup in PickupCatalog.allPickups)
+            {
+                var langInvar = GetLangInvar(pickup.nameToken).ToUpper();
+                if (pickup.internalName.ToUpper().Contains(name) || langInvar.Contains(name))
+                {
+                    //yield return pickup.pickupIndex;
+                    matches.Add(new MatchSimilarity
+                    {
+                        similarity = Math.Max(GetSimilarity(pickup.internalName, name), GetSimilarity(langInvar, name)),
+                        item = pickup.pickupIndex
+                    });
+                }
+            }
+            foreach (var match in matches.OrderByDescending(m => m.similarity))
+            {
+                yield return (PickupIndex)match.item;
             }
         }
 

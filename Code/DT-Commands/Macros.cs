@@ -1,4 +1,5 @@
 ﻿using RoR2;
+using UnityEngine.Networking;
 
 namespace DebugToolkit.Commands
 {
@@ -43,7 +44,32 @@ namespace DebugToolkit.Commands
             Invoke(args.sender, "give_item", "feather", "200");
         }
 
-        private static void Invoke(NetworkUser user, string commandname, params string[] args)
+        [ConCommand(commandName = "dtdamage", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.MACRO_DTDAMAGE_HELP)]
+        private static void Damage(ConCommandArgs args)
+        {
+            Invoke(args.sender, "give_item", "boostdamage", "9999990");
+        }
+
+        [ConCommand(commandName = "scanner", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.MACRO_SCANNER_HELP)]
+        [ConCommand(commandName = "dtscanner", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.MACRO_SCANNER_HELP)]
+        public static void CCScanner(ConCommandArgs args)
+        {
+            if (!args.senderMaster)
+            {
+                return;
+            }
+            if (!NetworkServer.active)
+            {
+                return;
+            }
+            Invoke(args.sender, "give_item", "BoostEquipmentRecharge", "100");
+            Invoke(args.sender, "give_equip", "Scanner"); 
+            //args.senderMaster.inventory.SetEquipmentIndex(RoR2Content.Equipment.Scanner.equipmentIndex, false);
+            //args.senderMaster.inventory.GiveItemPermanent(RoR2Content.Items.BoostEquipmentRecharge, 100);
+        }
+
+
+        public static void Invoke(NetworkUser user, string commandname, params string[] args)
         {
             DebugToolkit.InvokeCMD(user, commandname, args);
         }

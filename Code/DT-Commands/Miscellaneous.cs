@@ -79,5 +79,32 @@ namespace DebugToolkit.Commands
                 action();
             }
         }
+
+
+        [ConCommand(commandName = "list_mods", flags = ConVarFlags.None, helpText = "List installed mod names to get them for compatibility." + Lang.LISTMODS_ARGS)]
+        [AutoComplete(Lang.LISTMODS_ARGS)]
+        public static void CCMods(ConCommandArgs args)
+        {
+            bool requiredByAll = args.TryGetArgBool(0).GetValueOrDefault(false);
+            string log = string.Empty;
+            if (requiredByAll)
+            {
+                log = "All RequiredByAllTaggedMods\n\n";
+                foreach (var a in NetworkModCompatibilityHelper._networkModList)
+                {
+                    log += a.ToString() + "\n";
+                }
+            }
+            else
+            {
+                log = "All loaded mods\n\n";
+                foreach (var a in BepInEx.Bootstrap.Chainloader.PluginInfos)
+                {
+                    log += a.ToString() + "\n";
+                }
+            }
+            Debug.Log(log);
+        }
+
     }
 }

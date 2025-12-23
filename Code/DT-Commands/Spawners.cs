@@ -46,6 +46,7 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(Lang.INTERACTABLE_NOTFOUND, args, LogLevel.MessageClientOnly);
                 return;
             }
+            int amount = args.TryGetArgInt(1).GetValueOrDefault(1);
             // Putting interactables with a collider just far enough to not cause any clipping
             // or spawn under the character's feet. The few exceptions with MeshCollider aren't
             // treated but they aren't much of an issue.
@@ -81,10 +82,23 @@ namespace DebugToolkit.Commands
                 var direction = args.senderBody.inputBank.aimDirection;
                 position = position + (args.senderBody.radius + distance) * new Vector3(direction.x, 0f, direction.z);
             }
-            var result = isc.DoSpawn(position, new Quaternion(), new DirectorSpawnRequest(isc, null, RoR2Application.rng));
-            if (!result.success)
+            if (amount > 100)
             {
-                Log.MessageNetworked("Failed to spawn interactable.", args, LogLevel.MessageClientOnly);
+                amount = 100;
+                Log.MessageNetworked($"Limited to 100, please don't spawn too many things at once.", args, LogLevel.MessageClientOnly);
+            }
+            int failed = 0;
+            for (int i = 0; i < amount; i++)
+            {
+                var result = isc.DoSpawn(position, new Quaternion(), new DirectorSpawnRequest(isc, null, RoR2Application.rng));
+                if (!result.success)
+                {
+                    failed++;
+                }
+            }
+            if (failed > 0)
+            {
+                Log.MessageNetworked($"Failed to spawn {failed} interactable.", args, LogLevel.MessageClientOnly);
             }
         }
 
@@ -193,7 +207,11 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "count", "int"), args, LogLevel.MessageClientOnly);
                 return;
             }
-
+            if (amount > 100)
+            {
+                amount = 100;
+                Log.MessageNetworked($"Limited to 100, please dont spawn too many things at once.", args, LogLevel.MessageClientOnly);
+            }
             EliteDef eliteDef = null;
             if (args.Count > 2 && args[2] != Lang.DEFAULT_VALUE)
             {

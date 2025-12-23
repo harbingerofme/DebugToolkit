@@ -1,8 +1,13 @@
+using HG;
 using RoR2;
+using RoR2.ContentManagement;
 using RoR2.ExpansionManagement;
 using System;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using UnityEngine;
+using UnityEngine.Networking;
+using UnityEngine.SocialPlatforms;
 using static DebugToolkit.Log;
 
 namespace DebugToolkit.Commands
@@ -21,6 +26,7 @@ namespace DebugToolkit.Commands
                     Log.MessageNetworked(string.Format(Lang.PARSE_ERROR, "enable", "bool"), args, LogLevel.MessageClientOnly);
                     return;
                 }
+                Hooks.god = modeOn;
             }
             else
             {
@@ -49,13 +55,73 @@ namespace DebugToolkit.Commands
                     Log.MessageNetworked(string.Format(Lang.PARSE_ERROR, "enable", "bool"), args, LogLevel.MessageClientOnly);
                     return;
                 }
+                Hooks.buddha = modeOn;
             }
             else
             {
                 modeOn = Hooks.ToggleBuddha();
             }
+            foreach (var player in PlayerCharacterMasterController.instances)
+            {
+                var body = player.master.GetBody();
+                if (body != null)
+                {
+                    if (modeOn)
+                    {
+                        body.bodyFlags |= CharacterBody.BodyFlags.Buddha;
+                    }
+                    else
+                    {
+                        body.bodyFlags &= ~CharacterBody.BodyFlags.Buddha;
+                    }
+                }
+            }
+
+
             Log.MessageNetworked(String.Format(modeOn ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, "Buddha mode"), args);
         }
+
+        [ConCommand(commandName = "buddhaenemy", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.BUDDHA_HELP2)]
+        [ConCommand(commandName = "budaenemy", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.BUDDHA_HELP2)]
+        [ConCommand(commandName = "invulenemy", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.BUDDHA_HELP2)]
+        [AutoComplete(Lang.ENABLE_ARGS)]
+        private static void CCBuddhaMONSTERModeToggle(ConCommandArgs args)
+        {
+            bool modeOn;
+            if (args.Count > 0)
+            {
+                if (!Util.TryParseBool(args[0], out modeOn))
+                {
+                    Log.MessageNetworked(string.Format(Lang.PARSE_ERROR, "enable", "bool"), args, LogLevel.MessageClientOnly);
+                    return;
+                }
+                Hooks.buddhaMonsters = modeOn;
+            }
+            else
+            {
+                Hooks.buddhaMonsters = !Hooks.buddhaMonsters;
+                modeOn = Hooks.buddhaMonsters;
+            }
+            foreach (var body in CharacterBody.instancesList)
+            {
+                if (body && !body.isPlayerControlled)
+                {
+                    if (modeOn)
+                    {
+                        body.bodyFlags |= RoR2.CharacterBody.BodyFlags.Buddha;
+                    }
+                    else
+                    {
+                        body.bodyFlags &= ~RoR2.CharacterBody.BodyFlags.Buddha;
+                    }
+                }
+            }
+
+
+            Log.MessageNetworked(String.Format(modeOn ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, "Monster Buddha mode"), args);
+        }
+
+
 
         [ConCommand(commandName = "noclip", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.NOCLIP_HELP)]
         [AutoComplete(Lang.ENABLE_ARGS)]
@@ -107,6 +173,81 @@ namespace DebugToolkit.Commands
             TeleportNet.Invoke(args.sender); // callback
         }
 
+
+        [ConCommand(commandName = "goto_boss", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.CURSORTELEPORT_HELP)]
+        private static void CCGoto_Boss(ConCommandArgs args)
+        {
+            string stage = Stage.instance.sceneDef.cachedName;
+            Component senderBody = args.GetSenderBody();
+            Vector3 newPosition = Vector3.zero;
+            string destination = string.Empty;
+
+            if (TeleporterInteraction.instance)
+            {
+                destination = "Teleporter";
+                newPosition = TeleporterInteraction.instance.transform.position;
+                newPosition += new Vector3(0, 1, 0);
+            }
+            else if (BossGroup.GetTotalBossCount() > 0)
+            {
+                for (int i = 0; i < CharacterBody.instancesList.Count; i++)
+                {
+                    if (CharacterBody.instancesList[i].isBoss)
+                    {
+                        newPosition = CharacterBody.instancesList[i].corePosition;
+                        destination = CharacterBody.instancesList[i].name;
+                        break;
+                    }
+                }
+            }
+            else if (stage == "moon2")
+            {
+                newPosition = new Vector3(-11, 490, 80);
+                destination = "Mithrix Arena";
+            }
+            else if (stage == "solutionalhaunt")
+            {
+                newPosition = new Vector3(252.5426f, -549.5432f, -90.2127f); //Cutscene Trigger
+                destination = "Solus Wing Hallway";
+                GameObject cutsceneTrigger = GameObject.Find("/HOLDER2: Mission and Meta-Related Systems/Cutscene/Trigger Hallway Trap");
+                cutsceneTrigger.GetComponent<TrackTriggerOnExit>().Triggered = true; //Because it's OnExitTrigger, can't just teleport there
+            }
+            else if (stage == "meridian")
+            {
+                newPosition = new Vector3(85.2065f, 146.5167f, -70.5265f); //Cutscene Trigger
+                destination = "False Son Arena";
+            }
+            else if (stage == "mysteryspace")
+            {
+                newPosition = new Vector3(362.9097f, -151.5964f, 213.0157f); //Obelisk
+                destination = "Obelisk";
+            }
+            else if (stage == "voidraid")
+            {
+                destination = "Voidling Arena";
+                newPosition = new Vector3(-105f, 0.2f, 92f);
+            }
+            if (stage == "conduitcanyon")
+            {
+                //Auto complete the power pedestals
+                List<PowerPedestal> instancesList = InstanceTracker.GetInstancesList<PowerPedestal>();
+                foreach (PowerPedestal powerPedestal in instancesList)
+                {
+                    powerPedestal.SetComplete(true);
+                }
+                Debug.Log("Autocompleting Sentry Terminals");
+            }
+            if (newPosition == Vector3.zero)
+            {
+                Debug.Log("No Teleporter, Specific Location or Boss Monster found.");
+                return;
+            }
+            TeleportHelper.TeleportGameObject(senderBody.gameObject, newPosition);
+            Debug.Log($"Teleported you to {destination}");
+
+        }
+
+  
         [ConCommand(commandName = "spawn_as", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SPAWNAS_HELP)]
         [AutoComplete(Lang.SPAWNAS_ARGS)]
         private static void CCSpawnAs(ConCommandArgs args)
@@ -116,7 +257,7 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
                 return;
             }
-            if (args.Count == 0 || (args.sender == null && (args.Count < 2 || args[1] == Lang.DEFAULT_VALUE)))
+            if (args.Count == 0 || (args.sender == null && (args.Count < 3 || args[2] == Lang.DEFAULT_VALUE)))
             {
                 Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.SPAWNAS_ARGS, args, LogLevel.MessageClientOnly);
                 return;
@@ -131,7 +272,7 @@ namespace DebugToolkit.Commands
             GameObject newBody = BodyCatalog.GetBodyPrefab(bodyIndex);
 
             CharacterMaster master = args.senderMaster;
-            if (args.Count > 1 && args[1] != Lang.DEFAULT_VALUE)
+            if (args.Count > 2 && args[2] != Lang.DEFAULT_VALUE)
             {
                 NetworkUser player = Util.GetNetUserFromString(args.userArgs, 1);
                 if (player == null)
@@ -150,7 +291,15 @@ namespace DebugToolkit.Commands
             }
 
             master.bodyPrefab = newBody;
-            Log.MessageNetworked(args.sender.userName + " is spawning as " + newBody.name, args);
+            if (args.TryGetArgBool(1).GetValueOrDefault(false))
+            {
+                master.originalBodyPrefab = newBody;
+                Log.MessageNetworked(args.sender.userName + " is spawning as " + newBody.name + " for the rest of the run.", args);
+            }
+            else
+            {
+                Log.MessageNetworked(args.sender.userName + " is spawning as " + newBody.name + " for the current stage.", args);
+            }
 
             if (!master.GetBody())
             {
@@ -506,7 +655,8 @@ namespace DebugToolkit.Commands
                 sb.AppendLine($"{esm.customName} state: {esm.state?.ToString() ?? string.Empty}");
             }
         }
-
+ 
+        //Apply_Skin is probably better, but does not save loadout
         [ConCommand(commandName = "loadout_set_skin_variant", flags = ConVarFlags.None, helpText = Lang.LOADOUTSKIN_HELP)]
         [AutoComplete(Lang.LOADOUTSKIN_ARGS)]
         public static void CCLoadoutSetSkinVariant(ConCommandArgs args)
@@ -576,7 +726,7 @@ namespace DebugToolkit.Commands
                     var modelSkinController = args.senderBody.modelLocator.modelTransform.GetComponent<ModelSkinController>();
                     if (modelSkinController)
                     {
-                        modelSkinController.ApplySkin(requestedSkinIndexChange);
+                        modelSkinController.StartCoroutine(modelSkinController.ApplySkinAsync(requestedSkinIndexChange, AsyncReferenceHandleUnloadType.OnSceneUnload));
                     }
                 }
             }
@@ -605,5 +755,118 @@ namespace DebugToolkit.Commands
 
             return false;
         }
+
+
+
+        //loadout_set_skill_variant self <- adding cuz requested //Does not work
+        //[ConCommand(commandName = "loadout_set_skill_variant self", flags = ConVarFlags.ExecuteOnServer, helpText = "Switch Skills of current survivor Shorthand")]
+        [ConCommand(commandName = "skill", flags = ConVarFlags.ExecuteOnServer, helpText = "[skill_slot] [skill_variant]\nSets the skill variant for the sender's user profile.")]
+        public static void CC_Skill(ConCommandArgs args)
+        {
+            if (!args.sender)
+            {
+                Log.Message("Can't choose self if not in-game!", LogLevel.Error);
+                return;
+            }
+            if (args.Count < 2)
+            {
+                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.LOADOUTSKIN_ARGS, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            BodyIndex argBodyIndex = BodyIndex.None;
+            if (args.senderBody)
+            {
+                argBodyIndex = args.senderBody.bodyIndex;
+            }
+            else
+            {
+                if (args.senderMaster && args.senderMaster.bodyPrefab)
+                {
+                    argBodyIndex = args.senderMaster.bodyPrefab.GetComponent<CharacterBody>().bodyIndex;
+                }
+                else
+                {
+                    argBodyIndex = args.sender.bodyIndexPreference;
+                }
+            }
+            args.userArgs = new List<string>
+            {
+                argBodyIndex.ToString(),
+                args[0],
+                args[1],
+            };
+            UserProfile.CCLoadoutSetSkillVariant(args);
+           
+           
+        }
+
+
+
+        [ConCommand(commandName = "unlimited_junk", flags = ConVarFlags.ExecuteOnServer, helpText = "Toggle junk_unlimited. Makes skillchecks ingore junk cost.")]
+        public static void CC_JunkAlt(ConCommandArgs args)
+        {
+            JunkController.junkUnlimited.value = !JunkController.junkUnlimited.value;
+            if (JunkController.junkUnlimited.value)
+            {
+                Macros.Invoke(args.sender, "give_item", ((int)DLC3Content.Items.Junk.itemIndex).ToString(), "12");
+                //Junk unlimited doesn't actually bypass the check.
+                //It just makes it not remove junk
+            }
+            Log.MessageNetworked(String.Format(JunkController.junkUnlimited.value ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, "Unlimtied Junk"), args);
+   
+        }
+
+
+        public static bool NoCooldowns = false;
+       
+        [ConCommand(commandName = "nocooldown", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.LOADOUTSKIN_HELP)]
+        [ConCommand(commandName = "nocooldowns", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.LOADOUTSKIN_HELP)]
+        public static void CC_Cooldown(ConCommandArgs args)
+        {
+            if (!args.senderBody)
+            {
+                return;
+            }
+            NoCooldowns = !NoCooldowns;
+            GenericSkill[] slots = args.senderBody.GetComponents<GenericSkill>();
+            foreach (GenericSkill slot in slots)
+            {
+                if (NoCooldowns == true)
+                {
+                    slot.cooldownOverride = 0.001f;
+                }
+                else
+                {
+                    slot.cooldownOverride = 0;
+                }
+            }
+            Log.MessageNetworked(String.Format(NoCooldowns ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, "No Skill Cooldowns"), args);
+        }
+
+
+
+        [ConCommand(commandName = "invis", flags = ConVarFlags.None, helpText = "Turn off your model for screenshots")]
+        [ConCommand(commandName = "model", flags = ConVarFlags.None, helpText = "Turn off your model for screenshots")]
+        public static void CC_TurnOffModel(ConCommandArgs args)
+        {
+ 
+            GameObject mdl = args.senderBody.GetComponent<ModelLocator>().modelTransform.gameObject;
+            mdl.SetActive(!mdl.activeSelf);
+            Log.MessageNetworked(String.Format(!mdl.activeSelf ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, "Invisible Model"), args);
+
+        }
+
+        [ConCommand(commandName = "hud", flags = ConVarFlags.None, helpText = "Toggle hud_enable. Enable/disable the HUD.")]
+        [ConCommand(commandName = "ui", flags = ConVarFlags.None, helpText = "Toggle hud_enable. Enable/disable the HUD.")]
+        public static void CC_ToggleHUD(ConCommandArgs args)
+        {
+            RoR2.UI.HUD.cvHudEnable.SetBool(!RoR2.UI.HUD.cvHudEnable.value); 
+            Log.MessageNetworked(String.Format(RoR2.UI.HUD.cvHudEnable.value ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, "Hud"), args);
+
+        }
+
+
+
+
     }
 }

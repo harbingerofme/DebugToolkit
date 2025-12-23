@@ -13,6 +13,7 @@ namespace DebugToolkit.Commands
     {
 
         internal static bool noEnemies = false;
+        internal static bool noInteractables = false;
         internal static bool lockExp = false;
         internal static ulong seed;
 
@@ -159,6 +160,40 @@ namespace DebugToolkit.Commands
                 On.RoR2.CombatDirector.SpendAllCreditsOnMapSpawns_Transform_WeightedSelection1 -= Hooks.DenyMapSpawns;
             }
             Log.MessageNetworked(String.Format(noEnemies ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, "no_enemies"), args);
+        }
+
+        [ConCommand(commandName = "no_interactables", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.NOINTERACTABLES_HELP)]
+        [AutoComplete(Lang.ENABLE_ARGS)]
+        private static void CCNoInteractaböes(ConCommandArgs args)
+        {
+            bool enabled = !noInteractables;
+            if (args.Count > 0)
+            {
+                if (!Util.TryParseBool(args[0], out enabled))
+                {
+                    Log.MessageNetworked(string.Format(Lang.PARSE_ERROR, "enable", "bool"), args, LogLevel.MessageClientOnly);
+                    return;
+                }
+            }
+            noInteractables = enabled;
+            if (noInteractables)
+            {
+                SceneDirector.onPrePopulateSceneServer += PreventInteractableSpawns;
+            }
+            else
+            {
+                SceneDirector.onPrePopulateSceneServer -= PreventInteractableSpawns;
+            }
+            Log.MessageNetworked(String.Format(noInteractables ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, "no_interactables"), args);
+        }
+
+        private static void PreventInteractableSpawns(SceneDirector obj)
+        {
+            if (noInteractables)
+            {
+                obj.interactableCredit = 0;
+                //obj.teleporterSpawnCard = null;
+            }
         }
 
         [ConCommand(commandName = "lock_exp", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.LOCKEXP_HELP)]
@@ -680,6 +715,14 @@ namespace DebugToolkit.Commands
             }
             Run.instance.SetRunStopwatch(setTime);
             Log.MessageNetworked("Run timer set to " + setTime, args);
+        }
+
+
+        [ConCommand(commandName = "evolve_lemurian", flags = ConVarFlags.ExecuteOnServer, helpText = "Evolves all Devoted Lemurians")]
+        [ConCommand(commandName = "evolve_lemurians", flags = ConVarFlags.ExecuteOnServer, helpText = "Evolves all Devoted Lemurians")]
+        public static void CC_evolve_lemurian(ConCommandArgs args)
+        {
+            DevotionInventoryController.ActivateAllDevotedEvolution();
         }
     }
 

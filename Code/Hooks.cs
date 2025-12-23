@@ -14,7 +14,7 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
 using Console = RoR2.Console;
-
+ 
 namespace DebugToolkit
 {
     public sealed class Hooks
@@ -26,8 +26,9 @@ namespace DebugToolkit
         private static int[] autoCompleteIndices;
 
         private static On.RoR2.Console.orig_RunCmd _origRunCmd;
-        private static bool buddha;
-        private static bool god;
+        public static bool buddha;
+        public static bool buddhaMonsters;
+        public static bool god;
 
         private static GameObject commandSignatureText;
         private static CombatDirector bossDirector;
@@ -93,12 +94,88 @@ namespace DebugToolkit
             Run.onRunDestroyGlobal += Command_Noclip.DisableOnRunDestroy;
 
             //Buddha Mode hook
-            On.RoR2.HealthComponent.TakeDamage += NonLethalDamage;
+            //On.RoR2.HealthComponent.TakeDamage += NonLethalDamage;
+            On.RoR2.CharacterBody.Start += SetBuddhaMode;
             On.RoR2.CharacterMaster.Awake += SetGodMode;
 
             // Console logging fixes - temporary
             IL.RoR2.Console.ShowHelpText += FixCommandHelpText;
             IL.RoR2.Console.CCFind += FixCCFind;
+
+            On.RoR2.ConCommandArgExtensions.TryGetArgBodyIndex += AllowBodyIndexToBeUsedInsteadOfBodyName;
+            On.RoR2.UserProfile.CCLoadoutSetSkillVariant += LoadoutSetSkillVariant_AcceptSELF;
+        }
+
+        private static void LoadoutSetSkillVariant_AcceptSELF(On.RoR2.UserProfile.orig_CCLoadoutSetSkillVariant orig, ConCommandArgs args)
+        {
+            string isSelf = args.TryGetArgString(0);
+            if(isSelf != null && isSelf.ToUpperInvariant() == "SELF")
+            {
+                if (args.sender == null)
+                {
+                    Log.Message("Can't choose self if not in-game!", Log.LogLevel.Error);
+                    return;
+                }
+                BodyIndex body = BodyIndex.None;
+                if (args.senderBody)
+                {
+                    body = args.senderBody.bodyIndex;
+                }
+                else
+                {
+                    if (args.senderMaster && args.senderMaster.bodyPrefab)
+                    {
+                        body = args.senderMaster.bodyPrefab.GetComponent<CharacterBody>().bodyIndex;
+                    }
+                    else
+                    {
+                        body = args.sender.bodyIndexPreference;
+                    }
+                }
+                args.userArgs[0] = ((int)body).ToString();
+          
+            }
+            orig(args);
+        }
+
+        private static BodyIndex? AllowBodyIndexToBeUsedInsteadOfBodyName(On.RoR2.ConCommandArgExtensions.orig_TryGetArgBodyIndex orig, ConCommandArgs args, int index)
+        {
+            BodyIndex? temp = orig(args, index);
+            if (temp == null)
+            {
+                if (index < args.userArgs.Count)
+                {
+                    return new BodyIndex?((BodyIndex)args.TryGetArgInt(index).GetValueOrDefault(-1));
+                }
+            }
+            return temp;
+        }
+
+        private static void SetBuddhaMode(On.RoR2.CharacterBody.orig_Start orig, CharacterBody self)
+        {
+            orig(self);
+            if (self.isPlayerControlled)
+            {
+                if (buddha)
+                {
+                    self.bodyFlags |= CharacterBody.BodyFlags.Buddha;
+                }
+                if (PlayerCommands.NoCooldowns)
+                {
+                    GenericSkill[] slots = self.GetComponents<GenericSkill>();
+                    foreach (GenericSkill slot in slots)
+                    {
+                        if (slot.finalRechargeInterval != 0)
+                        {
+                            slot.cooldownOverride = 0.001f;
+                        }
+                    }
+                }          
+            }
+            else if(buddhaMonsters)
+            {
+                self.bodyFlags |= CharacterBody.BodyFlags.Buddha;
+            }
         }
 
         private static void ToggleConsoleWindowWithCustomKey(ILContext il)

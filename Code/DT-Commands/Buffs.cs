@@ -88,12 +88,8 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "count", "int"), args, LogLevel.MessageClientOnly);
                 return;
             }
-            if (iCount < 0)
-            {
-                Log.MessageNetworked(String.Format(Lang.NEGATIVE_ARG, "count"), args, LogLevel.MessageClientOnly);
-                return;
-            }
-
+            bool remove = iCount < 0;
+            
             float duration = 0f;
             if (args.Count > 2 && args[2] != Lang.DEFAULT_VALUE && !TextSerialization.TryParseInvariant(args[2], out duration))
             {
@@ -126,26 +122,46 @@ namespace DebugToolkit.Commands
             var canStack = BuffCatalog.GetBuffDef(buff).canStack;
             var body = target.body;
             if (duration == 0f)
-            {
-                if (!canStack)
+            {    
+                if (remove)
                 {
-                    iCount = Math.Min(iCount, 1 - body.GetBuffCount(buff));
+                    for (int i = 0; i > iCount; i--)
+                    {
+                        body.RemoveBuff(buff);
+                    }
                 }
-                for (int i = 0; i < iCount; i++)
+                else
                 {
-                    body.AddBuff(buff);
+                    if (!canStack)
+                    {
+                        iCount = Math.Min(iCount, 1 - body.GetBuffCount(buff));
+                    }
+                    for (int i = 0; i < iCount; i++)
+                    {
+                        body.AddBuff(buff);
+                    }
                 }
-                Log.MessageNetworked(string.Format(Lang.GIVEOBJECT, iCount, name, target.name), args);
+                Log.MessageNetworked(string.Format(Lang.GIVEOBJECT, iCount, name, target.name, ""), args);
             }
             else
             {
-                if (!canStack)
+                if (remove)
                 {
-                    iCount = Math.Min(iCount, 1);
+                    for (int i = 0; i > iCount; i--)
+                    {
+                        body.RemoveOldestTimedBuff(buff);
+                    }
                 }
-                for (int i = 0; i < iCount; i++)
+                else
                 {
-                    body.AddTimedBuff(buff, duration);
+                    if (!canStack)
+                    {
+                        iCount = Math.Min(iCount, 1);
+                    }
+                    for (int i = 0; i < iCount; i++)
+                    {
+                        body.AddTimedBuff(buff, duration);
+                    }
                 }
                 Log.MessageNetworked($"Gave {iCount} {name} to {target.name} for {duration} seconds", args);
             }
@@ -291,6 +307,44 @@ namespace DebugToolkit.Commands
                 body.SetBuffCount(buff, 0);
                 Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT, stacks, name, target.name), args);
             }
+        }
+
+       
+        [ConCommand(commandName = "cleanse", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.REMOVEALLBUFFS_HELP)]
+        private static void CCCleanse(ConCommandArgs args)
+        {
+            if (!Run.instance)
+            {
+                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            bool isDedicatedServer = args.sender == null;
+            if (isDedicatedServer && (args.Count < 1 || args[0] == Lang.DEFAULT_VALUE))
+            {
+                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.REMOVEALLBUFFS_ARGS, args, LogLevel.MessageClientOnly);
+                return;
+            }
+
+   
+            var target = ParseTarget(args, 1);
+            if (target.failMessage != null)
+            {
+                Log.MessageNetworked(target.failMessage, args, LogLevel.MessageClientOnly);
+                return;
+            }
+
+            var body = target.body;
+            if (!body)
+            {
+                Log.MessageNetworked(target.failMessage, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            CleanseSystem.CleanseBodyServer(body, true, true, true, true, true, false);
+            for (int i = 0; i < BuffCatalog.buffCount; i++)
+            {
+                body.SetBuffCount((BuffIndex)i, 0);
+            }
+            Log.MessageNetworked($"Cleansed {target.name}", args);
         }
 
         [ConCommand(commandName = "remove_all_buffs", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.REMOVEALLBUFFS_HELP)]

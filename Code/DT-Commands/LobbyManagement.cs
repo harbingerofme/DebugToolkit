@@ -66,9 +66,22 @@ namespace DebugToolkit.Commands
                 }
                 master = player.master;
             }
-
+            master.godMode = false;
+            master.UpdateBodyGodMode();
             master.TrueKill();
             Log.MessageNetworked(master.name + " was killed by server.", args);
+        }
+        [ConCommand(commandName = "true_kill_all", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.TRUEKILL_HELP)]
+        private static void CCTrueKillAll(ConCommandArgs args)
+        {
+            foreach (var player in PlayerCharacterMasterController.instances)
+            {
+                player.master.godMode = false;
+                player.master.UpdateBodyGodMode();
+                player.master.TrueKill();
+            
+            }
+            Log.MessageNetworked("Everyone was killed by server.", args);
         }
 
         private static NetworkConnection GetClientFromArgs(ConCommandArgs args)
