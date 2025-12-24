@@ -149,6 +149,7 @@ namespace DebugToolkit.Commands
                 return;
             }
 
+            master.originalBodyPrefab = newBody;
             master.bodyPrefab = newBody;
             Log.MessageNetworked(args.sender.userName + " is spawning as " + newBody.name, args);
 
