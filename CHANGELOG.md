@@ -5,26 +5,38 @@
 
 	* Added commands:
 		* 'give_drone': Summons drone, specified amount and tier
-		* 'list_drone', 'list_pickups'
-		* 'list_mods': Get internal name of all installed mod.
-		* 'buddhaenemy', 'invulenemy': Buddha mode for all enemies, to make them unkillable.
-		* 'goto_boss' -> Teleports you to boss, teleporter or boss arenas on stage, so you don't have to fly to Mithrix 100 times in testing.
-		* 'model': hides model, for screenshotting/recording.
+		* 'remove_all_drones': Removes all drones, leaving no bodies.
+		* 'kill_minions': Kills all minions, leaving dead drones.
+		* 'list_drone': List drone names and ids.
+		
+		* 'set_ .. damage, attackspeed, health, regen, armor, movespeed' Sets the stat to the specified value, for the target, for that life; For clean testing.
+		* 'reset_stats' Undoes changes from 'set_..' commands.
 		* 'nocooldowns': disables your skill cooldowns
+		 
+		* 'list_pickups': List pickup names and ids.
+		* 'list_mods': Lists all loaded mods and if they are tagged as RequiredByAll. Useful to get internal names to check for.
+		* 'buddhaenemy', 'invulenemy': Buddha mode for all enemies, to make them unkillable.
+		* 'goto_boss': Teleports you to boss, teleporter or boss arenas on stage, (so you don't have to fly to Mithrix 100 times)
+		* 'hide_model': hides model, for screenshotting/recording.
+
 		* 'evolve_lemurian': Triggers Artifact of Devotion evolution.
 		* 'give_voidcoin': Gives Void Markers.
-		* 'no_interactables': Prevent interactables
+		* 'no_interactables': Prevent interactables from spawning
+		* 'toggle_time' Toggles 'time_scale' between 0 and what it it was before.
+		 
 		
 	* Added macro/short commands:
 		* 'dtscanner' -> 100 BoostEquipmentRechrage & Radar Scanner equip for easy map searching.
 		* 'dtdamage' -> x1000000 damage macro.
+		* 'dtpeace' -> 'kill_all' monsters & voids and 'no_enemies true'
 		* 'random_equip' macro for 'give_equip random'
 		* 'rich', -> Set money to 2 billion.
 		* 'poor' -> Set money to 0.
 		* 'hud': shorthand toggle for 'hud_enable'
 		* 'skill': shorthand for 'loadout_set_skill_variant self'
+		* 'skin': shorthand for 'loadout_set_skin_variant self'
 		* 'unlimited_junk': Toggle for 'junk_unlimited'
-		* 'cleanse': Alt for 'remove_all_buffs'
+		* 'cleanse': Alt for 'remove_all_buffs 0 & 1'
  
 	* Updated command functionality:
 		* Item commands can now grant/remove channeled items
@@ -32,14 +44,18 @@
 		* 'spawn_interactable' now also shows interactable names in auto complete.
 		* 'spawn_interactable' now accepts amount.		 
 		* 'spawn_as' now has second argument to permanently spawn as the new body. (Like prior to AC behaviour) //Default False
-		* 'create_pickup' now supports dropping drones or pickups.
-		* 'create_pickup' switched {type} and {permanent/temp} argument spots.
+		* 'create_pickup' now supports dropping drones & pickups.
+		* 'create_pickup' switched {search} and {permanent/temp} argument spots.
 		* 'give_equip -1' now removes your equipment.
 		* 'give_buff' now works with negative amount for removing.
-		* 'true_kill' now bypasses godmode.
 		* 'loadout_set_skill_variant' now accepts 'self'
 		* 'random_items' changed default value to not give Lunars & Voids.
+		* 'hurt' second optional argument to bypass armor/damage calculations.
+		* 'kill_all' no value given now kills Monster & Void teams.
+		* 'kill_all' second optional argument to bypass revives. (Does not bypass Godmode)
+		* 'true_kill' now bypasses godmode.
  
+
 	*  Amount of spawned interactables/monsters/drones by commands capped at a 100 per command, to not crash the game if you mistype.
 	*  Fixed 'god 0/1'/'buddha 0/1' not setting the toggle's state.
 	*  Fixed 'loadout_set_skin_variant' crashing the game.

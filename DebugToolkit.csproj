@@ -89,7 +89,7 @@
 	<ItemGroup>
 		<PackageReference Include="BepInEx.Core" Version="5.4.21" GeneratePathProperty="true" />
 		<PackageReference Include="MMHOOK.RoR2" Version="2025.11.19" NoWarn="NU1701" />
-		<PackageReference Include="RiskOfRain2.GameLibs" Version="1.4.0-r.0" GeneratePathProperty="true" />
+		<PackageReference Include="RiskOfRain2.GameLibs" Version="1.4.1-r.0" GeneratePathProperty="true" />
 		<PackageReference Include="UnityEngine.Modules" Version="2021.3.33" GeneratePathProperty="true" />
 	</ItemGroup>
 

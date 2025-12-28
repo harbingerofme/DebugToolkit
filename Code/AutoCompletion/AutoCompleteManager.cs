@@ -97,14 +97,16 @@ namespace DebugToolkit
             parser.RegisterDynamicVariable("player", NetworkUser.instancesList, "userName");
 
             parser.RegisterStaticVariable("itemTypes", new string[] {
-                //"0|None",
                 "1|Permanent",
                 "2|Temp",
                 "3|Channelled",
-                },
-                1
+                },1
             );
-
+            parser.RegisterStaticVariable("itemTypesNoChanneled", new string[] {
+                "1|Permanent",
+                "2|Temp",
+                }, 1
+           );
             parser.Scan(System.Reflection.Assembly.GetExecutingAssembly());
         }
 

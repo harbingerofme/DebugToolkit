@@ -2,6 +2,7 @@
 using RoR2;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace DebugToolkit.Commands
 {
@@ -80,27 +81,48 @@ namespace DebugToolkit.Commands
             }
         }
 
+        public static float prevTimeScale = 0;
+        [ConCommand(commandName = "toggle_time", flags = ConVarFlags.None, helpText = Lang.TOGGLETIME_HELP)]
+        private static void CC_TogglePause(ConCommandArgs args)
+        {
+            float newTimeScale = prevTimeScale;
+            prevTimeScale = Time.timeScale;
+            Time.timeScale = newTimeScale;
+            TimescaleNet.Invoke(newTimeScale);
+        }
 
-        [ConCommand(commandName = "list_mods", flags = ConVarFlags.None, helpText = "List installed mod names to get them for compatibility." + Lang.LISTMODS_ARGS)]
+        [ConCommand(commandName = "list_mods", flags = ConVarFlags.None, helpText = "Lists installed mod names to get them for compatibility, then lists all mods tagged as required by all")]
         [AutoComplete(Lang.LISTMODS_ARGS)]
         public static void CCMods(ConCommandArgs args)
         {
-            bool requiredByAll = args.TryGetArgBool(0).GetValueOrDefault(false);
+            int requiredByAll = args.TryGetArgInt(0).GetValueOrDefault(0);
+            UnityEngine.Debug.Log(requiredByAll);
             string log = string.Empty;
-            if (requiredByAll)
+            if (requiredByAll == 0 || requiredByAll == 1)
             {
-                log = "All RequiredByAllTaggedMods\n\n";
-                foreach (var a in NetworkModCompatibilityHelper._networkModList)
-                {
-                    log += a.ToString() + "\n";
-                }
-            }
-            else
-            {
-                log = "All loaded mods\n\n";
+                log += "All loaded mods\n\n";
                 foreach (var a in BepInEx.Bootstrap.Chainloader.PluginInfos)
                 {
                     log += a.ToString() + "\n";
+                }                
+            }
+            if (requiredByAll == 0)
+            {
+                log += "\n";
+            }
+            if (requiredByAll == 0 || requiredByAll == 2)
+            {
+                if (NetworkModCompatibilityHelper._networkModList.Length == 0)
+                {
+                    log += "No mods tagged as RequiredByAll. This mod pack is Vanilla compatible.";
+                }
+                else
+                {
+                    log += "Mods tagged as RequiredByAll\n\n";
+                    foreach (var a in NetworkModCompatibilityHelper._networkModList)
+                    {
+                        log += a.ToString() + "\n";
+                    }
                 }
             }
             Debug.Log(log);

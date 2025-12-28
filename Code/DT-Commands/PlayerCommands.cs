@@ -298,7 +298,7 @@ namespace DebugToolkit.Commands
             }
             else
             {
-                Log.MessageNetworked(args.sender.userName + " is spawning as " + newBody.name + " for the current stage.", args);
+                Log.MessageNetworked(args.sender.userName + " is spawning as " + newBody.name + " <color=#53E9FF>temporarily</color>.", args);
             }
 
             if (!master.GetBody())
@@ -371,6 +371,12 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.HURT_ARGS, args, LogLevel.MessageClientOnly);
                 return;
             }
+            bool bypassCalc = false;
+            if (args.Count > 2 && args[2] != Lang.DEFAULT_VALUE && !Util.TryParseBool(args[2], out bypassCalc))
+            {
+                Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "bypassCalc", "int or bool"), args, LogLevel.MessageClientOnly);
+                return;
+            }
             var target = Buffs.ParseTarget(args, 1);
             if (target.failMessage != null)
             {
@@ -396,6 +402,7 @@ namespace DebugToolkit.Commands
             {
                 damage = amount,
                 position = target.body.corePosition,
+                damageType = bypassCalc ? DamageTypeExtended.BypassDamageCalculations : DamageTypeExtended.Generic
             });
             Log.MessageNetworked($"Damaged {target.name} for {amount} hp.", args);
         }
@@ -800,6 +807,11 @@ namespace DebugToolkit.Commands
            
         }
 
+        [ConCommand(commandName = "skin", flags = ConVarFlags.ExecuteOnServer, helpText = "[skin_variant]\nSets the skin variant for the sender's user profile.")]
+        public static void CC_SKIN(ConCommandArgs args)
+        {
+            Macros.Invoke(args.sender, "loadout_set_skin_variant", "self", args.TryGetArgInt(0).GetValueOrDefault(-1).ToString());
+        }
 
 
         [ConCommand(commandName = "unlimited_junk", flags = ConVarFlags.ExecuteOnServer, helpText = "Toggle junk_unlimited. Makes skillchecks ingore junk cost.")]
@@ -816,23 +828,31 @@ namespace DebugToolkit.Commands
    
         }
 
-
-        public static bool NoCooldowns = false;
        
-        [ConCommand(commandName = "nocooldown", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.LOADOUTSKIN_HELP)]
-        [ConCommand(commandName = "nocooldowns", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.LOADOUTSKIN_HELP)]
+      
+        [ConCommand(commandName = "nocooldown", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.NOCOOLDOWN_HELP)]
+        [ConCommand(commandName = "nocooldowns", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.NOCOOLDOWN_HELP)]
+        [AutoComplete(Lang.TARGET_PLAYER_PINGED)]
         public static void CC_Cooldown(ConCommandArgs args)
         {
-            if (!args.senderBody)
+            var target = Buffs.ParseTarget(args, 0);
+            if (target.failMessage != null)
             {
+                Log.MessageNetworked(target.failMessage, args, LogLevel.MessageClientOnly);
                 return;
             }
-            NoCooldowns = !NoCooldowns;
-            GenericSkill[] slots = args.senderBody.GetComponents<GenericSkill>();
+            if (!target.body)
+            {
+                Log.MessageNetworked("No target body found", args, LogLevel.MessageClientOnly);
+                return;
+            }
+            bool NoCooldowns = false;
+            GenericSkill[] slots = target.body.GetComponents<GenericSkill>();
             foreach (GenericSkill slot in slots)
             {
-                if (NoCooldowns == true)
+                if (slot.skillDef.baseRechargeInterval != 0 && slot.cooldownOverride == 0)
                 {
+                    NoCooldowns = true;
                     slot.cooldownOverride = 0.001f;
                 }
                 else
@@ -840,13 +860,15 @@ namespace DebugToolkit.Commands
                     slot.cooldownOverride = 0;
                 }
             }
-            Log.MessageNetworked(String.Format(NoCooldowns ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, "No Skill Cooldowns"), args);
+            string enable = NoCooldowns ? "<color=red>Reenabled</color>" : "<color=green>Disabled</color>";
+            Log.MessageNetworked($"{NoCooldowns} Skill Cooldowns for {RoR2.Util.GetBestBodyName(target.body.gameObject)}", args);
         }
 
 
-
+        //Idk what to do with this because like technically this does affect gameplay by turning off your hurtboxes and junk
         [ConCommand(commandName = "invis", flags = ConVarFlags.None, helpText = "Turn off your model for screenshots")]
         [ConCommand(commandName = "model", flags = ConVarFlags.None, helpText = "Turn off your model for screenshots")]
+        [ConCommand(commandName = "hide_model", flags = ConVarFlags.None, helpText = "Turn off your model for screenshots")]
         public static void CC_TurnOffModel(ConCommandArgs args)
         {
  
@@ -866,6 +888,191 @@ namespace DebugToolkit.Commands
         }
 
 
+        [ConCommand(commandName = "reset_stats", flags = ConVarFlags.SenderMustBeServer, helpText = Lang.RESETSTAT_HELP)]
+        [AutoComplete(Lang.TARGET_PLAYER_PINGED)]
+        public static void CC_ReSetStats(ConCommandArgs args)
+        {
+            args.userArgs.Insert(0,"");
+            CC_SetStats(args);
+        }
+
+        //Idk how these work with client to server
+        //I think they just, don't.
+        [ConCommand(commandName = "set_damage", flags = ConVarFlags.SenderMustBeServer, helpText = Lang.SETSTAT_HELP)]
+        [ConCommand(commandName = "set_attackspeed", flags = ConVarFlags.SenderMustBeServer, helpText = Lang.SETSTAT_HELP)]
+        [ConCommand(commandName = "set_health", flags = ConVarFlags.SenderMustBeServer, helpText = Lang.SETSTAT_HELP)]
+        [ConCommand(commandName = "set_regen", flags = ConVarFlags.SenderMustBeServer, helpText = Lang.SETSTAT_HELP)]
+        [ConCommand(commandName = "set_armor", flags = ConVarFlags.SenderMustBeServer, helpText = Lang.SETSTAT_HELP)]
+        [ConCommand(commandName = "set_movespeed", flags = ConVarFlags.SenderMustBeServer, helpText = Lang.SETSTAT_HELP)]
+        [ConCommand(commandName = "set_jumppower", flags = ConVarFlags.SenderMustBeServer, helpText = Lang.SETSTAT_HELP)]
+        [AutoComplete(Lang.SETSTATS_ARGS)]
+        public static void CC_SetStats(ConCommandArgs args)
+        {
+            if (!Run.instance)
+            {
+                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            if (args.Count == 0 || (args.sender == null && (args.Count < 2 || args[1] == Lang.DEFAULT_VALUE)))
+            {
+                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.SETSTATS_ARGS, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            var target = Buffs.ParseTarget(args, 1);
+            if (target.failMessage != null)
+            {
+                Log.MessageNetworked(target.failMessage, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            if (!target.body)
+            {
+                Log.MessageNetworked("No target body found", args, LogLevel.MessageClientOnly);
+                return;
+            }
+            if (!TextSerialization.TryParseInvariant(args[0], out float amount))
+            {
+                Log.MessageNetworked(string.Format(Lang.PARSE_ERROR, "amount", "float"), args, LogLevel.MessageClientOnly);
+                return;
+            }
+
+            Stat statToSet = Stat.Reset;
+            string command = args.commandName;
+
+            switch (command)
+            {
+                case "set_damage":
+                    statToSet = Stat.Damage;
+                    break;
+                case "set_attackspeed":
+                    statToSet = Stat.AttackSpeed;
+                    break;
+                case "set_health":
+                    statToSet = Stat.MaxHealth;
+                    break;
+                case "set_regen":
+                    statToSet = Stat.Regen;
+                    break;
+                case "set_armor":
+                    statToSet = Stat.Armor;
+                    break;
+                case "set_movespeed":
+                    statToSet = Stat.MoveSpeed;
+                    break;
+                case "set_jumppower":
+                    statToSet = Stat.JumpPower;
+                    break;
+                case "reset_stats":
+                    statToSet = Stat.Reset;
+                    break;
+            }
+            SetStatsForBody(target.body, statToSet, amount);
+            if (statToSet == Stat.Reset) 
+            {
+                Log.MessageNetworked($"Reset {target.name}'s stats to their base values.", args);
+            }
+            else
+            {
+                Log.MessageNetworked($"Set {target.name}'s {statToSet} to {amount}.", args);
+            }
+           
+         
+        }
+
+        public enum Stat
+        {
+           
+            Damage,
+            AttackSpeed,
+            MaxHealth,
+            Regen, 
+            Armor,
+            MoveSpeed,
+            JumpPower,
+
+            Reset,
+        }
+        public static void SetStatsForBody(CharacterBody body, Stat stat, float amount)
+        {
+            var ogBody = body.master.bodyPrefab.GetComponent<CharacterBody>();
+            switch (stat)
+            {
+             
+                case Stat.Damage:
+                    body.baseDamage = amount;
+                    body.levelDamage = 0;
+                    break;
+                case Stat.AttackSpeed:
+                    body.baseAttackSpeed = amount;
+                    body.levelAttackSpeed = 0;
+                    break;
+                case Stat.MaxHealth:
+                    body.baseMaxHealth = amount;
+                    body.levelMaxHealth = 0;
+                    break;
+                case Stat.Regen:
+                    body.baseRegen = amount;
+                    body.levelRegen = 0;
+                    break;
+                case Stat.Armor:
+                    body.baseArmor = amount;
+                    body.levelArmor = 0;
+                    break;
+                case Stat.MoveSpeed:
+                    body.baseMoveSpeed = amount;
+                    body.levelMoveSpeed = 0;
+                    body.baseAcceleration = (ogBody.baseAcceleration * (amount / ogBody.baseMoveSpeed));
+                    break;
+                case Stat.JumpPower:
+                    body.baseJumpPower = amount;
+                    body.levelJumpPower = 0;
+                    break;
+                case Stat.Reset:
+                    body.baseDamage = ogBody.baseDamage;
+                    body.levelDamage = ogBody.levelDamage;
+                    body.baseAttackSpeed = ogBody.baseAttackSpeed;
+                    body.levelAttackSpeed = ogBody.levelAttackSpeed;
+                    //
+                    body.baseMaxHealth = ogBody.baseMaxHealth;
+                    body.levelMaxHealth = ogBody.levelMaxHealth;
+                    body.baseRegen = ogBody.baseRegen;
+                    body.levelRegen = ogBody.levelRegen;
+                    body.baseArmor = ogBody.baseArmor;
+                    body.levelArmor = ogBody.levelArmor;
+                    //
+                    body.baseMoveSpeed = ogBody.baseMoveSpeed;
+                    body.levelMoveSpeed = ogBody.levelMoveSpeed;
+                    body.baseAcceleration = ogBody.baseAcceleration;
+                    body.level = ogBody.levelMoveSpeed;
+                    body.baseJumpPower = ogBody.baseJumpPower;
+                    body.levelJumpPower = ogBody.levelJumpPower;
+                    break;
+            }
+            body.MarkAllStatsDirty();
+        }
+
+        [ConCommand(commandName = "set_health", flags = ConVarFlags.ExecuteOnServer, helpText = "Sets health to specifiedd amount and removes regen for testing.")]
+        public static void CC_SetHP(ConCommandArgs args)
+        {
+            if (!args.senderMaster)
+            {
+                return;
+            }
+            if (!args.senderMaster.GetBody())
+            {
+                //WolfoLib.log.LogMessage("No Body");
+                return;
+            }
+            float newDamage = (float)System.Convert.ToInt16(args[0]);
+            var body = args.senderMaster.GetBody();
+            body.baseMaxHealth = newDamage;
+            body.levelMaxHealth = 0;
+            body.maxHealth = newDamage;
+            body.baseRegen = 0;
+            body.levelRegen = 0;
+            body.regen = 0;
+
+            body.healthComponent.health = body.maxHealth;
+        }
 
 
     }

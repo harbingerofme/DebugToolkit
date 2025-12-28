@@ -230,31 +230,84 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
                 return;
             }
-            TeamIndex team = TeamIndex.Monster;
+            bool trueKill = false;
+            if (args.Count > 1 && args[1] != Lang.DEFAULT_VALUE && !Util.TryParseBool(args[1], out trueKill))
+            {
+                Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "trueKill", "int or bool"), args, LogLevel.MessageClientOnly);
+                return;
+            }
+
             if (args.Count > 0 && args[0] != Lang.DEFAULT_VALUE)
             {
+                TeamIndex team = TeamIndex.Monster;
                 team = StringFinder.Instance.GetTeamFromPartial(args[0]);
                 if (team == StringFinder.TeamIndex_NotFound)
                 {
                     Log.MessageNetworked(Lang.TEAM_NOTFOUND, args, LogLevel.MessageClientOnly);
                     return;
                 }
-            }
 
-            int count = 0;
-            foreach (var teamComponent in TeamComponent.GetTeamMembers(team).ToList())
-            {
-                var healthComponent = teamComponent.GetComponent<HealthComponent>();
-                if (healthComponent)
+                int count = 0;
+                foreach (var teamComponent in TeamComponent.GetTeamMembers(team).ToList())
                 {
-                    healthComponent.Suicide(null);
-                    if (!healthComponent.alive)
+                    if (trueKill && teamComponent.body.master)
                     {
+                        teamComponent.body.master.TrueKill();
                         count++;
                     }
+                    else
+                    {
+                        var healthComponent = teamComponent.GetComponent<HealthComponent>();
+                        if (healthComponent)
+                        {
+
+                            healthComponent.Suicide(null);
+                            if (!healthComponent.alive)
+                            {
+                                count++;
+                            }
+                        }
+                    }
+
+                     
                 }
+                string a = (trueKill ? "True " : "" );
+                Log.MessageNetworked($"{a}Killed {count} of team {team}.", args);
             }
-            Log.MessageNetworked($"Killed {count} of team {team}.", args);
+            else
+            {               
+                int count = 0;
+                int countV = 0;
+                foreach (var teamComponent in TeamComponent.GetTeamMembers(TeamIndex.Monster).ToList())
+                {
+                    var healthComponent = teamComponent.GetComponent<HealthComponent>();
+                    if (healthComponent)
+                    {
+                        healthComponent.Suicide(null);
+                        if (!healthComponent.alive)
+                        {
+                            count++;
+                        }
+                    }
+                }
+                foreach (var teamComponent in TeamComponent.GetTeamMembers(TeamIndex.Void).ToList())
+                {
+                    var healthComponent = teamComponent.GetComponent<HealthComponent>();
+                    if (healthComponent)
+                    {
+                        healthComponent.Suicide(null);
+                        if (!healthComponent.alive)
+                        {
+                            countV++;
+                        }
+                    }
+                }
+                Log.MessageNetworked($"Killed {count} of team {TeamIndex.Monster}.", args);
+                Log.MessageNetworked($"Killed {countV} of team {TeamIndex.Void}.", args);
+            }
+
+
+          
         }
 
         [ConCommand(commandName = "time_scale", flags = ConVarFlags.Engine | ConVarFlags.ExecuteOnServer, helpText = Lang.TIMESCALE_HELP)]
@@ -747,7 +800,7 @@ namespace DebugToolkit.Commands
         private void RpcApplyTimescale(float scale)
         {
             Time.timeScale = scale;
-            Message("Timescale set to: " + scale + ". ");
+            Message("Timescale set to: " + scale + " ");
         }
     }
 }

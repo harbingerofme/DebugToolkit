@@ -37,6 +37,17 @@ namespace DebugToolkit.Commands
             Invoke(a, "set_scene", "bazaar");
         }
 
+        //Is there any conflict in having it be the same convar as vanilla indev builds?
+        [ConCommand(commandName = "peace", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.MACRO_DTPEACE_HELP)]
+        [ConCommand(commandName = "dtpeace", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.MACRO_DTPEACE_HELP)]
+        private static void Peace(ConCommandArgs args)
+        {
+            Invoke(args.sender, "kill_all", "2", "1");
+            Invoke(args.sender, "kill_all", "4", "1");
+            Invoke(args.sender, "no_enemies", "1");
+            //Vanilla peace also sets god 1 but ehh idk i dont need that
+        }
+
         [ConCommand(commandName = "dtzoom", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.MACRO_DTZOOM_HELP)]
         private static void Zoom(ConCommandArgs args)
         {

@@ -8,7 +8,6 @@ using UnityEngine.AddressableAssets;
 using UnityEngine.Networking;
 using static DebugToolkit.Log;
 using static DebugToolkit.Util;
-using static Rewired.InputMapper;
 
 namespace DebugToolkit.Commands
 {
@@ -197,6 +196,9 @@ namespace DebugToolkit.Commands
             }
             var itemDef = ItemCatalog.GetItemDef(item);
             var name = itemDef.name;
+
+            name = getItemTypeName(type) + name;
+
             var amount = (args.commandName == "give_item" ? 1 : -1) * iCount;
             var inventory = target.inventory;
             if (amount > 0)
@@ -207,13 +209,13 @@ namespace DebugToolkit.Commands
                     return;
                 }
                 GiveItem(inventory, item, amount, type);
-                Log.MessageNetworked(string.Format(Lang.GIVEOBJECT, amount, name, target.name, type), args);
+                Log.MessageNetworked(string.Format(Lang.GIVEITEM, amount, name, target.name), args);
             }
             else if (amount < 0)
             {
                 amount = Math.Min(-amount, GetItemCount(inventory, item, type));
                 RemoveItem(inventory, item, amount, type);
-                Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT, amount, name, target.name, type), args);
+                Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT, amount, name, target.name), args);
             }
             else
             {
@@ -223,6 +225,19 @@ namespace DebugToolkit.Commands
             {
                 target.devotionController.UpdateAllMinions(false);
             }
+        }
+
+        public static string getItemTypeName(ItemType type)
+        {
+            switch (type)
+            {
+                case ItemType.Permanent:
+                    return "";
+                case ItemType.Temp:
+                    return "<color=#53E9FF>Temporary </color>"; //Saturated by 50% Temp color
+                    //return "<style=cIsTemporary>temporary</color>"; //Bit hard to see in the console
+            }
+            return type.ToString();
         }
 
         [ConCommand(commandName = "give_drone", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.GIVEDRONE_HELP)]
@@ -254,7 +269,11 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "tier", "int"), args, LogLevel.MessageClientOnly);
                 return;
             }
- 
+            if (tier < 0)
+            {
+                Log.MessageNetworked(string.Format(Lang.NEGATIVE_ARG, "count"), args, LogLevel.MessageClientOnly);
+                return;
+            }
             var target = Buffs.ParseTarget(args, 3);
             if (target.failMessage != null)
             {
@@ -380,7 +399,7 @@ namespace DebugToolkit.Commands
                 {
                     target.devotionController.UpdateAllMinions(false);
                 }
-                Log.MessageNetworked($"Generated {iCount} items for {target.name}!", args);
+                Log.MessageNetworked($"Generated {iCount} {getItemTypeName(type)}items for {target.name}!", args);
             }
             else
             {
@@ -922,7 +941,7 @@ namespace DebugToolkit.Commands
             return ItemType.Permanent;
         }
 
-        private static CommandTarget ParseTarget(ConCommandArgs args, int index)
+        public static CommandTarget ParseTarget(ConCommandArgs args, int index)
         {
             string failMessage = null;
             Inventory inventory = null;
@@ -1000,7 +1019,7 @@ namespace DebugToolkit.Commands
                     {
                         inventory = target.inventory;
                         var player = target.playerCharacterMasterController?.networkUser;
-                        targetName = player?.masterController.GetDisplayName() ?? target.gameObject.name;
+                        targetName = target.bodyInstanceObject ? RoR2.Util.GetBestBodyName(target.bodyInstanceObject) : player?.masterController.GetDisplayName() ?? target.gameObject.name;
                     }
                 }
             }
@@ -1041,7 +1060,7 @@ namespace DebugToolkit.Commands
         {
             droptable.selector.Clear();
             droptable.canDropBeReplaced = canDropBeReplaced;
-            if (args.Count < index + 1 || args[index] == Lang.DEFAULT_VALUE || args[index].ToUpperInvariant() == Lang.ALL)
+            if (args.Count < index + 1 || args[index] == Lang.DEFAULT_VALUE)
             {
                 droptable.Add(availableDropLists[ItemTier.Tier1], 1f);
                 droptable.Add(availableDropLists[ItemTier.Tier2], 1f);

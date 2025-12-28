@@ -160,7 +160,7 @@ namespace DebugToolkit
                 {
                     self.bodyFlags |= CharacterBody.BodyFlags.Buddha;
                 }
-                if (PlayerCommands.NoCooldowns)
+                /*if (PlayerCommands.NoCooldowns)
                 {
                     GenericSkill[] slots = self.GetComponents<GenericSkill>();
                     foreach (GenericSkill slot in slots)
@@ -170,7 +170,7 @@ namespace DebugToolkit
                             slot.cooldownOverride = 0.001f;
                         }
                     }
-                }          
+                }*/          
             }
             else if(buddhaMonsters)
             {
@@ -392,9 +392,10 @@ namespace DebugToolkit
             RemoveCheatFlag(self.FindConVar("bag_disable_breakout"));
             RemoveCheatFlag(self.FindConVar("bounce_velocity"));
             RemoveCheatFlag(self.FindConVar("junk_unlimited"));
+            RemoveCheatFlag(self.FindConVar("timescale"));
 
             const string MOD_MESSAGE = " Let the DebugToolkit team know if you need this convar.";
-            ExpandHelpText(self.FindConVar("timescale"), " Use time_scale instead!");
+            //ExpandHelpText(self.FindConVar("timescale"), " Use time_scale instead!");
             ExpandHelpText(self.FindConVar("director_combat_disable"), " Use no_enemies instead!");
             ExpandHelpText(self.FindConVar("timestep"), MOD_MESSAGE);
             ExpandHelpText(self.FindConVar("cmotor_safe_collision_step_threshold"), MOD_MESSAGE);

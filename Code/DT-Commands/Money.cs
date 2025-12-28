@@ -175,13 +175,19 @@ namespace DebugToolkit.Commands
                     if (rich)
                     {
                         player.master.GiveMoney(2000000000 - player.master.money); 
-                        Log.MessageNetworked("We're rich", args);
                     }
                     else
                     {
                         player.master.money = 0;
-                        Log.MessageNetworked("We're poor", args);
                     }
+                }
+                if (rich)
+                {
+                    Log.MessageNetworked("We're rich", args);
+                }
+                else
+                {
+                    Log.MessageNetworked("We're poor", args);
                 }
             }
         }

@@ -98,8 +98,9 @@ namespace DebugToolkit.Commands
             }
             if (duration < 0f)
             {
+                duration = 0;
                 Log.MessageNetworked(String.Format(Lang.NEGATIVE_ARG, "duration"), args, LogLevel.MessageClientOnly);
-                return;
+                //return;
             }
 
             var target = ParseTarget(args, 3);
@@ -141,7 +142,7 @@ namespace DebugToolkit.Commands
                         body.AddBuff(buff);
                     }
                 }
-                Log.MessageNetworked(string.Format(Lang.GIVEOBJECT, iCount, name, target.name, ""), args);
+                Log.MessageNetworked(string.Format(Lang.GIVEBUFF, iCount, name, target.name, ""), args);
             }
             else
             {
@@ -163,7 +164,7 @@ namespace DebugToolkit.Commands
                         body.AddTimedBuff(buff, duration);
                     }
                 }
-                Log.MessageNetworked($"Gave {iCount} {name} to {target.name} for {duration} seconds", args);
+                Log.MessageNetworked($"Gave {iCount} {name} to {target.name} for <color=#53E9FF>{duration} seconds</color>", args);
             }
         }
 
@@ -344,7 +345,7 @@ namespace DebugToolkit.Commands
             {
                 body.SetBuffCount((BuffIndex)i, 0);
             }
-            Log.MessageNetworked($"Cleansed {target.name}", args);
+            Log.MessageNetworked($"Cleansed {target.name} of all buffs.", args);
         }
 
         [ConCommand(commandName = "remove_all_buffs", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.REMOVEALLBUFFS_HELP)]
