@@ -290,6 +290,7 @@ namespace DebugToolkit.Commands
                 return;
             }
 
+            master.originalBodyPrefab = newBody;
             master.bodyPrefab = newBody;
             if (args.TryGetArgBool(1).GetValueOrDefault(false))
             {

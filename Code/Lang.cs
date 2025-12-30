@@ -244,6 +244,7 @@
         // Keywords
         public const string
             ALL = "ALL",
+            ALLY = "ALLY",
             BOTH = "BOTH",
             COIN_LUNAR = "LUNARCOIN",
             COIN_VOID = "VOIDCOIN",
