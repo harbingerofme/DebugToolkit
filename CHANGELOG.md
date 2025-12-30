@@ -50,7 +50,7 @@
 		* 'give_buff' now works with negative amount for removing.
 		* 'loadout_set_skill_variant' now accepts 'self'
 		* 'random_items' changed default value to not give Lunars & Voids.
-		* 'hurt' second optional argument to bypass armor/damage calculations.
+		* 'hurt' third optional argument to bypass armor&damage calculations.
 		* 'kill_all' no value given now kills Monster & Void teams.
 		* 'kill_all' second optional argument to bypass revives. (Does not bypass Godmode)
 		* 'true_kill' now bypasses godmode.
@@ -59,6 +59,8 @@
 	*  Amount of spawned interactables/monsters/drones by commands capped at a 100 per command, to not crash the game if you mistype.
 	*  Fixed 'god 0/1'/'buddha 0/1' not setting the toggle's state.
 	*  Fixed 'loadout_set_skin_variant' crashing the game.
+	*  Modded interactables should be spawnable from the start now.
+	
 	
 ### 3.21 ###
 * **3.21.1**

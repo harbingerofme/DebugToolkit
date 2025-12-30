@@ -860,8 +860,8 @@ namespace DebugToolkit.Commands
                     slot.cooldownOverride = 0;
                 }
             }
-            string enable = NoCooldowns ? "<color=red>Reenabled</color>" : "<color=green>Disabled</color>";
-            Log.MessageNetworked($"{NoCooldowns} Skill Cooldowns for {RoR2.Util.GetBestBodyName(target.body.gameObject)}", args);
+            string enable = NoCooldowns ? "<color=green>Disabled</color>" : "<color=red>Reenabled</color>";
+            Log.MessageNetworked($"{enable} Skill Cooldowns for {RoR2.Util.GetBestBodyName(target.body.gameObject)}", args);
         }
 
 

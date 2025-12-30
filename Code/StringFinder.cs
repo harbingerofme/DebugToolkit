@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using UnityEngine.UI;
 
 namespace DebugToolkit
 {
@@ -54,13 +55,39 @@ namespace DebugToolkit
 
         private void GatherISCs()
         {
-            GatherAddressableAssets<InteractableSpawnCard>("/isc", (asset) => interactableSpawnCards.Add(asset));
-            On.RoR2.ClassicStageInfo.Start += AddCurrentStageIscsToCache;
+            //GatherAddressableAssets<InteractableSpawnCard>("/isc", (asset) => interactableSpawnCards.Add(asset));
+            //On.RoR2.ClassicStageInfo.Start += AddCurrentStageIscsToCache;
+ 
+            RoR2Application.onLoad += () =>
+            {
+                //Doing this first means only getting loaded spawn cards.
+                //Which for vanilla isn't a lot of them (38)
+                //But itll find any modded ones and mod-edited ones.
+                var ISCList = Resources.FindObjectsOfTypeAll(typeof(InteractableSpawnCard)) as InteractableSpawnCard[];
+     
+                //Unless there's some issue with WaitForFinished()
+                //Gotta do it this way to get vanillaInteractables first then moddedInteractables, without jumbling up the order
+                foreach (var resourceLocator in Addressables.ResourceLocators)
+                {
+                    foreach (var key in resourceLocator.Keys)
+                    {
+                        var keyString = key.ToString();
+                        if (keyString.Contains("/isc"))
+                        {
+                            interactableSpawnCards.Add(Addressables.LoadAssetAsync<InteractableSpawnCard>(keyString).WaitForCompletion());
+                        }
+                    }
+                }
+
+                var filteredList =
+                ISCList.Where(spawnCard => spawnCard is InteractableSpawnCard && interactableSpawnCards.All(existingIsc => existingIsc.name != spawnCard.name));
+                interactableSpawnCards.AddRange(filteredList);
+            };
         }
 
         private static void GatherAddressableAssets<T>(string filterKey, Action<T> onAssetLoaded)
         {
-            RoR2Application.onLoad += () =>
+            RoR2Application.onLoadFinished += () =>
             {
                 foreach (var resourceLocator in Addressables.ResourceLocators)
                 {
