@@ -105,7 +105,7 @@ namespace DebugToolkit.Commands
             {
                 duration = 0;
                 Log.MessageNetworked(String.Format(Lang.NEGATIVE_ARG, "duration"), args, LogLevel.MessageClientOnly);
-                //return;
+                return;
             }
 
             var target = ParseTarget(args, 3);
