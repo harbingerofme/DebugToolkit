@@ -876,15 +876,14 @@ namespace DebugToolkit.Commands
             GameObject mdl = args.senderBody.GetComponent<ModelLocator>().modelTransform.gameObject;
             mdl.SetActive(!mdl.activeSelf);
             Log.MessageNetworked(String.Format(!mdl.activeSelf ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, "Invisible Model"), args);
-
+            Log.MessageNetworked(String.Format(RoR2.UI.HUD.cvHudEnable.value ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, "Hidden Model"), args, LogLevel.MessageClientOnly);
         }
 
         [ConCommand(commandName = "toggle_hud", flags = ConVarFlags.None, helpText = Lang.TOGGLEHUD_HELP)]
         public static void CCToggleHUD(ConCommandArgs args)
         {
-            RoR2.UI.HUD.cvHudEnable.SetBool(!RoR2.UI.HUD.cvHudEnable.value); 
-            Log.MessageNetworked(String.Format(RoR2.UI.HUD.cvHudEnable.value ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, "Hud"), args);
-
+            RoR2.UI.HUD.cvHudEnable.SetBool(!RoR2.UI.HUD.cvHudEnable.value);
+            Log.MessageNetworked(String.Format(RoR2.UI.HUD.cvHudEnable.value ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, "Hud"), args, LogLevel.MessageClientOnly);
         }
 
 
