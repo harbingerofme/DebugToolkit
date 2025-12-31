@@ -9,7 +9,7 @@
 		* 'kill_minions': Kills all minions, leaving dead drones.
 		* 'list_drone': List drone names and ids.
 		
-		* 'set_ .. damage, attackspeed, health, regen, armor, movespeed' Sets the stat to the specified value, for the target, for that life; For clean testing.
+		* 'set_ .. damage, attackspeed, crit, health, regen, armor, movespeed' Sets the stat to the specified value, for the target, for that life; For clean testing.
 		* 'reset_stats' Undoes changes from 'set_..' commands.
 		* 'nocooldowns': disables your skill cooldowns
 		 

@@ -291,7 +291,7 @@ namespace DebugToolkit.Commands
             }
 
             master.bodyPrefab = newBody;
-            if (args.TryGetArgBool(1).GetValueOrDefault(false))
+            if (args.TryGetArgBool(1).GetValueOrDefault(true))
             {
                 master.originalBodyPrefab = newBody;
                 Log.MessageNetworked(args.sender.userName + " is spawning as " + newBody.name + " for the rest of the run.", args);
@@ -889,6 +889,7 @@ namespace DebugToolkit.Commands
 
 
         [ConCommand(commandName = "reset_stats", flags = ConVarFlags.SenderMustBeServer, helpText = Lang.RESETSTAT_HELP)]
+        [ConCommand(commandName = "unset_stats", flags = ConVarFlags.SenderMustBeServer, helpText = Lang.RESETSTAT_HELP)]
         [AutoComplete(Lang.TARGET_PLAYER_PINGED)]
         public static void CC_ReSetStats(ConCommandArgs args)
         {
@@ -900,6 +901,7 @@ namespace DebugToolkit.Commands
         //I think they just, don't.
         [ConCommand(commandName = "set_damage", flags = ConVarFlags.SenderMustBeServer, helpText = Lang.SETSTAT_HELP)]
         [ConCommand(commandName = "set_attackspeed", flags = ConVarFlags.SenderMustBeServer, helpText = Lang.SETSTAT_HELP)]
+        [ConCommand(commandName = "set_crit", flags = ConVarFlags.SenderMustBeServer, helpText = Lang.SETSTAT_HELP)]
         [ConCommand(commandName = "set_health", flags = ConVarFlags.SenderMustBeServer, helpText = Lang.SETSTAT_HELP)]
         [ConCommand(commandName = "set_regen", flags = ConVarFlags.SenderMustBeServer, helpText = Lang.SETSTAT_HELP)]
         [ConCommand(commandName = "set_armor", flags = ConVarFlags.SenderMustBeServer, helpText = Lang.SETSTAT_HELP)]
@@ -946,6 +948,9 @@ namespace DebugToolkit.Commands
                 case "set_attackspeed":
                     statToSet = Stat.AttackSpeed;
                     break;
+                case "set_crit":
+                    statToSet = Stat.Crit;
+                    break;
                 case "set_health":
                     statToSet = Stat.MaxHealth;
                     break;
@@ -980,15 +985,14 @@ namespace DebugToolkit.Commands
 
         public enum Stat
         {
-           
             Damage,
             AttackSpeed,
+            Crit,
             MaxHealth,
             Regen, 
             Armor,
             MoveSpeed,
             JumpPower,
-
             Reset,
         }
         public static void SetStatsForBody(CharacterBody body, Stat stat, float amount)
@@ -1004,6 +1008,10 @@ namespace DebugToolkit.Commands
                 case Stat.AttackSpeed:
                     body.baseAttackSpeed = amount;
                     body.levelAttackSpeed = 0;
+                    break;
+                case Stat.Crit:
+                    body.baseCrit = amount;
+                    body.levelCrit = 0;
                     break;
                 case Stat.MaxHealth:
                     body.baseMaxHealth = amount;

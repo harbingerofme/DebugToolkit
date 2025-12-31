@@ -63,7 +63,7 @@
             SEED_ARGS = "Requires 0 or 1 argument: [new_seed]",
             SETARTIFACT_ARGS = "Requires 1 (2 if using 'all') argument: {artifact (artifact|'all')} [enable (0|1)]",
             SPAWNAI_ARGS = "Requires 1 argument: {ai} [count:1] [elite:None] [braindead (0|1):0/false] [team (team|'ally'):Monster]",
-            SPAWNAS_ARGS = "Requires 1 (3 if from server) argument: {body} [permanent (0|1):0/false] [player:<self>]",
+            SPAWNAS_ARGS = "Requires 1 (3 if from server) argument: {body} [permanent (0|1):1/true] [player:<self>]",
             SPAWNBODY_ARGS = "Requires 1 argument: {body}",
             SPAWNINTERACTABLE_ARGS = "Requires 1 argument: {interactable} [count:1]",
             SPAWNPORTAL_ARGS = "Requires 1 argument: {portal ('artifact'|'blue'|'celestial'|'deepvoid'|'gold'|'green'|'null'|'void')}",
