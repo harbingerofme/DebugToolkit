@@ -142,7 +142,7 @@ namespace DebugToolkit.Commands
                         body.AddBuff(buff);
                     }
                 }
-                Log.MessageNetworked(string.Format(Lang.GIVEBUFF, iCount, name, target.name, ""), args);
+                Log.MessageNetworked(string.Format(Lang.GIVEOBJECT, iCount, name, target.name, ""), args);
             }
             else
             {

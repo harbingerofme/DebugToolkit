@@ -14,7 +14,6 @@ namespace DebugToolkit.Commands
     class Spawners
     {
         private static readonly Dictionary<string, GameObject> portals = new Dictionary<string, GameObject>();
-
         [ConCommand(commandName = "spawn_interactable", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SPAWNINTERACTABLE_HELP)]
         [ConCommand(commandName = "spawn_interactible", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SPAWNINTERACTABLE_HELP)]
         [AutoComplete(Lang.SPAWNINTERACTABLE_ARGS)]
@@ -46,7 +45,12 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(Lang.INTERACTABLE_NOTFOUND, args, LogLevel.MessageClientOnly);
                 return;
             }
-            int amount = args.TryGetArgInt(1).GetValueOrDefault(1);
+            int amount = 1;
+            if (args.Count > 1 && args[1] != Lang.DEFAULT_VALUE && !TextSerialization.TryParseInvariant(args[1], out amount))
+            {
+                Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "count", "int"), args, LogLevel.MessageClientOnly);
+                return;
+            }
             // Putting interactables with a collider just far enough to not cause any clipping
             // or spawn under the character's feet. The few exceptions with MeshCollider aren't
             // treated but they aren't much of an issue.
@@ -81,11 +85,6 @@ namespace DebugToolkit.Commands
             {
                 var direction = args.senderBody.inputBank.aimDirection;
                 position = position + (args.senderBody.radius + distance) * new Vector3(direction.x, 0f, direction.z);
-            }
-            if (amount > 100)
-            {
-                amount = 100;
-                Log.MessageNetworked($"Limited to 100, please don't spawn too many things at once.", args, LogLevel.MessageClientOnly);
             }
             int failed = 0;
             for (int i = 0; i < amount; i++)
@@ -206,11 +205,6 @@ namespace DebugToolkit.Commands
             {
                 Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "count", "int"), args, LogLevel.MessageClientOnly);
                 return;
-            }
-            if (amount > 100)
-            {
-                amount = 100;
-                Log.MessageNetworked($"Limited to 100, please dont spawn too many things at once.", args, LogLevel.MessageClientOnly);
             }
             EliteDef eliteDef = null;
             if (args.Count > 2 && args[2] != Lang.DEFAULT_VALUE)

@@ -1,6 +1,8 @@
 ﻿using BepInEx.Bootstrap;
 using RoR2;
 using System.Collections;
+using System.Linq;
+using System.Text;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -80,52 +82,35 @@ namespace DebugToolkit.Commands
                 action();
             }
         }
-
-        public static float prevTimeScale = 0;
-        [ConCommand(commandName = "toggle_time", flags = ConVarFlags.None, helpText = Lang.TOGGLETIME_HELP)]
-        private static void CC_TogglePause(ConCommandArgs args)
-        {
-            float newTimeScale = prevTimeScale;
-            prevTimeScale = Time.timeScale;
-            Time.timeScale = newTimeScale;
-            TimescaleNet.Invoke(newTimeScale);
-        }
-
-        [ConCommand(commandName = "list_mods", flags = ConVarFlags.None, helpText = "Lists installed mod names to get them for compatibility, then lists all mods tagged as required by all")]
-        [AutoComplete(Lang.LISTMODS_ARGS)]
+ 
+        [ConCommand(commandName = "dump_mods", flags = ConVarFlags.None, helpText = Lang.DUMPMODS_HELP)]
         public static void CCMods(ConCommandArgs args)
         {
             int requiredByAll = args.TryGetArgInt(0).GetValueOrDefault(0);
-            UnityEngine.Debug.Log(requiredByAll);
-            string log = string.Empty;
-            if (requiredByAll == 0 || requiredByAll == 1)
+ 
+            StringBuilder log = new StringBuilder();
+
+            log.Append("All loaded mods\n\n");
+            foreach (var a in BepInEx.Bootstrap.Chainloader.PluginInfos)
             {
-                log += "All loaded mods\n\n";
-                foreach (var a in BepInEx.Bootstrap.Chainloader.PluginInfos)
-                {
-                    log += a.ToString() + "\n";
-                }                
+                log.Append(a.ToString());
+                log.Append("\n");
             }
-            if (requiredByAll == 0)
+            log.Append("\n");
+            if (NetworkModCompatibilityHelper._networkModList.Length == 0)
             {
-                log += "\n";
+                log.Append("No mods tagged as RequiredByAll. This mod pack is Vanilla compatible.");
             }
-            if (requiredByAll == 0 || requiredByAll == 2)
+            else
             {
-                if (NetworkModCompatibilityHelper._networkModList.Length == 0)
+                log.Append("Mods tagged as RequiredByAll\n\n");
+                foreach (var a in NetworkModCompatibilityHelper.networkModList)
                 {
-                    log += "No mods tagged as RequiredByAll. This mod pack is Vanilla compatible.";
-                }
-                else
-                {
-                    log += "Mods tagged as RequiredByAll\n\n";
-                    foreach (var a in NetworkModCompatibilityHelper._networkModList)
-                    {
-                        log += a.ToString() + "\n";
-                    }
+                    log.Append(a.ToString());
+                    log.Append("\n");
                 }
             }
-            Debug.Log(log);
+            Log.Message(log.ToString());
         }
 
     }

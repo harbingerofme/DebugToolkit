@@ -6,7 +6,6 @@ using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
-using UnityEngine.UI;
 
 namespace DebugToolkit
 {
@@ -40,7 +39,7 @@ namespace DebugToolkit
 
         private static void GatherCSCs()
         {
-            GatherAddressableAssets<CharacterSpawnCard>("/csc", (asset) =>
+            /*GatherAddressableAssets<CharacterSpawnCard>("/csc", (asset) =>
             {
                 characterSpawnCard.Add(new DirectorCard
                 {
@@ -50,14 +49,46 @@ namespace DebugToolkit
                     preventOverhead = true,
                     spawnDistance = DirectorCore.MonsterSpawnDistance.Standard,
                 });
-            });
+            });*/
+
+            RoR2Application.onLoad += () =>
+            {
+                //I imagine this would fail to get modded MultiCSC
+                var CSCList = Resources.FindObjectsOfTypeAll(typeof(CharacterSpawnCard)) as CharacterSpawnCard[];
+
+                foreach (var resourceLocator in Addressables.ResourceLocators)
+                {
+                    foreach (var key in resourceLocator.Keys)
+                    {
+                        var keyString = key.ToString();
+                        if (keyString.Contains("/csc"))
+                        {
+                            characterSpawnCard.Add(new DirectorCard
+                            {
+                                spawnCard = Addressables.LoadAssetAsync<CharacterSpawnCard>(keyString).WaitForCompletion(),
+                                preventOverhead = true,
+                            });
+                        }
+                    }
+                }
+
+                var filteredList =
+                CSCList.Where(spawnCard => spawnCard is CharacterSpawnCard && characterSpawnCard.All(existingCSC => existingCSC.spawnCard.name != spawnCard.name));
+                foreach (var card in filteredList)
+                {
+                    characterSpawnCard.Add(new DirectorCard
+                    {
+                        spawnCard = card,
+                        preventOverhead = true,
+                    });
+                }
+            };
+
+
         }
 
         private void GatherISCs()
         {
-            //GatherAddressableAssets<InteractableSpawnCard>("/isc", (asset) => interactableSpawnCards.Add(asset));
-            //On.RoR2.ClassicStageInfo.Start += AddCurrentStageIscsToCache;
- 
             RoR2Application.onLoad += () =>
             {
                 //Doing this first means only getting loaded spawn cards.
@@ -386,11 +417,21 @@ namespace DebugToolkit
             return GetItemsFromPartial(name).DefaultIfEmpty(ItemIndex.None).First();
         }
 
+        /// <summary>
+        /// Returns an DroneIndex when provided with an index or partial/invariant.
+        /// </summary>
+        /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>
+        /// <returns>Returns the DroneIndex if a match is found, or returns DroneIndex.None</returns>
         public DroneIndex GetDroneFromPartial(string name)
         {
             return GetDronesFromPartial(name).DefaultIfEmpty(DroneIndex.None).First();
         }
 
+        /// <summary>
+        /// Returns an PickupIndex when provided with an index or partial/invariant.
+        /// </summary>
+        /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>
+        /// <returns>Returns the PickupIndex if a match is found, or returns PickupIndex.none</returns>
         public PickupIndex GetPickupFromPartial(string name)
         {
             return GetPickupsFromPartial(name).DefaultIfEmpty(PickupIndex.none).First();
@@ -432,6 +473,12 @@ namespace DebugToolkit
             }
         }
 
+
+        /// <summary>
+        /// Returns an iterator of DroneIndex's when provided with an index or partial/invariant.
+        /// </summary>
+        /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>
+        /// <returns>Returns an iterator with all DroneIndex's matched</returns>
         public IEnumerable<DroneIndex> GetDronesFromPartial(string name)
         {
             if (TextSerialization.TryParseInvariant(name, out int i))
@@ -464,6 +511,12 @@ namespace DebugToolkit
             }
         }
 
+
+        /// <summary>
+        /// Returns an iterator of PickupIndex's when provided with an index or partial/invariant.
+        /// </summary>
+        /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>
+        /// <returns>Returns an iterator with all PickupIndex's matched</returns>
         public IEnumerable<PickupIndex> GetPickupsFromPartial(string name)
         {
             if (TextSerialization.TryParseInvariant(name, out int i))

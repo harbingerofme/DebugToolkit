@@ -1,13 +1,9 @@
-using HG;
 using RoR2;
 using RoR2.ContentManagement;
 using RoR2.ExpansionManagement;
 using System;
 using System.Collections.Generic;
-using System.Security.Cryptography;
 using UnityEngine;
-using UnityEngine.Networking;
-using UnityEngine.SocialPlatforms;
 using static DebugToolkit.Log;
 
 namespace DebugToolkit.Commands
@@ -81,11 +77,10 @@ namespace DebugToolkit.Commands
             Log.MessageNetworked(String.Format(modeOn ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, "Buddha mode"), args);
         }
 
-        [ConCommand(commandName = "buddhaenemy", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.BUDDHA_HELP2)]
-        [ConCommand(commandName = "budaenemy", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.BUDDHA_HELP2)]
-        [ConCommand(commandName = "invulenemy", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.BUDDHA_HELP2)]
+        [ConCommand(commandName = "buddhaenemy", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.BUDDHAENEMY_HELP)]
+        [ConCommand(commandName = "budaenemy", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.BUDDHAENEMY_HELP)]
         [AutoComplete(Lang.ENABLE_ARGS)]
-        private static void CCBuddhaMONSTERModeToggle(ConCommandArgs args)
+        private static void CCBuddhaMonstersToggle(ConCommandArgs args)
         {
             bool modeOn;
             if (args.Count > 0)
@@ -102,25 +97,53 @@ namespace DebugToolkit.Commands
                 Hooks.buddhaMonsters = !Hooks.buddhaMonsters;
                 modeOn = Hooks.buddhaMonsters;
             }
-            foreach (var body in CharacterBody.instancesList)
+            foreach (TeamComponent teamComponent in TeamComponent.GetTeamMembers(TeamIndex.Monster))
             {
-                if (body && !body.isPlayerControlled)
+                if (teamComponent.body)
                 {
                     if (modeOn)
                     {
-                        body.bodyFlags |= RoR2.CharacterBody.BodyFlags.Buddha;
+                        teamComponent.body.bodyFlags |= RoR2.CharacterBody.BodyFlags.Buddha;
                     }
                     else
                     {
-                        body.bodyFlags &= ~RoR2.CharacterBody.BodyFlags.Buddha;
+                        teamComponent.body.bodyFlags &= ~RoR2.CharacterBody.BodyFlags.Buddha;
                     }
                 }
             }
-
-
-            Log.MessageNetworked(String.Format(modeOn ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, "Monster Buddha mode"), args);
+            Log.MessageNetworked(String.Format(modeOn ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, "Buddha mode for monsters"), args);
         }
 
+        [ConCommand(commandName = "godenemy", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.GOD_HELP)]
+        [AutoComplete(Lang.ENABLE_ARGS)]
+        private static void CCGodMonstersToggle(ConCommandArgs args)
+        {
+            bool modeOn;
+            if (args.Count > 0)
+            {
+                if (!Util.TryParseBool(args[0], out modeOn))
+                {
+                    Log.MessageNetworked(string.Format(Lang.PARSE_ERROR, "enable", "bool"), args, LogLevel.MessageClientOnly);
+                    return;
+                }
+                Hooks.godMonsters = modeOn;
+            }
+            else
+            {
+                Hooks.godMonsters = !Hooks.godMonsters;
+                modeOn = Hooks.godMonsters;
+            }
+            foreach (TeamComponent teamComponent in TeamComponent.GetTeamMembers(TeamIndex.Monster))
+            {
+                HealthComponent component = teamComponent.GetComponent<HealthComponent>();
+                component.godMode = modeOn;
+                if (teamComponent.body.master)
+                {
+                    teamComponent.body.master.godMode = modeOn;
+                }
+            }
+            Log.MessageNetworked(String.Format(modeOn ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, "God mode for monsters"), args);
+        }
 
 
         [ConCommand(commandName = "noclip", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.NOCLIP_HELP)]
@@ -174,11 +197,16 @@ namespace DebugToolkit.Commands
         }
 
 
-        [ConCommand(commandName = "goto_boss", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.CURSORTELEPORT_HELP)]
+        [ConCommand(commandName = "goto_boss", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.GOTOBOSS_HELP)]
         private static void CCGoto_Boss(ConCommandArgs args)
         {
+            if (!Run.instance)
+            {
+                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
+                return;
+            }
+          
             string stage = Stage.instance.sceneDef.cachedName;
-            Component senderBody = args.GetSenderBody();
             Vector3 newPosition = Vector3.zero;
             string destination = string.Empty;
 
@@ -242,8 +270,15 @@ namespace DebugToolkit.Commands
                 Debug.Log("No Teleporter, Specific Location or Boss Monster found.");
                 return;
             }
-            TeleportHelper.TeleportGameObject(senderBody.gameObject, newPosition);
-            Debug.Log($"Teleported you to {destination}");
+
+            foreach (PlayerCharacterMasterController player in PlayerCharacterMasterController.instances)
+            {
+                if (player.master.bodyInstanceObject)
+                {
+                    TeleportHelper.TeleportGameObject(player.master.bodyInstanceObject, newPosition);
+                }
+            } 
+            Debug.Log($"Teleported players to {destination}");
 
         }
 
@@ -289,18 +324,10 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(string.Format(Lang.EXPANSION_LOCKED, "body", Util.GetExpansion(expansion.requiredExpansion)), args, LogLevel.MessageClientOnly);
                 return;
             }
-
-            master.originalBodyPrefab = newBody;
+ 
             master.bodyPrefab = newBody;
-            if (args.TryGetArgBool(1).GetValueOrDefault(true))
-            {
-                master.originalBodyPrefab = newBody;
-                Log.MessageNetworked(args.sender.userName + " is spawning as " + newBody.name + " for the rest of the run.", args);
-            }
-            else
-            {
-                Log.MessageNetworked(args.sender.userName + " is spawning as " + newBody.name + " <color=#53E9FF>temporarily</color>.", args);
-            }
+            master.originalBodyPrefab = newBody;
+            Log.MessageNetworked(args.sender.userName + " is spawning as " + newBody.name + " for the rest of the run.", args);
 
             if (!master.GetBody())
             {
@@ -375,7 +402,7 @@ namespace DebugToolkit.Commands
             bool bypassCalc = false;
             if (args.Count > 2 && args[2] != Lang.DEFAULT_VALUE && !Util.TryParseBool(args[2], out bypassCalc))
             {
-                Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "bypassCalc", "int or bool"), args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "direct", "bool"), args, LogLevel.MessageClientOnly);
                 return;
             }
             var target = Buffs.ParseTarget(args, 1);
@@ -764,59 +791,26 @@ namespace DebugToolkit.Commands
             return false;
         }
 
-
-
-        //loadout_set_skill_variant self <- adding cuz requested //Does not work
-        //[ConCommand(commandName = "loadout_set_skill_variant self", flags = ConVarFlags.ExecuteOnServer, helpText = "Switch Skills of current survivor Shorthand")]
         [ConCommand(commandName = "skill", flags = ConVarFlags.ExecuteOnServer, helpText = "[skill_slot] [skill_variant]\nSets the skill variant for the sender's user profile.")]
-        public static void CC_Skill(ConCommandArgs args)
+        public static void CCSetSkillShort(ConCommandArgs args)
         {
-            if (!args.sender)
-            {
-                Log.Message("Can't choose self if not in-game!", LogLevel.Error);
-                return;
-            }
-            if (args.Count < 2)
-            {
-                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.LOADOUTSKIN_ARGS, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            BodyIndex argBodyIndex = BodyIndex.None;
-            if (args.senderBody)
-            {
-                argBodyIndex = args.senderBody.bodyIndex;
-            }
-            else
-            {
-                if (args.senderMaster && args.senderMaster.bodyPrefab)
-                {
-                    argBodyIndex = args.senderMaster.bodyPrefab.GetComponent<CharacterBody>().bodyIndex;
-                }
-                else
-                {
-                    argBodyIndex = args.sender.bodyIndexPreference;
-                }
-            }
             args.userArgs = new List<string>
             {
-                argBodyIndex.ToString(),
+                "self",
                 args[0],
                 args[1],
             };
-            UserProfile.CCLoadoutSetSkillVariant(args);
-           
-           
-        }
+            UserProfile.CCLoadoutSetSkillVariant(args);        }
 
         [ConCommand(commandName = "skin", flags = ConVarFlags.ExecuteOnServer, helpText = "[skin_variant]\nSets the skin variant for the sender's user profile.")]
-        public static void CC_SKIN(ConCommandArgs args)
+        public static void CCSetSkinShort(ConCommandArgs args)
         {
             Macros.Invoke(args.sender, "loadout_set_skin_variant", "self", args.TryGetArgInt(0).GetValueOrDefault(-1).ToString());
         }
 
 
         [ConCommand(commandName = "unlimited_junk", flags = ConVarFlags.ExecuteOnServer, helpText = "Toggle junk_unlimited. Makes skillchecks ingore junk cost.")]
-        public static void CC_JunkAlt(ConCommandArgs args)
+        public static void CCToggleUnlimitedJunk(ConCommandArgs args)
         {
             JunkController.junkUnlimited.value = !JunkController.junkUnlimited.value;
             if (JunkController.junkUnlimited.value)
@@ -831,20 +825,14 @@ namespace DebugToolkit.Commands
 
        
       
-        [ConCommand(commandName = "nocooldown", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.NOCOOLDOWN_HELP)]
         [ConCommand(commandName = "nocooldowns", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.NOCOOLDOWN_HELP)]
-        [AutoComplete(Lang.TARGET_PLAYER_PINGED)]
-        public static void CC_Cooldown(ConCommandArgs args)
+        [AutoComplete(Lang.PLAYER_OR_PINGED)]
+        public static void CCNoCooldowns(ConCommandArgs args)
         {
             var target = Buffs.ParseTarget(args, 0);
             if (target.failMessage != null)
             {
                 Log.MessageNetworked(target.failMessage, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            if (!target.body)
-            {
-                Log.MessageNetworked("No target body found", args, LogLevel.MessageClientOnly);
                 return;
             }
             bool NoCooldowns = false;
@@ -866,22 +854,33 @@ namespace DebugToolkit.Commands
         }
 
 
-        //Idk what to do with this because like technically this does affect gameplay by turning off your hurtboxes and junk
-        [ConCommand(commandName = "invis", flags = ConVarFlags.None, helpText = "Turn off your model for screenshots")]
-        [ConCommand(commandName = "model", flags = ConVarFlags.None, helpText = "Turn off your model for screenshots")]
-        [ConCommand(commandName = "hide_model", flags = ConVarFlags.None, helpText = "Turn off your model for screenshots")]
-        public static void CC_TurnOffModel(ConCommandArgs args)
+        //This does affect gameplay because it deactivates all your hurtboxes too, not sure what to do about that.
+        [ConCommand(commandName = "hide_model", flags = ConVarFlags.None, helpText = Lang.TOGGLEMODE_HELP)]
+        public static void CCToggleModel(ConCommandArgs args)
         {
- 
+            if (args.sender == null)
+            {
+                Log.MessageWarning(Lang.DS_NOTAVAILABLE);
+                return;
+            }
+            if (!Run.instance)
+            {
+                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            if (!args.senderBody)
+            {
+                Log.MessageNetworked("Can't hide your model while you're dead. " + Lang.USE_RESPAWN, args, LogLevel.MessageClientOnly);
+                return;
+            }
             GameObject mdl = args.senderBody.GetComponent<ModelLocator>().modelTransform.gameObject;
             mdl.SetActive(!mdl.activeSelf);
             Log.MessageNetworked(String.Format(!mdl.activeSelf ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, "Invisible Model"), args);
 
         }
 
-        [ConCommand(commandName = "hud", flags = ConVarFlags.None, helpText = "Toggle hud_enable. Enable/disable the HUD.")]
-        [ConCommand(commandName = "ui", flags = ConVarFlags.None, helpText = "Toggle hud_enable. Enable/disable the HUD.")]
-        public static void CC_ToggleHUD(ConCommandArgs args)
+        [ConCommand(commandName = "toggle_hud", flags = ConVarFlags.None, helpText = Lang.TOGGLEHUD_HELP)]
+        public static void CCToggleHUD(ConCommandArgs args)
         {
             RoR2.UI.HUD.cvHudEnable.SetBool(!RoR2.UI.HUD.cvHudEnable.value); 
             Log.MessageNetworked(String.Format(RoR2.UI.HUD.cvHudEnable.value ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, "Hud"), args);
@@ -890,12 +889,11 @@ namespace DebugToolkit.Commands
 
 
         [ConCommand(commandName = "reset_stats", flags = ConVarFlags.SenderMustBeServer, helpText = Lang.RESETSTAT_HELP)]
-        [ConCommand(commandName = "unset_stats", flags = ConVarFlags.SenderMustBeServer, helpText = Lang.RESETSTAT_HELP)]
-        [AutoComplete(Lang.TARGET_PLAYER_PINGED)]
-        public static void CC_ReSetStats(ConCommandArgs args)
+        [AutoComplete(Lang.PLAYER_OR_PINGED)]
+        public static void CCResetSetStats(ConCommandArgs args)
         {
             args.userArgs.Insert(0,"");
-            CC_SetStats(args);
+            CCSetStats(args);
         }
 
         //Idk how these work with client to server
@@ -909,7 +907,7 @@ namespace DebugToolkit.Commands
         [ConCommand(commandName = "set_movespeed", flags = ConVarFlags.SenderMustBeServer, helpText = Lang.SETSTAT_HELP)]
         [ConCommand(commandName = "set_jumppower", flags = ConVarFlags.SenderMustBeServer, helpText = Lang.SETSTAT_HELP)]
         [AutoComplete(Lang.SETSTATS_ARGS)]
-        public static void CC_SetStats(ConCommandArgs args)
+        public static void CCSetStats(ConCommandArgs args)
         {
             if (!Run.instance)
             {
@@ -925,11 +923,6 @@ namespace DebugToolkit.Commands
             if (target.failMessage != null)
             {
                 Log.MessageNetworked(target.failMessage, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            if (!target.body)
-            {
-                Log.MessageNetworked("No target body found", args, LogLevel.MessageClientOnly);
                 return;
             }
             if (!TextSerialization.TryParseInvariant(args[0], out float amount))
@@ -1040,6 +1033,8 @@ namespace DebugToolkit.Commands
                     body.levelDamage = ogBody.levelDamage;
                     body.baseAttackSpeed = ogBody.baseAttackSpeed;
                     body.levelAttackSpeed = ogBody.levelAttackSpeed;
+                    body.baseCrit = ogBody.baseCrit;
+                    body.levelCrit = ogBody.levelCrit;
                     //
                     body.baseMaxHealth = ogBody.baseMaxHealth;
                     body.levelMaxHealth = ogBody.levelMaxHealth;
@@ -1051,38 +1046,12 @@ namespace DebugToolkit.Commands
                     body.baseMoveSpeed = ogBody.baseMoveSpeed;
                     body.levelMoveSpeed = ogBody.levelMoveSpeed;
                     body.baseAcceleration = ogBody.baseAcceleration;
-                    body.level = ogBody.levelMoveSpeed;
                     body.baseJumpPower = ogBody.baseJumpPower;
                     body.levelJumpPower = ogBody.levelJumpPower;
                     break;
             }
             body.MarkAllStatsDirty();
         }
-
-        [ConCommand(commandName = "set_health", flags = ConVarFlags.ExecuteOnServer, helpText = "Sets health to specifiedd amount and removes regen for testing.")]
-        public static void CC_SetHP(ConCommandArgs args)
-        {
-            if (!args.senderMaster)
-            {
-                return;
-            }
-            if (!args.senderMaster.GetBody())
-            {
-                //WolfoLib.log.LogMessage("No Body");
-                return;
-            }
-            float newDamage = (float)System.Convert.ToInt16(args[0]);
-            var body = args.senderMaster.GetBody();
-            body.baseMaxHealth = newDamage;
-            body.levelMaxHealth = 0;
-            body.maxHealth = newDamage;
-            body.baseRegen = 0;
-            body.levelRegen = 0;
-            body.regen = 0;
-
-            body.healthComponent.health = body.maxHealth;
-        }
-
-
+ 
     }
 }

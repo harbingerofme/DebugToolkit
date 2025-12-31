@@ -29,6 +29,7 @@ namespace DebugToolkit
         public static bool buddha;
         public static bool buddhaMonsters;
         public static bool god;
+        public static bool godMonsters;
 
         private static GameObject commandSignatureText;
         private static CombatDirector bossDirector;
@@ -59,7 +60,7 @@ namespace DebugToolkit
             On.RoR2.Console.AutoComplete.SetSearchString += BetterAutoCompletion;
             RoR2Application.onLoad += Items.InitDroptableData;
             RoR2Application.onLoad += Spawners.InitPortals;
-            RoR2Application.onLoad += AutoCompleteManager.RegisterAutoCompleteCommands;
+    
             Run.onRunStartGlobal += Items.CollectItemTiers;
             On.RoR2.UI.ConsoleWindow.Start += AddConCommandSignatureHint;
             On.RoR2.UI.ConsoleWindow.OnInputFieldValueChanged += UpdateCommandSignature;
@@ -159,20 +160,9 @@ namespace DebugToolkit
                 if (buddha)
                 {
                     self.bodyFlags |= CharacterBody.BodyFlags.Buddha;
-                }
-                /*if (PlayerCommands.NoCooldowns)
-                {
-                    GenericSkill[] slots = self.GetComponents<GenericSkill>();
-                    foreach (GenericSkill slot in slots)
-                    {
-                        if (slot.finalRechargeInterval != 0)
-                        {
-                            slot.cooldownOverride = 0.001f;
-                        }
-                    }
-                }*/          
+                }          
             }
-            else if(buddhaMonsters)
+            else if(buddhaMonsters && self.teamComponent && (self.teamComponent.teamIndex == TeamIndex.Monster || self.teamComponent.teamIndex == TeamIndex.Void))
             {
                 self.bodyFlags |= CharacterBody.BodyFlags.Buddha;
             }
@@ -233,6 +223,7 @@ namespace DebugToolkit
             if (NetworkServer.active)
             {
                 self.godMode |= self.playerCharacterMasterController && god;
+                self.godMode |= self.teamIndex == TeamIndex.Monster && godMonsters;
             }
         }
 
@@ -392,10 +383,9 @@ namespace DebugToolkit
             RemoveCheatFlag(self.FindConVar("bag_disable_breakout"));
             RemoveCheatFlag(self.FindConVar("bounce_velocity"));
             RemoveCheatFlag(self.FindConVar("junk_unlimited"));
-            RemoveCheatFlag(self.FindConVar("timescale"));
 
             const string MOD_MESSAGE = " Let the DebugToolkit team know if you need this convar.";
-            //ExpandHelpText(self.FindConVar("timescale"), " Use time_scale instead!");
+            ExpandHelpText(self.FindConVar("timescale"), " Use time_scale instead!");
             ExpandHelpText(self.FindConVar("director_combat_disable"), " Use no_enemies instead!");
             ExpandHelpText(self.FindConVar("timestep"), MOD_MESSAGE);
             ExpandHelpText(self.FindConVar("cmotor_safe_collision_step_threshold"), MOD_MESSAGE);

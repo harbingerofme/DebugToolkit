@@ -73,6 +73,7 @@ namespace DebugToolkit
         private void Start()
         {
             var _ = StringFinder.Instance;
+            RoR2Application.onLoad += AutoCompleteManager.RegisterAutoCompleteCommands;
         }
 
         private void Update()

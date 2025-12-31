@@ -67,25 +67,7 @@ namespace DebugToolkit.Commands
             var s = sb.Length > 0 ? sb.ToString().TrimEnd('\n') : string.Format(Lang.NOMATCH_ERROR, "equipment", arg);
             Log.MessageNetworked(s, args, LogLevel.MessageClientOnly);
         }
-
-        [ConCommand(commandName = "list_drone", flags = ConVarFlags.None, helpText = Lang.LISTDRONE_HELP)]
-        [AutoComplete(Lang.LISTQUERY_ARGS)]
-        private static void CCListDrone(ConCommandArgs args)
-        {
-            var sb = new StringBuilder();
-            var arg = args.Count > 0 ? args[0] : "";
-            var indices = StringFinder.Instance.GetDronesFromPartial(arg);
-            foreach (var index in indices)
-            {
-                var definition = DroneCatalog.GetDroneDef(index);
-                var realName = Language.currentLanguage.GetLocalizedStringByToken(definition.nameToken);
-                bool enabled = Run.instance && Run.instance.IsDroneAvailable(index);
-                sb.AppendLine($"[{(int)index}]{definition.name} \"{realName}\" (enabled={enabled})");
-            }
-            var s = sb.Length > 0 ? sb.ToString().TrimEnd('\n') : string.Format(Lang.NOMATCH_ERROR, "drone", arg);
-            Log.MessageNetworked(s, args, LogLevel.MessageClientOnly);
-        }
-
+ 
         [ConCommand(commandName = "list_pickups", flags = ConVarFlags.None, helpText = Lang.LISTDRONE_HELP)]
         [AutoComplete(Lang.LISTQUERY_ARGS)]
         private static void CCListPickup(ConCommandArgs args)
@@ -209,7 +191,7 @@ namespace DebugToolkit.Commands
                     return;
                 }
                 GiveItem(inventory, item, amount, type);
-                Log.MessageNetworked(string.Format(Lang.GIVEITEM, amount, name, target.name), args);
+                Log.MessageNetworked(string.Format(Lang.GIVEOBJECT, amount, name, target.name), args);
             }
             else if (amount < 0)
             {
@@ -235,110 +217,10 @@ namespace DebugToolkit.Commands
                     return "";
                 case ItemType.Temp:
                     return "<color=#53E9FF>Temporary </color>"; //Saturated by 50% Temp color
-                    //return "<style=cIsTemporary>temporary</color>"; //Bit hard to see in the console
             }
             return type.ToString();
         }
 
-        [ConCommand(commandName = "give_drone", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.GIVEDRONE_HELP)]
-        [AutoComplete(Lang.GIVEDRONE_ARGS)]
-        private static void CCGiveDrone(ConCommandArgs args)
-        {
-            //give_drone {name} {amount} {tier}
-            if (!Run.instance)
-            {
-                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            bool isDedicatedServer = args.sender == null;
-            if (args.Count == 0 || (isDedicatedServer && (args.Count < 4 || args[3] == Lang.DEFAULT_VALUE)))
-            {
-                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.GIVEITEM_ARGS, args, LogLevel.MessageClientOnly);
-                return;
-            }
-
-            int amount = 1;
-            if (args.Count > 1 && args[1] != Lang.DEFAULT_VALUE && !TextSerialization.TryParseInvariant(args[1], out amount))
-            {
-                Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "count", "int"), args, LogLevel.MessageClientOnly);
-                return;
-            }
-            int tier = 1;
-            if (args.Count > 2 && args[2] != Lang.DEFAULT_VALUE && !TextSerialization.TryParseInvariant(args[2], out tier))
-            {
-                Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "tier", "int"), args, LogLevel.MessageClientOnly);
-                return;
-            }
-            if (tier < 0)
-            {
-                Log.MessageNetworked(string.Format(Lang.NEGATIVE_ARG, "count"), args, LogLevel.MessageClientOnly);
-                return;
-            }
-            var target = Buffs.ParseTarget(args, 3);
-            if (target.failMessage != null)
-            {
-                Log.MessageNetworked(target.failMessage, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            if (!target.body)
-            {
-                Log.MessageNetworked("No target body found", args, LogLevel.MessageClientOnly);
-                return;
-            }
-
-            var drone = StringFinder.Instance.GetDroneFromPartial(args[0]);
-            if (drone == DroneIndex.None)
-            {
-                Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "drone", args[0]), args, LogLevel.MessageClientOnly);
-                return;
-            }
-            DroneDef droneDef = DroneCatalog.GetDroneDef(drone);
- 
-            if (droneDef == null)
-            {
-                Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "drone", args[0]), args, LogLevel.MessageClientOnly);
-                return;
-            }
-            if (Run.instance.IsDroneExpansionLocked(drone))
-            {
-                Log.MessageNetworked(string.Format(Lang.EXPANSION_LOCKED, "drone", Util.GetExpansion(droneDef.requiredExpansion)), args, LogLevel.MessageClientOnly);
-                return;
-            }
-            if (amount > 50)
-            {
-                amount = 50;
-                Log.MessageNetworked($"Limited to 50, please don't spawn too many things at once.", args, LogLevel.MessageClientOnly);
-            }
-            if (amount > 0)
-            {
-                for (int i = 0; i < amount; i++) 
-                {
-                    CharacterMaster newlySpawnedDrone = new MasterSummon
-                    {
-                        masterPrefab = droneDef.masterPrefab,
-                        position = target.body.transform.position,
-                        rotation = target.body.transform.rotation,
-                        summonerBodyObject = target.body.gameObject,
-                        ignoreTeamMemberLimit = true,
-                        useAmbientLevel = true,
-                        enablePrintController = true
-                    }.Perform();
-                    if (tier > 1)
-                    {
-                        newlySpawnedDrone.inventory.GiveItemPermanent(DLC3Content.Items.DroneUpgradeHidden, (tier - 1));
-                    } 
-                }
-                var name = droneDef.name;
-                Log.MessageNetworked(string.Format(Lang.GIVEDRONE, amount, name, target.name, tier), args);
-            }
-            else
-            {
-                Log.MessageNetworked("Nothing happened", args);
-            }
-        
-        }
-
- 
         [ConCommand(commandName = "random_items", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.RANDOMITEM_HELP)]
         [AutoComplete(Lang.RANDOMITEM_ARGS)]
         private static void CCRandomItemsTiered(ConCommandArgs args)
@@ -440,7 +322,7 @@ namespace DebugToolkit.Commands
             else if (args[0] == "-1")
             {
                 inventory.SetEquipmentIndex(EquipmentIndex.None, true);
-                Log.MessageNetworked($"Removed current Equipment from {target.name}", args);
+                Log.MessageNetworked(string.Format(Lang.REMOVEDEQUIP, target.name), args);
                 return;
             }
             else
@@ -503,11 +385,11 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            ItemType type = ItemType.Permanent;
+            PickupType type = PickupType.Permanent;
             if (args.Count > 2 && args[2] != Lang.DEFAULT_VALUE)
             {
-                type = ParseItemType(args, 2);
-                if (type <= ItemType.None || type >= ItemType.Count)
+                type = ParsePickupType(args, 2);
+                if (type <= PickupType.None || type >= PickupType.Count)
                 {
                     Log.MessageNetworked(String.Format(Lang.INVALID_ARG_VALUE, "type"), args, LogLevel.MessageClientOnly);
                     return;
@@ -606,7 +488,7 @@ namespace DebugToolkit.Commands
                             {
                                 foundResults += $"{drone}|{def3.name}|{Language.GetString(def3.nameToken)}";
                             }
-                            Log.MessageNetworked(string.Format(Lang.CREATEPICKUP_AMBIGIOUS_4, foundResults), args, LogLevel.MessageClientOnly);
+                            Log.MessageNetworked(string.Format(Lang.CREATEPICKUP_AMBIGIOUS, foundResults), args, LogLevel.MessageClientOnly);
                             return;
                         }
                         else if (equipment != EquipmentIndex.None)
@@ -635,7 +517,7 @@ namespace DebugToolkit.Commands
                 pickup = new UniquePickup
                 {
                     pickupIndex = final,
-                    decayValue = type == ItemType.Temp ? 1f : 0f,
+                    decayValue = type == PickupType.Temp ? 1f : 0f,
                     //upgradeValue 
                 },
             }, body.transform.position, body.inputBank.aimDirection * 30f);
@@ -824,7 +706,7 @@ namespace DebugToolkit.Commands
             }
 
             target.inventory.SetEquipmentIndex(EquipmentIndex.None, true);
-            Log.MessageNetworked($"Removed current Equipment from {target.name}", args);
+            Log.MessageNetworked(string.Format(Lang.REMOVEDEQUIP, target.name), args);
         }
 
         [ConCommand(commandName = "restock_equip", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.RESTOCKEQUIP_HELP)]
@@ -871,13 +753,28 @@ namespace DebugToolkit.Commands
 
         internal enum ItemType
         {
-            None,
+            None = -1,
             Permanent,
             Temp,
             Channeled,
             Count,
         }
-
+        internal enum PickupType
+        {
+            None = -1,
+            Permanent,
+            Temp,
+            Count,
+        }
+        internal enum PickupCategory
+        {
+            Any,
+            Item,
+            Equip,
+            Drone, 
+            Pickup,
+            Count,
+        }
         private static int GetItemCount(Inventory inventory, ItemIndex itemIndex, ItemType type)
         {
             switch (type)
@@ -939,6 +836,14 @@ namespace DebugToolkit.Commands
                 return Enum.TryParse(args[index], true, out ItemType itemType) ? itemType : ItemType.None;
             }
             return ItemType.Permanent;
+        }
+        private static PickupType ParsePickupType(ConCommandArgs args, int index)
+        {
+            if (args.Count > index && args[index] != Lang.DEFAULT_VALUE)
+            {
+                return Enum.TryParse(args[index], true, out PickupType itemType) ? itemType : PickupType.None;
+            }
+            return PickupType.Permanent;
         }
 
         public static CommandTarget ParseTarget(ConCommandArgs args, int index)
@@ -1062,10 +967,10 @@ namespace DebugToolkit.Commands
             droptable.canDropBeReplaced = canDropBeReplaced;
             if (args.Count < index + 1 || args[index] == Lang.DEFAULT_VALUE)
             {
-                droptable.Add(availableDropLists[ItemTier.Tier1], 1f);
-                droptable.Add(availableDropLists[ItemTier.Tier2], 1f);
-                droptable.Add(availableDropLists[ItemTier.Tier3], 1f);
-                droptable.Add(availableDropLists[ItemTier.Boss], 1f);
+                droptable.Add(availableDropLists[ItemTier.Tier1], 100f);
+                droptable.Add(availableDropLists[ItemTier.Tier2], 60f);
+                droptable.Add(availableDropLists[ItemTier.Tier3], 4f);
+                droptable.Add(availableDropLists[ItemTier.Boss], 4f);
             }
             else if (args[index].ToUpperInvariant() == Lang.ALL)
             {
@@ -1190,7 +1095,5 @@ namespace DebugToolkit.Commands
             }
             return controller;
         }
-    
-    
     }
 }

@@ -191,8 +191,7 @@ namespace DebugToolkit.Commands
         {
             if (noInteractables)
             {
-                obj.interactableCredit = 0;
-                //obj.teleporterSpawnCard = null;
+                obj.onPopulateCreditMultiplier = 0;
             }
         }
 
@@ -230,13 +229,7 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
                 return;
             }
-            bool trueKill = false;
-            if (args.Count > 1 && args[1] != Lang.DEFAULT_VALUE && !Util.TryParseBool(args[1], out trueKill))
-            {
-                Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "trueKill", "int or bool"), args, LogLevel.MessageClientOnly);
-                return;
-            }
-
+           
             if (args.Count > 0 && args[0] != Lang.DEFAULT_VALUE)
             {
                 TeamIndex team = TeamIndex.Monster;
@@ -250,39 +243,10 @@ namespace DebugToolkit.Commands
                 int count = 0;
                 foreach (var teamComponent in TeamComponent.GetTeamMembers(team).ToList())
                 {
-                    if (trueKill && teamComponent.body.master)
-                    {
-                        teamComponent.body.master.TrueKill();
-                        count++;
-                    }
-                    else
-                    {
-                        var healthComponent = teamComponent.GetComponent<HealthComponent>();
-                        if (healthComponent)
-                        {
-
-                            healthComponent.Suicide(null);
-                            if (!healthComponent.alive)
-                            {
-                                count++;
-                            }
-                        }
-                    }
-
-                     
-                }
-                string a = (trueKill ? "True " : "" );
-                Log.MessageNetworked($"{a}Killed {count} of team {team}.", args);
-            }
-            else
-            {               
-                int count = 0;
-                int countV = 0;
-                foreach (var teamComponent in TeamComponent.GetTeamMembers(TeamIndex.Monster).ToList())
-                {
                     var healthComponent = teamComponent.GetComponent<HealthComponent>();
                     if (healthComponent)
                     {
+
                         healthComponent.Suicide(null);
                         if (!healthComponent.alive)
                         {
@@ -290,24 +254,13 @@ namespace DebugToolkit.Commands
                         }
                     }
                 }
-                foreach (var teamComponent in TeamComponent.GetTeamMembers(TeamIndex.Void).ToList())
-                {
-                    var healthComponent = teamComponent.GetComponent<HealthComponent>();
-                    if (healthComponent)
-                    {
-                        healthComponent.Suicide(null);
-                        if (!healthComponent.alive)
-                        {
-                            countV++;
-                        }
-                    }
-                }
-                Log.MessageNetworked($"Killed {count} of team {TeamIndex.Monster}.", args);
-                Log.MessageNetworked($"Killed {countV} of team {TeamIndex.Void}.", args);
+                Log.MessageNetworked($"Killed {count} of team {team}.", args);
             }
-
-
-          
+            else
+            {
+                DebugToolkit.InvokeCMD(args.sender, "kill_all", ((int)TeamIndex.Monster).ToString());
+                DebugToolkit.InvokeCMD(args.sender, "kill_all", ((int)TeamIndex.Void).ToString());
+            }
         }
 
         [ConCommand(commandName = "time_scale", flags = ConVarFlags.Engine | ConVarFlags.ExecuteOnServer, helpText = Lang.TIMESCALE_HELP)]
@@ -327,6 +280,16 @@ namespace DebugToolkit.Commands
             }
             Time.timeScale = scale;
             TimescaleNet.Invoke(scale);
+        }
+
+        public static float prevTimeScale = 0;
+        [ConCommand(commandName = "toggle_time", flags = ConVarFlags.None, helpText = Lang.TOGGLETIME_HELP)]
+        private static void CCTogglePause(ConCommandArgs args)
+        {
+            float newTimeScale = prevTimeScale;
+            prevTimeScale = Time.timeScale;
+            Time.timeScale = newTimeScale;
+            TimescaleNet.Invoke(newTimeScale);
         }
 
         [ConCommand(commandName = "stop_timer", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.STOPTIMER_HELP)]
@@ -771,11 +734,55 @@ namespace DebugToolkit.Commands
         }
 
 
-        [ConCommand(commandName = "evolve_lemurian", flags = ConVarFlags.ExecuteOnServer, helpText = "Evolves all Devoted Lemurians")]
-        [ConCommand(commandName = "evolve_lemurians", flags = ConVarFlags.ExecuteOnServer, helpText = "Evolves all Devoted Lemurians")]
-        public static void CC_evolve_lemurian(ConCommandArgs args)
+        [ConCommand(commandName = "evolve_lemurians", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.EVOLVE_LEMURIAN_HELP)]
+        [AutoComplete(Lang.PLAYER_OR_ALL_OPTIONAL_ARGS)]
+        public static void CCEvolveLemurians(ConCommandArgs args)
         {
-            DevotionInventoryController.ActivateAllDevotedEvolution();
+            if (!Run.instance)
+            {
+                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            bool all = false;
+            bool succeeded = false;
+ 
+            NetworkUser player = args.sender;
+            if (args.Count > 0)
+            {
+                player = Util.GetNetUserFromString(args.userArgs, 0);
+                if (player == null)
+                {
+                    Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
+                    return;
+                }
+            }
+            if (args.Count > 0 && args[0].ToUpperInvariant() == Lang.ALL)
+            {
+                all = true;
+            }
+            else if (!all && player == null)
+            {
+                Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
+                return;
+            }
+   
+            foreach (DevotionInventoryController devotionInventoryController in DevotionInventoryController.InstanceList)
+            {
+                if (all || devotionInventoryController.SummonerMaster == player.master)
+                {
+                    succeeded = true;
+                    devotionInventoryController.UpdateAllMinions(true);
+                }
+            }
+            if (all)
+            {
+                Log.MessageNetworked(succeeded ? "Evolved all devoted Lemurians." : "There are no devoted lemurians", args);
+            }
+            else
+            {
+                Log.MessageNetworked(succeeded ? $"Evolved {player.userName}'s devoted Lemurians." : $"{player.userName} does not own any devoted lemurians", args);
+            }
+          
         }
     }
 
@@ -800,7 +807,7 @@ namespace DebugToolkit.Commands
         private void RpcApplyTimescale(float scale)
         {
             Time.timeScale = scale;
-            Message("Timescale set to: " + scale + " ");
+            Message("Timescale set to: " + scale);
         }
     }
 }

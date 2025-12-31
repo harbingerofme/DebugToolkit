@@ -1,12 +1,10 @@
-
-## Changelog ##
 ### 3.22 ###
 * **3.22.0**
 
 	* Added commands:
 		* 'give_drone': Summons drone, specified amount and tier
 		* 'remove_all_drones': Removes all drones, leaving no bodies.
-		* 'kill_minions': Kills all minions, leaving dead drones.
+		* 'kill_all_minions': Kills all minions, leaving dead drones.
 		* 'list_drone': List drone names and ids.
 		
 		* 'set_ .. damage, attackspeed, crit, health, regen, armor, movespeed' Sets the stat to the specified value, for the target, for that life; For clean testing.
@@ -14,13 +12,14 @@
 		* 'nocooldowns': disables your skill cooldowns
 		 
 		* 'list_pickups': List pickup names and ids.
-		* 'list_mods': Lists all loaded mods and if they are tagged as RequiredByAll. Useful to get internal names to check for.
-		* 'buddhaenemy', 'invulenemy': Buddha mode for all enemies, to make them unkillable.
+		* 'dump_mods': Lists all loaded mods and if they are tagged as RequiredByAll. Useful to get internal names to check for.
+		* 'godenemy': God mode for all monsters, to make them unhurtable.
+		* 'buddhaenemy': Buddha mode for all monsters, to make them unkillable.
 		* 'goto_boss': Teleports you to boss, teleporter or boss arenas on stage, (so you don't have to fly to Mithrix 100 times)
 		* 'hide_model': hides model, for screenshotting/recording.
 
-		* 'evolve_lemurian': Triggers Artifact of Devotion evolution.
-		* 'give_voidcoin': Gives Void Markers.
+		* 'evolve_lemurians': Triggers Artifact of Devotion evolution.
+		* 'give_void': Gives Void Markers.
 		* 'no_interactables': Prevent interactables from spawning
 		* 'toggle_time' Toggles 'time_scale' between 0 and what it it was before.
 		 
@@ -40,10 +39,9 @@
  
 	* Updated command functionality:
 		* Item commands can now grant/remove channeled items
-		* Item commands now mention you can type 1/2/3 instead of the name type.
+		* Item commands now mention you can type 0/1/2 instead of the name type.
 		* 'spawn_interactable' now also shows interactable names in auto complete.
 		* 'spawn_interactable' now accepts amount.		 
-		* 'spawn_as' now has second argument to permanently spawn as the new body. (Like prior to AC behaviour) //Default False
 		* 'create_pickup' now supports dropping drones & pickups.
 		* 'create_pickup' switched {search} and {permanent/temp} argument spots.
 		* 'give_equip -1' now removes your equipment.
@@ -52,14 +50,12 @@
 		* 'random_items' changed default value to not give Lunars & Voids.
 		* 'hurt' third optional argument to bypass armor&damage calculations.
 		* 'kill_all' no value given now kills Monster & Void teams.
-		* 'kill_all' second optional argument to bypass revives. (Does not bypass Godmode)
-		* 'true_kill' now bypasses godmode.
+		* 'true_kill' now bypasses godmode and accepts 'pinged' & 'all' as target
  
 
-	*  Amount of spawned interactables/monsters/drones by commands capped at a 100 per command, to not crash the game if you mistype.
 	*  Fixed 'god 0/1'/'buddha 0/1' not setting the toggle's state.
 	*  Fixed 'loadout_set_skin_variant' crashing the game.
-	*  Modded interactables should be spawnable from the start now.
+	*  Modded spawn cards should be usable from the start now.
 	
 	
 ### 3.21 ###
