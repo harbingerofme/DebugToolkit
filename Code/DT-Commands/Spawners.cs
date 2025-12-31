@@ -236,14 +236,23 @@ namespace DebugToolkit.Commands
                 return;
             }
 
+            bool isAlly = false;
             TeamIndex teamIndex = TeamIndex.Monster;
             if (args.Count > 4 && args[4] != Lang.DEFAULT_VALUE)
             {
-                teamIndex = StringFinder.Instance.GetTeamFromPartial(args[4]);
-                if (teamIndex == StringFinder.TeamIndex_NotFound)
+                if (args[4].ToUpperInvariant() == Lang.ALLY)
                 {
-                    Log.MessageNetworked(Lang.TEAM_NOTFOUND, args, LogLevel.MessageClientOnly);
-                    return;
+                    isAlly = true;
+                    teamIndex = args.senderBody.teamComponent.teamIndex;
+                }
+                else
+                {
+                    teamIndex = StringFinder.Instance.GetTeamFromPartial(args[4]);
+                    if (teamIndex == StringFinder.TeamIndex_NotFound)
+                    {
+                        Log.MessageNetworked(Lang.TEAM_NOTFOUND, args, LogLevel.MessageClientOnly);
+                        return;
+                    }
                 }
             }
 
@@ -271,6 +280,7 @@ namespace DebugToolkit.Commands
                 },
                 RoR2Application.rng
             );
+            spawnRequest.summonerBodyObject = isAlly ? args.senderBody.gameObject : null;
             spawnRequest.teamIndexOverride = teamIndex;
             spawnRequest.ignoreTeamMemberLimit = true;
 
