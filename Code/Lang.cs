@@ -143,6 +143,8 @@
             MACRO_DTZOOM_HELP = "Gives you 20 hooves and 200 feathers for getting around quickly.",
             MACRO_DTDAMAGE_HELP = "Gives you a lot of BoostDamage hidden item.",
             MACRO_SCANNER_HELP = "Gives you 100 boostEquipmentRecharge and the Radar Scanner equipment to easily search stages.",
+            MACRO_DTCLEANSE_HELP = "Removes all your buffs, timed buffs & dots.",
+
             MACRO_LATEGAME_HELP = "Sets the current run to the 'lategame' as defined by HG. This command is DESTRUCTIVE.",
             MACRO_MIDGAME_HELP = "Sets the current run to the 'midgame' as defined by HG. This command is DESTRUCTIVE.",
             NEXTBOSS_HELP = "Sets the next teleporter/simulacrum boss to the specified boss. " + NEXTBOSS_ARGS,

@@ -58,6 +58,14 @@ namespace DebugToolkit.Commands
             Invoke(args.sender, "give_item", "boostdamage", "9999990");
         }
 
+        [ConCommand(commandName = "dtcleanse", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.MACRO_DTCLEANSE_HELP)]
+        private static void CCCleanse(ConCommandArgs args)
+        {
+            Macros.Invoke(args.sender, "remove_all_buffs");
+            Macros.Invoke(args.sender, "remove_all_buffs", "1");
+            Macros.Invoke(args.sender, "remove_all_dots");
+        }
+
         [ConCommand(commandName = "dtscanner", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.MACRO_SCANNER_HELP)]
         public static void CCScanner(ConCommandArgs args)
         {

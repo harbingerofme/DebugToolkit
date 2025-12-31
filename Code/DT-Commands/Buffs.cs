@@ -137,7 +137,7 @@ namespace DebugToolkit.Commands
                 {
                     body.AddBuff(buff);
                 }
-                Log.MessageNetworked(string.Format(Lang.GIVEOBJECT, iCount, name, target.name, ""), args);
+                Log.MessageNetworked(string.Format(Lang.GIVEOBJECT, iCount, name, target.name), args);
             }
             else
             {
@@ -297,42 +297,7 @@ namespace DebugToolkit.Commands
         }
 
        
-        [ConCommand(commandName = "cleanse", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.REMOVEALLBUFFS_HELP)]
-        private static void CCCleanse(ConCommandArgs args)
-        {
-            if (!Run.instance)
-            {
-                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            bool isDedicatedServer = args.sender == null;
-            if (isDedicatedServer && (args.Count < 1 || args[0] == Lang.DEFAULT_VALUE))
-            {
-                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.REMOVEALLBUFFS_ARGS, args, LogLevel.MessageClientOnly);
-                return;
-            }
-
-   
-            var target = ParseTarget(args, 1);
-            if (target.failMessage != null)
-            {
-                Log.MessageNetworked(target.failMessage, args, LogLevel.MessageClientOnly);
-                return;
-            }
-
-            var body = target.body;
-            if (!body)
-            {
-                Log.MessageNetworked(target.failMessage, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            CleanseSystem.CleanseBodyServer(body, true, true, true, true, true, false);
-            for (int i = 0; i < BuffCatalog.buffCount; i++)
-            {
-                body.SetBuffCount((BuffIndex)i, 0);
-            }
-            Log.MessageNetworked($"Cleansed {target.name} of all buffs.", args);
-        }
+     
 
         [ConCommand(commandName = "remove_all_buffs", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.REMOVEALLBUFFS_HELP)]
         [AutoComplete(Lang.REMOVEALLBUFFS_ARGS)]
