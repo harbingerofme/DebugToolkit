@@ -45,7 +45,7 @@
 		* 'create_pickup' now supports dropping drones & pickups.
 		* 'create_pickup' switched {search} and {permanent/temp} argument spots.
 		* 'give_equip -1' now removes your equipment.
-		* 'give_buff' now works with negative amount for removing.
+		* 'give_buff' & 'remove_buff' now accept negative amounts to remove/give.
 		* 'loadout_set_skill_variant' now accepts 'self'
 		* 'random_items' changed default value to not give Lunars & Voids.
 		* 'hurt' third optional argument to bypass armor&damage calculations.
@@ -59,6 +59,7 @@
 	
 	
 ### 3.21 ###
+
 * **3.21.1**
     * Fixed the cheat ConVars not getting unlocked.
       * Also enabled the following Alloyed Collective ConVars: `bag_disable_breakout`, `bounce_velocity`, `junk_unlimited`

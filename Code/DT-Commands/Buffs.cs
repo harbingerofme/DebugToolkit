@@ -88,8 +88,13 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "count", "int"), args, LogLevel.MessageClientOnly);
                 return;
             }
-            bool remove = iCount < 0;
-            
+            if (iCount < 0)
+            {
+                args.userArgs[1] = (-iCount).ToString();
+                CCRemoveBuff(args);
+                return;
+            }
+
             float duration = 0f;
             if (args.Count > 2 && args[2] != Lang.DEFAULT_VALUE && !TextSerialization.TryParseInvariant(args[2], out duration))
             {
@@ -123,46 +128,26 @@ namespace DebugToolkit.Commands
             var canStack = BuffCatalog.GetBuffDef(buff).canStack;
             var body = target.body;
             if (duration == 0f)
-            {    
-                if (remove)
+            {
+                if (!canStack)
                 {
-                    for (int i = 0; i > iCount; i--)
-                    {
-                        body.RemoveBuff(buff);
-                    }
+                    iCount = Math.Min(iCount, 1 - body.GetBuffCount(buff));
                 }
-                else
+                for (int i = 0; i < iCount; i++)
                 {
-                    if (!canStack)
-                    {
-                        iCount = Math.Min(iCount, 1 - body.GetBuffCount(buff));
-                    }
-                    for (int i = 0; i < iCount; i++)
-                    {
-                        body.AddBuff(buff);
-                    }
+                    body.AddBuff(buff);
                 }
                 Log.MessageNetworked(string.Format(Lang.GIVEOBJECT, iCount, name, target.name, ""), args);
             }
             else
             {
-                if (remove)
+                if (!canStack)
                 {
-                    for (int i = 0; i > iCount; i--)
-                    {
-                        body.RemoveOldestTimedBuff(buff);
-                    }
+                    iCount = Math.Min(iCount, 1);
                 }
-                else
+                for (int i = 0; i < iCount; i++)
                 {
-                    if (!canStack)
-                    {
-                        iCount = Math.Min(iCount, 1);
-                    }
-                    for (int i = 0; i < iCount; i++)
-                    {
-                        body.AddTimedBuff(buff, duration);
-                    }
+                    body.AddTimedBuff(buff, duration);
                 }
                 Log.MessageNetworked($"Gave {iCount} {name} to {target.name} for <color=#53E9FF>{duration} seconds</color>", args);
             }
@@ -192,7 +177,8 @@ namespace DebugToolkit.Commands
             }
             if (iCount < 0)
             {
-                Log.MessageNetworked(String.Format(Lang.NEGATIVE_ARG, "count"), args, LogLevel.MessageClientOnly);
+                args.userArgs[1] = (-iCount).ToString();
+                CCGiveBuff(args);
                 return;
             }
 

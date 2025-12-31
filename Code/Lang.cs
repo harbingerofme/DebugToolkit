@@ -47,7 +47,7 @@
             NO_ARGS = "Requires 0 arguments.",
             PERM_MOD_ARGS = "Requires 2 arguments: {permission_level} {player}",
             POSTSOUNDEVENT_ARGS = "Requires 1 argument: {sound_event (event_name|event_id)}",
-            RANDOMITEM_ARGS = "Requires 1 (3 if from server) argument: {count} [droptable (droptable|'all'):'\"0,1,2,4\"'] [itemTypes:'permanent'] [target (player|'pinged'|'evolution'|'simulacrum'|'voidfields'|'devotion'):<self>]",
+            RANDOMITEM_ARGS = "Requires 1 (3 if from server) argument: {count} [droptable (droptable|'all'):'\"Tier1:100,Tier2:60,Tier3:4\"'] [itemTypes:'permanent'] [target (player|'pinged'|'evolution'|'simulacrum'|'voidfields'|'devotion'):<self>]",
             REMOVEALLBUFFS_ARGS = "Requires 0 (2 if from server) arguments: [timed (0|1):0/false] [target (player|'pinged'):<self>]",
             REMOVEALLDOTS_ARGS = "Requires 0 (1 if from server) arguments: [target (player|'pinged'):<self>]",
             REMOVEALLITEMS_ARGS = "Requires 0 (1 if from server) arguments: [target (player|'pinged'|'evolution'|'simulacrum'|'voidfields'|'devotion'):<self>]",

@@ -55,12 +55,12 @@ namespace DebugToolkit.Commands
             int tier = 1;
             if (args.Count > 2 && args[2] != Lang.DEFAULT_VALUE && !TextSerialization.TryParseInvariant(args[2], out tier))
             {
-                Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "drone_tier", "int"), args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "droneTier", "int"), args, LogLevel.MessageClientOnly);
                 return;
             }
             if (tier < 0)
             {
-                Log.MessageNetworked(string.Format(Lang.NEGATIVE_ARG, "drone_tier"), args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(string.Format(Lang.NEGATIVE_ARG, "droneTier"), args, LogLevel.MessageClientOnly);
                 return;
             }
             
