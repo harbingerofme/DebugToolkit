@@ -77,7 +77,6 @@
             BIND_HELP = "Bind a key to execute specific commands. " + BIND_ARGS,
             BIND_DELETE_HELP = "Remove a custom bind from the macro system of DebugToolkit. " + BIND_DELETE_ARGS,
             BIND_RELOAD_HELP = "Reload the macro system of DebugToolkit. " + NO_ARGS,
-            //BUDDHA_HELP = "Become immortal. Instead of refusing damage you just refuse to take lethal damage.\nIt works by giving all damage a player takes DamageType.NonLethal. " + ENABLE_ARGS,
             BUDDHA_HELP = "Players become immortal, but remain attackable. " + ENABLE_ARGS,
             BUDDHAENEMY_HELP = "Enemies become immortal, but remain attackable. " + ENABLE_ARGS,
             CHANGETEAM_HELP = "Change the specified player to the specified team. " + CHANGETEAM_ARGS,
@@ -101,9 +100,6 @@
             GIVEEQUIP_HELP = "Gives the specified equipment to a target. " + GIVEEQUIP_ARGS,
             RANDOMEQUIP_HELP = "Gives a random equipment to a target. " + RANDOMEQUIP_ARGS,
             GIVEITEM_HELP = "Gives the specified item to a target. " + GIVEITEM_ARGS,
-            GIVEDRONE_HELP = "Summons the specified drone to a target. " + GIVEDRONE_ARGS,
-            REMOVEALLDRONES_HELP = "Removes all drones from the target. " + REMOVEALLDRONES_ARGS,
-            KILL_ALL_MINIONS_HELP = "Kills all minions owned by target. " + REMOVEALLDRONES_ARGS,
             GIVELUNAR_HELP = "Gives amount of lunar coin to you. " + GIVELUNAR_ARGS,
             GIVEVOID_HELP = "Gives amount of void markers to you. " + GIVELUNAR_ARGS,
             GIVEMONEY_HELP = "Gives the specified amount of money to the specified player. " + GIVEMONEY_ARGS,
@@ -113,7 +109,10 @@
             GODENEMY_HELP = "All monster team members become invincible. " + ENABLE_ARGS,
             SETSTAT_HELP = "Sets the base stat to a specific value for yourself or target, and the level stat to 0. " + SETSTATS_ARGS,
             RESETSTAT_HELP = "Resets the base & level stats for yourself or target",
-            
+            GIVEDRONE_HELP = "Summons the specified drone to a target. " + GIVEDRONE_ARGS,
+            REMOVEALLDRONES_HELP = "Removes all drones from the target. " + REMOVEALLDRONES_ARGS,
+            KILL_ALL_MINIONS_HELP = "Kills all minions owned by target. " + REMOVEALLDRONES_ARGS,
+
             HEAL_HELP = "Heal yourself or another target. " + HEAL_ARGS,
             HURT_HELP = "Deal generic damage to yourself or another target. " + HURT_ARGS,
             KICK_HELP = "Kicks the specified player from the session. " + PLAYER_ARGS,
@@ -159,7 +158,6 @@
             POSTSOUNDEVENT_HELP = "Post a sound event to the AkSoundEngine (WWise) either by its event name or event ID. " + POSTSOUNDEVENT_ARGS,
             PREVENT_PROFILE_WRITING_HELP = "Prevent saving the user profile to avoid bogus data. " + ENABLE_ARGS,
             RANDOMITEM_HELP = "Generate random items from the available item tiers. " + RANDOMITEM_ARGS,
-            RANDOMITEM_HELP2 = "Grant randoms of normal tiers with option for Lunar/Voids. " + RANDOMITEM_ARGS,
             RELOADCONFIG_HELP = "Reload all default config files from all loaded plugins.",
             REMOVEALLBUFFS_HELP = "Removes all buffs from a character. " + REMOVEALLBUFFS_ARGS,
             REMOVEALLDOTS_HELP = "Removes all DoTs from a character. " + REMOVEALLDOTS_ARGS,
@@ -261,6 +259,7 @@
             ITEM = "ITEM",
             PINGED = "PINGED",
             RANDOM = "RANDOM",
+            NONE = "NONE",
             SIMULACRUM = "SIMULACRUM",
             VOIDFIELDS = "VOIDFIELDS"
             ;

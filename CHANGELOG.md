@@ -25,18 +25,18 @@
 		 
 		
 	* Added macro/short commands:
-		* 'dtscanner' -> 100 BoostEquipmentRechrage & Radar Scanner equip for easy map searching.
-		* 'dtdamage' -> x1000000 damage macro.
-		* 'dtpeace' -> 'kill_all' monsters & voids and 'no_enemies true'
+		* 'dtscanner': 100 BoostEquipmentRechrage & Radar Scanner equip for easy map searching.
+		* 'dtdamage': x1000000 damage macro.
+		* 'dtpeace': 'kill_all Monster & Void', 'no_enemies true', 'god true'
+		* 'dtcleanse': 'remove_all_buffs 0 & 1' & 'remove_all_dots'
 		* 'random_equip' macro for 'give_equip random'
 		* 'rich', -> Set money to 2 billion.
 		* 'poor' -> Set money to 0.
-		* 'hud': shorthand toggle for 'hud_enable'
 		* 'skill': shorthand for 'loadout_set_skill_variant self'
 		* 'skin': shorthand for 'loadout_set_skin_variant self'
-		* 'unlimited_junk': Toggle for 'junk_unlimited'
-		* 'cleanse': Alt for 'remove_all_buffs 0 & 1'
- 
+		* 'toggle_hud': toggle 'hud_enable' convar
+		* 'unlimited_junk': Toggle for 'junk_unlimited' and give 12 junk
+	
 	* Updated command functionality:
 		* Item commands can now grant/remove channeled items
 		* Item commands now mention you can type 0/1/2 instead of the name type.
@@ -44,10 +44,10 @@
 		* 'spawn_interactable' now accepts amount.		 
 		* 'create_pickup' now supports dropping drones & pickups.
 		* 'create_pickup' switched {search} and {permanent/temp} argument spots.
-		* 'give_equip -1' now removes your equipment.
-		* 'give_buff' & 'remove_buff' now accept negative amounts to remove/give.
+		* 'give_equip' now accepts '-1|none' to remove your equipment.
+		* 'give .. remove_buff' now accept negative amounts to remove/give, like item commands.
 		* 'loadout_set_skill_variant' now accepts 'self'
-		* 'random_items' changed default value to not give Lunars & Voids.
+		* 'random_items' changed default value to just give Tier1,2,3
 		* 'hurt' third optional argument to bypass armor&damage calculations.
 		* 'kill_all' no value given now kills Monster & Void teams.
 		* 'true_kill' now bypasses godmode and accepts 'pinged' & 'all' as target

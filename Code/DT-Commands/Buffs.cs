@@ -103,7 +103,6 @@ namespace DebugToolkit.Commands
             }
             if (duration < 0f)
             {
-                duration = 0;
                 Log.MessageNetworked(String.Format(Lang.NEGATIVE_ARG, "duration"), args, LogLevel.MessageClientOnly);
                 return;
             }
@@ -295,9 +294,6 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT, stacks, name, target.name), args);
             }
         }
-
-       
-     
 
         [ConCommand(commandName = "remove_all_buffs", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.REMOVEALLBUFFS_HELP)]
         [AutoComplete(Lang.REMOVEALLBUFFS_ARGS)]

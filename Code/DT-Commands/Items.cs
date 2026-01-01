@@ -223,7 +223,7 @@ namespace DebugToolkit.Commands
 
         [ConCommand(commandName = "random_items", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.RANDOMITEM_HELP)]
         [AutoComplete(Lang.RANDOMITEM_ARGS)]
-        private static void CCRandomItemsTiered(ConCommandArgs args)
+        private static void CCRandomItems(ConCommandArgs args)
         {
             if (!Run.instance)
             {
@@ -319,7 +319,7 @@ namespace DebugToolkit.Commands
                 inventory.GiveRandomEquipment();
                 equip = inventory.GetEquipmentIndex();
             }
-            else if (args[0] == "-1")
+            else if (args[0] == "-1" || args[0].ToUpperInvariant() == Lang.NONE)
             {
                 inventory.SetEquipmentIndex(EquipmentIndex.None, true);
                 Log.MessageNetworked(string.Format(Lang.REMOVEDEQUIP, target.name), args);
@@ -478,15 +478,15 @@ namespace DebugToolkit.Commands
                             string foundResults = string.Empty;
                             if (def1)
                             {
-                                foundResults += $"{item}|{def1.name}|{Language.GetString(def1.nameToken)}";
+                                foundResults += $"{item}|{def1.name}|{Language.GetString(def1.nameToken)}\n";
                             }
                             if (def2)
                             {
-                                foundResults += $"{equipment}|{def2.name}|{Language.GetString(def2.nameToken)}";
+                                foundResults += $"{equipment}|{def2.name}|{Language.GetString(def2.nameToken)}\n";
                             }
                             if (def3)
                             {
-                                foundResults += $"{drone}|{def3.name}|{Language.GetString(def3.nameToken)}";
+                                foundResults += $"{drone}|{def3.name}|{Language.GetString(def3.nameToken)}\n";
                             }
                             Log.MessageNetworked(string.Format(Lang.CREATEPICKUP_AMBIGIOUS, foundResults), args, LogLevel.MessageClientOnly);
                             return;
@@ -518,7 +518,6 @@ namespace DebugToolkit.Commands
                 {
                     pickupIndex = final,
                     decayValue = type == PickupType.Temp ? 1f : 0f,
-                    //upgradeValue 
                 },
             }, body.transform.position, body.inputBank.aimDirection * 30f);
         }
@@ -775,6 +774,7 @@ namespace DebugToolkit.Commands
             Pickup,
             Count,
         }
+
         private static int GetItemCount(Inventory inventory, ItemIndex itemIndex, ItemType type)
         {
             switch (type)
@@ -970,7 +970,6 @@ namespace DebugToolkit.Commands
                 droptable.Add(availableDropLists[ItemTier.Tier1], 100f);
                 droptable.Add(availableDropLists[ItemTier.Tier2], 60f);
                 droptable.Add(availableDropLists[ItemTier.Tier3], 4f);
-                droptable.Add(availableDropLists[ItemTier.Boss], 4f);
             }
             else if (args[index].ToUpperInvariant() == Lang.ALL)
             {

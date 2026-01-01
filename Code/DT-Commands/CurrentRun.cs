@@ -220,6 +220,7 @@ namespace DebugToolkit.Commands
             Log.MessageNetworked(String.Format(lockExp ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, "lock_exp"), args);
         }
 
+
         [ConCommand(commandName = "kill_all", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.KILLALL_HELP)]
         [AutoComplete(Lang.KILLALL_ARGS)]
         private static void CCKillAll(ConCommandArgs args)
@@ -229,40 +230,37 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
                 return;
             }
-           
-            if (args.Count > 0 && args[0] != Lang.DEFAULT_VALUE)
-            {
-                TeamIndex team = TeamIndex.Monster;
-                team = StringFinder.Instance.GetTeamFromPartial(args[0]);
-                if (team == StringFinder.TeamIndex_NotFound)
-                {
-                    Log.MessageNetworked(Lang.TEAM_NOTFOUND, args, LogLevel.MessageClientOnly);
-                    return;
-                }
-
-                int count = 0;
-                foreach (var teamComponent in TeamComponent.GetTeamMembers(team).ToList())
-                {
-                    var healthComponent = teamComponent.GetComponent<HealthComponent>();
-                    if (healthComponent)
-                    {
-
-                        healthComponent.Suicide(null);
-                        if (!healthComponent.alive)
-                        {
-                            count++;
-                        }
-                    }
-                }
-                Log.MessageNetworked($"Killed {count} of team {team}.", args);
-            }
-            else
+            if (args.Count == 0 || args[0] == Lang.DEFAULT_VALUE)
             {
                 DebugToolkit.InvokeCMD(args.sender, "kill_all", ((int)TeamIndex.Monster).ToString());
                 DebugToolkit.InvokeCMD(args.sender, "kill_all", ((int)TeamIndex.Void).ToString());
+                return;
             }
-        }
 
+            TeamIndex team = TeamIndex.Monster;
+            team = StringFinder.Instance.GetTeamFromPartial(args[0]);
+            if (team == StringFinder.TeamIndex_NotFound)
+            {
+                Log.MessageNetworked(Lang.TEAM_NOTFOUND, args, LogLevel.MessageClientOnly);
+                return;
+            }
+
+            int count = 0;
+            foreach (var teamComponent in TeamComponent.GetTeamMembers(team).ToList())
+            {
+                var healthComponent = teamComponent.GetComponent<HealthComponent>();
+                if (healthComponent)
+                {
+                    healthComponent.Suicide(null);
+                    if (!healthComponent.alive)
+                    {
+                        count++;
+                    }
+                }
+            }
+            Log.MessageNetworked($"Killed {count} of team {team}.", args);
+        }
+ 
         [ConCommand(commandName = "time_scale", flags = ConVarFlags.Engine | ConVarFlags.ExecuteOnServer, helpText = Lang.TIMESCALE_HELP)]
         [AutoComplete(Lang.TIMESCALE_ARGS)]
         private static void CCTimeScale(ConCommandArgs args)

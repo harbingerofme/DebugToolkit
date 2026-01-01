@@ -14,6 +14,7 @@ namespace DebugToolkit.Commands
     class Spawners
     {
         private static readonly Dictionary<string, GameObject> portals = new Dictionary<string, GameObject>();
+
         [ConCommand(commandName = "spawn_interactable", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SPAWNINTERACTABLE_HELP)]
         [ConCommand(commandName = "spawn_interactible", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SPAWNINTERACTABLE_HELP)]
         [AutoComplete(Lang.SPAWNINTERACTABLE_ARGS)]
@@ -86,6 +87,7 @@ namespace DebugToolkit.Commands
                 var direction = args.senderBody.inputBank.aimDirection;
                 position = position + (args.senderBody.radius + distance) * new Vector3(direction.x, 0f, direction.z);
             }
+            Log.MessageNetworked(string.Format(Lang.SPAWN_ATTEMPT_2, amount, isc.prefab.name), args);
             int failed = 0;
             for (int i = 0; i < amount; i++)
             {
@@ -206,6 +208,7 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "count", "int"), args, LogLevel.MessageClientOnly);
                 return;
             }
+
             EliteDef eliteDef = null;
             if (args.Count > 2 && args[2] != Lang.DEFAULT_VALUE)
             {

@@ -1,7 +1,6 @@
 ﻿using DebugToolkit.Permissions;
 using RoR2;
 using RoR2.Networking;
-using System;
 using UnityEngine;
 using UnityEngine.Networking;
 using static DebugToolkit.Log;
@@ -55,8 +54,7 @@ namespace DebugToolkit.Commands
             {
                 Log.Message(Lang.INSUFFICIENT_ARGS + Lang.PLAYER_OR_PINGED, LogLevel.Error);
                 return;
-            }
-      
+            } 
             CharacterMaster master = args.sender.master;
             if (args.Count > 0)
             {

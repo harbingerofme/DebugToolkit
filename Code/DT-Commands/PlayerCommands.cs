@@ -282,7 +282,7 @@ namespace DebugToolkit.Commands
 
         }
 
-  
+
         [ConCommand(commandName = "spawn_as", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SPAWNAS_HELP)]
         [AutoComplete(Lang.SPAWNAS_ARGS)]
         private static void CCSpawnAs(ConCommandArgs args)
@@ -292,7 +292,7 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
                 return;
             }
-            if (args.Count == 0 || (args.sender == null && (args.Count < 3 || args[2] == Lang.DEFAULT_VALUE)))
+            if (args.Count == 0 || (args.sender == null && (args.Count < 2 || args[1] == Lang.DEFAULT_VALUE)))
             {
                 Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.SPAWNAS_ARGS, args, LogLevel.MessageClientOnly);
                 return;
@@ -307,7 +307,7 @@ namespace DebugToolkit.Commands
             GameObject newBody = BodyCatalog.GetBodyPrefab(bodyIndex);
 
             CharacterMaster master = args.senderMaster;
-            if (args.Count > 2 && args[2] != Lang.DEFAULT_VALUE)
+            if (args.Count > 1 && args[1] != Lang.DEFAULT_VALUE)
             {
                 NetworkUser player = Util.GetNetUserFromString(args.userArgs, 1);
                 if (player == null)
@@ -324,10 +324,10 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(string.Format(Lang.EXPANSION_LOCKED, "body", Util.GetExpansion(expansion.requiredExpansion)), args, LogLevel.MessageClientOnly);
                 return;
             }
- 
-            master.bodyPrefab = newBody;
+
             master.originalBodyPrefab = newBody;
-            Log.MessageNetworked(args.sender.userName + " is spawning as " + newBody.name + " for the rest of the run.", args);
+            master.bodyPrefab = newBody;
+            Log.MessageNetworked(args.sender.userName + " is spawning as " + newBody.name, args);
 
             if (!master.GetBody())
             {
@@ -426,11 +426,14 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked("Nothing happened.", args, LogLevel.MessageClientOnly);
                 return;
             }
+
+           
+
             target.body.healthComponent.TakeDamage(new DamageInfo()
             {
                 damage = amount,
                 position = target.body.corePosition,
-                damageType = bypassCalc ? DamageTypeExtended.BypassDamageCalculations : DamageTypeExtended.Generic
+                damageType = !bypassCalc ? DamageTypeCombo.Generic : new DamageTypeCombo(DamageType.BypassArmor & DamageType.BypassBlock & DamageType.BypassOneShotProtection, DamageTypeExtended.BypassDamageCalculations, DamageSource.NoneSpecified)
             });
             Log.MessageNetworked($"Damaged {target.name} for {amount} hp.", args);
         }
@@ -691,7 +694,6 @@ namespace DebugToolkit.Commands
             }
         }
  
-        //Apply_Skin is probably better, but does not save loadout
         [ConCommand(commandName = "loadout_set_skin_variant", flags = ConVarFlags.None, helpText = Lang.LOADOUTSKIN_HELP)]
         [AutoComplete(Lang.LOADOUTSKIN_ARGS)]
         public static void CCLoadoutSetSkinVariant(ConCommandArgs args)
@@ -894,8 +896,7 @@ namespace DebugToolkit.Commands
             CCSetStats(args);
         }
 
-        //Idk how these work with client to server
-        //I think they just, don't.
+        //I don't know how these work with client to server, I think they just, don't.
         [ConCommand(commandName = "set_damage", flags = ConVarFlags.SenderMustBeServer, helpText = Lang.SETSTAT_HELP)]
         [ConCommand(commandName = "set_attackspeed", flags = ConVarFlags.SenderMustBeServer, helpText = Lang.SETSTAT_HELP)]
         [ConCommand(commandName = "set_crit", flags = ConVarFlags.SenderMustBeServer, helpText = Lang.SETSTAT_HELP)]

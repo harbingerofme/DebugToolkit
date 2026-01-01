@@ -39,18 +39,6 @@ namespace DebugToolkit
 
         private static void GatherCSCs()
         {
-            /*GatherAddressableAssets<CharacterSpawnCard>("/csc", (asset) =>
-            {
-                characterSpawnCard.Add(new DirectorCard
-                {
-                    spawnCard = asset,
-                    forbiddenUnlockableDef = null,
-                    minimumStageCompletions = 0,
-                    preventOverhead = true,
-                    spawnDistance = DirectorCore.MonsterSpawnDistance.Standard,
-                });
-            });*/
-
             RoR2Application.onLoad += () =>
             {
                 //I imagine this would fail to get modded MultiCSC

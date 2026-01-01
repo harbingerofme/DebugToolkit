@@ -14,7 +14,6 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
 using Console = RoR2.Console;
- 
 namespace DebugToolkit
 {
     public sealed class Hooks
@@ -95,7 +94,6 @@ namespace DebugToolkit
             Run.onRunDestroyGlobal += Command_Noclip.DisableOnRunDestroy;
 
             //Buddha Mode hook
-            //On.RoR2.HealthComponent.TakeDamage += NonLethalDamage;
             On.RoR2.CharacterBody.Start += SetBuddhaMode;
             On.RoR2.CharacterMaster.Awake += SetGodMode;
 
@@ -226,16 +224,7 @@ namespace DebugToolkit
                 self.godMode |= self.teamIndex == TeamIndex.Monster && godMonsters;
             }
         }
-
-        private static void NonLethalDamage(On.RoR2.HealthComponent.orig_TakeDamage orig, HealthComponent self, DamageInfo damageInfo)
-        {
-            if (buddha && self.body.isPlayerControlled)
-            {
-                damageInfo.damageType |= DamageType.NonLethal;
-            }
-            orig(self, damageInfo);
-        }
-
+ 
         private static void InfiniteTowerRun_BeginNextWave(ILContext il)
         {
             var c = new ILCursor(il);
