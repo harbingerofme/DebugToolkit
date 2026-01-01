@@ -260,7 +260,7 @@ namespace DebugToolkit.Commands
             }
             Log.MessageNetworked($"Killed {count} of team {team}.", args);
         }
- 
+
         [ConCommand(commandName = "time_scale", flags = ConVarFlags.Engine | ConVarFlags.ExecuteOnServer, helpText = Lang.TIMESCALE_HELP)]
         [AutoComplete(Lang.TIMESCALE_ARGS)]
         private static void CCTimeScale(ConCommandArgs args)

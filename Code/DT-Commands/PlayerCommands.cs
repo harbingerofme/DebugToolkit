@@ -426,9 +426,6 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked("Nothing happened.", args, LogLevel.MessageClientOnly);
                 return;
             }
-
-           
-
             target.body.healthComponent.TakeDamage(new DamageInfo()
             {
                 damage = amount,
@@ -693,7 +690,7 @@ namespace DebugToolkit.Commands
                 sb.AppendLine($"{esm.customName} state: {esm.state?.ToString() ?? string.Empty}");
             }
         }
- 
+
         [ConCommand(commandName = "loadout_set_skin_variant", flags = ConVarFlags.None, helpText = Lang.LOADOUTSKIN_HELP)]
         [AutoComplete(Lang.LOADOUTSKIN_ARGS)]
         public static void CCLoadoutSetSkinVariant(ConCommandArgs args)
