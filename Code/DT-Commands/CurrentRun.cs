@@ -284,10 +284,17 @@ namespace DebugToolkit.Commands
         [ConCommand(commandName = "toggle_time", flags = ConVarFlags.None, helpText = Lang.TOGGLETIME_HELP)]
         private static void CCTogglePause(ConCommandArgs args)
         {
-            float newTimeScale = prevTimeScale;
-            prevTimeScale = Time.timeScale;
-            Time.timeScale = newTimeScale;
-            TimescaleNet.Invoke(newTimeScale);
+            float newTime = 0;
+            if (Time.timeScale == 0)
+            {
+                newTime = prevTimeScale == 0 ? 1 : prevTimeScale;
+            }
+            else
+            {
+                prevTimeScale = Time.timeScale;
+            }
+            Time.timeScale = newTime;
+            TimescaleNet.Invoke(newTime);
         }
 
         [ConCommand(commandName = "stop_timer", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.STOPTIMER_HELP)]
