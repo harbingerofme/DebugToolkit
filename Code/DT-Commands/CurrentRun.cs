@@ -789,6 +789,56 @@ namespace DebugToolkit.Commands
             }
           
         }
+
+        [ConCommand(commandName = "set_difficulty", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SETDIFFICULTY_HELP)]
+        [AutoComplete(Lang.SETDIFFICULTY_ARGS)]
+        public static void CCSetDifficulty(ConCommandArgs args)
+        {
+            if (!Run.instance)
+            {
+                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            if (args.Count < 1)
+            {
+                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.SETDIFFICULTY_ARGS, args, LogLevel.MessageClientOnly);
+                return;
+            }
+ 
+            DifficultyIndex difficultyIndex = StringFinder.Instance.GetDifficultyFromPartial(args[0]);
+            DifficultyDef difficultyDef = DifficultyCatalog.GetDifficultyDef(difficultyIndex);
+            if (difficultyIndex == DifficultyIndex.Invalid || difficultyDef == null)
+            {
+                Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "difficulty", args[0]), args, LogLevel.MessageClientOnly);
+                return;
+            }
+            
+            Run.instance.selectedDifficulty = difficultyIndex;
+            Log.MessageNetworked("Setting the runs selected difficulty to: "+ Language.GetString(difficultyDef.nameToken), args);
+
+            if (Run.instance.uiInstances.Count > 0) 
+            {
+                //Refreshes HUD to match set difficulty
+                //Is there a way to do this on both client & server?
+                Run.instance.uiInstances[0].GetComponentInChildren<RoR2.UI.CurrentDifficultyIconController>()?.Start();
+            }
+            foreach (var player in PlayerCharacterMasterController.instances)
+            {
+                //Ensure proper Helper items, maybe not most accurate for modded difficulties.
+                player.master.inventory.ResetItemPermanent(RoR2Content.Items.DrizzlePlayerHelper);
+                player.master.inventory.ResetItemPermanent(RoR2Content.Items.MonsoonPlayerHelper);
+                if (difficultyIndex == DifficultyIndex.Easy)
+                {
+                    player.master.inventory.GiveItemPermanent(RoR2Content.Items.DrizzlePlayerHelper, 1);
+                }
+                else if (difficultyDef.countsAsHardMode)
+                {
+                    player.master.inventory.GiveItemPermanent(RoR2Content.Items.MonsoonPlayerHelper, 1);
+                }
+            }
+            
+        }
+
     }
 
     // ReSharper disable once ClassNeverInstantiated.Global

@@ -61,7 +61,7 @@ namespace DebugToolkit
                 }
 
                 var filteredList =
-                CSCList.Where(spawnCard => spawnCard is CharacterSpawnCard && characterSpawnCard.All(existingCSC => existingCSC.spawnCard.name != spawnCard.name));
+                CSCList.Where(spawnCard => spawnCard is CharacterSpawnCard && characterSpawnCard.All(existingCSC => existingCSC.spawnCard != spawnCard));
                 foreach (var card in filteredList)
                 {
                     characterSpawnCard.Add(new DirectorCard
@@ -81,11 +81,11 @@ namespace DebugToolkit
             {
                 //Doing this first means only getting loaded spawn cards.
                 //Which for vanilla isn't a lot of them (38)
-                //But itll find any modded ones and mod-edited ones.
+                //But itll find any modded ones and mod-loaded ones.
                 var ISCList = Resources.FindObjectsOfTypeAll(typeof(InteractableSpawnCard)) as InteractableSpawnCard[];
      
                 //Unless there's some issue with WaitForFinished()
-                //Gotta do it this way to get vanillaInteractables first then moddedInteractables, without jumbling up the order
+                //Have do it this way to get vanillaInteractables first then moddedInteractables, without jumbling up the order
                 foreach (var resourceLocator in Addressables.ResourceLocators)
                 {
                     foreach (var key in resourceLocator.Keys)
@@ -99,7 +99,7 @@ namespace DebugToolkit
                 }
 
                 var filteredList =
-                ISCList.Where(spawnCard => spawnCard is InteractableSpawnCard && interactableSpawnCards.All(existingIsc => existingIsc.name != spawnCard.name));
+                ISCList.Where(spawnCard => spawnCard is InteractableSpawnCard && interactableSpawnCards.All(existingIsc => existingIsc != spawnCard));
                 interactableSpawnCards.AddRange(filteredList);
             };
         }
@@ -298,6 +298,46 @@ namespace DebugToolkit
                 yield return (DotController.DotIndex)match.item;
             }
         }
+
+        /// <summary>
+        /// Returns an DifficultyIndex when provided with an index or partial/invariant.
+        /// </summary>
+        /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>
+        /// <returns>Returns the DifficultyIndex if a match is found, or returns DifficultyIndex.Invalid</returns>
+        public DifficultyIndex GetDifficultyFromPartial(string name)
+        {
+            return GetDifficultiesFromPartial(name).DefaultIfEmpty(DifficultyIndex.Invalid).First();
+        }
+
+        /// <summary>
+        /// Returns an iterator of DifficultyIndex's when provided with an index or partial/invariant.
+        /// </summary>
+        /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>
+        /// <returns>Returns an iterator with all DifficultyIndex's matched</returns>
+        public IEnumerable<DifficultyIndex> GetDifficultiesFromPartial(string name)
+        {
+            //Vanilla has no DifficultyDef -> Index
+            //Modded difficulties are also not stored in DifficultyCatalog usually.
+            if (TextSerialization.TryParseInvariant(name, out int i))
+            {
+                var index = (DifficultyIndex)i;
+                if (DifficultyCatalog.GetDifficultyDef(index) != null)
+                {
+                    yield return index;
+                }
+                yield break;
+            }
+            name = name.ToUpperInvariant();
+            foreach (var dict in R2API.DifficultyAPI.difficultyDefinitions)
+            {
+                var langInvar = GetLangInvar(dict.Value.nameToken).ToUpper();
+                if (dict.Value.nameToken.ToUpper().Contains(name) || langInvar.Contains(name))
+                {
+                    yield return dict.Key;
+                }
+            } 
+        }
+
 
         /// <summary>
         /// Returns an EquipmentIndex when provided with an index or partial/invariant.

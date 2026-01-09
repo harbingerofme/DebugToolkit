@@ -1,5 +1,6 @@
 ﻿using RoR2;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using UnityEngine.Networking;
 using static DebugToolkit.Log;
@@ -70,6 +71,23 @@ namespace DebugToolkit.Commands
             var s = sb.Length > 0 ? sb.ToString().TrimEnd('\n') : string.Format(Lang.NOMATCH_ERROR, "artifacts", arg);
             Log.MessageNetworked(s, args, LogLevel.MessageClientOnly);
         }
+
+        [ConCommand(commandName = "list_difficulty", flags = ConVarFlags.None, helpText = Lang.LISTDIFFICULTY_HELP)]
+        private static void CCListDifficulty(ConCommandArgs args)
+        {
+            StringBuilder sb = new StringBuilder();
+            var arg = args.Count > 0 ? args[0] : "";
+            var indices = StringFinder.Instance.GetDifficultiesFromPartial(arg);
+            foreach (var index in indices)
+            {
+                 var difficultyDef = DifficultyCatalog.GetDifficultyDef(index);
+                 var langInvar = StringFinder.GetLangInvar(difficultyDef.nameToken);
+                 sb.AppendLine($"[{(int)index}]{difficultyDef.nameToken}={langInvar}");
+            }  
+            var s = sb.Length > 0 ? sb.ToString().TrimEnd('\n') : string.Format(Lang.NOMATCH_ERROR, "difficulty", arg);
+            Log.MessageNetworked(s, args, LogLevel.MessageClientOnly);
+        }
+
 
         [ConCommand(commandName = "list_ai", flags = ConVarFlags.None, helpText = Lang.LISTAI_HELP)]
         [AutoComplete(Lang.LISTQUERY_ARGS)]
