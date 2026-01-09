@@ -883,25 +883,8 @@ namespace DebugToolkit.Commands
             RoR2.UI.HUD.cvHudEnable.SetBool(!RoR2.UI.HUD.cvHudEnable.value);
             Log.MessageNetworked(String.Format(RoR2.UI.HUD.cvHudEnable.value ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, "Hud"), args, LogLevel.MessageClientOnly);
         }
-
-
-        [ConCommand(commandName = "reset_stats", flags = ConVarFlags.SenderMustBeServer, helpText = Lang.RESETSTAT_HELP)]
-        [AutoComplete(Lang.PLAYER_OR_PINGED)]
-        public static void CCResetSetStats(ConCommandArgs args)
-        {
-            args.userArgs.Insert(0,"");
-            CCSetStats(args);
-        }
-
-        //I don't know how these work with client to server, I think they just, don't.
-        [ConCommand(commandName = "set_damage", flags = ConVarFlags.SenderMustBeServer, helpText = Lang.SETSTAT_HELP)]
-        [ConCommand(commandName = "set_attackspeed", flags = ConVarFlags.SenderMustBeServer, helpText = Lang.SETSTAT_HELP)]
-        [ConCommand(commandName = "set_crit", flags = ConVarFlags.SenderMustBeServer, helpText = Lang.SETSTAT_HELP)]
-        [ConCommand(commandName = "set_health", flags = ConVarFlags.SenderMustBeServer, helpText = Lang.SETSTAT_HELP)]
-        [ConCommand(commandName = "set_regen", flags = ConVarFlags.SenderMustBeServer, helpText = Lang.SETSTAT_HELP)]
-        [ConCommand(commandName = "set_armor", flags = ConVarFlags.SenderMustBeServer, helpText = Lang.SETSTAT_HELP)]
-        [ConCommand(commandName = "set_movespeed", flags = ConVarFlags.SenderMustBeServer, helpText = Lang.SETSTAT_HELP)]
-        [ConCommand(commandName = "set_jumppower", flags = ConVarFlags.SenderMustBeServer, helpText = Lang.SETSTAT_HELP)]
+ 
+        [ConCommand(commandName = "set_stat", flags = ConVarFlags.SenderMustBeServer, helpText = Lang.SETSTAT_HELP)]
         [AutoComplete(Lang.SETSTATS_ARGS)]
         public static void CCSetStats(ConCommandArgs args)
         {
@@ -910,60 +893,43 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
                 return;
             }
-            if (args.Count == 0 || (args.sender == null && (args.Count < 2 || args[1] == Lang.DEFAULT_VALUE)))
+ 
+            if (args.Count == 0 || (args.sender == null && (args.Count < 3 || args[2] == Lang.DEFAULT_VALUE)))
             {
                 Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.SETSTATS_ARGS, args, LogLevel.MessageClientOnly);
                 return;
             }
-            var target = Buffs.ParseTarget(args, 1);
+            var target = Buffs.ParseTarget(args, 2);
             if (target.failMessage != null)
             {
                 Log.MessageNetworked(target.failMessage, args, LogLevel.MessageClientOnly);
                 return;
             }
-            if (!TextSerialization.TryParseInvariant(args[0], out float amount))
+            bool reset = false;
+            float amount = 0;
+            if (args.Count == 1 || args[1] == Lang.DEFAULT_VALUE || args[1].ToUpperInvariant() == "RESET")
             {
-                Log.MessageNetworked(string.Format(Lang.PARSE_ERROR, "amount", "float"), args, LogLevel.MessageClientOnly);
+                reset = true;
+            }
+            else
+            {
+                if (!TextSerialization.TryParseInvariant(args[1], out amount))
+                {
+                    Log.MessageNetworked(string.Format(Lang.PARSE_ERROR, "amount", "float"), args, LogLevel.MessageClientOnly);
+                    return;
+                }
+            }
+ 
+            Stat statToSet = Enum.TryParse(args[0], true, out Stat itemType) ? itemType : Stat.None;
+            if (statToSet == Stat.None)
+            {
+                Log.MessageNetworked(string.Format(Lang.PARSE_ERROR, "stat", "string"), args, LogLevel.MessageClientOnly);
                 return;
             }
-
-            Stat statToSet = Stat.Reset;
-            string command = args.commandName;
-
-            switch (command)
+            SetStatsForBody(target.body, statToSet, amount, reset);
+            if (reset) 
             {
-                case "set_damage":
-                    statToSet = Stat.Damage;
-                    break;
-                case "set_attackspeed":
-                    statToSet = Stat.AttackSpeed;
-                    break;
-                case "set_crit":
-                    statToSet = Stat.Crit;
-                    break;
-                case "set_health":
-                    statToSet = Stat.MaxHealth;
-                    break;
-                case "set_regen":
-                    statToSet = Stat.Regen;
-                    break;
-                case "set_armor":
-                    statToSet = Stat.Armor;
-                    break;
-                case "set_movespeed":
-                    statToSet = Stat.MoveSpeed;
-                    break;
-                case "set_jumppower":
-                    statToSet = Stat.JumpPower;
-                    break;
-                case "reset_stats":
-                    statToSet = Stat.Reset;
-                    break;
-            }
-            SetStatsForBody(target.body, statToSet, amount);
-            if (statToSet == Stat.Reset) 
-            {
-                Log.MessageNetworked($"Reset {target.name}'s stats to their base values.", args);
+                Log.MessageNetworked($"Reset {target.name}'s {statToSet} to it's base value.", args);
             }
             else
             {
@@ -975,75 +941,61 @@ namespace DebugToolkit.Commands
 
         public enum Stat
         {
+            None = -1,
             Damage,
             AttackSpeed,
             Crit,
-            MaxHealth,
+            Health,
+            Shield,
             Regen, 
             Armor,
             MoveSpeed,
-            JumpPower,
-            Reset,
+            Acceleration,
+            JumpPower, 
         }
-        public static void SetStatsForBody(CharacterBody body, Stat stat, float amount)
+        public static void SetStatsForBody(CharacterBody body, Stat stat, float amount, bool reset)
         {
             var ogBody = body.master.bodyPrefab.GetComponent<CharacterBody>();
             switch (stat)
             {
-             
                 case Stat.Damage:
-                    body.baseDamage = amount;
-                    body.levelDamage = 0;
+                    body.baseDamage = reset ? ogBody.baseDamage : amount;
+                    body.levelDamage = reset ? ogBody.levelDamage : 0;
                     break;
                 case Stat.AttackSpeed:
-                    body.baseAttackSpeed = amount;
-                    body.levelAttackSpeed = 0;
+                    body.baseAttackSpeed = reset ? ogBody.baseAttackSpeed : amount;
+                    body.levelAttackSpeed = reset ? ogBody.levelAttackSpeed : 0;
                     break;
                 case Stat.Crit:
-                    body.baseCrit = amount;
-                    body.levelCrit = 0;
+                    body.baseCrit = reset ? ogBody.baseCrit : amount;
+                    body.levelCrit = reset ? ogBody.levelCrit : 0;
                     break;
-                case Stat.MaxHealth:
-                    body.baseMaxHealth = amount;
-                    body.levelMaxHealth = 0;
+                case Stat.Health:
+                    body.baseMaxHealth = reset ? ogBody.baseMaxHealth : amount;
+                    body.levelMaxHealth = reset ? ogBody.levelMaxHealth : 0;
+                    break;
+                case Stat.Shield:
+                    body.baseMaxShield = reset ? ogBody.baseMaxShield : amount;
+                    body.levelMaxShield = reset ? ogBody.levelMaxShield : 0;
                     break;
                 case Stat.Regen:
-                    body.baseRegen = amount;
-                    body.levelRegen = 0;
+                    body.baseRegen = reset ? ogBody.baseRegen : amount;
+                    body.levelRegen = reset ? ogBody.levelRegen : 0;
                     break;
                 case Stat.Armor:
-                    body.baseArmor = amount;
-                    body.levelArmor = 0;
+                    body.baseArmor = reset ? ogBody.baseArmor : amount;
+                    body.levelArmor = reset ? ogBody.levelArmor : 0;
                     break;
                 case Stat.MoveSpeed:
-                    body.baseMoveSpeed = amount;
-                    body.levelMoveSpeed = 0;
-                    body.baseAcceleration = (ogBody.baseAcceleration * (amount / ogBody.baseMoveSpeed));
+                    body.baseMoveSpeed = reset ? ogBody.baseMoveSpeed : amount;
+                    body.levelMoveSpeed = reset ? ogBody.levelMoveSpeed : 0;
+                    break;
+                case Stat.Acceleration:
+                    body.baseAcceleration = reset ? ogBody.baseAcceleration : amount;
                     break;
                 case Stat.JumpPower:
-                    body.baseJumpPower = amount;
-                    body.levelJumpPower = 0;
-                    break;
-                case Stat.Reset:
-                    body.baseDamage = ogBody.baseDamage;
-                    body.levelDamage = ogBody.levelDamage;
-                    body.baseAttackSpeed = ogBody.baseAttackSpeed;
-                    body.levelAttackSpeed = ogBody.levelAttackSpeed;
-                    body.baseCrit = ogBody.baseCrit;
-                    body.levelCrit = ogBody.levelCrit;
-                    //
-                    body.baseMaxHealth = ogBody.baseMaxHealth;
-                    body.levelMaxHealth = ogBody.levelMaxHealth;
-                    body.baseRegen = ogBody.baseRegen;
-                    body.levelRegen = ogBody.levelRegen;
-                    body.baseArmor = ogBody.baseArmor;
-                    body.levelArmor = ogBody.levelArmor;
-                    //
-                    body.baseMoveSpeed = ogBody.baseMoveSpeed;
-                    body.levelMoveSpeed = ogBody.levelMoveSpeed;
-                    body.baseAcceleration = ogBody.baseAcceleration;
-                    body.baseJumpPower = ogBody.baseJumpPower;
-                    body.levelJumpPower = ogBody.levelJumpPower;
+                    body.baseJumpPower = reset ? ogBody.baseJumpPower : amount;
+                    body.levelJumpPower = reset ? ogBody.levelJumpPower : 0;
                     break;
             }
             body.MarkAllStatsDirty();

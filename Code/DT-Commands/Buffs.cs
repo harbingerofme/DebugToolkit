@@ -617,7 +617,7 @@ namespace DebugToolkit.Commands
                     target = targetMaster?.GetBody();
                 }
             }
-            if (target == null)
+            if (target == null && failMessage != null)
             {
                 failMessage = Lang.PLAYER_NOTFOUND;
             }
