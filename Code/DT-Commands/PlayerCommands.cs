@@ -790,7 +790,8 @@ namespace DebugToolkit.Commands
             return false;
         }
 
-        [ConCommand(commandName = "skill", flags = ConVarFlags.ExecuteOnServer, helpText = "[skill_slot] [skill_variant]\nSets the skill variant for the sender's user profile.")]
+        [ConCommand(commandName = "skill", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.LOADOUTSKILL2_HELP)]
+        [AutoComplete(Lang.LOADOUTSKILL_ARGS)]
         public static void CCSetSkillShort(ConCommandArgs args)
         {
             args.userArgs = new List<string>
@@ -806,23 +807,7 @@ namespace DebugToolkit.Commands
         {
             Macros.Invoke(args.sender, "loadout_set_skin_variant", "self", args.TryGetArgInt(0).GetValueOrDefault(-1).ToString());
         }
-
-
-        [ConCommand(commandName = "unlimited_junk", flags = ConVarFlags.ExecuteOnServer, helpText = "Toggle junk_unlimited. Makes skillchecks ingore junk cost.")]
-        public static void CCToggleUnlimitedJunk(ConCommandArgs args)
-        {
-            JunkController.junkUnlimited.value = !JunkController.junkUnlimited.value;
-            if (JunkController.junkUnlimited.value)
-            {
-                Macros.Invoke(args.sender, "give_item", ((int)DLC3Content.Items.Junk.itemIndex).ToString(), "12");
-                //Junk unlimited doesn't actually bypass the check.
-                //It just makes it not remove junk
-            }
-            Log.MessageNetworked(String.Format(JunkController.junkUnlimited.value ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, "Unlimtied Junk"), args);
    
-        }
-
-       
       
         [ConCommand(commandName = "nocooldowns", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.NOCOOLDOWN_HELP)]
         [AutoComplete(Lang.PLAYER_OR_PINGED)]
@@ -847,6 +832,10 @@ namespace DebugToolkit.Commands
                 {
                     slot.cooldownOverride = 0;
                 }
+            }
+            if (NoCooldowns && slots[0].CalculateFinalRechargeInterval() > 0.001f)
+            {
+                //Some mod is preventing this command from working.
             }
             string enable = NoCooldowns ? "<color=green>Disabled</color>" : "<color=red>Reenabled</color>";
             Log.MessageNetworked($"{enable} Skill Cooldowns for {RoR2.Util.GetBestBodyName(target.body.gameObject)}", args);

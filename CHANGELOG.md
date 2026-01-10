@@ -4,12 +4,11 @@
 	* Added commands:
 		* 'give_drone': Summons drone, specified amount and tier
 		* 'remove_all_drones': Removes all drones, leaving no bodies.
-		* 'kill_all_minions': Kills all minions, leaving dead drones.
 		* 'list_drone': List drone names and ids.
 		
-		* 'set_ .. damage, attackspeed, crit, health, regen, armor, movespeed' Sets the stat to the specified value, for the target, for that life; For clean testing.
-		* 'reset_stats' Undoes changes from 'set_..' commands.
-		* 'nocooldowns': disables your skill cooldowns
+		* 'set_difficulty' Sets the runs selected difficulty.
+		* 'set_stat' Sets the given baseStat to the specified value, or resets it to the default value. For clean testing.
+		* 'nocooldowns': Toggles your skill cooldowns.
 		 
 		* 'list_pickups': List pickup names and ids.
 		* 'dump_mods': Lists all loaded mods and if they are tagged as RequiredByAll. Useful to get internal names to check for.
@@ -26,7 +25,6 @@
 		
 	* Added macro/short commands:
 		* 'dtscanner': 100 BoostEquipmentRechrage & Radar Scanner equip for easy map searching.
-		* 'dtdamage': x1000000 damage macro.
 		* 'dtpeace': 'kill_all Monster & Void', 'no_enemies true', 'god true'
 		* 'dtcleanse': 'remove_all_buffs 0 & 1' & 'remove_all_dots'
 		* 'random_equip' macro for 'give_equip random'
@@ -35,8 +33,7 @@
 		* 'skill': shorthand for 'loadout_set_skill_variant self'
 		* 'skin': shorthand for 'loadout_set_skin_variant self'
 		* 'toggle_hud': toggle 'hud_enable' convar
-		* 'unlimited_junk': Toggle for 'junk_unlimited' and give 12 junk
-	
+		
 	* Updated command functionality:
 		* Item commands can now grant/remove channeled items
 		* Item commands now mention you can type 0/1/2 instead of the name type.
@@ -48,7 +45,7 @@
 		* 'give .. remove_buff' now accept negative amounts to remove/give, like item commands.
 		* 'loadout_set_skill_variant' now accepts 'self'
 		* 'random_items' changed default value to just give Tier1,2,3
-		* 'hurt' third optional argument to bypass armor&damage calculations.
+		* 'hurt' third optional argument for direct damage. (bypassArmor bypassDamageCalcs).
 		* 'kill_all' no value given now kills Monster & Void teams.
 		* 'true_kill' now bypasses godmode and accepts 'pinged' & 'all' as target
  

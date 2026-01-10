@@ -156,44 +156,5 @@ namespace DebugToolkit.Commands
             }
             Log.MessageNetworked(string.Format(Lang.REMOVEDRONES, removedAmount, target.name), args);
         }
-
-        [ConCommand(commandName = "kill_all_minions", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.KILL_ALL_MINIONS_HELP)]
-        [AutoComplete(Lang.REMOVEALLDRONES_ARGS)]
-        private static void CCKillMinions(ConCommandArgs args)
-        {
-            if (!Run.instance)
-            {
-                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            bool isDedicatedServer = args.sender == null;
-            if (isDedicatedServer && (args.Count < 1 || args[0] == Lang.DEFAULT_VALUE))
-            {
-                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.PLAYER_ARGS, args, LogLevel.MessageClientOnly);
-                return;
-            }
-
-            var target = Items.ParseTarget(args, 0);
-            if (target.failMessage != null)
-            {
-                Log.MessageNetworked(target.failMessage, args, LogLevel.MessageClientOnly);
-                return;
-            }
- 
-            var owner = target.inventory.GetComponent<MinionOwnership.MinionGroup.MinionGroupDestroyer>();
-            if (owner == null || owner.group == null || owner.group.memberCount == 0)
-            {
-                Log.MessageNetworked(string.Format(Lang.Kill_MINIONS, target.name), args);
-                return;
-            }
-            for (int i = 0; i < owner.group.memberCount; i++)
-            {
-                var master = owner.group.members[i].GetComponent<CharacterMaster>();
-                master.TrueKill();
-            }
-            Log.MessageNetworked(string.Format(Lang.Kill_MINIONS, target.name), args);
-        }
-
-
     }
 }

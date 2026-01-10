@@ -73,6 +73,8 @@ namespace DebugToolkit
             parser.RegisterStaticVariable("count", "count");
             parser.RegisterStaticVariable("droneTier", "droneTier");
             parser.RegisterStaticVariable("duration", "duration");
+            parser.RegisterStaticVariable("skill_slot", "skill_slot");
+            parser.RegisterStaticVariable("skill_variant", "skill_variant");
             parser.RegisterStaticVariable("ai", MasterCatalog.allAiMasters.Select(i => $"{(int)i.masterIndex}|{i.name}|{StringFinder.GetLangInvar(StringFinder.GetMasterName(i))}"), 1);
             parser.RegisterStaticVariable("artifact", ArtifactCatalog.artifactDefs.Select(i => $"{(int)i.artifactIndex}|{i.cachedName}|{StringFinder.GetLangInvar(i.nameToken)}"), 1);
             parser.RegisterStaticVariable("difficulty", R2API.DifficultyAPI.difficultyDefinitions.Select(i => $"{(int)i.Key}|{StringFinder.GetLangInvar(i.Value.nameToken)}"), 1);

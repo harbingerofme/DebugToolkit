@@ -111,8 +111,7 @@
             SETSTAT_HELP = "Sets the base stat to the specified value, or reset it if no value given. Use respawn to undo all changes on self." + SETSTATS_ARGS,
             GIVEDRONE_HELP = "Summons the specified drone to a target. " + GIVEDRONE_ARGS,
             REMOVEALLDRONES_HELP = "Removes all drones from the target. " + REMOVEALLDRONES_ARGS,
-            KILL_ALL_MINIONS_HELP = "Kills all minions owned by target. " + REMOVEALLDRONES_ARGS,
-
+             
             HEAL_HELP = "Heal yourself or another target. " + HEAL_ARGS,
             HURT_HELP = "Deal generic damage to yourself or another target. " + HURT_ARGS,
             KICK_HELP = "Kicks the specified player from the session. " + PLAYER_ARGS,
@@ -137,11 +136,11 @@
             LISTSURVIVOR_HELP = "List all survivors and their body/ai names. " + LISTQUERY_ARGS,
             LISTTEAM_HELP = "List all Teams and their language invariants. " + LISTQUERY_ARGS,
             LOADOUTSKIN_HELP = "Change your loadout's skin.  " + LOADOUTSKIN_ARGS,
+            LOADOUTSKILL2_HELP = "Sets your loadout's skill variant for the given slot.  " + LOADOUTSKILL_ARGS,
             LOCKEXP_HELP = "Prevent Experience gain. " + ENABLE_ARGS,
             NOCOOLDOWN_HELP = "Toggles skill cooldowns of the target. " + PLAYER_OR_PINGED,
-            MACRO_DTPEACE_HELP = "Kills all enemies, voids and disables enemies spawning.",
+            MACRO_DTPEACE_HELP = "Kills all enemies, voids, disables enemies spawning and enables godmode.",
             MACRO_DTZOOM_HELP = "Gives you 20 hooves and 200 feathers for getting around quickly.",
-            MACRO_DTDAMAGE_HELP = "Gives you a lot of BoostDamage hidden item.",
             MACRO_SCANNER_HELP = "Gives you 100 boostEquipmentRecharge and the Radar Scanner equipment to easily search stages.",
             MACRO_DTCLEANSE_HELP = "Removes all your buffs, timed buffs & dots.",
 

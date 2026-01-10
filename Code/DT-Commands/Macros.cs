@@ -51,13 +51,7 @@ namespace DebugToolkit.Commands
             Invoke(args.sender, "give_item", "hoof", "20");
             Invoke(args.sender, "give_item", "feather", "200");
         }
-
-        [ConCommand(commandName = "dtdamage", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.MACRO_DTDAMAGE_HELP)]
-        private static void Damage(ConCommandArgs args)
-        {
-            Invoke(args.sender, "give_item", "boostdamage", "9999990");
-        }
-
+ 
         [ConCommand(commandName = "dtcleanse", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.MACRO_DTCLEANSE_HELP)]
         private static void CCCleanse(ConCommandArgs args)
         {
