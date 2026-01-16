@@ -39,16 +39,17 @@
 		* Item commands now mention you can type 0/1/2 instead of the name type.
 		* 'spawn_interactable' now also shows interactable names in auto complete.
 		* 'spawn_interactable' now accepts amount.		 
-		* 'create_pickup' now supports dropping drones & pickups.
+		* 'create_pickup' now supports dropping drones & pickups, and can use numbers to abbreviate  search.
 		* 'create_pickup' switched {search} and {permanent/temp} argument spots.
 		* 'give_equip' now accepts '-1|none' to remove your equipment.
 		* 'give .. remove_buff' now accept negative amounts to remove/give, like item commands.
 		* 'loadout_set_skill_variant' now accepts 'self'
 		* 'random_items' changed default value to just give Tier1,2,3
 		* 'hurt' third optional argument for direct damage. (bypassArmor bypassDamageCalcs).
-		* 'kill_all' no value given now kills Monster & Void teams.
+		* 'kill_all' default value now kills Monster & Void teams.
 		* 'true_kill' now bypasses godmode and accepts 'pinged' & 'all' as target
- 
+		* 'charge_zone' default value now 100% charge.
+		
 
 	*  Fixed 'god 0/1'/'buddha 0/1' not setting the toggle's state.
 	*  Fixed 'loadout_set_skin_variant' crashing the game.

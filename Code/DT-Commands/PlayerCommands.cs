@@ -790,10 +790,15 @@ namespace DebugToolkit.Commands
             return false;
         }
 
-        [ConCommand(commandName = "skill", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.LOADOUTSKILL2_HELP)]
+        [ConCommand(commandName = "skill", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.LOADOUTSKILL_SHORT_ARGS)]
         [AutoComplete(Lang.LOADOUTSKILL_ARGS)]
         public static void CCSetSkillShort(ConCommandArgs args)
         {
+            if (args.Count < 2)
+            {
+                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.LOADOUTSKILL_SHORT_ARGS, args, Log.LogLevel.MessageClientOnly);
+                return;
+            }
             args.userArgs = new List<string>
             {
                 "self",
@@ -802,10 +807,14 @@ namespace DebugToolkit.Commands
             };
             UserProfile.CCLoadoutSetSkillVariant(args);        }
 
-        [ConCommand(commandName = "skin", flags = ConVarFlags.ExecuteOnServer, helpText = "[skin_variant]\nSets the skin variant for the sender's user profile.")]
+        [ConCommand(commandName = "skin", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.LOADOUTSKIN_SHORT_ARGS)]
         public static void CCSetSkinShort(ConCommandArgs args)
         {
-            Macros.Invoke(args.sender, "loadout_set_skin_variant", "self", args.TryGetArgInt(0).GetValueOrDefault(-1).ToString());
+            if (!TextSerialization.TryParseInvariant(args[0], out int requestedSkinIndexChange))
+            {
+                Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "skin_index", "int"), args, LogLevel.MessageClientOnly);
+            }
+            Macros.Invoke(args.sender, "loadout_set_skin_variant", "self", requestedSkinIndexChange.ToString());
         }
    
       

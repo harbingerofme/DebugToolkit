@@ -107,7 +107,7 @@ namespace DebugToolkit
 
             parser.RegisterStaticVariable("item_type", CollectEnumNames(typeof(Items.ItemType), typeof(int)), 1);
             parser.RegisterStaticVariable("pickup_type", CollectEnumNames(typeof(Items.PickupType), typeof(int)), 1);
-            parser.RegisterStaticVariable("pickup_category", CollectEnumNames(typeof(Items.PickupCategory), typeof(int)), 1);
+            parser.RegisterStaticVariable("search", CollectEnumNames(typeof(Items.PickupSearch), typeof(int)), 1);
             
             parser.RegisterStaticVariable("stat", CollectEnumNames(typeof(PlayerCommands.Stat), typeof(int)), 1);
 

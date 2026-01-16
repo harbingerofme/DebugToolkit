@@ -314,10 +314,11 @@ namespace DebugToolkit
         /// </summary>
         /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>
         /// <returns>Returns an iterator with all DifficultyIndex's matched</returns>
+        /// Vanilla game has no DifficultyDef to DifficultyIndex.
+        /// Modded difficulties are not usually stored in DifficultyCatalog.
+        /// R2API is used instead.
         public IEnumerable<DifficultyIndex> GetDifficultiesFromPartial(string name)
         {
-            //Vanilla has no DifficultyDef -> Index
-            //Modded difficulties are also not stored in DifficultyCatalog usually.
             if (TextSerialization.TryParseInvariant(name, out int i))
             {
                 var index = (DifficultyIndex)i;

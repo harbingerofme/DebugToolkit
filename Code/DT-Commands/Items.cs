@@ -396,31 +396,16 @@ namespace DebugToolkit.Commands
                 }
             }
 
-            bool searchEquip = true, searchItem = true, searchDrone = true, skip = false;
+            bool searchEquip = true, searchItem = true, searchDrone = true;
+
+            PickupSearch searchType = PickupSearch.All;
             if (args.Count > 1 && args[1] != Lang.DEFAULT_VALUE)
             {
-                switch (args[1].ToUpperInvariant())
+                searchType = ParsePickupSearch(args, 1);
+                if (searchType < PickupSearch.All || searchType >= PickupSearch.Count)
                 {
-                    case Lang.ALL:
-                        break;
-                    case Lang.PICKUP:
-                        skip = true;
-                        break;
-                    case Lang.ITEM:
-                        searchEquip = false;
-                        searchDrone = false;
-                        break;
-                    case Lang.EQUIP:
-                        searchItem = false;
-                        searchDrone = false;
-                        break;
-                    case Lang.DRONE:
-                        searchItem = false;
-                        searchEquip = false;
-                        break;
-                    default:
-                        Log.MessageNetworked(String.Format(Lang.INVALID_ARG_VALUE, "search"), args, LogLevel.MessageClientOnly);
-                        return;
+                    Log.MessageNetworked(String.Format(Lang.INVALID_ARG_VALUE, "search"), args, LogLevel.MessageClientOnly);
+                    return;
                 }
             }
             PickupIndex final = PickupIndex.none;
@@ -437,7 +422,7 @@ namespace DebugToolkit.Commands
                     final = PickupCatalog.FindPickupIndex("MiscPickupIndex.VoidCoin");
                     break;
                 default:
-                    if (skip)
+                    if (searchType == PickupSearch.Pickup)
                     {
                         int? pickup2 = args.TryGetArgInt(0);
                         if (pickup2 != null)
@@ -450,16 +435,16 @@ namespace DebugToolkit.Commands
                         }
                     }
                     else
-                    {      
-                        if (searchEquip)
-                        {
-                            equipment = StringFinder.Instance.GetEquipFromPartial(args[0]);
-                        }
-                        if (searchItem)
+                    {
+                        if (searchType == PickupSearch.All || searchType == PickupSearch.Item)
                         {
                             item = StringFinder.Instance.GetItemFromPartial(args[0]);
                         }
-                        if (searchDrone)
+                        if (searchType == PickupSearch.All || searchType == PickupSearch.Equip)
+                        {
+                            equipment = StringFinder.Instance.GetEquipFromPartial(args[0]);
+                        }
+                        if (searchType == PickupSearch.All || searchType == PickupSearch.Drone)
                         {
                             drone = StringFinder.Instance.GetDroneFromPartial(args[0]);
                         }
@@ -765,13 +750,13 @@ namespace DebugToolkit.Commands
             Temp,
             Count,
         }
-        internal enum PickupCategory
+        internal enum PickupSearch
         {
-            Any,
+            All = -1,
+            Pickup,
             Item,
             Equip,
             Drone, 
-            Pickup,
             Count,
         }
 
@@ -844,6 +829,14 @@ namespace DebugToolkit.Commands
                 return Enum.TryParse(args[index], true, out PickupType itemType) ? itemType : PickupType.None;
             }
             return PickupType.Permanent;
+        }
+        private static PickupSearch ParsePickupSearch(ConCommandArgs args, int index)
+        {
+            if (args.Count > index && args[index] != Lang.DEFAULT_VALUE)
+            {
+                return Enum.TryParse(args[index], true, out PickupSearch searchType) ? searchType : PickupSearch.All;
+            }
+            return PickupSearch.All;
         }
 
         public static CommandTarget ParseTarget(ConCommandArgs args, int index)

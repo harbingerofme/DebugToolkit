@@ -103,10 +103,25 @@ namespace DebugToolkit
 
             On.RoR2.ConCommandArgExtensions.TryGetArgBodyIndex += AllowBodyIndexToBeUsedInsteadOfBodyName;
             On.RoR2.UserProfile.CCLoadoutSetSkillVariant += LoadoutSetSkillVariant_AcceptSELF;
+            On.RoR2.Run.CCRunSetStagesCleared += RunSetStagesCleared_SetLoopCountToo;
+        }
+
+        private static void RunSetStagesCleared_SetLoopCountToo(On.RoR2.Run.orig_CCRunSetStagesCleared orig, ConCommandArgs args)
+        {
+            orig(args);
+            if (Run.instance)
+            {
+                Run.instance.Network_loopClearCount = Run.instance.NetworkstageClearCount / 5;
+            }
         }
 
         private static void LoadoutSetSkillVariant_AcceptSELF(On.RoR2.UserProfile.orig_CCLoadoutSetSkillVariant orig, ConCommandArgs args)
         {
+            if (args.Count < 3)
+            {
+                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.LOADOUTSKILL_ARGS, args, Log.LogLevel.MessageClientOnly);
+                return;
+            }
             string isSelf = args.TryGetArgString(0);
             if(isSelf != null && isSelf.ToUpperInvariant() == "SELF")
             {
@@ -160,7 +175,7 @@ namespace DebugToolkit
                     self.bodyFlags |= CharacterBody.BodyFlags.Buddha;
                 }          
             }
-            else if(buddhaMonsters && self.teamComponent && (self.teamComponent.teamIndex == TeamIndex.Monster || self.teamComponent.teamIndex == TeamIndex.Void))
+            else if(buddhaMonsters && self.teamComponent && (self.teamComponent.teamIndex == TeamIndex.Monster))
             {
                 self.bodyFlags |= CharacterBody.BodyFlags.Buddha;
             }
