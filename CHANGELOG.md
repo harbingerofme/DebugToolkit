@@ -39,7 +39,8 @@
 		* Item commands now mention you can type 0/1/2 instead of the name type.
 		* 'spawn_interactable' now also shows interactable names in auto complete.
 		* 'spawn_interactable' now accepts amount.		 
-		* 'create_pickup' now supports dropping drones & pickups, and can use numbers to abbreviate  search.
+		* 'spawn_ai' can use 'ally' instead of team, to spawn as a minion
+		* 'create_pickup' now supports dropping drones & pickups, and can use numbers to abbreviate search.
 		* 'create_pickup' switched {search} and {permanent/temp} argument spots.
 		* 'give_equip' now accepts '-1|none' to remove your equipment.
 		* 'give .. remove_buff' now accept negative amounts to remove/give, like item commands.
@@ -51,6 +52,8 @@
 		* 'charge_zone' default value now 100% charge.
 		
 
+	* 'spawn_as' will set your permanent character again.
+	* 'run_set_stages_cleared' will now also set the loopClearCount. (Which is a seperate thing as of AC)
 	*  Fixed 'god 0/1'/'buddha 0/1' not setting the toggle's state.
 	*  Fixed 'loadout_set_skin_variant' crashing the game.
 	*  Modded spawn cards should be usable from the start now.
