@@ -289,6 +289,56 @@ namespace DebugToolkit.Commands
             }
         }
 
+        [ConCommand(commandName = "give_all_items", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.GIVEALLITEMS_HELP)]
+        [AutoComplete(Lang.GIVEALLITEMS_ARGS)]
+        private static void CCGiveAllItems(ConCommandArgs args)
+        {
+            if (!Run.instance)
+            {
+                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            bool isDedicatedServer = args.sender == null;
+            if (args.Count == 0 || (isDedicatedServer && (args.Count < 2 || args[1] == Lang.DEFAULT_VALUE)))
+            {
+                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.GIVEALLITEMS_ARGS, args, LogLevel.MessageClientOnly);
+                return;
+            }
+
+            bool all = args[0].ToUpperInvariant() == Lang.ALL;
+            ItemTier itemTier = StringFinder.Instance.GetItemTierFromPartial(args[0]);
+            if (itemTier == StringFinder.ItemTier_NotFound)
+            {
+                Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "item tier", args[0]), args, LogLevel.MessageClientOnly);
+                return;
+            }
+
+            var target = ParseTarget(args, 1);
+            if (target.failMessage != null)
+            {
+                Log.MessageNetworked(target.failMessage, args, LogLevel.MessageClientOnly);
+                return;
+            }
+          
+            for (int i = 0; i < ItemCatalog.allItemDefs.Length; i++)
+            {
+                ItemDef def = ItemCatalog.allItemDefs[i];
+                if (!def.hidden)
+                {
+                    if (all && def.tier != ItemTier.NoTier || def.tier == itemTier)
+                    {
+                        target.inventory.GiveItemPermanent(def);
+                    }
+                }   
+            }
+            if (target.devotionController)
+            {
+                target.devotionController.UpdateAllMinions(false);
+            }
+            Log.MessageNetworked($"Gave all items of tier(s) {args[0]} to {target.name}!", args);
+        }
+ 
+
         [ConCommand(commandName = "give_equip", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.GIVEEQUIP_HELP)]
         [AutoComplete(Lang.GIVEEQUIP_ARGS)]
         private static void CCGiveEquipment(ConCommandArgs args)
@@ -1051,7 +1101,7 @@ namespace DebugToolkit.Commands
                 foreach (var itemIndex in ItemCatalog.allItems)
                 {
                     var itemDef = ItemCatalog.GetItemDef(itemIndex);
-                    if (run.availableItems.Contains(itemIndex) && itemDef.DoesNotContainTag(ItemTag.WorldUnique))
+                    if (run.availableItems.Contains(itemIndex) || itemDef.tier == ItemTier.FoodTier || itemDef.DoesNotContainTag(ItemTag.WorldUnique))
                     {
                         if (customTiers.TryGetValue(itemDef.tier, out var list))
                         {
