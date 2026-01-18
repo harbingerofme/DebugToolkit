@@ -169,9 +169,19 @@ namespace DebugToolkit.Commands
             NetworkServer.Spawn(gameObject);
         }
 
+        [ConCommand(commandName = "spawn_minion", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SPAWNMINION_HELP)]
+        [AutoComplete(Lang.SPAWNMINION_ARGS)]
+        private static void CCSpawnMinion(ConCommandArgs args)
+        {
+            CCSpawnCharacter(args, true);
+        }
         [ConCommand(commandName = "spawn_ai", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SPAWNAI_HELP)]
         [AutoComplete(Lang.SPAWNAI_ARGS)]
         private static void CCSpawnAI(ConCommandArgs args)
+        {
+            CCSpawnCharacter(args, false);
+        }
+        private static void CCSpawnCharacter(ConCommandArgs args, bool spawnAsMinion)
         {
             if (!Run.instance)
             {
@@ -209,23 +219,44 @@ namespace DebugToolkit.Commands
                 return;
             }
 
+            int droneTier = 0;
             EliteDef eliteDef = null;
             if (args.Count > 2 && args[2] != Lang.DEFAULT_VALUE)
             {
-                var eliteIndex = StringFinder.Instance.GetEliteFromPartial(args[2]);
-                if (eliteIndex == StringFinder.EliteIndex_NotFound)
+                if (spawnAsMinion)
                 {
-                    Log.MessageNetworked(Lang.ELITE_NOTFOUND, args, LogLevel.MessageClientOnly);
-                    return;
+                    if (!TextSerialization.TryParseInvariant(args[2], out droneTier))
+                    {
+                        Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "droneTier", "int"), args, LogLevel.MessageClientOnly);
+                        return;
+                    }
+                    if (droneTier > 1 && Run.instance.IsItemExpansionLocked(DLC3Content.Items.DroneUpgradeHidden.itemIndex))
+                    {
+                        Log.MessageNetworked("Tiered Minions require Alloyed Collective", args, LogLevel.WarningClientOnly);
+                    }
+                    if (droneTier < 0)
+                    {
+                        Log.MessageNetworked(string.Format(Lang.NEGATIVE_ARG, "droneTier"), args, LogLevel.MessageClientOnly);
+                        return;
+                    }
                 }
-                eliteDef = EliteCatalog.GetEliteDef(eliteIndex);
-                if (eliteDef && eliteDef.eliteEquipmentDef && Run.instance.IsEquipmentExpansionLocked(eliteDef.eliteEquipmentDef.equipmentIndex))
+                else
                 {
-                    var expansion = Util.GetExpansion(eliteDef.eliteEquipmentDef.requiredExpansion);
-                    Log.MessageNetworked(string.Format(Lang.EXPANSION_LOCKED, "elite equipment", expansion), args, LogLevel.WarningClientOnly);
+                    var eliteIndex = StringFinder.Instance.GetEliteFromPartial(args[2]);
+                    if (eliteIndex == StringFinder.EliteIndex_NotFound)
+                    {
+                        Log.MessageNetworked(Lang.ELITE_NOTFOUND, args, LogLevel.MessageClientOnly);
+                        return;
+                    }
+                    eliteDef = EliteCatalog.GetEliteDef(eliteIndex);
+                    if (eliteDef && eliteDef.eliteEquipmentDef && Run.instance.IsEquipmentExpansionLocked(eliteDef.eliteEquipmentDef.equipmentIndex))
+                    {
+                        var expansion = Util.GetExpansion(eliteDef.eliteEquipmentDef.requiredExpansion);
+                        Log.MessageNetworked(string.Format(Lang.EXPANSION_LOCKED, "elite equipment", expansion), args, LogLevel.WarningClientOnly);
+                    }
                 }
             }
-
+ 
             bool braindead = false;
             if (args.Count > 3 && args[3] != Lang.DEFAULT_VALUE && !Util.TryParseBool(args[3], out braindead))
             {
@@ -233,23 +264,15 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            bool isAlly = false;
+         
             TeamIndex teamIndex = TeamIndex.Monster;
-            if (args.Count > 4 && args[4] != Lang.DEFAULT_VALUE)
+            if (args.Count > 4 && args[4] != Lang.DEFAULT_VALUE && !spawnAsMinion)
             {
-                if (args[4].ToUpperInvariant() == Lang.ALLY)
+                teamIndex = StringFinder.Instance.GetTeamFromPartial(args[4]);
+                if (teamIndex == StringFinder.TeamIndex_NotFound)
                 {
-                    isAlly = true;
-                    teamIndex = args.senderBody.teamComponent.teamIndex;
-                }
-                else
-                {
-                    teamIndex = StringFinder.Instance.GetTeamFromPartial(args[4]);
-                    if (teamIndex == StringFinder.TeamIndex_NotFound)
-                    {
-                        Log.MessageNetworked(Lang.TEAM_NOTFOUND, args, LogLevel.MessageClientOnly);
-                        return;
-                    }
+                    Log.MessageNetworked(Lang.TEAM_NOTFOUND, args, LogLevel.MessageClientOnly);
+                    return;
                 }
             }
 
@@ -277,8 +300,8 @@ namespace DebugToolkit.Commands
                 },
                 RoR2Application.rng
             );
-            spawnRequest.summonerBodyObject = isAlly ? args.senderBody.gameObject : null;
-            spawnRequest.teamIndexOverride = teamIndex;
+            spawnRequest.summonerBodyObject = spawnAsMinion ? args.senderBody.gameObject : null;
+            spawnRequest.teamIndexOverride = spawnAsMinion ? args.senderBody.teamComponent.teamIndex : teamIndex;
             spawnRequest.ignoreTeamMemberLimit = true;
 
             // The size of the monster's radius is required so multiple enemies do not spawn on the same spot.
@@ -345,6 +368,10 @@ namespace DebugToolkit.Commands
                             UnityEngine.Object.Destroy(ai);
                         }
                         master.aiComponents = Array.Empty<BaseAI>();
+                    }
+                    if (droneTier > 1)
+                    {
+                        master.inventory.GiveItemPermanent(DLC3Content.Items.DroneUpgradeHidden, droneTier-1);
                     }
                 }
             }

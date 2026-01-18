@@ -88,6 +88,23 @@ namespace DebugToolkit.Commands
             Log.MessageNetworked(s, args, LogLevel.MessageClientOnly);
         }
 
+        [ConCommand(commandName = "list_drone", flags = ConVarFlags.None, helpText = Lang.LISTDRONE_HELP)]
+        [AutoComplete(Lang.LISTQUERY_ARGS)]
+        private static void CCListDrone(ConCommandArgs args)
+        {
+            var sb = new StringBuilder();
+            var arg = args.Count > 0 ? args[0] : "";
+            var indices = StringFinder.Instance.GetDronesFromPartial(arg);
+            foreach (var index in indices)
+            {
+                var definition = DroneCatalog.GetDroneDef(index);
+                var realName = Language.currentLanguage.GetLocalizedStringByToken(definition.nameToken);
+                bool enabled = Run.instance && Run.instance.IsDroneAvailable(index);
+                sb.AppendLine($"[{(int)index}]{definition.name} \"{realName}\" (enabled={enabled})");
+            }
+            var s = sb.Length > 0 ? sb.ToString().TrimEnd('\n') : string.Format(Lang.NOMATCH_ERROR, "drone", arg);
+            Log.MessageNetworked(s, args, LogLevel.MessageClientOnly);
+        }
 
         [ConCommand(commandName = "list_ai", flags = ConVarFlags.None, helpText = Lang.LISTAI_HELP)]
         [AutoComplete(Lang.LISTQUERY_ARGS)]

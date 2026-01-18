@@ -999,5 +999,48 @@ namespace DebugToolkit.Commands
             body.MarkAllStatsDirty();
         }
  
+
+
+        [ConCommand(commandName = "remove_all_minions", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.REMOVEALLMINIONS_HELP)]
+        [AutoComplete(Lang.REMOVEALLMINIONS_ARGS)]
+        private static void CCRemoveDrones(ConCommandArgs args)
+        {
+            if (!Run.instance)
+            {
+                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            bool isDedicatedServer = args.sender == null;
+            if (isDedicatedServer && (args.Count < 1 || args[0] == Lang.DEFAULT_VALUE))
+            {
+                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.REMOVEALLMINIONS_ARGS, args, LogLevel.MessageClientOnly);
+                return;
+            }
+
+            var target = Items.ParseTarget(args, 0);
+            if (target.failMessage != null)
+            {
+                Log.MessageNetworked(target.failMessage, args, LogLevel.MessageClientOnly);
+                return;
+            }
+
+
+            var owner = target.inventory.GetComponent<MinionOwnership.MinionGroup.MinionGroupDestroyer>();
+            if (owner == null || owner.group == null || owner.group.memberCount == 0)
+            {
+                Log.MessageNetworked(string.Format(Lang.REMOVED_MINIONS, 0, target.name), args);
+                return;
+            }
+            int removedAmount = 0;
+            for (int i = 0; i < owner.group.memberCount; i++)
+            {
+                var master = owner.group.members[i].GetComponent<CharacterMaster>();
+                master.DestroyBody();
+                UnityEngine.Object.Destroy(master.gameObject, 1f);
+                removedAmount++;
+            }
+            Log.MessageNetworked(string.Format(Lang.REMOVED_MINIONS, removedAmount, target.name), args);
+        }
+
     }
 }
