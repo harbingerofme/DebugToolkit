@@ -145,11 +145,12 @@ namespace DebugToolkit.Commands
             switch (portal.name)
             {
                 case "DeepVoidPortal":
-                case "Encrypted":
-                case "Decrypted":
-                case "Mainline":
-                case "Virtaul":
                     position.y += 4f;
+                    break;
+                case "SolusWebPortal":
+                case "CompExchangePortal":
+                case "EyePortal":
+                    position.y += 5f;
                     break;
                 case "PortalArtifactworld":
                     position.y += 10f;
