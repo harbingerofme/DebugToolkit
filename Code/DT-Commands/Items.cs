@@ -306,8 +306,9 @@ namespace DebugToolkit.Commands
             }
 
             bool all = args[0].ToUpperInvariant() == Lang.ALL;
+            bool consumed = args[0].ToUpperInvariant() == "CONSUMED";
             ItemTier itemTier = StringFinder.Instance.GetItemTierFromPartial(args[0]);
-            if (itemTier == StringFinder.ItemTier_NotFound)
+            if (!all && !consumed && itemTier == StringFinder.ItemTier_NotFound)
             {
                 Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "item tier", args[0]), args, LogLevel.MessageClientOnly);
                 return;
@@ -325,7 +326,7 @@ namespace DebugToolkit.Commands
                 ItemDef def = ItemCatalog.allItemDefs[i];
                 if (!def.hidden)
                 {
-                    if (all && def.tier != ItemTier.NoTier || def.tier == itemTier)
+                    if (def.tier == itemTier || all && def.tier != ItemTier.NoTier || consumed && def.isConsumed)
                     {
                         target.inventory.GiveItemPermanent(def);
                     }

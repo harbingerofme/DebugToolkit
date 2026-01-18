@@ -13,7 +13,7 @@ namespace DebugToolkit.Commands
 {
     class Spawners
     {
-        private static readonly Dictionary<string, GameObject> portals = new Dictionary<string, GameObject>();
+        public static readonly Dictionary<string, GameObject> portals = new Dictionary<string, GameObject>();
 
         [ConCommand(commandName = "spawn_interactable", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SPAWNINTERACTABLE_HELP)]
         [ConCommand(commandName = "spawn_interactible", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SPAWNINTERACTABLE_HELP)]
@@ -142,13 +142,18 @@ namespace DebugToolkit.Commands
             }
             var position = args.senderBody.footPosition;
             // Some portals spawn into the ground
-            if (portal.name == "DeepVoidPortal")
+            switch (portal.name)
             {
-                position.y += 4f;
-            }
-            else if (portal.name == "PortalArtifactworld")
-            {
-                position.y += 10f;
+                case "DeepVoidPortal":
+                case "Encrypted":
+                case "Decrypted":
+                case "Mainline":
+                case "Virtaul":
+                    position.y += 4f;
+                    break;
+                case "PortalArtifactworld":
+                    position.y += 10f;
+                    break;
             }
 
             var gameObject = UnityEngine.Object.Instantiate(portal, position, Quaternion.LookRotation(args.senderBody.characterDirection.forward));
@@ -156,7 +161,16 @@ namespace DebugToolkit.Commands
             // The artifact portal erroneously points to mysteryspace by default
             if (portalName == "artifact")
             {
-                exit.destinationScene = SceneCatalog.FindSceneDef("artifactworld");
+                int num = UnityEngine.Random.Range(0, 4);
+                SceneDef sceneDef = SceneCatalog.FindSceneDef("artifactworld0" + num);
+                if (sceneDef && sceneDef.requiredExpansion && Run.instance.IsExpansionEnabled(sceneDef.requiredExpansion))
+                {
+                    exit.destinationScene = sceneDef;
+                }
+                else
+                {
+                    exit.destinationScene = SceneCatalog.FindSceneDef("artifactworld");
+                }
             }
             if (currentScene.cachedName == "voidraid" && gameObject.name.Contains("VoidOutroPortal"))
             {
@@ -420,11 +434,20 @@ namespace DebugToolkit.Commands
             portals.Add("artifact", Addressables.LoadAssetAsync<GameObject>("RoR2/Base/PortalArtifactworld/PortalArtifactworld.prefab").WaitForCompletion());
             portals.Add("blue", Addressables.LoadAssetAsync<GameObject>("RoR2/Base/PortalShop/PortalShop.prefab").WaitForCompletion());
             portals.Add("celestial", Addressables.LoadAssetAsync<GameObject>("RoR2/Base/PortalMS/PortalMS.prefab").WaitForCompletion());
-            portals.Add("deepvoid", Addressables.LoadAssetAsync<GameObject>("RoR2/DLC1/DeepVoidPortal/DeepVoidPortal.prefab").WaitForCompletion());
             portals.Add("gold", Addressables.LoadAssetAsync<GameObject>("RoR2/Base/PortalGoldshores/PortalGoldshores.prefab").WaitForCompletion());
-            portals.Add("green", Addressables.LoadAssetAsync<GameObject>("RoR2/DLC2/PortalColossus.prefab").WaitForCompletion());
             portals.Add("null", Addressables.LoadAssetAsync<GameObject>("RoR2/Base/PortalArena/PortalArena.prefab").WaitForCompletion());
+            //DLC1
             portals.Add("void", Addressables.LoadAssetAsync<GameObject>("RoR2/DLC1/PortalVoid/PortalVoid.prefab").WaitForCompletion());
+            portals.Add("deepvoid", Addressables.LoadAssetAsync<GameObject>("RoR2/DLC1/DeepVoidPortal/DeepVoidPortal.prefab").WaitForCompletion());
+            portals.Add("simulacrum", Addressables.LoadAssetAsync<GameObject>("RoR2/DLC1/GameModes/InfiniteTowerRun/PortalInfiniteTower.prefab").WaitForCompletion());
+            //DLC2
+            portals.Add("green", Addressables.LoadAssetAsync<GameObject>("RoR2/DLC2/PortalColossus.prefab").WaitForCompletion());
+            portals.Add("destination", Addressables.LoadAssetAsync<GameObject>("RoR2/DLC2/PM DestinationPortal.prefab").WaitForCompletion());
+            //DLC3
+            portals.Add("encrypted", Addressables.LoadAssetAsync<GameObject>("RoR2/DLC3/HardwareProgPortal.prefab").WaitForCompletion());
+            portals.Add("decrypted", Addressables.LoadAssetAsync<GameObject>("RoR2/DLC3/SolusWebPortal.prefab").WaitForCompletion());
+            portals.Add("virtual", Addressables.LoadAssetAsync<GameObject>("RoR2/DLC3/CompExchangePortal.prefab").WaitForCompletion());
+            portals.Add("mainline", Addressables.LoadAssetAsync<GameObject>("RoR2/DLC3/EyePortal/EyePortal.prefab").WaitForCompletion());
         }
 
         internal static CombatDirector.EliteTierDef GetTierDef(EliteDef eliteDef)

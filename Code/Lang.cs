@@ -52,7 +52,7 @@
             RANDOMITEM_ARGS = "Requires 1 (3 if from server) argument: {count} [droptable (droptable|'all'):'\"Tier1:100,Tier2:60,Tier3:4\"'] [item_type:'permanent'] [target (player|'pinged'|'evolution'|'simulacrum'|'voidfields'|'devotion'):<self>]",
             REMOVEALLBUFFS_ARGS = "Requires 0 (2 if from server) arguments: [timed (0|1):0/false] [target (player|'pinged'):<self>]",
             REMOVEALLDOTS_ARGS = "Requires 0 (1 if from server) arguments: [target (player|'pinged'):<self>]",
-            GIVEALLITEMS_ARGS = "Requires 1 (2 if from server) arguments: {itemTier (itemTier|'all')} [target (player|'pinged'|'evolution'|'simulacrum'|'voidfields'|'devotion'):<self>]",
+            GIVEALLITEMS_ARGS = "Requires 1 (2 if from server) arguments: {itemTier (itemTier|'consumed'|'all')} [target (player|'pinged'|'evolution'|'simulacrum'|'voidfields'|'devotion'):<self>]",
             REMOVEALLITEMS_ARGS = "Requires 0 (1 if from server) arguments: [target (player|'pinged'|'evolution'|'simulacrum'|'voidfields'|'devotion'):<self>]",
             REMOVEBUFF_ARGS = "Requires 1 (4 if from server) arguments: {buff} [count:1] [timed (0|1):0/false] [target (player|'pinged'):<self>]",
             REMOVEBUFFSTACKS_ARGS = "Requires 1 (3 if from server) arguments: {buff} [timed (0|1):0/false] [target (player|'pinged'):<self>]",
@@ -71,7 +71,7 @@
             SPAWNAS_ARGS = "Requires 1 (2 if from server) argument: {body} [player:<self>]",
             SPAWNBODY_ARGS = "Requires 1 argument: {body}",
             SPAWNINTERACTABLE_ARGS = "Requires 1 argument: {interactable} [count:1]",
-            SPAWNPORTAL_ARGS = "Requires 1 argument: {portal ('artifact'|'blue'|'celestial'|'deepvoid'|'gold'|'green'|'null'|'void')}",
+            SPAWNPORTAL_ARGS = "Requires 1 argument: {portal ('artifact'|'blue'|'celestial'|'deepvoid'|'gold'|'green'|'null'|'void'|'simulacrum'|'encrypted'|'decrypted'|'virtual'|'mainline')}",
             TIMESCALE_ARGS = "Requires 1 argument: {time_scale}"
             ;
 

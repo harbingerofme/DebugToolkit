@@ -111,6 +111,7 @@ namespace DebugToolkit
             parser.RegisterStaticVariable("search", CollectEnumNames(typeof(Items.PickupSearch), typeof(int)), 1);
             
             parser.RegisterStaticVariable("stat", CollectEnumNames(typeof(PlayerCommands.Stat), typeof(int)), 1);
+            parser.RegisterStaticVariable("portal", Spawners.portals.Select(i => $"{i.Key}"), 1);
 
             parser.Scan(System.Reflection.Assembly.GetExecutingAssembly());
         }
