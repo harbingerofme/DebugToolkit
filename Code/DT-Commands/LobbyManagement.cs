@@ -60,13 +60,13 @@ namespace DebugToolkit.Commands
             {
                 if (args[0].ToUpperInvariant() == Lang.ALL)
                 {
-                    foreach (var player in PlayerCharacterMasterController.instances)
+                    foreach (var _master in CharacterMaster.instancesList)
                     {
-                        player.master.godMode = false;
-                        player.master.UpdateBodyGodMode();
-                        player.master.TrueKill();
+                        _master.godMode = false;
+                        _master.UpdateBodyGodMode();
+                        _master.TrueKill();
                     }
-                    Log.MessageNetworked("All players were killed by server.", args);
+                    Log.MessageNetworked("All things were killed by server.", args);
                     return;
                 }
                 else

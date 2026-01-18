@@ -875,7 +875,7 @@ namespace DebugToolkit.Commands
             Log.MessageNetworked(String.Format(RoR2.UI.HUD.cvHudEnable.value ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, "Hidden Model"), args, LogLevel.MessageClientOnly);
         }
 
-        [ConCommand(commandName = "toggle_hud", flags = ConVarFlags.None, helpText = Lang.TOGGLEHUD_HELP)]
+        [ConCommand(commandName = "hide_hud", flags = ConVarFlags.None, helpText = Lang.TOGGLEHUD_HELP)]
         public static void CCToggleHUD(ConCommandArgs args)
         {
             RoR2.UI.HUD.cvHudEnable.SetBool(!RoR2.UI.HUD.cvHudEnable.value);
@@ -998,7 +998,6 @@ namespace DebugToolkit.Commands
             }
             body.MarkAllStatsDirty();
         }
- 
 
 
         [ConCommand(commandName = "remove_all_minions", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.REMOVEALLMINIONS_HELP)]
