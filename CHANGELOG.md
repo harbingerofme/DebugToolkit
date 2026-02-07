@@ -3,6 +3,10 @@
 
 ### 3.21 ###
 
+* **3.21.2**
+    * Updated `spawn_ai`: Added the `ally` keyword to the team parameter which makes the spawned target automatically your minion.
+    * Fixed `spawn_as`: The new body now persists stage transitions, restoring pre-AC behavior.
+
 * **3.21.1**
     * Fixed the cheat ConVars not getting unlocked.
       * Also enabled the following Alloyed Collective ConVars: `bag_disable_breakout`, `bounce_velocity`, `junk_unlimited`
