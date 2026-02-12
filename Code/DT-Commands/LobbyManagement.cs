@@ -10,13 +10,13 @@ namespace DebugToolkit.Commands
     class LobbyManagement
     {
         [ConCommand(commandName = "kick", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.KICK_HELP)]
-        [AutoComplete(Lang.KICK_ARGS)]
+        [AutoComplete(Lang.PLAYER_ARGS)]
         [RequiredLevel]
         private static void CCKick(ConCommandArgs args)
         {
             if (args.Count == 0)
             {
-                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.KICK_ARGS, args, LogLevel.Error);
+                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.PLAYER_ARGS, args, LogLevel.Error);
                 return;
             }
             var client = GetClientFromArgs(args);
@@ -47,29 +47,50 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "true_kill", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.TRUEKILL_HELP)]
-        [AutoComplete(Lang.TRUEKILL_ARGS)]
+        [AutoComplete(Lang.PLAYERPINGED_OR_ALL)]
         private static void CCTrueKill(ConCommandArgs args)
         {
             if (args.sender == null && (args.Count < 1 || args[0] == Lang.DEFAULT_VALUE))
             {
-                Log.Message(Lang.INSUFFICIENT_ARGS + Lang.TRUEKILL_ARGS, LogLevel.Error);
+                Log.Message(Lang.INSUFFICIENT_ARGS + Lang.PLAYER_OR_PINGED, LogLevel.Error);
                 return;
-            }
-            CharacterMaster master = args.sender?.master;
+            } 
+            CharacterMaster master = args.sender.master;
             if (args.Count > 0)
             {
-                NetworkUser player = Util.GetNetUserFromString(args.userArgs);
-                if (player == null)
+                if (args[0].ToUpperInvariant() == Lang.ALL)
                 {
-                    Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
+                    foreach (var _master in CharacterMaster.instancesList)
+                    {
+                        _master.godMode = false;
+                        _master.UpdateBodyGodMode();
+                        _master.TrueKill();
+                    }
+                    Log.MessageNetworked("All things were killed by server.", args);
                     return;
                 }
-                master = player.master;
+                else
+                {
+                    var target = Buffs.ParseTarget(args, 0);
+                    if (target.failMessage != null)
+                    {
+                        Log.MessageNetworked(target.failMessage, args, LogLevel.MessageClientOnly);
+                        return;
+                    }
+                    master = target.body.master;
+                }          
             }
-
+            if (!master)
+            {
+                Log.MessageNetworked(Lang.BODY_NOTFOUND, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            master.godMode = false;
+            master.UpdateBodyGodMode();
             master.TrueKill();
             Log.MessageNetworked(master.name + " was killed by server.", args);
         }
+       
 
         private static NetworkConnection GetClientFromArgs(ConCommandArgs args)
         {

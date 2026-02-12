@@ -14,7 +14,6 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
 using Console = RoR2.Console;
-
 namespace DebugToolkit
 {
     public sealed class Hooks
@@ -26,8 +25,10 @@ namespace DebugToolkit
         private static int[] autoCompleteIndices;
 
         private static On.RoR2.Console.orig_RunCmd _origRunCmd;
-        private static bool buddha;
-        private static bool god;
+        public static bool buddha;
+        public static bool buddhaMonsters;
+        public static bool god;
+        public static bool godMonsters;
 
         private static GameObject commandSignatureText;
         private static CombatDirector bossDirector;
@@ -58,7 +59,7 @@ namespace DebugToolkit
             On.RoR2.Console.AutoComplete.SetSearchString += BetterAutoCompletion;
             RoR2Application.onLoad += Items.InitDroptableData;
             RoR2Application.onLoad += Spawners.InitPortals;
-            RoR2Application.onLoad += AutoCompleteManager.RegisterAutoCompleteCommands;
+    
             Run.onRunStartGlobal += Items.CollectItemTiers;
             On.RoR2.UI.ConsoleWindow.Start += AddConCommandSignatureHint;
             On.RoR2.UI.ConsoleWindow.OnInputFieldValueChanged += UpdateCommandSignature;
@@ -93,12 +94,91 @@ namespace DebugToolkit
             Run.onRunDestroyGlobal += Command_Noclip.DisableOnRunDestroy;
 
             //Buddha Mode hook
-            On.RoR2.HealthComponent.TakeDamage += NonLethalDamage;
+            On.RoR2.CharacterBody.Start += SetBuddhaMode;
             On.RoR2.CharacterMaster.Awake += SetGodMode;
 
             // Console logging fixes - temporary
             IL.RoR2.Console.ShowHelpText += FixCommandHelpText;
             IL.RoR2.Console.CCFind += FixCCFind;
+
+            On.RoR2.ConCommandArgExtensions.TryGetArgBodyIndex += AllowBodyIndexToBeUsedInsteadOfBodyName;
+            On.RoR2.UserProfile.CCLoadoutSetSkillVariant += LoadoutSetSkillVariant_AcceptSELF;
+            On.RoR2.Run.CCRunSetStagesCleared += RunSetStagesCleared_SetLoopCountToo;
+        }
+
+        private static void RunSetStagesCleared_SetLoopCountToo(On.RoR2.Run.orig_CCRunSetStagesCleared orig, ConCommandArgs args)
+        {
+            orig(args);
+            if (Run.instance)
+            {
+                Run.instance.Network_loopClearCount = Run.instance.NetworkstageClearCount / 5;
+            }
+        }
+
+        private static void LoadoutSetSkillVariant_AcceptSELF(On.RoR2.UserProfile.orig_CCLoadoutSetSkillVariant orig, ConCommandArgs args)
+        {
+            if (args.Count < 3)
+            {
+                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.LOADOUTSKILL_ARGS, args, Log.LogLevel.MessageClientOnly);
+                return;
+            }
+            string isSelf = args.TryGetArgString(0);
+            if(isSelf != null && isSelf.ToUpperInvariant() == "SELF")
+            {
+                if (args.sender == null)
+                {
+                    Log.Message("Can't choose self if not in-game!", Log.LogLevel.Error);
+                    return;
+                }
+                BodyIndex body = BodyIndex.None;
+                if (args.senderBody)
+                {
+                    body = args.senderBody.bodyIndex;
+                }
+                else
+                {
+                    if (args.senderMaster && args.senderMaster.bodyPrefab)
+                    {
+                        body = args.senderMaster.bodyPrefab.GetComponent<CharacterBody>().bodyIndex;
+                    }
+                    else
+                    {
+                        body = args.sender.bodyIndexPreference;
+                    }
+                }
+                args.userArgs[0] = ((int)body).ToString();
+          
+            }
+            orig(args);
+        }
+
+        private static BodyIndex? AllowBodyIndexToBeUsedInsteadOfBodyName(On.RoR2.ConCommandArgExtensions.orig_TryGetArgBodyIndex orig, ConCommandArgs args, int index)
+        {
+            BodyIndex? temp = orig(args, index);
+            if (temp == null)
+            {
+                if (index < args.userArgs.Count)
+                {
+                    return new BodyIndex?((BodyIndex)args.TryGetArgInt(index).GetValueOrDefault(-1));
+                }
+            }
+            return temp;
+        }
+
+        private static void SetBuddhaMode(On.RoR2.CharacterBody.orig_Start orig, CharacterBody self)
+        {
+            orig(self);
+            if (self.isPlayerControlled)
+            {
+                if (buddha)
+                {
+                    self.bodyFlags |= CharacterBody.BodyFlags.Buddha;
+                }          
+            }
+            else if(buddhaMonsters && self.teamComponent && (self.teamComponent.teamIndex == TeamIndex.Monster))
+            {
+                self.bodyFlags |= CharacterBody.BodyFlags.Buddha;
+            }
         }
 
         private static void ToggleConsoleWindowWithCustomKey(ILContext il)
@@ -156,18 +236,10 @@ namespace DebugToolkit
             if (NetworkServer.active)
             {
                 self.godMode |= self.playerCharacterMasterController && god;
+                self.godMode |= self.teamIndex == TeamIndex.Monster && godMonsters;
             }
         }
-
-        private static void NonLethalDamage(On.RoR2.HealthComponent.orig_TakeDamage orig, HealthComponent self, DamageInfo damageInfo)
-        {
-            if (buddha && self.body.isPlayerControlled)
-            {
-                damageInfo.damageType |= DamageType.NonLethal;
-            }
-            orig(self, damageInfo);
-        }
-
+ 
         private static void InfiniteTowerRun_BeginNextWave(ILContext il)
         {
             var c = new ILCursor(il);

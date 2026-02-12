@@ -1,4 +1,5 @@
 using RoR2;
+using RoR2.ContentManagement;
 using RoR2.ExpansionManagement;
 using System;
 using System.Collections.Generic;
@@ -21,6 +22,7 @@ namespace DebugToolkit.Commands
                     Log.MessageNetworked(string.Format(Lang.PARSE_ERROR, "enable", "bool"), args, LogLevel.MessageClientOnly);
                     return;
                 }
+                Hooks.god = modeOn;
             }
             else
             {
@@ -49,13 +51,100 @@ namespace DebugToolkit.Commands
                     Log.MessageNetworked(string.Format(Lang.PARSE_ERROR, "enable", "bool"), args, LogLevel.MessageClientOnly);
                     return;
                 }
+                Hooks.buddha = modeOn;
             }
             else
             {
                 modeOn = Hooks.ToggleBuddha();
             }
+            foreach (var player in PlayerCharacterMasterController.instances)
+            {
+                var body = player.master.GetBody();
+                if (body != null)
+                {
+                    if (modeOn)
+                    {
+                        body.bodyFlags |= CharacterBody.BodyFlags.Buddha;
+                    }
+                    else
+                    {
+                        body.bodyFlags &= ~CharacterBody.BodyFlags.Buddha;
+                    }
+                }
+            }
+
+
             Log.MessageNetworked(String.Format(modeOn ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, "Buddha mode"), args);
         }
+
+        [ConCommand(commandName = "buddhaenemy", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.BUDDHAENEMY_HELP)]
+        [ConCommand(commandName = "budaenemy", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.BUDDHAENEMY_HELP)]
+        [AutoComplete(Lang.ENABLE_ARGS)]
+        private static void CCBuddhaMonstersToggle(ConCommandArgs args)
+        {
+            bool modeOn;
+            if (args.Count > 0)
+            {
+                if (!Util.TryParseBool(args[0], out modeOn))
+                {
+                    Log.MessageNetworked(string.Format(Lang.PARSE_ERROR, "enable", "bool"), args, LogLevel.MessageClientOnly);
+                    return;
+                }
+                Hooks.buddhaMonsters = modeOn;
+            }
+            else
+            {
+                Hooks.buddhaMonsters = !Hooks.buddhaMonsters;
+                modeOn = Hooks.buddhaMonsters;
+            }
+            foreach (TeamComponent teamComponent in TeamComponent.GetTeamMembers(TeamIndex.Monster))
+            {
+                if (teamComponent.body)
+                {
+                    if (modeOn)
+                    {
+                        teamComponent.body.bodyFlags |= RoR2.CharacterBody.BodyFlags.Buddha;
+                    }
+                    else
+                    {
+                        teamComponent.body.bodyFlags &= ~RoR2.CharacterBody.BodyFlags.Buddha;
+                    }
+                }
+            }
+            Log.MessageNetworked(String.Format(modeOn ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, "Buddha mode for monsters"), args);
+        }
+
+        [ConCommand(commandName = "godenemy", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.GOD_HELP)]
+        [AutoComplete(Lang.ENABLE_ARGS)]
+        private static void CCGodMonstersToggle(ConCommandArgs args)
+        {
+            bool modeOn;
+            if (args.Count > 0)
+            {
+                if (!Util.TryParseBool(args[0], out modeOn))
+                {
+                    Log.MessageNetworked(string.Format(Lang.PARSE_ERROR, "enable", "bool"), args, LogLevel.MessageClientOnly);
+                    return;
+                }
+                Hooks.godMonsters = modeOn;
+            }
+            else
+            {
+                Hooks.godMonsters = !Hooks.godMonsters;
+                modeOn = Hooks.godMonsters;
+            }
+            foreach (TeamComponent teamComponent in TeamComponent.GetTeamMembers(TeamIndex.Monster))
+            {
+                HealthComponent component = teamComponent.GetComponent<HealthComponent>();
+                component.godMode = modeOn;
+                if (teamComponent.body.master)
+                {
+                    teamComponent.body.master.godMode = modeOn;
+                }
+            }
+            Log.MessageNetworked(String.Format(modeOn ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, "God mode for monsters"), args);
+        }
+
 
         [ConCommand(commandName = "noclip", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.NOCLIP_HELP)]
         [AutoComplete(Lang.ENABLE_ARGS)]
@@ -106,6 +195,93 @@ namespace DebugToolkit.Commands
             }
             TeleportNet.Invoke(args.sender); // callback
         }
+
+
+        [ConCommand(commandName = "goto_boss", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.GOTOBOSS_HELP)]
+        private static void CCGoto_Boss(ConCommandArgs args)
+        {
+            if (!Run.instance)
+            {
+                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
+                return;
+            }
+          
+            string stage = Stage.instance.sceneDef.cachedName;
+            Vector3 newPosition = Vector3.zero;
+            string destination = string.Empty;
+
+            if (TeleporterInteraction.instance)
+            {
+                destination = "Teleporter";
+                newPosition = TeleporterInteraction.instance.transform.position;
+                newPosition += new Vector3(0, 1, 0);
+            }
+            else if (BossGroup.GetTotalBossCount() > 0)
+            {
+                for (int i = 0; i < CharacterBody.instancesList.Count; i++)
+                {
+                    if (CharacterBody.instancesList[i].isBoss)
+                    {
+                        newPosition = CharacterBody.instancesList[i].corePosition;
+                        destination = CharacterBody.instancesList[i].name;
+                        break;
+                    }
+                }
+            }
+            else if (stage == "moon2")
+            {
+                newPosition = new Vector3(-11, 490, 80);
+                destination = "Mithrix Arena";
+            }
+            else if (stage == "solutionalhaunt")
+            {
+                newPosition = new Vector3(252.5426f, -549.5432f, -90.2127f); //Cutscene Trigger
+                destination = "Solus Wing Hallway";
+                GameObject cutsceneTrigger = GameObject.Find("/HOLDER2: Mission and Meta-Related Systems/Cutscene/Trigger Hallway Trap");
+                cutsceneTrigger.GetComponent<TrackTriggerOnExit>().Triggered = true; //Because it's OnExitTrigger, can't just teleport there
+            }
+            else if (stage == "meridian")
+            {
+                newPosition = new Vector3(85.2065f, 146.5167f, -70.5265f); //Cutscene Trigger
+                destination = "False Son Arena";
+            }
+            else if (stage == "mysteryspace")
+            {
+                newPosition = new Vector3(362.9097f, -151.5964f, 213.0157f); //Obelisk
+                destination = "Obelisk";
+            }
+            else if (stage == "voidraid")
+            {
+                destination = "Voidling Arena";
+                newPosition = new Vector3(-105f, 0.2f, 92f);
+            }
+            if (stage == "conduitcanyon")
+            {
+                //Auto complete the power pedestals
+                List<PowerPedestal> instancesList = InstanceTracker.GetInstancesList<PowerPedestal>();
+                foreach (PowerPedestal powerPedestal in instancesList)
+                {
+                    powerPedestal.SetComplete(true);
+                }
+                Debug.Log("Autocompleting Sentry Terminals");
+            }
+            if (newPosition == Vector3.zero)
+            {
+                Debug.Log("No Teleporter, Specific Location or Boss Monster found.");
+                return;
+            }
+
+            foreach (PlayerCharacterMasterController player in PlayerCharacterMasterController.instances)
+            {
+                if (player.master.bodyInstanceObject)
+                {
+                    TeleportHelper.TeleportGameObject(player.master.bodyInstanceObject, newPosition);
+                }
+            } 
+            Debug.Log($"Teleported players to {destination}");
+
+        }
+
 
         [ConCommand(commandName = "spawn_as", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SPAWNAS_HELP)]
         [AutoComplete(Lang.SPAWNAS_ARGS)]
@@ -223,6 +399,12 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.HURT_ARGS, args, LogLevel.MessageClientOnly);
                 return;
             }
+            bool bypassCalc = false;
+            if (args.Count > 2 && args[2] != Lang.DEFAULT_VALUE && !Util.TryParseBool(args[2], out bypassCalc))
+            {
+                Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "direct", "bool"), args, LogLevel.MessageClientOnly);
+                return;
+            }
             var target = Buffs.ParseTarget(args, 1);
             if (target.failMessage != null)
             {
@@ -248,6 +430,7 @@ namespace DebugToolkit.Commands
             {
                 damage = amount,
                 position = target.body.corePosition,
+                damageType = !bypassCalc ? DamageTypeCombo.Generic : new DamageTypeCombo(DamageType.BypassArmor & DamageType.BypassBlock & DamageType.BypassOneShotProtection, DamageTypeExtended.BypassDamageCalculations, DamageSource.NoneSpecified)
             });
             Log.MessageNetworked($"Damaged {target.name} for {amount} hp.", args);
         }
@@ -577,7 +760,7 @@ namespace DebugToolkit.Commands
                     var modelSkinController = args.senderBody.modelLocator.modelTransform.GetComponent<ModelSkinController>();
                     if (modelSkinController)
                     {
-                        modelSkinController.ApplySkin(requestedSkinIndexChange);
+                        modelSkinController.StartCoroutine(modelSkinController.ApplySkinAsync(requestedSkinIndexChange, AsyncReferenceHandleUnloadType.OnSceneUnload));
                     }
                 }
             }
@@ -606,5 +789,257 @@ namespace DebugToolkit.Commands
 
             return false;
         }
+
+        [ConCommand(commandName = "skill", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.LOADOUTSKILL_SHORT_ARGS)]
+        [AutoComplete(Lang.LOADOUTSKILL_ARGS)]
+        public static void CCSetSkillShort(ConCommandArgs args)
+        {
+            if (args.Count < 2)
+            {
+                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.LOADOUTSKILL_SHORT_ARGS, args, Log.LogLevel.MessageClientOnly);
+                return;
+            }
+            args.userArgs = new List<string>
+            {
+                "self",
+                args[0],
+                args[1],
+            };
+            UserProfile.CCLoadoutSetSkillVariant(args);        }
+
+        [ConCommand(commandName = "skin", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.LOADOUTSKIN_SHORT_ARGS)]
+        public static void CCSetSkinShort(ConCommandArgs args)
+        {
+            if (!TextSerialization.TryParseInvariant(args[0], out int requestedSkinIndexChange))
+            {
+                Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "skin_index", "int"), args, LogLevel.MessageClientOnly);
+            }
+            Macros.Invoke(args.sender, "loadout_set_skin_variant", "self", requestedSkinIndexChange.ToString());
+        }
+   
+      
+        [ConCommand(commandName = "nocooldowns", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.NOCOOLDOWN_HELP)]
+        [AutoComplete(Lang.PLAYER_OR_PINGED)]
+        public static void CCNoCooldowns(ConCommandArgs args)
+        {
+            var target = Buffs.ParseTarget(args, 0);
+            if (target.failMessage != null)
+            {
+                Log.MessageNetworked(target.failMessage, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            bool NoCooldowns = false;
+            GenericSkill[] slots = target.body.GetComponents<GenericSkill>();
+            foreach (GenericSkill slot in slots)
+            {
+                if (slot.skillDef.baseRechargeInterval != 0 && slot.cooldownOverride == 0)
+                {
+                    NoCooldowns = true;
+                    slot.cooldownOverride = 0.001f;
+                }
+                else
+                {
+                    slot.cooldownOverride = 0;
+                }
+            }
+            if (NoCooldowns && slots[0].CalculateFinalRechargeInterval() > 0.001f)
+            {
+                //Some mod is preventing this command from working.
+            }
+            string enable = NoCooldowns ? "<color=green>Disabled</color>" : "<color=red>Reenabled</color>";
+            Log.MessageNetworked($"{enable} Skill Cooldowns for {RoR2.Util.GetBestBodyName(target.body.gameObject)}", args);
+        }
+
+
+        //This does affect gameplay because it deactivates all your hurtboxes too, not sure what to do about that.
+        [ConCommand(commandName = "hide_model", flags = ConVarFlags.None, helpText = Lang.TOGGLEMODE_HELP)]
+        public static void CCToggleModel(ConCommandArgs args)
+        {
+            if (args.sender == null)
+            {
+                Log.MessageWarning(Lang.DS_NOTAVAILABLE);
+                return;
+            }
+            if (!Run.instance)
+            {
+                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            if (!args.senderBody)
+            {
+                Log.MessageNetworked("Can't hide your model while you're dead. " + Lang.USE_RESPAWN, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            GameObject mdl = args.senderBody.GetComponent<ModelLocator>().modelTransform.gameObject;
+            mdl.SetActive(!mdl.activeSelf);
+            Log.MessageNetworked(String.Format(RoR2.UI.HUD.cvHudEnable.value ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, "Hidden Model"), args, LogLevel.MessageClientOnly);
+        }
+
+        [ConCommand(commandName = "hide_hud", flags = ConVarFlags.None, helpText = Lang.TOGGLEHUD_HELP)]
+        public static void CCToggleHUD(ConCommandArgs args)
+        {
+            RoR2.UI.HUD.cvHudEnable.SetBool(!RoR2.UI.HUD.cvHudEnable.value);
+            Log.MessageNetworked(String.Format(RoR2.UI.HUD.cvHudEnable.value ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, "Hud"), args, LogLevel.MessageClientOnly);
+        }
+ 
+        [ConCommand(commandName = "set_stat", flags = ConVarFlags.SenderMustBeServer, helpText = Lang.SETSTAT_HELP)]
+        [AutoComplete(Lang.SETSTATS_ARGS)]
+        public static void CCSetStats(ConCommandArgs args)
+        {
+            if (!Run.instance)
+            {
+                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
+                return;
+            }
+ 
+            if (args.Count == 0 || (args.sender == null && (args.Count < 3 || args[2] == Lang.DEFAULT_VALUE)))
+            {
+                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.SETSTATS_ARGS, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            var target = Buffs.ParseTarget(args, 2);
+            if (target.failMessage != null)
+            {
+                Log.MessageNetworked(target.failMessage, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            bool reset = false;
+            float amount = 0;
+            if (args.Count == 1 || args[1] == Lang.DEFAULT_VALUE || args[1].ToUpperInvariant() == "RESET")
+            {
+                reset = true;
+            }
+            else
+            {
+                if (!TextSerialization.TryParseInvariant(args[1], out amount))
+                {
+                    Log.MessageNetworked(string.Format(Lang.PARSE_ERROR, "amount", "float"), args, LogLevel.MessageClientOnly);
+                    return;
+                }
+            }
+ 
+            Stat statToSet = Enum.TryParse(args[0], true, out Stat itemType) ? itemType : Stat.None;
+            if (statToSet == Stat.None)
+            {
+                Log.MessageNetworked(string.Format(Lang.PARSE_ERROR, "stat", "string"), args, LogLevel.MessageClientOnly);
+                return;
+            }
+            SetStatsForBody(target.body, statToSet, amount, reset);
+            if (reset) 
+            {
+                Log.MessageNetworked($"Reset {target.name}'s {statToSet} to it's base value.", args);
+            }
+            else
+            {
+                Log.MessageNetworked($"Set {target.name}'s {statToSet} to {amount}.", args);
+            }
+           
+         
+        }
+
+        public enum Stat
+        {
+            None = -1,
+            Damage,
+            AttackSpeed,
+            Crit,
+            Health,
+            Shield,
+            Regen, 
+            Armor,
+            MoveSpeed,
+            Acceleration,
+            JumpPower, 
+        }
+        public static void SetStatsForBody(CharacterBody body, Stat stat, float amount, bool reset)
+        {
+            var ogBody = body.master.bodyPrefab.GetComponent<CharacterBody>();
+            switch (stat)
+            {
+                case Stat.Damage:
+                    body.baseDamage = reset ? ogBody.baseDamage : amount;
+                    body.levelDamage = reset ? ogBody.levelDamage : 0;
+                    break;
+                case Stat.AttackSpeed:
+                    body.baseAttackSpeed = reset ? ogBody.baseAttackSpeed : amount;
+                    body.levelAttackSpeed = reset ? ogBody.levelAttackSpeed : 0;
+                    break;
+                case Stat.Crit:
+                    body.baseCrit = reset ? ogBody.baseCrit : amount;
+                    body.levelCrit = reset ? ogBody.levelCrit : 0;
+                    break;
+                case Stat.Health:
+                    body.baseMaxHealth = reset ? ogBody.baseMaxHealth : amount;
+                    body.levelMaxHealth = reset ? ogBody.levelMaxHealth : 0;
+                    break;
+                case Stat.Shield:
+                    body.baseMaxShield = reset ? ogBody.baseMaxShield : amount;
+                    body.levelMaxShield = reset ? ogBody.levelMaxShield : 0;
+                    break;
+                case Stat.Regen:
+                    body.baseRegen = reset ? ogBody.baseRegen : amount;
+                    body.levelRegen = reset ? ogBody.levelRegen : 0;
+                    break;
+                case Stat.Armor:
+                    body.baseArmor = reset ? ogBody.baseArmor : amount;
+                    body.levelArmor = reset ? ogBody.levelArmor : 0;
+                    break;
+                case Stat.MoveSpeed:
+                    body.baseMoveSpeed = reset ? ogBody.baseMoveSpeed : amount;
+                    body.levelMoveSpeed = reset ? ogBody.levelMoveSpeed : 0;
+                    break;
+                case Stat.Acceleration:
+                    body.baseAcceleration = reset ? ogBody.baseAcceleration : amount;
+                    break;
+                case Stat.JumpPower:
+                    body.baseJumpPower = reset ? ogBody.baseJumpPower : amount;
+                    body.levelJumpPower = reset ? ogBody.levelJumpPower : 0;
+                    break;
+            }
+            body.MarkAllStatsDirty();
+        }
+
+
+        [ConCommand(commandName = "remove_all_minions", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.REMOVEALLMINIONS_HELP)]
+        [AutoComplete(Lang.REMOVEALLMINIONS_ARGS)]
+        private static void CCRemoveDrones(ConCommandArgs args)
+        {
+            if (!Run.instance)
+            {
+                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            bool isDedicatedServer = args.sender == null;
+            if (isDedicatedServer && (args.Count < 1 || args[0] == Lang.DEFAULT_VALUE))
+            {
+                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.REMOVEALLMINIONS_ARGS, args, LogLevel.MessageClientOnly);
+                return;
+            }
+
+            var target = Items.ParseTarget(args, 0);
+            if (target.failMessage != null)
+            {
+                Log.MessageNetworked(target.failMessage, args, LogLevel.MessageClientOnly);
+                return;
+            }
+
+
+            var owner = target.inventory.GetComponent<MinionOwnership.MinionGroup.MinionGroupDestroyer>();
+            if (owner == null || owner.group == null || owner.group.memberCount == 0)
+            {
+                Log.MessageNetworked(string.Format(Lang.REMOVED_MINIONS, 0, target.name), args);
+                return;
+            }
+            int removedAmount = 0;
+            for (int i = 0; i < owner.group.memberCount; i++)
+            {
+                var master = owner.group.members[i].GetComponent<CharacterMaster>();
+                master.DestroyBody();
+                UnityEngine.Object.Destroy(master.gameObject, 1f);
+                removedAmount++;
+            }
+            Log.MessageNetworked(string.Format(Lang.REMOVED_MINIONS, removedAmount, target.name), args);
+        }
+
     }
 }

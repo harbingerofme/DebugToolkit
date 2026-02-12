@@ -90,7 +90,8 @@ namespace DebugToolkit.Commands
             }
             if (iCount < 0)
             {
-                Log.MessageNetworked(String.Format(Lang.NEGATIVE_ARG, "count"), args, LogLevel.MessageClientOnly);
+                args.userArgs[1] = (-iCount).ToString();
+                CCRemoveBuff(args);
                 return;
             }
 
@@ -147,7 +148,7 @@ namespace DebugToolkit.Commands
                 {
                     body.AddTimedBuff(buff, duration);
                 }
-                Log.MessageNetworked($"Gave {iCount} {name} to {target.name} for {duration} seconds", args);
+                Log.MessageNetworked($"Gave {iCount} {name} to {target.name} for <color=#53E9FF>{duration} seconds</color>", args);
             }
         }
 
@@ -175,7 +176,8 @@ namespace DebugToolkit.Commands
             }
             if (iCount < 0)
             {
-                Log.MessageNetworked(String.Format(Lang.NEGATIVE_ARG, "count"), args, LogLevel.MessageClientOnly);
+                args.userArgs[1] = (-iCount).ToString();
+                CCGiveBuff(args);
                 return;
             }
 
@@ -615,7 +617,7 @@ namespace DebugToolkit.Commands
                     target = targetMaster?.GetBody();
                 }
             }
-            if (target == null)
+            if (target == null && failMessage == null)
             {
                 failMessage = Lang.PLAYER_NOTFOUND;
             }

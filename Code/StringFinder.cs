@@ -39,28 +39,74 @@ namespace DebugToolkit
 
         private static void GatherCSCs()
         {
-            GatherAddressableAssets<CharacterSpawnCard>("/csc", (asset) =>
+            RoR2Application.onLoad += () =>
             {
-                characterSpawnCard.Add(new DirectorCard
+                //I imagine this would fail to get modded MultiCSC
+                var CSCList = Resources.FindObjectsOfTypeAll(typeof(CharacterSpawnCard)) as CharacterSpawnCard[];
+
+                foreach (var resourceLocator in Addressables.ResourceLocators)
                 {
-                    spawnCard = asset,
-                    forbiddenUnlockableDef = null,
-                    minimumStageCompletions = 0,
-                    preventOverhead = true,
-                    spawnDistance = DirectorCore.MonsterSpawnDistance.Standard,
-                });
-            });
+                    foreach (var key in resourceLocator.Keys)
+                    {
+                        var keyString = key.ToString();
+                        if (keyString.Contains("/csc"))
+                        {
+                            characterSpawnCard.Add(new DirectorCard
+                            {
+                                spawnCard = Addressables.LoadAssetAsync<CharacterSpawnCard>(keyString).WaitForCompletion(),
+                                preventOverhead = true,
+                            });
+                        }
+                    }
+                }
+
+                var filteredList =
+                CSCList.Where(spawnCard => spawnCard is CharacterSpawnCard && characterSpawnCard.All(existingCSC => existingCSC.spawnCard != spawnCard));
+                foreach (var card in filteredList)
+                {
+                    characterSpawnCard.Add(new DirectorCard
+                    {
+                        spawnCard = card,
+                        preventOverhead = true,
+                    });
+                }
+            };
+
+
         }
 
         private void GatherISCs()
         {
-            GatherAddressableAssets<InteractableSpawnCard>("/isc", (asset) => interactableSpawnCards.Add(asset));
-            On.RoR2.ClassicStageInfo.Start += AddCurrentStageIscsToCache;
+            RoR2Application.onLoad += () =>
+            {
+                //Doing this first means only getting loaded spawn cards.
+                //Which for vanilla isn't a lot of them (38)
+                //But itll find any modded ones and mod-loaded ones.
+                var ISCList = Resources.FindObjectsOfTypeAll(typeof(InteractableSpawnCard)) as InteractableSpawnCard[];
+     
+                //Unless there's some issue with WaitForFinished()
+                //Have do it this way to get vanillaInteractables first then moddedInteractables, without jumbling up the order
+                foreach (var resourceLocator in Addressables.ResourceLocators)
+                {
+                    foreach (var key in resourceLocator.Keys)
+                    {
+                        var keyString = key.ToString();
+                        if (keyString.Contains("/isc"))
+                        {
+                            interactableSpawnCards.Add(Addressables.LoadAssetAsync<InteractableSpawnCard>(keyString).WaitForCompletion());
+                        }
+                    }
+                }
+
+                var filteredList =
+                ISCList.Where(spawnCard => spawnCard is InteractableSpawnCard && interactableSpawnCards.All(existingIsc => existingIsc != spawnCard));
+                interactableSpawnCards.AddRange(filteredList);
+            };
         }
 
         private static void GatherAddressableAssets<T>(string filterKey, Action<T> onAssetLoaded)
         {
-            RoR2Application.onLoad += () =>
+            RoR2Application.onLoadFinished += () =>
             {
                 foreach (var resourceLocator in Addressables.ResourceLocators)
                 {
@@ -254,6 +300,47 @@ namespace DebugToolkit
         }
 
         /// <summary>
+        /// Returns an DifficultyIndex when provided with an index or partial/invariant.
+        /// </summary>
+        /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>
+        /// <returns>Returns the DifficultyIndex if a match is found, or returns DifficultyIndex.Invalid</returns>
+        public DifficultyIndex GetDifficultyFromPartial(string name)
+        {
+            return GetDifficultiesFromPartial(name).DefaultIfEmpty(DifficultyIndex.Invalid).First();
+        }
+
+        /// <summary>
+        /// Returns an iterator of DifficultyIndex's when provided with an index or partial/invariant.
+        /// </summary>
+        /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>
+        /// <returns>Returns an iterator with all DifficultyIndex's matched</returns>
+        /// Vanilla game has no DifficultyDef to DifficultyIndex.
+        /// Modded difficulties are not usually stored in DifficultyCatalog.
+        /// R2API is used instead.
+        public IEnumerable<DifficultyIndex> GetDifficultiesFromPartial(string name)
+        {
+            if (TextSerialization.TryParseInvariant(name, out int i))
+            {
+                var index = (DifficultyIndex)i;
+                if (DifficultyCatalog.GetDifficultyDef(index) != null)
+                {
+                    yield return index;
+                }
+                yield break;
+            }
+            name = name.ToUpperInvariant();
+            foreach (var dict in R2API.DifficultyAPI.difficultyDefinitions)
+            {
+                var langInvar = GetLangInvar(dict.Value.nameToken).ToUpper();
+                if (dict.Value.nameToken.ToUpper().Contains(name) || langInvar.Contains(name))
+                {
+                    yield return dict.Key;
+                }
+            } 
+        }
+
+
+        /// <summary>
         /// Returns an EquipmentIndex when provided with an index or partial/invariant.
         /// </summary>
         /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>
@@ -360,6 +447,26 @@ namespace DebugToolkit
         }
 
         /// <summary>
+        /// Returns an DroneIndex when provided with an index or partial/invariant.
+        /// </summary>
+        /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>
+        /// <returns>Returns the DroneIndex if a match is found, or returns DroneIndex.None</returns>
+        public DroneIndex GetDroneFromPartial(string name)
+        {
+            return GetDronesFromPartial(name).DefaultIfEmpty(DroneIndex.None).First();
+        }
+
+        /// <summary>
+        /// Returns an PickupIndex when provided with an index or partial/invariant.
+        /// </summary>
+        /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>
+        /// <returns>Returns the PickupIndex if a match is found, or returns PickupIndex.none</returns>
+        public PickupIndex GetPickupFromPartial(string name)
+        {
+            return GetPickupsFromPartial(name).DefaultIfEmpty(PickupIndex.none).First();
+        }
+
+        /// <summary>
         /// Returns an iterator of ItemIndex's when provided with an index or partial/invariant.
         /// </summary>
         /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>
@@ -392,6 +499,82 @@ namespace DebugToolkit
             foreach (var match in matches.OrderByDescending(m => m.similarity))
             {
                 yield return (ItemIndex)match.item;
+            }
+        }
+
+
+        /// <summary>
+        /// Returns an iterator of DroneIndex's when provided with an index or partial/invariant.
+        /// </summary>
+        /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>
+        /// <returns>Returns an iterator with all DroneIndex's matched</returns>
+        public IEnumerable<DroneIndex> GetDronesFromPartial(string name)
+        {
+            if (TextSerialization.TryParseInvariant(name, out int i))
+            {
+                var index = (DroneIndex)i;
+                //if (DroneCatalog.IsIndexValid(index))
+                if (index < (DroneIndex)DroneCatalog.droneCount)
+                {
+                    yield return index;
+                }
+                yield break;
+            }
+            name = name.ToUpperInvariant();
+            var matches = new List<MatchSimilarity>();
+            foreach (var drone in DroneCatalog.allDroneDefs)
+            {
+                var langInvar = GetLangInvar(drone.nameToken).ToUpper();
+                if (drone.name.ToUpper().Contains(name) || langInvar.Contains(name))
+                {
+                    matches.Add(new MatchSimilarity
+                    {
+                        similarity = Math.Max(GetSimilarity(drone.name, name), GetSimilarity(langInvar, name)),
+                        item = drone.droneIndex
+                    });
+                }
+            }
+            foreach (var match in matches.OrderByDescending(m => m.similarity))
+            {
+                yield return (DroneIndex)match.item;
+            }
+        }
+
+
+        /// <summary>
+        /// Returns an iterator of PickupIndex's when provided with an index or partial/invariant.
+        /// </summary>
+        /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>
+        /// <returns>Returns an iterator with all PickupIndex's matched</returns>
+        public IEnumerable<PickupIndex> GetPickupsFromPartial(string name)
+        {
+            if (TextSerialization.TryParseInvariant(name, out int i))
+            {
+                var index = i;
+                if (index < PickupCatalog.pickupCount)
+                {
+                    yield return PickupIndex.none;
+                }
+                yield break;
+            }
+            name = name.ToUpperInvariant();
+            var matches = new List<MatchSimilarity>();
+            foreach (var pickup in PickupCatalog.allPickups)
+            {
+                var langInvar = GetLangInvar(pickup.nameToken).ToUpper();
+                if (pickup.internalName.ToUpper().Contains(name) || langInvar.Contains(name))
+                {
+                    //yield return pickup.pickupIndex;
+                    matches.Add(new MatchSimilarity
+                    {
+                        similarity = Math.Max(GetSimilarity(pickup.internalName, name), GetSimilarity(langInvar, name)),
+                        item = pickup.pickupIndex
+                    });
+                }
+            }
+            foreach (var match in matches.OrderByDescending(m => m.similarity))
+            {
+                yield return (PickupIndex)match.item;
             }
         }
 

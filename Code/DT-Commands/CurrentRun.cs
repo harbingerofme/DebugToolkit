@@ -13,6 +13,7 @@ namespace DebugToolkit.Commands
     {
 
         internal static bool noEnemies = false;
+        internal static bool noInteractables = false;
         internal static bool lockExp = false;
         internal static ulong seed;
 
@@ -161,6 +162,39 @@ namespace DebugToolkit.Commands
             Log.MessageNetworked(String.Format(noEnemies ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, "no_enemies"), args);
         }
 
+        [ConCommand(commandName = "no_interactables", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.NOINTERACTABLES_HELP)]
+        [AutoComplete(Lang.ENABLE_ARGS)]
+        private static void CCNoInteractaböes(ConCommandArgs args)
+        {
+            bool enabled = !noInteractables;
+            if (args.Count > 0)
+            {
+                if (!Util.TryParseBool(args[0], out enabled))
+                {
+                    Log.MessageNetworked(string.Format(Lang.PARSE_ERROR, "enable", "bool"), args, LogLevel.MessageClientOnly);
+                    return;
+                }
+            }
+            noInteractables = enabled;
+            if (noInteractables)
+            {
+                SceneDirector.onPrePopulateSceneServer += PreventInteractableSpawns;
+            }
+            else
+            {
+                SceneDirector.onPrePopulateSceneServer -= PreventInteractableSpawns;
+            }
+            Log.MessageNetworked(String.Format(noInteractables ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, "no_interactables"), args);
+        }
+
+        private static void PreventInteractableSpawns(SceneDirector obj)
+        {
+            if (noInteractables)
+            {
+                obj.onPopulateCreditMultiplier = 0;
+            }
+        }
+
         [ConCommand(commandName = "lock_exp", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.LOCKEXP_HELP)]
         [AutoComplete(Lang.ENABLE_ARGS)]
         private static void CCLockExperience(ConCommandArgs args)
@@ -186,6 +220,7 @@ namespace DebugToolkit.Commands
             Log.MessageNetworked(String.Format(lockExp ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, "lock_exp"), args);
         }
 
+
         [ConCommand(commandName = "kill_all", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.KILLALL_HELP)]
         [AutoComplete(Lang.KILLALL_ARGS)]
         private static void CCKillAll(ConCommandArgs args)
@@ -195,15 +230,19 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
                 return;
             }
-            TeamIndex team = TeamIndex.Monster;
-            if (args.Count > 0 && args[0] != Lang.DEFAULT_VALUE)
+            if (args.Count == 0 || args[0] == Lang.DEFAULT_VALUE)
             {
-                team = StringFinder.Instance.GetTeamFromPartial(args[0]);
-                if (team == StringFinder.TeamIndex_NotFound)
-                {
-                    Log.MessageNetworked(Lang.TEAM_NOTFOUND, args, LogLevel.MessageClientOnly);
-                    return;
-                }
+                DebugToolkit.InvokeCMD(args.sender, "kill_all", ((int)TeamIndex.Monster).ToString());
+                DebugToolkit.InvokeCMD(args.sender, "kill_all", ((int)TeamIndex.Void).ToString());
+                return;
+            }
+
+            TeamIndex team = TeamIndex.Monster;
+            team = StringFinder.Instance.GetTeamFromPartial(args[0]);
+            if (team == StringFinder.TeamIndex_NotFound)
+            {
+                Log.MessageNetworked(Lang.TEAM_NOTFOUND, args, LogLevel.MessageClientOnly);
+                return;
             }
 
             int count = 0;
@@ -239,6 +278,23 @@ namespace DebugToolkit.Commands
             }
             Time.timeScale = scale;
             TimescaleNet.Invoke(scale);
+        }
+
+        public static float prevTimeScale = 0;
+        [ConCommand(commandName = "toggle_time", flags = ConVarFlags.None, helpText = Lang.TOGGLETIME_HELP)]
+        private static void CCTogglePause(ConCommandArgs args)
+        {
+            float newTime = 0;
+            if (Time.timeScale == 0)
+            {
+                newTime = prevTimeScale == 0 ? 1 : prevTimeScale;
+            }
+            else
+            {
+                prevTimeScale = Time.timeScale;
+            }
+            Time.timeScale = newTime;
+            TimescaleNet.Invoke(newTime);
         }
 
         [ConCommand(commandName = "stop_timer", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.STOPTIMER_HELP)]
@@ -469,16 +525,13 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
                 return;
             }
-            if (args.Count == 0)
-            {
-                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.CHARGEZONE_ARGS, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            if (!TextSerialization.TryParseInvariant(args[0], out float charge))
+            float charge = 100;
+            if (args.Count > 0 && !TextSerialization.TryParseInvariant(args[0], out charge))
             {
                 Log.MessageNetworked(string.Format(Lang.PARSE_ERROR, "charge", "float"), args, LogLevel.MessageClientOnly);
                 return;
             }
+            Log.MessageNetworked(string.Format("Setting charge for all active holdout zones to {0}%", charge), args, LogLevel.Message);
             charge /= 100f;
 
             foreach (var zone in InstanceTracker.GetInstancesList<HoldoutZoneController>())
@@ -681,6 +734,108 @@ namespace DebugToolkit.Commands
             Run.instance.SetRunStopwatch(setTime);
             Log.MessageNetworked("Run timer set to " + setTime, args);
         }
+
+
+        [ConCommand(commandName = "evolve_lemurians", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.EVOLVE_LEMURIAN_HELP)]
+        [AutoComplete(Lang.PLAYER_OR_ALL_OPTIONAL_ARGS)]
+        public static void CCEvolveLemurians(ConCommandArgs args)
+        {
+            if (!Run.instance)
+            {
+                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            bool all = false;
+            bool succeeded = false;
+ 
+            NetworkUser player = args.sender;
+            if (args.Count > 0)
+            {
+                player = Util.GetNetUserFromString(args.userArgs, 0);
+                if (player == null)
+                {
+                    Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
+                    return;
+                }
+            }
+            if (args.Count > 0 && args[0].ToUpperInvariant() == Lang.ALL)
+            {
+                all = true;
+            }
+            else if (!all && player == null)
+            {
+                Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
+                return;
+            }
+   
+            foreach (DevotionInventoryController devotionInventoryController in DevotionInventoryController.InstanceList)
+            {
+                if (all || devotionInventoryController.SummonerMaster == player.master)
+                {
+                    succeeded = true;
+                    devotionInventoryController.UpdateAllMinions(true);
+                }
+            }
+            if (all)
+            {
+                Log.MessageNetworked(succeeded ? "Evolved all devoted Lemurians." : "There are no devoted lemurians", args);
+            }
+            else
+            {
+                Log.MessageNetworked(succeeded ? $"Evolved {player.userName}'s devoted Lemurians." : $"{player.userName} does not own any devoted lemurians", args);
+            }
+          
+        }
+
+        [ConCommand(commandName = "set_difficulty", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SETDIFFICULTY_HELP)]
+        [AutoComplete(Lang.SETDIFFICULTY_ARGS)]
+        public static void CCSetDifficulty(ConCommandArgs args)
+        {
+            if (!Run.instance)
+            {
+                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            if (args.Count < 1)
+            {
+                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.SETDIFFICULTY_ARGS, args, LogLevel.MessageClientOnly);
+                return;
+            }
+ 
+            DifficultyIndex difficultyIndex = StringFinder.Instance.GetDifficultyFromPartial(args[0]);
+            DifficultyDef difficultyDef = DifficultyCatalog.GetDifficultyDef(difficultyIndex);
+            if (difficultyIndex == DifficultyIndex.Invalid || difficultyDef == null)
+            {
+                Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "difficulty", args[0]), args, LogLevel.MessageClientOnly);
+                return;
+            }
+            
+            Run.instance.selectedDifficulty = difficultyIndex;
+            Log.MessageNetworked("Setting the runs selected difficulty to: "+ Language.GetString(difficultyDef.nameToken), args);
+
+            if (Run.instance.uiInstances.Count > 0) 
+            {
+                //Refreshes HUD to match set difficulty
+                //Is there a way to do this on both client & server?
+                Run.instance.uiInstances[0].GetComponentInChildren<RoR2.UI.CurrentDifficultyIconController>()?.Start();
+            }
+            foreach (var player in PlayerCharacterMasterController.instances)
+            {
+                //Ensure proper Helper items, maybe not most accurate for modded difficulties.
+                player.master.inventory.ResetItemPermanent(RoR2Content.Items.DrizzlePlayerHelper);
+                player.master.inventory.ResetItemPermanent(RoR2Content.Items.MonsoonPlayerHelper);
+                if (difficultyIndex == DifficultyIndex.Easy)
+                {
+                    player.master.inventory.GiveItemPermanent(RoR2Content.Items.DrizzlePlayerHelper, 1);
+                }
+                else if (difficultyDef.countsAsHardMode)
+                {
+                    player.master.inventory.GiveItemPermanent(RoR2Content.Items.MonsoonPlayerHelper, 1);
+                }
+            }
+            
+        }
+
     }
 
     // ReSharper disable once ClassNeverInstantiated.Global
@@ -704,7 +859,7 @@ namespace DebugToolkit.Commands
         private void RpcApplyTimescale(float scale)
         {
             Time.timeScale = scale;
-            Message("Timescale set to: " + scale + ". ");
+            Message("Timescale set to: " + scale);
         }
     }
 }

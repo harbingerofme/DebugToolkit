@@ -1,6 +1,67 @@
+### 3.22 ###
+* **3.22.0**
 
-## Changelog ##
+	* Added commands:
+		* 'spawn_minion': Spawns characeter as your minion, specified amount and tier
+		* 'remove_all_minions': Removes all minions, leaving no bodies or broken ones.
 
+		* 'set_difficulty' Sets the runs selected difficulty.
+		* 'set_stat' Sets the given baseStat to the specified value, or resets it to the default value. For clean testing.
+		* 'nocooldowns': Toggles your skill cooldowns.
+		 
+		* 'list_drone': List drone names and ids.
+		* 'list_pickups': List pickup names and ids.
+		* 'list_difficulty': List difficulty names and ids.
+		* 'dump_mods': Lists all loaded mods and if they are tagged as RequiredByAll. Useful to get internal names to check for.
+		
+		* 'godenemy': God mode for all monsters, to make them unhurtable.
+		* 'buddhaenemy': Buddha mode for all monsters, to make them unkillable.
+		* 'hide_model': Toggles your models visibiltiy, for screenshotting/recording.
+		* 'toggle_time' Toggles 'time_scale' between 0 and what it it was before.
+		
+		* 'give_all_items' Gives all items of specified itemTier.
+		* 'give_void': Gives Void Markers.
+		* 'no_interactables': Prevent interactables from spawning
+
+		* 'goto_boss': Teleports you to boss, teleporter or boss arenas on stage, (i.e. Skip directly to Mithrix on Moon2)
+		* 'evolve_lemurians': Triggers Artifact of Devotion evolution.
+
+	* Added macro/short commands:
+		* 'dtscanner': 100 BoostEquipmentRechrage & Radar Scanner equip for easy map searching.
+		* 'dtpeace': 'kill_all Monster & Void', 'no_enemies true', 'god true'
+		* 'dtcleanse': 'remove_all_buffs 0 & 1' & 'remove_all_dots'
+		* 'random_equip' alternative for 'give_equip random'
+		* 'rich', -> Set money to 2 billion.
+		* 'poor' -> Set money to 0.
+		* 'skill': shorthand for 'loadout_set_skill_variant self'
+		* 'skin': shorthand for 'loadout_set_skin_variant self'
+		* 'hide_hud': toggle 'hud_enable' convar
+
+	* Updated command functionality:
+		* Item commands can now grant/remove channeled items
+		* Item commands now mention you can type 0/1/2 instead of the name type.
+		* 'spawn_interactable' now also shows interactable names in auto complete.
+		* 'spawn_interactable' now accepts amount.		 
+		* 'create_pickup' now supports dropping drones & pickups, and can use numbers to abbreviate search.
+		* 'create_pickup' switched {search} and {permanent/temp} argument spots.
+		* 'give_equip' now accepts '-1|none' to remove your equipment.
+		* 'give .. remove_buff' now accept negative amounts to remove/give, like item commands.
+		* 'loadout_set_skill_variant' now accepts 'self'
+		* 'random_items' changed default value to just give Tier1,2,3
+		* 'hurt' third optional argument for direct damage. (bypassArmor bypassDamageCalcs).
+		* 'kill_all' default value now kills Monster & Void teams.
+		* 'true_kill' now bypasses godmode and accepts 'pinged' & 'all' as target
+		* 'charge_zone' default value now 100% charge.
+		
+
+	* 'spawn_as' will set your permanent character again.
+	* 'run_set_stages_cleared' will now also set the loopClearCount to the expected amount. (Which is a seperate thing as of AC)
+	*  Modded spawn cards should be usable from the start now.
+	*  Food items can now be given by {dropTable}
+	*  Fixed 'god 0/1'/'buddha 0/1' not setting the toggle's state.
+	*  Fixed 'loadout_set_skin_variant' crashing the game.
+	
+	
 ### 3.21 ###
 
 * **3.21.2**

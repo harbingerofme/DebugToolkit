@@ -15,6 +15,7 @@ RiskofThunder-R2API_Core = "5.1.7"
 RiskofThunder-R2API_ContentManagement = "1.0.10"
 RiskofThunder-R2API_Networking = "1.0.3"
 RiskofThunder-R2API_Prefab = "1.1.1"
+RiskofThunder-R2API_Difficulty = "1.1.2"
 
 [build]
 icon = "./icon.png"

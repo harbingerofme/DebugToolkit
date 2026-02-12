@@ -13,7 +13,7 @@ namespace DebugToolkit.Commands
 {
     class Spawners
     {
-        private static readonly Dictionary<string, GameObject> portals = new Dictionary<string, GameObject>();
+        public static readonly Dictionary<string, GameObject> portals = new Dictionary<string, GameObject>();
 
         [ConCommand(commandName = "spawn_interactable", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SPAWNINTERACTABLE_HELP)]
         [ConCommand(commandName = "spawn_interactible", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SPAWNINTERACTABLE_HELP)]
@@ -44,6 +44,12 @@ namespace DebugToolkit.Commands
             if (isc == null)
             {
                 Log.MessageNetworked(Lang.INTERACTABLE_NOTFOUND, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            int amount = 1;
+            if (args.Count > 1 && args[1] != Lang.DEFAULT_VALUE && !TextSerialization.TryParseInvariant(args[1], out amount))
+            {
+                Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "count", "int"), args, LogLevel.MessageClientOnly);
                 return;
             }
             // Putting interactables with a collider just far enough to not cause any clipping
@@ -81,10 +87,19 @@ namespace DebugToolkit.Commands
                 var direction = args.senderBody.inputBank.aimDirection;
                 position = position + (args.senderBody.radius + distance) * new Vector3(direction.x, 0f, direction.z);
             }
-            var result = isc.DoSpawn(position, new Quaternion(), new DirectorSpawnRequest(isc, null, RoR2Application.rng));
-            if (!result.success)
+            Log.MessageNetworked(string.Format(Lang.SPAWN_ATTEMPT_2, amount, isc.prefab.name), args);
+            int failed = 0;
+            for (int i = 0; i < amount; i++)
             {
-                Log.MessageNetworked("Failed to spawn interactable.", args, LogLevel.MessageClientOnly);
+                var result = isc.DoSpawn(position, new Quaternion(), new DirectorSpawnRequest(isc, null, RoR2Application.rng));
+                if (!result.success)
+                {
+                    failed++;
+                }
+            }
+            if (failed > 0)
+            {
+                Log.MessageNetworked($"Failed to spawn {failed} interactable.", args, LogLevel.MessageClientOnly);
             }
         }
 
@@ -127,13 +142,19 @@ namespace DebugToolkit.Commands
             }
             var position = args.senderBody.footPosition;
             // Some portals spawn into the ground
-            if (portal.name == "DeepVoidPortal")
+            switch (portal.name)
             {
-                position.y += 4f;
-            }
-            else if (portal.name == "PortalArtifactworld")
-            {
-                position.y += 10f;
+                case "DeepVoidPortal":
+                    position.y += 4f;
+                    break;
+                case "SolusWebPortal":
+                case "CompExchangePortal":
+                case "EyePortal":
+                    position.y += 5f;
+                    break;
+                case "PortalArtifactworld":
+                    position.y += 10f;
+                    break;
             }
 
             var gameObject = UnityEngine.Object.Instantiate(portal, position, Quaternion.LookRotation(args.senderBody.characterDirection.forward));
@@ -141,7 +162,16 @@ namespace DebugToolkit.Commands
             // The artifact portal erroneously points to mysteryspace by default
             if (portalName == "artifact")
             {
-                exit.destinationScene = SceneCatalog.FindSceneDef("artifactworld");
+                int num = UnityEngine.Random.Range(0, 4);
+                SceneDef sceneDef = SceneCatalog.FindSceneDef("artifactworld0" + num);
+                if (sceneDef && sceneDef.requiredExpansion && Run.instance.IsExpansionEnabled(sceneDef.requiredExpansion))
+                {
+                    exit.destinationScene = sceneDef;
+                }
+                else
+                {
+                    exit.destinationScene = SceneCatalog.FindSceneDef("artifactworld");
+                }
             }
             if (currentScene.cachedName == "voidraid" && gameObject.name.Contains("VoidOutroPortal"))
             {
@@ -154,9 +184,19 @@ namespace DebugToolkit.Commands
             NetworkServer.Spawn(gameObject);
         }
 
+        [ConCommand(commandName = "spawn_minion", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SPAWNMINION_HELP)]
+        [AutoComplete(Lang.SPAWNMINION_ARGS)]
+        private static void CCSpawnMinion(ConCommandArgs args)
+        {
+            CCSpawnCharacter(args, true);
+        }
         [ConCommand(commandName = "spawn_ai", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SPAWNAI_HELP)]
         [AutoComplete(Lang.SPAWNAI_ARGS)]
         private static void CCSpawnAI(ConCommandArgs args)
+        {
+            CCSpawnCharacter(args, false);
+        }
+        private static void CCSpawnCharacter(ConCommandArgs args, bool spawnAsMinion)
         {
             if (!Run.instance)
             {
@@ -194,23 +234,44 @@ namespace DebugToolkit.Commands
                 return;
             }
 
+            int droneTier = 0;
             EliteDef eliteDef = null;
             if (args.Count > 2 && args[2] != Lang.DEFAULT_VALUE)
             {
-                var eliteIndex = StringFinder.Instance.GetEliteFromPartial(args[2]);
-                if (eliteIndex == StringFinder.EliteIndex_NotFound)
+                if (spawnAsMinion)
                 {
-                    Log.MessageNetworked(Lang.ELITE_NOTFOUND, args, LogLevel.MessageClientOnly);
-                    return;
+                    if (!TextSerialization.TryParseInvariant(args[2], out droneTier))
+                    {
+                        Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "droneTier", "int"), args, LogLevel.MessageClientOnly);
+                        return;
+                    }
+                    if (droneTier > 1 && Run.instance.IsItemExpansionLocked(DLC3Content.Items.DroneUpgradeHidden.itemIndex))
+                    {
+                        Log.MessageNetworked("Tiered Minions require Alloyed Collective", args, LogLevel.WarningClientOnly);
+                    }
+                    if (droneTier < 0)
+                    {
+                        Log.MessageNetworked(string.Format(Lang.NEGATIVE_ARG, "droneTier"), args, LogLevel.MessageClientOnly);
+                        return;
+                    }
                 }
-                eliteDef = EliteCatalog.GetEliteDef(eliteIndex);
-                if (eliteDef && eliteDef.eliteEquipmentDef && Run.instance.IsEquipmentExpansionLocked(eliteDef.eliteEquipmentDef.equipmentIndex))
+                else
                 {
-                    var expansion = Util.GetExpansion(eliteDef.eliteEquipmentDef.requiredExpansion);
-                    Log.MessageNetworked(string.Format(Lang.EXPANSION_LOCKED, "elite equipment", expansion), args, LogLevel.WarningClientOnly);
+                    var eliteIndex = StringFinder.Instance.GetEliteFromPartial(args[2]);
+                    if (eliteIndex == StringFinder.EliteIndex_NotFound)
+                    {
+                        Log.MessageNetworked(Lang.ELITE_NOTFOUND, args, LogLevel.MessageClientOnly);
+                        return;
+                    }
+                    eliteDef = EliteCatalog.GetEliteDef(eliteIndex);
+                    if (eliteDef && eliteDef.eliteEquipmentDef && Run.instance.IsEquipmentExpansionLocked(eliteDef.eliteEquipmentDef.equipmentIndex))
+                    {
+                        var expansion = Util.GetExpansion(eliteDef.eliteEquipmentDef.requiredExpansion);
+                        Log.MessageNetworked(string.Format(Lang.EXPANSION_LOCKED, "elite equipment", expansion), args, LogLevel.WarningClientOnly);
+                    }
                 }
             }
-
+ 
             bool braindead = false;
             if (args.Count > 3 && args[3] != Lang.DEFAULT_VALUE && !Util.TryParseBool(args[3], out braindead))
             {
@@ -218,23 +279,15 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            bool isAlly = false;
+         
             TeamIndex teamIndex = TeamIndex.Monster;
-            if (args.Count > 4 && args[4] != Lang.DEFAULT_VALUE)
+            if (args.Count > 4 && args[4] != Lang.DEFAULT_VALUE && !spawnAsMinion)
             {
-                if (args[4].ToUpperInvariant() == Lang.ALLY)
+                teamIndex = StringFinder.Instance.GetTeamFromPartial(args[4]);
+                if (teamIndex == StringFinder.TeamIndex_NotFound)
                 {
-                    isAlly = true;
-                    teamIndex = args.senderBody.teamComponent.teamIndex;
-                }
-                else
-                {
-                    teamIndex = StringFinder.Instance.GetTeamFromPartial(args[4]);
-                    if (teamIndex == StringFinder.TeamIndex_NotFound)
-                    {
-                        Log.MessageNetworked(Lang.TEAM_NOTFOUND, args, LogLevel.MessageClientOnly);
-                        return;
-                    }
+                    Log.MessageNetworked(Lang.TEAM_NOTFOUND, args, LogLevel.MessageClientOnly);
+                    return;
                 }
             }
 
@@ -262,8 +315,8 @@ namespace DebugToolkit.Commands
                 },
                 RoR2Application.rng
             );
-            spawnRequest.summonerBodyObject = isAlly ? args.senderBody.gameObject : null;
-            spawnRequest.teamIndexOverride = teamIndex;
+            spawnRequest.summonerBodyObject = spawnAsMinion ? args.senderBody.gameObject : null;
+            spawnRequest.teamIndexOverride = spawnAsMinion ? args.senderBody.teamComponent.teamIndex : teamIndex;
             spawnRequest.ignoreTeamMemberLimit = true;
 
             // The size of the monster's radius is required so multiple enemies do not spawn on the same spot.
@@ -331,6 +384,10 @@ namespace DebugToolkit.Commands
                         }
                         master.aiComponents = Array.Empty<BaseAI>();
                     }
+                    if (droneTier > 1)
+                    {
+                        master.inventory.GiveItemPermanent(DLC3Content.Items.DroneUpgradeHidden, droneTier-1);
+                    }
                 }
             }
         }
@@ -378,11 +435,20 @@ namespace DebugToolkit.Commands
             portals.Add("artifact", Addressables.LoadAssetAsync<GameObject>("RoR2/Base/PortalArtifactworld/PortalArtifactworld.prefab").WaitForCompletion());
             portals.Add("blue", Addressables.LoadAssetAsync<GameObject>("RoR2/Base/PortalShop/PortalShop.prefab").WaitForCompletion());
             portals.Add("celestial", Addressables.LoadAssetAsync<GameObject>("RoR2/Base/PortalMS/PortalMS.prefab").WaitForCompletion());
-            portals.Add("deepvoid", Addressables.LoadAssetAsync<GameObject>("RoR2/DLC1/DeepVoidPortal/DeepVoidPortal.prefab").WaitForCompletion());
             portals.Add("gold", Addressables.LoadAssetAsync<GameObject>("RoR2/Base/PortalGoldshores/PortalGoldshores.prefab").WaitForCompletion());
-            portals.Add("green", Addressables.LoadAssetAsync<GameObject>("RoR2/DLC2/PortalColossus.prefab").WaitForCompletion());
             portals.Add("null", Addressables.LoadAssetAsync<GameObject>("RoR2/Base/PortalArena/PortalArena.prefab").WaitForCompletion());
+            //DLC1
             portals.Add("void", Addressables.LoadAssetAsync<GameObject>("RoR2/DLC1/PortalVoid/PortalVoid.prefab").WaitForCompletion());
+            portals.Add("deepvoid", Addressables.LoadAssetAsync<GameObject>("RoR2/DLC1/DeepVoidPortal/DeepVoidPortal.prefab").WaitForCompletion());
+            portals.Add("simulacrum", Addressables.LoadAssetAsync<GameObject>("RoR2/DLC1/GameModes/InfiniteTowerRun/PortalInfiniteTower.prefab").WaitForCompletion());
+            //DLC2
+            portals.Add("green", Addressables.LoadAssetAsync<GameObject>("RoR2/DLC2/PortalColossus.prefab").WaitForCompletion());
+            portals.Add("destination", Addressables.LoadAssetAsync<GameObject>("RoR2/DLC2/PM DestinationPortal.prefab").WaitForCompletion());
+            //DLC3
+            portals.Add("encrypted", Addressables.LoadAssetAsync<GameObject>("RoR2/DLC3/HardwareProgPortal.prefab").WaitForCompletion());
+            portals.Add("decrypted", Addressables.LoadAssetAsync<GameObject>("RoR2/DLC3/SolusWebPortal.prefab").WaitForCompletion());
+            portals.Add("virtual", Addressables.LoadAssetAsync<GameObject>("RoR2/DLC3/CompExchangePortal.prefab").WaitForCompletion());
+            portals.Add("mainline", Addressables.LoadAssetAsync<GameObject>("RoR2/DLC3/EyePortal/EyePortal.prefab").WaitForCompletion());
         }
 
         internal static CombatDirector.EliteTierDef GetTierDef(EliteDef eliteDef)

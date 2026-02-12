@@ -1,6 +1,7 @@
 ﻿using BepInEx.Bootstrap;
 using RoR2;
 using System.Collections;
+using System.Text;
 using UnityEngine;
 
 namespace DebugToolkit.Commands
@@ -79,5 +80,36 @@ namespace DebugToolkit.Commands
                 action();
             }
         }
+ 
+        [ConCommand(commandName = "dump_mods", flags = ConVarFlags.None, helpText = Lang.DUMPMODS_HELP)]
+        public static void CCMods(ConCommandArgs args)
+        {
+            int requiredByAll = args.TryGetArgInt(0).GetValueOrDefault(0);
+ 
+            StringBuilder log = new StringBuilder();
+
+            log.Append("All loaded mods\n\n");
+            foreach (var a in BepInEx.Bootstrap.Chainloader.PluginInfos)
+            {
+                log.Append(a.ToString());
+                log.Append("\n");
+            }
+            log.Append("\n");
+            if (NetworkModCompatibilityHelper._networkModList.Length == 0)
+            {
+                log.Append("No mods tagged as RequiredByAll. This mod pack is Vanilla compatible.");
+            }
+            else
+            {
+                log.Append("Mods tagged as RequiredByAll\n\n");
+                foreach (var a in NetworkModCompatibilityHelper.networkModList)
+                {
+                    log.Append(a.ToString());
+                    log.Append("\n");
+                }
+            }
+            Log.Message(log.ToString());
+        }
+
     }
 }

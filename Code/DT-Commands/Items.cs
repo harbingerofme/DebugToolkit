@@ -67,6 +67,25 @@ namespace DebugToolkit.Commands
             var s = sb.Length > 0 ? sb.ToString().TrimEnd('\n') : string.Format(Lang.NOMATCH_ERROR, "equipment", arg);
             Log.MessageNetworked(s, args, LogLevel.MessageClientOnly);
         }
+ 
+        [ConCommand(commandName = "list_pickups", flags = ConVarFlags.None, helpText = Lang.LISTDRONE_HELP)]
+        [AutoComplete(Lang.LISTQUERY_ARGS)]
+        private static void CCListPickup(ConCommandArgs args)
+        {
+            var sb = new StringBuilder();
+            var arg = args.Count > 0 ? args[0] : "";
+            var indices = StringFinder.Instance.GetPickupsFromPartial(arg);
+            foreach (var index in indices)
+            {
+                var definition = PickupCatalog.GetPickupDef(index);
+                var realName = Language.currentLanguage.GetLocalizedStringByToken(definition.nameToken);
+                bool enabled = Run.instance && Run.instance.IsPickupAvailable(index);
+                sb.AppendLine($"[{index.value}]{definition.internalName} \"{realName}\" (enabled={enabled})");
+            }
+            var s = sb.Length > 0 ? sb.ToString().TrimEnd('\n') : string.Format(Lang.NOMATCH_ERROR, "pickups", arg);
+            Log.MessageNetworked(s, args, LogLevel.MessageClientOnly);
+        }
+
 
         [ConCommand(commandName = "dump_inventories", flags = ConVarFlags.None, helpText = Lang.DUMPINVENTORIES_HELP)]
         private static void CCDumpInventories(ConCommandArgs args)
@@ -138,7 +157,7 @@ namespace DebugToolkit.Commands
             }
 
             var type = ParseItemType(args, 2);
-            if (type == ItemType.None)
+            if (type <= ItemType.None || type >= ItemType.Count)
             {
                 Log.MessageNetworked(String.Format(Lang.INVALID_ARG_VALUE, "type"), args, LogLevel.MessageClientOnly);
                 return;
@@ -159,6 +178,9 @@ namespace DebugToolkit.Commands
             }
             var itemDef = ItemCatalog.GetItemDef(item);
             var name = itemDef.name;
+
+            name = getItemTypeName(type) + name;
+
             var amount = (args.commandName == "give_item" ? 1 : -1) * iCount;
             var inventory = target.inventory;
             if (amount > 0)
@@ -185,6 +207,18 @@ namespace DebugToolkit.Commands
             {
                 target.devotionController.UpdateAllMinions(false);
             }
+        }
+
+        public static string getItemTypeName(ItemType type)
+        {
+            switch (type)
+            {
+                case ItemType.Permanent:
+                    return "";
+                case ItemType.Temp:
+                    return "<color=#53E9FF>Temporary </color>"; //Saturated by 50% Temp color
+            }
+            return type.ToString();
         }
 
         [ConCommand(commandName = "random_items", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.RANDOMITEM_HELP)]
@@ -216,7 +250,7 @@ namespace DebugToolkit.Commands
             }
 
             var type = ParseItemType(args, 2);
-            if (type == ItemType.None)
+            if (type <= ItemType.None || type >= ItemType.Count)
             {
                 Log.MessageNetworked(String.Format(Lang.INVALID_ARG_VALUE, "type"), args, LogLevel.MessageClientOnly);
                 return;
@@ -247,13 +281,64 @@ namespace DebugToolkit.Commands
                 {
                     target.devotionController.UpdateAllMinions(false);
                 }
-                Log.MessageNetworked($"Generated {iCount} items for {target.name}!", args);
+                Log.MessageNetworked($"Generated {iCount} {getItemTypeName(type)}items for {target.name}!", args);
             }
             else
             {
                 Log.MessageNetworked("'count' should be a non-zero positive integer.", args, LogLevel.MessageClientOnly);
             }
         }
+
+        [ConCommand(commandName = "give_all_items", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.GIVEALLITEMS_HELP)]
+        [AutoComplete(Lang.GIVEALLITEMS_ARGS)]
+        private static void CCGiveAllItems(ConCommandArgs args)
+        {
+            if (!Run.instance)
+            {
+                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            bool isDedicatedServer = args.sender == null;
+            if (args.Count == 0 || (isDedicatedServer && (args.Count < 2 || args[1] == Lang.DEFAULT_VALUE)))
+            {
+                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.GIVEALLITEMS_ARGS, args, LogLevel.MessageClientOnly);
+                return;
+            }
+
+            bool all = args[0].ToUpperInvariant() == Lang.ALL;
+            bool consumed = args[0].ToUpperInvariant() == "CONSUMED";
+            ItemTier itemTier = StringFinder.Instance.GetItemTierFromPartial(args[0]);
+            if (!all && !consumed && itemTier == StringFinder.ItemTier_NotFound)
+            {
+                Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "item tier", args[0]), args, LogLevel.MessageClientOnly);
+                return;
+            }
+
+            var target = ParseTarget(args, 1);
+            if (target.failMessage != null)
+            {
+                Log.MessageNetworked(target.failMessage, args, LogLevel.MessageClientOnly);
+                return;
+            }
+          
+            for (int i = 0; i < ItemCatalog.allItemDefs.Length; i++)
+            {
+                ItemDef def = ItemCatalog.allItemDefs[i];
+                if (!def.hidden)
+                {
+                    if (def.tier == itemTier || all && def.tier != ItemTier.NoTier || consumed && def.isConsumed)
+                    {
+                        target.inventory.GiveItemPermanent(def);
+                    }
+                }   
+            }
+            if (target.devotionController)
+            {
+                target.devotionController.UpdateAllMinions(false);
+            }
+            Log.MessageNetworked($"Gave all items of tier(s) {args[0]} to {target.name}!", args);
+        }
+ 
 
         [ConCommand(commandName = "give_equip", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.GIVEEQUIP_HELP)]
         [AutoComplete(Lang.GIVEEQUIP_ARGS)]
@@ -285,6 +370,12 @@ namespace DebugToolkit.Commands
                 inventory.GiveRandomEquipment();
                 equip = inventory.GetEquipmentIndex();
             }
+            else if (args[0] == "-1" || args[0].ToUpperInvariant() == Lang.NONE)
+            {
+                inventory.SetEquipmentIndex(EquipmentIndex.None, true);
+                Log.MessageNetworked(string.Format(Lang.REMOVEDEQUIP, target.name), args);
+                return;
+            }
             else
             {
                 equip = StringFinder.Instance.GetEquipFromPartial(args[0]);
@@ -304,6 +395,14 @@ namespace DebugToolkit.Commands
 
             Log.MessageNetworked($"Gave {name} to {target.name}", args);
         }
+
+        [ConCommand(commandName = "random_equip", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.RANDOMEQUIP_HELP)]
+        [AutoComplete(Lang.RANDOMEQUIP_ARGS)]
+        private static void CCGiveRandomEquipment(ConCommandArgs args)
+        {
+            DebugToolkit.InvokeCMD(args.sender, "give_equip", "RANDOM");
+        }
+
 
         [ConCommand(commandName = "create_pickup", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.CREATEPICKUP_HELP)]
         [AutoComplete(Lang.CREATEPICKUP_ARGS)]
@@ -337,32 +436,31 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            var type = ParseItemType(args, 1);
-            if (type == ItemType.None)
-            {
-                Log.MessageNetworked(String.Format(Lang.INVALID_ARG_VALUE, "type"), args, LogLevel.MessageClientOnly);
-                return;
-            }
-
-            bool searchEquip = true, searchItem = true;
+            PickupType type = PickupType.Permanent;
             if (args.Count > 2 && args[2] != Lang.DEFAULT_VALUE)
             {
-                switch (args[2].ToUpperInvariant())
+                type = ParsePickupType(args, 2);
+                if (type <= PickupType.None || type >= PickupType.Count)
                 {
-                    case Lang.BOTH:
-                        break;
-                    case Lang.ITEM:
-                        searchEquip = false;
-                        break;
-                    case Lang.EQUIP:
-                        searchItem = false;
-                        break;
-                    default:
-                        Log.MessageNetworked(String.Format(Lang.INVALID_ARG_VALUE, "search"), args, LogLevel.MessageClientOnly);
-                        return;
+                    Log.MessageNetworked(String.Format(Lang.INVALID_ARG_VALUE, "type"), args, LogLevel.MessageClientOnly);
+                    return;
+                }
+            }
+
+            bool searchEquip = true, searchItem = true, searchDrone = true;
+
+            PickupSearch searchType = PickupSearch.All;
+            if (args.Count > 1 && args[1] != Lang.DEFAULT_VALUE)
+            {
+                searchType = ParsePickupSearch(args, 1);
+                if (searchType < PickupSearch.All || searchType >= PickupSearch.Count)
+                {
+                    Log.MessageNetworked(String.Format(Lang.INVALID_ARG_VALUE, "search"), args, LogLevel.MessageClientOnly);
+                    return;
                 }
             }
             PickupIndex final = PickupIndex.none;
+            DroneIndex drone = DroneIndex.None;
             EquipmentIndex equipment = EquipmentIndex.None;
             ItemIndex item = ItemIndex.None;
 
@@ -375,31 +473,76 @@ namespace DebugToolkit.Commands
                     final = PickupCatalog.FindPickupIndex("MiscPickupIndex.VoidCoin");
                     break;
                 default:
-                    if (searchEquip)
+                    if (searchType == PickupSearch.Pickup)
                     {
-                        equipment = StringFinder.Instance.GetEquipFromPartial(args[0]);
-                    }
-                    if (searchItem)
-                    {
-                        item = StringFinder.Instance.GetItemFromPartial(args[0]);
-                    }
-                    if (item == ItemIndex.None && equipment == EquipmentIndex.None)
-                    {
-                        Log.MessageNetworked(Lang.CREATEPICKUP_NOTFOUND, args, LogLevel.MessageClientOnly);
-                        return;
-                    }
-                    else if (item != ItemIndex.None && equipment != EquipmentIndex.None)
-                    {
-                        Log.MessageNetworked(string.Format(Lang.CREATEPICKUP_AMBIGIOUS_2, item, equipment), args, LogLevel.MessageClientOnly);
-                        return;
-                    }
-                    else if (equipment != EquipmentIndex.None)
-                    {
-                        final = PickupCatalog.FindPickupIndex(equipment);
+                        int? pickup2 = args.TryGetArgInt(0);
+                        if (pickup2 != null)
+                        {
+                            final.value = (int)pickup2;
+                        }
+                        else
+                        {
+                            final = StringFinder.Instance.GetPickupFromPartial(args[0]);
+                        }
                     }
                     else
                     {
-                        final = PickupCatalog.FindPickupIndex(item);
+                        if (searchType == PickupSearch.All || searchType == PickupSearch.Item)
+                        {
+                            item = StringFinder.Instance.GetItemFromPartial(args[0]);
+                        }
+                        if (searchType == PickupSearch.All || searchType == PickupSearch.Equip)
+                        {
+                            equipment = StringFinder.Instance.GetEquipFromPartial(args[0]);
+                        }
+                        if (searchType == PickupSearch.All || searchType == PickupSearch.Drone)
+                        {
+                            drone = StringFinder.Instance.GetDroneFromPartial(args[0]);
+                        }
+                        if (item == ItemIndex.None && equipment == EquipmentIndex.None && drone == DroneIndex.None)
+                        {
+                            Log.MessageNetworked(Lang.CREATEPICKUP_NOTFOUND, args, LogLevel.MessageClientOnly);
+                            return;
+                        }
+                        else if(item != ItemIndex.None && equipment != EquipmentIndex.None||
+                                drone != DroneIndex.None && equipment != EquipmentIndex.None ||
+                                item != ItemIndex.None && drone != DroneIndex.None )
+                        {
+                            var def1 = ItemCatalog.GetItemDef(item);
+                            var def2 = EquipmentCatalog.GetEquipmentDef(equipment);
+                            var def3 = DroneCatalog.GetDroneDef(drone);
+                            string foundResults = string.Empty;
+                            if (def1)
+                            {
+                                foundResults += $"{item}|{def1.name}|{Language.GetString(def1.nameToken)}\n";
+                            }
+                            if (def2)
+                            {
+                                foundResults += $"{equipment}|{def2.name}|{Language.GetString(def2.nameToken)}\n";
+                            }
+                            if (def3)
+                            {
+                                foundResults += $"{drone}|{def3.name}|{Language.GetString(def3.nameToken)}\n";
+                            }
+                            Log.MessageNetworked(string.Format(Lang.CREATEPICKUP_AMBIGIOUS, foundResults), args, LogLevel.MessageClientOnly);
+                            return;
+                        }
+                        else if (equipment != EquipmentIndex.None)
+                        {
+                            final = PickupCatalog.FindPickupIndex(equipment);
+                        }
+                        else if (drone != DroneIndex.None)
+                        {
+                            final = PickupCatalog.FindPickupIndex(drone);
+                        }
+                        else if (item != ItemIndex.None)
+                        {
+                            final = PickupCatalog.FindPickupIndex(item);
+                        }
+                        else
+                        {
+                        final.value = args.TryGetArgInt(0).GetValueOrDefault(-1);
+                        }
                     }
                     break;
             }
@@ -410,7 +553,7 @@ namespace DebugToolkit.Commands
                 pickup = new UniquePickup
                 {
                     pickupIndex = final,
-                    decayValue = type == ItemType.Temp ? 1f : 0f,
+                    decayValue = type == PickupType.Temp ? 1f : 0f,
                 },
             }, body.transform.position, body.inputBank.aimDirection * 30f);
         }
@@ -598,7 +741,7 @@ namespace DebugToolkit.Commands
             }
 
             target.inventory.SetEquipmentIndex(EquipmentIndex.None, true);
-            Log.MessageNetworked($"Removed current Equipment from {target.name}", args);
+            Log.MessageNetworked(string.Format(Lang.REMOVEDEQUIP, target.name), args);
         }
 
         [ConCommand(commandName = "restock_equip", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.RESTOCKEQUIP_HELP)]
@@ -645,9 +788,27 @@ namespace DebugToolkit.Commands
 
         internal enum ItemType
         {
-            None,
+            None = -1,
             Permanent,
             Temp,
+            Channeled,
+            Count,
+        }
+        internal enum PickupType
+        {
+            None = -1,
+            Permanent,
+            Temp,
+            Count,
+        }
+        internal enum PickupSearch
+        {
+            All = -1,
+            Pickup,
+            Item,
+            Equip,
+            Drone, 
+            Count,
         }
 
         private static int GetItemCount(Inventory inventory, ItemIndex itemIndex, ItemType type)
@@ -658,6 +819,8 @@ namespace DebugToolkit.Commands
                     return inventory.GetItemCountPermanent(itemIndex);
                 case ItemType.Temp:
                     return inventory.GetItemCountTemp(itemIndex);
+                case ItemType.Channeled:
+                    return inventory.GetItemCountChanneled(itemIndex);
                 default:
                     Log.Message(Lang.NOMESSAGE, LogLevel.Warning);
                     return 0;
@@ -673,6 +836,9 @@ namespace DebugToolkit.Commands
                     break;
                 case ItemType.Temp:
                     inventory.GiveItemTemp(itemIndex, count);
+                    break;
+                case ItemType.Channeled:
+                    inventory.GiveItemChanneled(itemIndex, count);
                     break;
                 default:
                     Log.Message(Lang.NOMESSAGE, LogLevel.Warning);
@@ -690,6 +856,9 @@ namespace DebugToolkit.Commands
                 case ItemType.Temp:
                     inventory.RemoveItemTemp(itemIndex, count);
                     break;
+                case ItemType.Channeled:
+                    inventory.RemoveItemChanneled(itemIndex, count);
+                    break;
                 default:
                     Log.Message(Lang.NOMESSAGE, LogLevel.Warning);
                     break;
@@ -704,8 +873,24 @@ namespace DebugToolkit.Commands
             }
             return ItemType.Permanent;
         }
+        private static PickupType ParsePickupType(ConCommandArgs args, int index)
+        {
+            if (args.Count > index && args[index] != Lang.DEFAULT_VALUE)
+            {
+                return Enum.TryParse(args[index], true, out PickupType itemType) ? itemType : PickupType.None;
+            }
+            return PickupType.Permanent;
+        }
+        private static PickupSearch ParsePickupSearch(ConCommandArgs args, int index)
+        {
+            if (args.Count > index && args[index] != Lang.DEFAULT_VALUE)
+            {
+                return Enum.TryParse(args[index], true, out PickupSearch searchType) ? searchType : PickupSearch.All;
+            }
+            return PickupSearch.All;
+        }
 
-        private static CommandTarget ParseTarget(ConCommandArgs args, int index)
+        public static CommandTarget ParseTarget(ConCommandArgs args, int index)
         {
             string failMessage = null;
             Inventory inventory = null;
@@ -783,7 +968,7 @@ namespace DebugToolkit.Commands
                     {
                         inventory = target.inventory;
                         var player = target.playerCharacterMasterController?.networkUser;
-                        targetName = player?.masterController.GetDisplayName() ?? target.gameObject.name;
+                        targetName = target.bodyInstanceObject ? RoR2.Util.GetBestBodyName(target.bodyInstanceObject) : player?.masterController.GetDisplayName() ?? target.gameObject.name;
                     }
                 }
             }
@@ -824,7 +1009,13 @@ namespace DebugToolkit.Commands
         {
             droptable.selector.Clear();
             droptable.canDropBeReplaced = canDropBeReplaced;
-            if (args.Count < index + 1 || args[index] == Lang.DEFAULT_VALUE || args[index].ToUpperInvariant() == Lang.ALL)
+            if (args.Count < index + 1 || args[index] == Lang.DEFAULT_VALUE)
+            {
+                droptable.Add(availableDropLists[ItemTier.Tier1], 100f);
+                droptable.Add(availableDropLists[ItemTier.Tier2], 60f);
+                droptable.Add(availableDropLists[ItemTier.Tier3], 4f);
+            }
+            else if (args[index].ToUpperInvariant() == Lang.ALL)
             {
                 foreach (var itemTier in StringFinder.Instance.GetItemTiersFromPartial(""))
                 {
@@ -911,7 +1102,7 @@ namespace DebugToolkit.Commands
                 foreach (var itemIndex in ItemCatalog.allItems)
                 {
                     var itemDef = ItemCatalog.GetItemDef(itemIndex);
-                    if (run.availableItems.Contains(itemIndex) && itemDef.DoesNotContainTag(ItemTag.WorldUnique))
+                    if (run.availableItems.Contains(itemIndex) || itemDef.tier == ItemTier.FoodTier || itemDef.DoesNotContainTag(ItemTag.WorldUnique))
                     {
                         if (customTiers.TryGetValue(itemDef.tier, out var list))
                         {

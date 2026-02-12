@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Xml.Linq;
 using UnityEngine;
 using static DebugToolkit.Log;
 
@@ -10,6 +11,7 @@ namespace DebugToolkit.Commands
     class Money
     {
         [ConCommand(commandName = "give_lunar", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.GIVELUNAR_HELP)]
+        [ConCommand(commandName = "give_void", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.GIVEVOID_HELP)]
         [AutoComplete(Lang.GIVELUNAR_ARGS)]
         private static void CCGiveLunar(ConCommandArgs args)
         {
@@ -20,7 +22,7 @@ namespace DebugToolkit.Commands
             }
             if (args.sender == null)
             {
-                Log.Message("Can't modify Lunar coins of other users directly.", LogLevel.MessageClientOnly);
+                Log.Message("Can't modify Lunar Coins/Void Markers of other users directly.", LogLevel.MessageClientOnly);
                 return;
             }
             int amount = 1;
@@ -31,20 +33,42 @@ namespace DebugToolkit.Commands
             }
             string str = "Nothing happened. Big surprise.";
             NetworkUser target = args.sender;
-            if (amount > 0)
+
+
+            if (amount != 0)
             {
-                target.AwardLunarCoins((uint)amount);
-                str = string.Format(Lang.GIVELUNAR_2, "Gave", amount);
-            }
-            if (amount < 0)
-            {
-                amount *= -1;
-                target.DeductLunarCoins((uint)(amount));
-                str = string.Format(Lang.GIVELUNAR_2, "Removed", amount);
+                bool voidMarker = args.commandName == "give_void";
+                if (voidMarker)
+                {
+                    if (amount < 0)
+                    {
+                        amount = -amount;
+                        target.master.voidCoins = HGMath.UintSafeSubtract(target.master.voidCoins, (uint)amount);
+                    }
+                    else
+                    {
+                        target.master.GiveVoidCoins((uint)amount);
+                    }                 
+                    str = string.Format(Lang.GIVEVOIDC_2, amount > 0 ? "Gave" : "Removed", amount);
+                }
+                else
+                {
+                    if (amount < 0)
+                    {
+                        amount = -amount;
+                        target.DeductLunarCoins((uint)(amount));
+                    }
+                    else
+                    {
+                        target.AwardLunarCoins((uint)amount);
+                    }
+                    str = string.Format(Lang.GIVELUNAR_2, amount > 0 ? "Gave" : "Removed", amount);
+                }
             }
             Log.MessageNetworked(str, args);
         }
 
+    
         [ConCommand(commandName = "give_money", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.GIVEMONEY_HELP)]
         [AutoComplete(Lang.GIVEMONEY_ARGS)]
         private static void CCGiveMoney(ConCommandArgs args)
@@ -96,6 +120,59 @@ namespace DebugToolkit.Commands
 
             Log.MessageNetworked("$$$", args);
         }
+
+        [ConCommand(commandName = "rich", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.ALLMONEY_HELP)]
+        [ConCommand(commandName = "poor", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.NO_MONEY_HELP)]
+        [AutoComplete(Lang.PLAYER_OR_ALL_OPTIONAL_ARGS)]
+        public static void CCSetMoney(ConCommandArgs args)
+        {
+            bool rich = args.commandName == "rich";
+            if (args.Count > 0 && args[0].ToUpperInvariant() != Lang.ALL && args[0].ToUpperInvariant() != Lang.DEFAULT_VALUE)
+            {
+                NetworkUser player = Util.GetNetUserFromString(args.userArgs, 0);
+                if (player != null)
+                {
+                    if (rich)
+                    {
+                        player.master.GiveMoney(2000000000 - player.master.money);
+                        Log.MessageNetworked(string.Format("Made {0} rich.", player.userName), args);
+                    }
+                    else
+                    {
+                        player.master.money = 0;
+                        Log.MessageNetworked(string.Format("Set {0}'s money to 0.", player.userName), args);
+                    }           
+                }
+                else
+                {
+                    Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
+                    return;
+                }
+            }
+            else
+            {
+                foreach (PlayerCharacterMasterController player in PlayerCharacterMasterController.instances)
+                {
+                    if (rich)
+                    {
+                        player.master.GiveMoney(2000000000 - player.master.money); 
+                    }
+                    else
+                    {
+                        player.master.money = 0;
+                    }
+                }
+                if (rich)
+                {
+                    Log.MessageNetworked("We're rich.", args);
+                }
+                else
+                {
+                    Log.MessageNetworked("Reset all money back to 0.", args);
+                }
+            }
+        }
+ 
 
         private static void GiveMasterMoney(CharacterMaster master, int amount)
         {
