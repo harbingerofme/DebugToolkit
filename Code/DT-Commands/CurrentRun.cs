@@ -195,31 +195,71 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
                 return;
             }
-            TeamIndex team = TeamIndex.Monster;
-            if (args.Count > 0 && args[0] != Lang.DEFAULT_VALUE)
+            var teamMask = TeamMask.AllExcept(TeamIndex.Neutral);
+            teamMask.RemoveTeam(TeamIndex.Player);
+            var teamName = "enemies";
+            if (args.Count > 0 && args[0] != Lang.DEFAULT_VALUE && args[0].ToUpperInvariant() != Lang.ENEMIES)
             {
-                team = StringFinder.Instance.GetTeamFromPartial(args[0]);
+                var team = StringFinder.Instance.GetTeamFromPartial(args[0]);
                 if (team == StringFinder.TeamIndex_NotFound)
                 {
                     Log.MessageNetworked(Lang.TEAM_NOTFOUND, args, LogLevel.MessageClientOnly);
                     return;
                 }
+                teamMask = TeamMask.none;
+                teamMask.AddTeam(team);
+                teamName = $"{team} characters";
+            }
+
+            var trueKill = false;
+            if (args.Count > 1 && !Util.TryParseBool(args[1], out trueKill))
+            {
+                Log.MessageNetworked(string.Format(Lang.PARSE_ERROR, "true_kill", "bool"), args);
+                return;
             }
 
             int count = 0;
-            foreach (var teamComponent in TeamComponent.GetTeamMembers(team).ToList())
+            for (TeamIndex teamIndex = 0; teamIndex < (TeamIndex)TeamCatalog.teamDefs.Length; teamIndex++)
             {
-                var healthComponent = teamComponent.GetComponent<HealthComponent>();
-                if (healthComponent)
+                if (teamMask.HasTeam(teamIndex))
                 {
-                    healthComponent.Suicide(null);
-                    if (!healthComponent.alive)
+                    foreach (var teamComponent in TeamComponent.GetTeamMembers(teamIndex).ToList())
                     {
-                        count++;
+                        var healthComponent = teamComponent.GetComponent<HealthComponent>();
+                        if (healthComponent && !healthComponent.godMode && healthComponent.alive)
+                        {
+                            if (trueKill)
+                            {
+                                if (healthComponent.body.master)
+                                {
+                                    healthComponent.body.master.TrueKill();
+                                }
+                                else
+                                {
+                                    // If there is no master, there are no reviving items. We still need to kill the body.
+                                    // In theory a pot with the reviving buff can reach this logic path, but there isn't
+                                    // much we can do unless we reinvent the wheel for TrueKill. Super niche anyway.
+                                    healthComponent.Suicide(null);
+                                }
+                            }
+                            else
+                            {
+                                healthComponent.Suicide(null);
+                            }
+                            if (!healthComponent.alive)
+                            {
+                                count++;
+                            }
+                        }
                     }
                 }
             }
-            Log.MessageNetworked($"Killed {count} of team {team}.", args);
+
+            if (count == 1)
+            {
+                teamName = teamName == "enemies" ? "enemy" : teamName.TrimEnd('s');
+            }
+            Log.MessageNetworked($"Killed {count} {teamName}.", args);
         }
 
         [ConCommand(commandName = "time_scale", flags = ConVarFlags.Engine | ConVarFlags.ExecuteOnServer, helpText = Lang.TIMESCALE_HELP)]
