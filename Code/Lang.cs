@@ -4,6 +4,10 @@
     {
         // `{}` denotes necessary, `()` a list of specific choices, `[]` optional, `:` denotes a default
 
+        // Default values - reused in command arguments
+        public const string
+            DROPTABLE_DEFAULT = "Tier1:100,Tier2:60,Tier3:4";
+
         // Command arguments
         public const string
             ADDPORTAL_ARGS = "Requires 1 argument: {portal ('blue'|'celestial'|'gold'|'green'|'void'|'all')}",
@@ -13,7 +17,7 @@
             CHANGETEAM_ARGS = "Requires 1 (2 if from server) argument: {team} [player:<self>]",
             CHARGEZONE_ARGS = "Requires 1 argument: {charge}",
             CREATEPICKUP_ARGS = "Requires 1 (3 if from server) argument: {object (item|equip|'lunarcoin'|'voidcoin')} [type ('permanent'|'temp'):'permanent'] [search ('item'|'equip'|'both'):'both'] *[player:<self>]",
-            CREATEPOTENTIAL_ARGS = "Requires 0 (3 if from server) arguments: [droptable (droptable|'all'):'all'] [count:3] *[player:<self>]",
+            CREATEPOTENTIAL_ARGS = $"Requires 0 (3 if from server) arguments: [droptable (droptable|'all'):'{DROPTABLE_DEFAULT}'] [count:3] *[player:<self>]",
             DELAY_ARGS = "Requires 2 arguments: {delay} {console_commands}",
             DUMPSTATE_ARGS = "Requires 0 (1 if from server) argument: [target (player|'pinged'):<self>]",
             DUMPSTATS_ARGS = "Requires 1 argument: {body}",
@@ -38,7 +42,7 @@
             NO_ARGS = "Requires 0 arguments.",
             PERM_MOD_ARGS = "Requires 2 arguments: {permission_level} {player}",
             POSTSOUNDEVENT_ARGS = "Requires 1 argument: {sound_event (event_name|event_id)}",
-            RANDOMITEM_ARGS = "Requires 1 (3 if from server) argument: {count} [droptable (droptable|'all'):'all'] [type ('permanent'|'temp'):'permanent'] [target (player|'pinged'|'evolution'|'simulacrum'|'voidfields'|'devotion'):<self>]",
+            RANDOMITEM_ARGS = $"Requires 1 (3 if from server) argument: {{count}} [droptable (droptable|'all'):'{DROPTABLE_DEFAULT}'] [type ('permanent'|'temp'):'permanent'] [target (player|'pinged'|'evolution'|'simulacrum'|'voidfields'|'devotion'):<self>]",
             REMOVEALLBUFFS_ARGS = "Requires 0 (2 if from server) arguments: [timed (0|1):0/false] [target (player|'pinged'):<self>]",
             REMOVEALLDOTS_ARGS = "Requires 0 (1 if from server) arguments: [target (player|'pinged'):<self>]",
             REMOVEALLITEMS_ARGS = "Requires 0 (1 if from server) arguments: [target (player|'pinged'|'evolution'|'simulacrum'|'voidfields'|'devotion'):<self>]",

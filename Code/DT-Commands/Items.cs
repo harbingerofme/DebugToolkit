@@ -824,7 +824,7 @@ namespace DebugToolkit.Commands
         {
             droptable.selector.Clear();
             droptable.canDropBeReplaced = canDropBeReplaced;
-            if (args.Count < index + 1 || args[index] == Lang.DEFAULT_VALUE || args[index].ToUpperInvariant() == Lang.ALL)
+            if (args.Count > index && args[index].ToUpperInvariant() == Lang.ALL)
             {
                 foreach (var itemTier in StringFinder.Instance.GetItemTiersFromPartial(""))
                 {
@@ -833,7 +833,12 @@ namespace DebugToolkit.Commands
             }
             else
             {
-                foreach (var tierData in args[index].Split(','))
+                var droptableArg = Lang.DROPTABLE_DEFAULT;
+                if (args.Count > index && args[index].ToUpperInvariant() != Lang.DEFAULT_VALUE)
+                {
+                    droptableArg = args[index];
+                }
+                foreach (var tierData in droptableArg.Split(','))
                 {
                     var data = tierData.Split(':');
                     var itemTier = StringFinder.Instance.GetItemTierFromPartial(data[0]);

@@ -108,7 +108,7 @@ Buff Commands:
 Item Commands:
 
 * **give_item** - Give an item directly to a target's inventory. A negative amount is an alias for `remove_item`: `give_item {item} [count:1] [type ('permanent'|'temp'):'permanent'] *[target (player|'pinged'|'evolution'|'simulacrum'|'voidfields'|'devotion'):<self>]`
-* **random_items** - Generate random items from the available item tiers. `random_items {count} [droptable (droptable|'all'):'all'] [type ('permanent'|'temp'):'permanent'] *[target (player|'pinged'|'evolution'|'simulacrum'|'voidfields'|'devotion'):<self>]`
+* **random_items** - Generate random items from the available item tiers. `random_items {count} [droptable (droptable|'all')] [type ('permanent'|'temp'):'permanent'] *[target (player|'pinged'|'evolution'|'simulacrum'|'voidfields'|'devotion'):<self>]`
 * **give_equip** - Give an equipment directly to a target's inventory: `give_equip {(equip|'random')} *[target (player|'pinged'|'evolution'|'simulacrum'|'voidfields'|'devotion'):<self>]`
 * **give_money** - Gives the desired player/team money. A negative amount can remove that many without underflowing. `give_money {amount} [target ('all'|player):'all']`
 * **give_lunar** - Gives the specified amount of lunar coins to the issuing player. A negative count may be specified to remove that many. `give_lunar [amount:1]`
@@ -118,9 +118,9 @@ Item Commands:
 * **remove_equip** - Sets the equipment of a target to 'None'. `remove_equip *[target (player|'pinged'|'evolution'|'simulacrum'|'voidfields'|'devotion'):<self>]`
 * **restock_equip** - Restock charges for the current equipment. `restock_equip [count:1] *[target (player|'pinged'|'evolution'|'simulacrum'|'voidfields'|'devotion'):<self>]`
 * **create_pickup** - Creates a pickup in front of a player. Pickups are items, equipment, or coins. When the pickup is an item or equipment, the search argument 'item' or 'equip' may be specified to only search that list. `create_pickup {object (item|equip|'lunarcoin'|'voidcoin')} [type ('permanent'|'temp'):'permanent'] [search ('item'|'equip'|'both'):'both'] *[player:<self>]`
-* **create_potential** - Creates a potential in front of a player. The first item tier defined in the droptable decides the color of the droplet and what items will be available with the Artifact of Command. `create_potential [droptable (droptable|'all'):'all'] [count:3] *[player:<self>]`
+* **create_potential** - Creates a potential in front of a player. The first item tier defined in the droptable decides the color of the droplet and what items will be available with the Artifact of Command. `create_potential [droptable (droptable|'all')] [count:3] *[player:<self>]`
 
-***Note:*** Some commands support a weighted item selection, referred to as _droptable_. The syntax for it is `<itemtier:weight tokens separated by comma>`. The weight should be a positive float and is an optional argument with a default value of 1.0. If a comma or decimal point is used, the whole argument must be surrounded in double quotes. The keyword `all` uses all available item tiers with a default weight. For example, any of the following are valid inputs: `tier1`, `"tier1:5,tier2,tier3:0.4"`, `all`.
+***Note:*** Some commands support a weighted item selection, referred to as _droptable_. The syntax for it is `<itemtier:weight tokens separated by comma>`. The weight should be a positive float and is an optional argument with a default value of 1.0. If a comma or decimal point is used, the whole argument must be surrounded in double quotes. The keyword `all` uses all available item tiers with a default weight. For example, any of the following are valid inputs: `tier1`, `"tier1:5,tier2,tier3:0.4"`, `all`. The default value is `"tier1:100,tier2:60,tier3:4"`, which is the same as the item distribution for the `midgame` and `lategame` macros.
 
 Spawn Commands:
 
