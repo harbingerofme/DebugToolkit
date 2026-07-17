@@ -580,6 +580,23 @@ namespace DebugToolkit.Commands
             }
         }
 
+        [ConCommand(commandName = "evolve_lemurians", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.EVOLVELEMURIANS_HELP)]
+        private static void CCEvolveLemurians(ConCommandArgs args)
+        {
+            if (!Run.instance)
+            {
+                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            DevotionInventoryController.ActivateAllDevotedEvolution();
+            if (DevotionInventoryController.InstanceList.Count > 0)
+            {
+                Log.MessageNetworked($"Evolved {DevotionInventoryController.InstanceList} Devoted Lemurians.", args);
+                return;
+            }
+            Log.MessageNetworked($"No Devoted Lemurians found.", args);
+        }
+
         [ConCommand(commandName = "set_artifact", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SETARTIFACT_HELP)]
         [AutoComplete(Lang.SETARTIFACT_ARGS)]
         private static void CCSetArtifact(ConCommandArgs args)

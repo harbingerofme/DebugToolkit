@@ -84,6 +84,7 @@
             DUMPINVENTORIES_HELP = "List the inventory items and equipment of all spawned bodies. " + NO_ARGS,
             DUMPSTATE_HELP = "List the current stats, entity state, and skill cooldown of a specified body. " + DUMPSTATE_ARGS,
             DUMPSTATS_HELP = "List the base stats of a specific body. " + DUMPSTATS_ARGS,
+            EVOLVELEMURIANS_HELP = "Evolve all Devoted Lemurians. " + NO_ARGS,
             FAMILYEVENT_HELP = "Forces a family event to occur during the next stage. " + NO_ARGS,
             FIXEDTIME_HELP = "Sets the run timer to the specified value. " + FIXEDTIME_ARGS,
             FORCEWAVE_HELP = "Set the next wave prefab. Leave empty to see all options. " + FORCEWAVE_ARGS,
