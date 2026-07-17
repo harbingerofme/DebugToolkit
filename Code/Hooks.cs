@@ -85,6 +85,9 @@ namespace DebugToolkit
                 CurrentRun.forceFamilyEvent = false;
             };
 
+            // Run related
+            SceneDirector.onPrePopulateSceneServer += DenyInteractableSpawns;
+
             // Networking and noclip hooks
             On.RoR2.NetworkSession.Start += NetworkManager.CreateNetworkObject;
             On.RoR2.NetworkSession.OnDestroy += NetworkManager.DestroyNetworkObject;
@@ -842,6 +845,14 @@ namespace DebugToolkit
         {
             self.monsterCredit = 0f;
             orig(self, mapSpawnTarget, list);
+        }
+
+        internal static void DenyInteractableSpawns(SceneDirector sceneDirector)
+        {
+            if (CurrentRun.noInteractables)
+            {
+                sceneDirector.onPopulateCreditMultiplier = 0f;
+            }
         }
 
         internal static void DenyExperience(On.RoR2.ExperienceManager.orig_AwardExperience orig, ExperienceManager self, Vector3 origin, CharacterBody body, ulong amount)

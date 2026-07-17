@@ -124,6 +124,7 @@
             NEXTWAVE_HELP = "Advance to the next Simulacrum wave. " + NO_ARGS,
             NOCLIP_HELP = "Allow flying and going through objects. Sprinting will double the speed. " + ENABLE_ARGS,
             NOENEMIES_HELP = "Prevent Monster spawning. " + ENABLE_ARGS,
+            NOINTERACTABLES_HELP = "Prevent Interactable spawning. " + ENABLE_ARGS,
             PERM_ENABLE_HELP = "Enable or disable the permission system." + ENABLE_ARGS,
             PERM_MOD_HELP = "Change the permission level of the specified playerid/username" + PERM_MOD_ARGS,
             PERM_RELOAD_HELP = "Reload the permission system, updates user and commands permissions.",

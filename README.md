@@ -138,6 +138,7 @@ Profile Commands:
 Cheat Commands:
 
 * **no_enemies** - Prevents enemy spawns. `no_enemies [enable (0|1)]`. If no argument is supplied, toggles the current state.
+* **no_interactables** / **no_interactibles** - Prevents interactable spawns. `no_interactables [enable (0|1)]`. If no argument is supplied, toggles the current state.
 * **god** - Prevents players from taking any damage. `god [enable (0|1)]`. If no argument is supplied, toggles the current state.
 * **buddha** / **budha** / **buda** / **budda** - Turns damage taken `NonLethal` for all players. AKA: you can't die. `buddha [enable (0|1)]`. If no argument is supplied, toggles the current state.
 * **lock_exp** - Prevents EXP gain for the player team. `lock_exp [enable (0|1)]`. If no argument is supplied, toggles the current state.
