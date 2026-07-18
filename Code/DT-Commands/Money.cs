@@ -10,6 +10,7 @@ namespace DebugToolkit.Commands
     class Money
     {
         [ConCommand(commandName = "give_lunar", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.GIVELUNAR_HELP)]
+        [ConCommand(commandName = "give_void", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.GIVEVOID_HELP)]
         [AutoComplete(Lang.GIVELUNAR_ARGS)]
         private static void CCGiveLunar(ConCommandArgs args)
         {
@@ -18,9 +19,10 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
                 return;
             }
+            string coinType = args.commandName.Contains("lunar") ? "lunar" : "void";
             if (args.sender == null)
             {
-                Log.Message("Can't modify Lunar coins of other users directly.", LogLevel.MessageClientOnly);
+                Log.Message($"Can't modify {coinType} coins of other users directly.", LogLevel.MessageClientOnly);
                 return;
             }
             int amount = 1;
@@ -33,14 +35,28 @@ namespace DebugToolkit.Commands
             NetworkUser target = args.sender;
             if (amount > 0)
             {
-                target.AwardLunarCoins((uint)amount);
-                str = string.Format(Lang.GIVELUNAR_2, "Gave", amount);
+                if (coinType == "lunar")
+                {
+                    target.AwardLunarCoins((uint)amount);
+                }
+                else
+                {
+                    target.master.voidCoins = HGMath.UintSafeAdd(target.master.voidCoins, (uint)amount);
+                }
+                str = string.Format(Lang.GIVELUNAR_2, "Gave", amount, coinType);
             }
             if (amount < 0)
             {
                 amount *= -1;
-                target.DeductLunarCoins((uint)(amount));
-                str = string.Format(Lang.GIVELUNAR_2, "Removed", amount);
+                if (coinType == "lunar")
+                {
+                    target.DeductLunarCoins((uint)amount);
+                }
+                else
+                {
+                    target.master.voidCoins = HGMath.UintSafeSubtract(target.master.voidCoins, (uint)amount);
+                }
+                str = string.Format(Lang.GIVELUNAR_2, "Removed", amount, coinType);
             }
             Log.MessageNetworked(str, args);
         }
