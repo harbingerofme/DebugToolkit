@@ -528,12 +528,10 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
                 return;
             }
-            if (args.Count == 0)
-            {
-                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.CHARGEZONE_ARGS, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            if (!TextSerialization.TryParseInvariant(args[0], out float charge))
+
+            var fullyCharge = args.Count == 0;
+            var charge = 100f;
+            if (args.Count > 0 && !TextSerialization.TryParseInvariant(args[0], out charge))
             {
                 Log.MessageNetworked(string.Format(Lang.PARSE_ERROR, "charge", "float"), args, LogLevel.MessageClientOnly);
                 return;

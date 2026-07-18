@@ -15,7 +15,7 @@
             BIND_ARGS = "Requires 2 arguments: {key} [console_commands]",
             BIND_DELETE_ARGS = "Requires 1 argument: {key}",
             CHANGETEAM_ARGS = "Requires 1 (2 if from server) argument: {team} [player:<self>]",
-            CHARGEZONE_ARGS = "Requires 1 argument: {charge}",
+            CHARGEZONE_ARGS = "Requires 0 argument: [charge]",
             CREATEPICKUP_ARGS = "Requires 1 (3 if from server) argument: {object (item|equip|'lunarcoin'|'voidcoin')} [type ('permanent'|'temp'):'permanent'] [search ('item'|'equip'|'both'):'both'] *[player:<self>]",
             CREATEPOTENTIAL_ARGS = $"Requires 0 (3 if from server) arguments: [droptable (droptable|'all'):'{DROPTABLE_DEFAULT}'] [count:3] *[player:<self>]",
             DELAY_ARGS = "Requires 2 arguments: {delay} {console_commands}",
