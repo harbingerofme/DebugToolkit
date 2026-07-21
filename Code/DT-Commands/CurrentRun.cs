@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.UI;
 using static DebugToolkit.Log;
 
 namespace DebugToolkit.Commands
@@ -297,7 +298,7 @@ namespace DebugToolkit.Commands
                 return;
             }
             Time.timeScale = scale;
-            TimescaleNet.Invoke(scale);
+            RunNet.InvokeTimescale(scale);
         }
 
         [ConCommand(commandName = "stop_timer", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.STOPTIMER_HELP)]
@@ -689,6 +690,65 @@ namespace DebugToolkit.Commands
             }
         }
 
+        [ConCommand(commandName = "set_difficulty", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SETDIFFICULTY_HELP)]
+        [AutoComplete(Lang.SETDIFFICULTY_ARGS)]
+        private static void CCSetDifficulty(ConCommandArgs args)
+        {
+            if (!Run.instance)
+            {
+                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            if (args.Count < 1)
+            {
+                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.SETDIFFICULTY_ARGS, args, LogLevel.ErrorClientOnly);
+                return;
+            }
+            var difficultyIndex = StringFinder.Instance.GetDifficultyFromPartial(args[0]);
+            if (difficultyIndex == DifficultyIndex.Invalid)
+            {
+                Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "difficulty", args[0]), args, LogLevel.MessageClientOnly);
+                return;
+            }
+            if (Run.instance.selectedDifficulty == difficultyIndex)
+            {
+                Log.MessageNetworked("The difficulty remained unchanged.", args);
+                return;
+            }
+
+            var difficultyDef = StringFinder.difficultyDefs[difficultyIndex];
+
+            // Ensure proper Helper items for vanilla difficulties.
+            // Some minions and player ghosts/doppelgangers inherit these items,
+            // but we ignore them because they're ephemeral spawns.
+            foreach (var player in PlayerCharacterMasterController.instances)
+            {
+                player.master.inventory.ResetItemPermanent(RoR2Content.Items.DrizzlePlayerHelper);
+                player.master.inventory.ResetItemPermanent(RoR2Content.Items.MonsoonPlayerHelper);
+                if (difficultyIndex == DifficultyIndex.Easy)
+                {
+                    player.master.inventory.GiveItemPermanent(RoR2Content.Items.DrizzlePlayerHelper, 1);
+                }
+                else if (difficultyDef.countsAsHardMode)
+                {
+                    player.master.inventory.GiveItemPermanent(RoR2Content.Items.MonsoonPlayerHelper, 1);
+                }
+            }
+
+            Run.instance.selectedDifficulty = difficultyIndex;
+            Log.MessageNetworked($"Difficulty changed to {StringFinder.GetLangInvar(difficultyDef.nameToken)}.", args);
+
+            // There's nothing we can do for clients that don't have DebugToolkit installed.
+            RunNet.InvokeHudUpdate(difficultyIndex);
+
+            // A modded difficulty may initialise special functionality at the beginning of the run,
+            // which is bypassed here, so a warning is warranted.
+            if (difficultyIndex < 0 || (int)difficultyIndex > DifficultyCatalog.difficultyDefs.Length)
+            {
+                Log.MessageNetworked("Changing to a modded difficulty in the middle of a run may have unintended consequences.", args, LogLevel.Warning);
+            }
+        }
+
         [ConCommand(commandName = "seed", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SEED_HELP)]
         [AutoComplete(Lang.SEED_ARGS)]
         private static void CCUseSeed(ConCommandArgs args)
@@ -760,16 +820,16 @@ namespace DebugToolkit.Commands
     // ReSharper disable once ClassNeverInstantiated.Global
     // ReSharper disable once MemberCanBeMadeStatic.Local
     // ReSharper disable once UnusedMember.Local
-    public class TimescaleNet : NetworkBehaviour
+    public class RunNet : NetworkBehaviour
     {
-        private static TimescaleNet _instance;
+        private static RunNet _instance;
 
         private void Awake()
         {
             _instance = this;
         }
 
-        internal static void Invoke(float scale)
+        internal static void InvokeTimescale(float scale)
         {
             _instance.RpcApplyTimescale(scale);
         }
@@ -779,6 +839,27 @@ namespace DebugToolkit.Commands
         {
             Time.timeScale = scale;
             Message("Timescale set to: " + scale + ". ");
+        }
+
+        internal static void InvokeHudUpdate(DifficultyIndex difficultyIndex)
+        {
+            _instance.RpcUpdateHudDifficulty(difficultyIndex);
+        }
+
+        [ClientRpc]
+        private void RpcUpdateHudDifficulty(DifficultyIndex difficultyIndex)
+        {
+            if (Run.instance && StringFinder.difficultyDefs.TryGetValue(difficultyIndex, out var difficultyDef))
+            {
+                foreach (var ui in Run.instance.uiInstances)
+                {
+                    var controller = ui.GetComponentInChildren<RoR2.UI.CurrentDifficultyIconController>();
+                    if (controller && controller.TryGetComponent<Image>(out var image))
+                    {
+                        image.sprite = difficultyDef.GetIconSprite();
+                    }
+                }
+            }
         }
     }
 }

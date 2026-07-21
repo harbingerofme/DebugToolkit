@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
@@ -17,6 +18,7 @@ namespace DebugToolkit
         private static StringFinder instance;
         private static readonly List<DirectorCard> characterSpawnCard = new List<DirectorCard>();
         private static readonly List<InteractableSpawnCard> interactableSpawnCards = new List<InteractableSpawnCard>();
+        internal static Dictionary<DifficultyIndex, DifficultyDef> difficultyDefs = new();
         internal static readonly string NAME_NOTFOUND = "???";
 
         public static EliteIndex EliteIndex_NotFound = (EliteIndex)(-2);
@@ -98,6 +100,34 @@ namespace DebugToolkit
                     Where(spawnCard => spawnCard is InteractableSpawnCard && interactableSpawnCards.All(existingIsc => existingIsc.name != spawnCard.name)).
                     Cast<InteractableSpawnCard>();
                 interactableSpawnCards.AddRange(iscsOfCurrentStage);
+            }
+        }
+
+        [SystemInitializer(typeof(RuleCatalog))]
+        private static void Init()
+        {
+            if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.bepis.r2api.difficulty"))
+            {
+                CollectAllVanillaAndModdedDifficulties();
+            }
+            else
+            {
+                for (DifficultyIndex i = 0; i < (DifficultyIndex)DifficultyCatalog.difficultyDefs.Length; i++)
+                {
+                    difficultyDefs[i] = DifficultyCatalog.GetDifficultyDef(i);
+                }
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
+        private static void CollectAllVanillaAndModdedDifficulties()
+        {
+            foreach (var kv in R2API.DifficultyAPI.difficultyDefinitions)
+            {
+                if (kv.Value != null)
+                {
+                    difficultyDefs[kv.Key] = kv.Value;
+                }
             }
         }
 
@@ -542,6 +572,54 @@ namespace DebugToolkit
             foreach (var match in matches.OrderByDescending(m => m.similarity))
             {
                 yield return (EliteIndex)match.item;
+            }
+        }
+
+        /// <summary>
+        /// Returns a DifficultyIndex when provided with an index or partial/invariant.
+        /// </summary>
+        /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>
+        /// <returns>Returns the DifficultyIndex if a match is found, or returns DifficultyIndex.Invalid</returns>
+        public DifficultyIndex GetDifficultyFromPartial(string name)
+        {
+            return GetDifficultiesFromPartial(name).DefaultIfEmpty(DifficultyIndex.Invalid).First();
+        }
+
+        /// <summary>
+        /// Returns an iterator of DifficultyIndex's when provided with an index or partial/invariant.
+        /// </summary>
+        /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>
+        /// <returns>Returns an iterator with all DifficultyIndex's matched</returns>
+        public IEnumerable<DifficultyIndex> GetDifficultiesFromPartial(string name)
+        {
+            if (TextSerialization.TryParseInvariant(name, out int i))
+            {
+                var index = (DifficultyIndex)i;
+                if (difficultyDefs.ContainsKey(index))
+                {
+                    yield return index;
+                }
+                yield break;
+            }
+            var sortedDifficultyIndices = difficultyDefs.Keys.OrderBy(i => i).ToList();
+            name = name.ToUpperInvariant();
+            var matches = new List<MatchSimilarity>();
+            foreach (var difficultyIndex in sortedDifficultyIndices)
+            {
+                var difficulty = difficultyDefs[difficultyIndex];
+                var langInvar = GetLangInvar(difficulty.nameToken).ToUpper();
+                if (langInvar.Contains(name))
+                {
+                    matches.Add(new MatchSimilarity
+                    {
+                        similarity = GetSimilarity(langInvar, name),
+                        item = difficultyIndex
+                    });
+                }
+            }
+            foreach (var match in matches.OrderByDescending(m => m.similarity))
+            {
+                yield return (DifficultyIndex)match.item;
             }
         }
 

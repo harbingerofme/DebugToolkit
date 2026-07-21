@@ -126,6 +126,23 @@ namespace DebugToolkit.Commands
             Log.MessageNetworked(s, args, LogLevel.MessageClientOnly);
         }
 
+        [ConCommand(commandName = "list_difficulty", flags = ConVarFlags.None, helpText = Lang.LISTDIFFICULTY_HELP)]
+        [AutoComplete(Lang.LISTQUERY_ARGS)]
+        private static void CCListDifficulties(ConCommandArgs args)
+        {
+            StringBuilder sb = new StringBuilder();
+            var arg = args.Count > 0 ? args[0] : "";
+            var indices = StringFinder.Instance.GetDifficultiesFromPartial(arg);
+            foreach (var index in indices)
+            {
+                var difficulty = StringFinder.difficultyDefs[index];
+                var langInvar = StringFinder.GetLangInvar(difficulty.nameToken);
+                sb.AppendLine($"[{(int)index}]{langInvar}");
+            }
+            var s = sb.Length > 0 ? sb.ToString().TrimEnd('\n') : string.Format(Lang.NOMATCH_ERROR, "difficulties", arg);
+            Log.MessageNetworked(s, args, LogLevel.MessageClientOnly);
+        }
+
         [ConCommand(commandName = "list_elite", flags = ConVarFlags.None, helpText = Lang.LISTELITE_HELP)]
         [AutoComplete(Lang.LISTQUERY_ARGS)]
         private static void CCListElites(ConCommandArgs args)

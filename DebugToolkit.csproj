@@ -98,6 +98,7 @@
 		<PackageReference Include="R2API.ContentManagement" Version="1.0.10" />
 		<PackageReference Include="R2API.Networking" Version="1.0.3" />
 		<PackageReference Include="R2API.Prefab" Version="1.1.1" />
+		<PackageReference Include="R2API.Difficulty" Version="1.1.2" />
 
 		<PackageDownload Include="NETStandard.Library.Ref" Version="[2.1.0]" />
 	</ItemGroup>
