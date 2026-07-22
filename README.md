@@ -79,8 +79,9 @@ List Commands:
 * **list_team** - List all Teams and their language invariants.
 * **list_artifact** - List all Artifacts and their language invariants.
 * **list_buff** - List all Buffs and if they are stackable.
-* **list_dot** - List all DoT effects.
 * **list_difficulty** - List all Difficulties.
+* **list_dot** - List all DoT effects.
+* **list_drones** - List all Drones and their language invariants.
 * **list_itemtier** - List all Item Tiers.
 * **list_item** - List all Items, their language invariants, and if they are in the current drop pool.
 * **list_equip** - List all Equipment, their language invariants, and if they are in the current drop pool.
@@ -136,6 +137,7 @@ Spawn Commands:
 * **spawn_ai** - Spawn an AI. `spawn_ai {ai} [count:1] [elite:None] [braindead (0|1):0/false] [team (team|'ally'):Monster]`.
 * **spawn_as** - Spawn as a new character. `spawn_as {body} *[player:<self>]`
 * **spawn_body** - Spawns a CharacterBody with no AI, inventory, or team alliance: `spawn_body {body}`
+* **spawn_drone** - Spawns a minion Drone. `spawn_drone {drone} [count:1] [tier:0]`
 * **change_team** - Change a player's team. `change_team {team} *[player:<self>]`.
 
 Profile Commands:

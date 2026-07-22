@@ -245,13 +245,7 @@ namespace DebugToolkit.Commands
                 spawnCard.prefab = masterPrefab;
                 spawnCard.sendOverNetwork = true;
                 var body = spawnCard.prefab.GetComponent<CharacterMaster>().bodyPrefab;
-                if (body)
-                {
-                    spawnCard.nodeGraphType = (body.GetComponent<CharacterMotor>() == null
-                        && (body.GetComponent<RigidbodyMotor>() != null || body.GetComponent<KinematicCharacterMotor>()))
-                        ? MapNodeGroup.GraphType.Air
-                        : MapNodeGroup.GraphType.Ground;
-                }
+                spawnCard.nodeGraphType = GetBodyPrefabGraphType(body);
             }
             var spawnRequest = new DirectorSpawnRequest(
                 spawnCard,
@@ -266,43 +260,8 @@ namespace DebugToolkit.Commands
             spawnRequest.teamIndexOverride = teamIndex;
             spawnRequest.ignoreTeamMemberLimit = true;
 
-            // The size of the monster's radius is required so multiple enemies do not spawn on the same spot.
-            // This prevents the player from clipping into the ground, or flyers flinging themselves away.
-            var radius = 1f;
-            var prefab = spawnCard.prefab.GetComponent<CharacterMaster>().bodyPrefab;
-            if (prefab)
-            {
-                var capsule = prefab.GetComponent<CapsuleCollider>();
-                if (capsule)
-                {
-                    radius = capsule.radius;
-                }
-                else
-                {
-                    var sphere = prefab.GetComponent<SphereCollider>();
-                    if (sphere)
-                    {
-                        radius = sphere.radius;
-                    }
-                }
-            }
-            // Just a hack for the Grandparent which still causes clipping otherwise
-            if (prefab.name.Equals("GrandParentBody"))
-            {
-                radius = 0f;
-            }
-
-            var position = args.senderBody.footPosition + args.senderBody.transform.forward * (args.senderBody.radius + radius);
             var isFlyer = spawnCard.nodeGraphType == MapNodeGroup.GraphType.Air;
-            if (isFlyer)
-            {
-                position = args.senderBody.transform.position;
-                if (args.senderBody.characterMotor)
-                {
-                    position.y += 0.5f * args.senderBody.characterMotor.capsuleHeight + 2f;
-                }
-                radius *= Mathf.Max(1f, 0.5f * amount);
-            }
+            GetSpawnPosition(masterPrefab, args.senderBody, isFlyer, amount, out var position, out var radius);
 
             Log.MessageNetworked(string.Format(Lang.SPAWN_ATTEMPT_2, amount, masterPrefab.name), args);
             for (int i = 0; i < amount; i++)
@@ -373,6 +332,90 @@ namespace DebugToolkit.Commands
             Log.MessageNetworked(string.Format(Lang.SPAWN_ATTEMPT_1, body.name), args);
         }
 
+        [ConCommand(commandName = "spawn_drone", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SPAWNDRONE_HELP)]
+        [AutoComplete(Lang.SPAWNDRONE_ARGS)]
+        private static void CCSpawnDrone(ConCommandArgs args)
+        {
+            if (!Run.instance)
+            {
+                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            if (args.sender == null)
+            {
+                Log.Message(Lang.DS_NOTYETIMPLEMENTED, LogLevel.Error);
+                return;
+            }
+            if (args.Count < 1)
+            {
+                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.SPAWNDRONE_ARGS, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            if (!args.senderBody)
+            {
+                Log.MessageNetworked("Can't spawn an object with relation to a dead target.", args, LogLevel.MessageClientOnly);
+                return;
+            }
+
+            var drone = StringFinder.Instance.GetDroneFromPartial(args[0]);
+            if (drone == DroneIndex.None)
+            {
+                Log.MessageNetworked(Lang.SPAWN_ERROR + args[0], args, LogLevel.MessageClientOnly);
+                return;
+            }
+            var droneDef = DroneCatalog.GetDroneDef(drone);
+
+            int amount = 1;
+            if (args.Count > 1 && args[1] != Lang.DEFAULT_VALUE && !TextSerialization.TryParseInvariant(args[1], out amount))
+            {
+                Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "count", "int"), args, LogLevel.MessageClientOnly);
+                return;
+            }
+
+            int tier = 0;
+            if (args.Count > 2 && args[2] != Lang.DEFAULT_VALUE && !TextSerialization.TryParseInvariant(args[2], out tier))
+            {
+                Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "tier", "int"), args, LogLevel.MessageClientOnly);
+                return;
+            }
+            if (tier < 0)
+            {
+                tier = 0;
+                Log.MessageNetworked("'tier' cannot be negative. Resetting to 0.", args, LogLevel.WarningClientOnly);
+            }
+
+            var isFlyer = GetBodyPrefabGraphType(droneDef.masterPrefab.GetComponent<CharacterMaster>().bodyPrefab) == MapNodeGroup.GraphType.Air;
+            GetSpawnPosition(droneDef.masterPrefab, args.senderBody, isFlyer, amount, out var position, out var radius);
+
+            Log.MessageNetworked($"Spawned {amount} tier {tier} {droneDef.masterPrefab.name}.", args);
+            for (int i = 0; i < amount; i++)
+            {
+                var spawnPosition = position;
+                if (isFlyer)
+                {
+                    var direction = Quaternion.AngleAxis(360f * ((float)i / amount), args.senderBody.transform.up) * args.senderBody.transform.forward;
+                    spawnPosition = position + (direction * radius);
+                }
+                var masterGameObject = new MasterSummon
+                {
+                    masterPrefab = droneDef.masterPrefab,
+                    position = spawnPosition,
+                    rotation = Quaternion.identity,
+                    summonerBodyObject = args.senderBody.gameObject,
+                    ignoreTeamMemberLimit = true,
+                    useAmbientLevel = true,
+                    enablePrintController = true
+                }.Perform();
+                if (masterGameObject)
+                {
+                    if (masterGameObject.TryGetComponent<CharacterMaster>(out var master))
+                    {
+                        master.inventory.GiveItemPermanent(DLC3Content.Items.DroneUpgradeHidden, tier);
+                    }
+                }
+            }
+        }
+
         internal static void InitPortals()
         {
             portals.Add("artifact", Addressables.LoadAssetAsync<GameObject>("RoR2/Base/PortalArtifactworld/PortalArtifactworld.prefab").WaitForCompletion());
@@ -409,6 +452,63 @@ namespace DebugToolkit.Commands
             }
 
             return CombatDirector.eliteTiers[0];
+        }
+
+        private static void GetSpawnPosition(GameObject masterPrefab, CharacterBody spawnerBody, bool isFlyer, int amount, out Vector3 position, out float radius)
+        {
+            // The size of the monster's radius is required so multiple enemies do not spawn on the same spot.
+            // This prevents the player from clipping into the ground, or flyers flinging themselves away.
+            radius = 1f;
+            var prefab = masterPrefab.GetComponent<CharacterMaster>().bodyPrefab;
+            if (prefab)
+            {
+                var capsule = prefab.GetComponent<CapsuleCollider>();
+                if (capsule)
+                {
+                    radius = capsule.radius;
+                }
+                else
+                {
+                    var sphere = prefab.GetComponent<SphereCollider>();
+                    if (sphere)
+                    {
+                        radius = sphere.radius;
+                    }
+                }
+            }
+            // Just a hack for the Grandparent which still causes clipping otherwise
+            if (prefab.name.Equals("GrandParentBody"))
+            {
+                radius = 0f;
+            }
+
+            position = spawnerBody.footPosition + spawnerBody.transform.forward * (spawnerBody.radius + radius);
+            if (isFlyer)
+            {
+                position = spawnerBody.transform.position;
+                if (spawnerBody.characterMotor)
+                {
+                    position.y += 0.5f * spawnerBody.characterMotor.capsuleHeight + 2f;
+                }
+                radius *= Mathf.Max(1f, 0.5f * amount);
+            }
+        }
+
+        private static MapNodeGroup.GraphType GetBodyPrefabGraphType(GameObject bodyPrefab)
+        {
+            if (bodyPrefab)
+            {
+                if (bodyPrefab.GetComponent<CharacterMotor>())
+                {
+                    return MapNodeGroup.GraphType.Ground;
+                }
+                if (bodyPrefab.GetComponent<RigidbodyMotor>() != null || bodyPrefab.GetComponent<KinematicCharacterMotor>())
+                {
+                    return MapNodeGroup.GraphType.Air;
+                }
+                // If it's lacking all of the above, it's an immobile ground body.
+            }
+            return MapNodeGroup.GraphType.Ground;
         }
     }
 }

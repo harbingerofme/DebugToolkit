@@ -74,6 +74,7 @@ namespace DebugToolkit
             parser.RegisterStaticVariable("body", BodyCatalog.allBodyPrefabBodyBodyComponents.Select(i => $"{(int)i.bodyIndex}|{i.name}|{StringFinder.GetLangInvar(i.baseNameToken)}"), 1);
             parser.RegisterStaticVariable("buff", BuffCatalog.buffDefs.Select(i => $"{(int)i.buffIndex}|{StringFinder.GetLangInvar(i.name)}"), 1);
             parser.RegisterStaticVariable("difficulty", StringFinder.difficultyDefs.OrderBy(kv => kv.Key).Select((kv) => $"{(int)kv.Key}|{StringFinder.GetLangInvar(kv.Value.nameToken)}"), 1);
+            parser.RegisterStaticVariable("drone", DroneCatalog.allDroneDefs.Select(i => $"{(int)i.droneIndex}|{i.name}|{StringFinder.GetLangInvar(i.nameToken)}"), 1);
             parser.RegisterStaticVariable("droptable", ItemTierCatalog.allItemTierDefs.OrderBy(i => i.tier).Select(i => $"{(int)i.tier}|{i.name}"), 1);
             parser.RegisterStaticVariable("dot", DotController.dotDefs.Select((d, i) => $"{i}|{(DotController.DotIndex)i}"), 1);
             parser.RegisterStaticVariable("elite", new string[] { "-1|None" }.

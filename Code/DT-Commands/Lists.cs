@@ -126,6 +126,23 @@ namespace DebugToolkit.Commands
             Log.MessageNetworked(s, args, LogLevel.MessageClientOnly);
         }
 
+        [ConCommand(commandName = "list_drone", flags = ConVarFlags.None, helpText = Lang.LISTDRONE_HELP)]
+        [AutoComplete(Lang.LISTQUERY_ARGS)]
+        private static void CCListDrone(ConCommandArgs args)
+        {
+            StringBuilder sb = new StringBuilder();
+            var arg = args.Count > 0 ? args[0] : "";
+            var indices = StringFinder.Instance.GetDronesFromPartial(arg);
+            foreach (var index in indices)
+            {
+                var drone = DroneCatalog.GetDroneDef(index);
+                var langInvar = StringFinder.GetLangInvar(drone.nameToken);
+                sb.AppendLine($"[{(int)index}]{drone.name}={langInvar}");
+            }
+            var s = sb.Length > 0 ? sb.ToString().TrimEnd('\n') : string.Format(Lang.NOMATCH_ERROR, "drones", arg);
+            Log.MessageNetworked(s, args, LogLevel.MessageClientOnly);
+        }
+
         [ConCommand(commandName = "list_difficulty", flags = ConVarFlags.None, helpText = Lang.LISTDIFFICULTY_HELP)]
         [AutoComplete(Lang.LISTQUERY_ARGS)]
         private static void CCListDifficulties(ConCommandArgs args)

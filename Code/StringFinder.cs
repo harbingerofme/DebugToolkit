@@ -851,6 +851,52 @@ namespace DebugToolkit
         }
 
         /// <summary>
+        /// Returns a DroneIndex when provided with an index or partial/invariant.
+        /// </summary>
+        /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>
+        /// <returns>Returns the DroneIndex if a match is found, or returns DroneIndex.None</returns>
+        public DroneIndex GetDroneFromPartial(string name)
+        {
+            return GetDronesFromPartial(name).DefaultIfEmpty(DroneIndex.None).First();
+        }
+
+        /// <summary>
+        /// Returns an iterator of DroneIndex's when provided with an index or partial/invariant.
+        /// </summary>
+        /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>
+        /// <returns>Returns an iterator with all DroneIndex's matched</returns>
+        public IEnumerable<DroneIndex> GetDronesFromPartial(string name)
+        {
+            if (TextSerialization.TryParseInvariant(name, out int i))
+            {
+                var index = (DroneIndex)i;
+                if (DroneCatalog.GetDroneDef(index) != null)
+                {
+                    yield return index;
+                }
+                yield break;
+            }
+            name = name.ToUpperInvariant();
+            var matches = new List<MatchSimilarity>();
+            foreach (var drone in DroneCatalog.allDroneDefs)
+            {
+                var langInvar = GetLangInvar(drone.nameToken).ToUpper();
+                if (drone.name.ToUpper().Contains(name) || langInvar.Contains(name))
+                {
+                    matches.Add(new MatchSimilarity
+                    {
+                        similarity = Math.Max(GetSimilarity(drone.name, name), GetSimilarity(langInvar, name)),
+                        item = drone.droneIndex
+                    });
+                }
+            }
+            foreach (var match in matches.OrderByDescending(m => m.similarity))
+            {
+                yield return (DroneIndex)match.item;
+            }
+        }
+
+        /// <summary>
         /// Returns a SceneIndex when provided with an index or partial/invariant.
         /// </summary>
         /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>
