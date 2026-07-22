@@ -416,6 +416,117 @@ namespace DebugToolkit.Commands
             }
         }
 
+        [ConCommand(commandName = "spawn_lemurian", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SPAWNLEMURIAN_HELP)]
+        [AutoComplete(Lang.SPAWNLEMURIAN_ARGS)]
+        private static void CCSpawnLemurian(ConCommandArgs args)
+        {
+            if (!Run.instance)
+            {
+                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            if (args.sender == null)
+            {
+                Log.Message(Lang.DS_NOTYETIMPLEMENTED, LogLevel.Error);
+                return;
+            }
+            if (args.Count < 1)
+            {
+                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.SPAWNLEMURIAN_ARGS, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            if (!args.senderBody)
+            {
+                Log.MessageNetworked("Can't spawn an object with relation to a dead target.", args, LogLevel.MessageClientOnly);
+                return;
+            }
+
+            var item = StringFinder.Instance.GetItemFromPartial(args[0]);
+            if (item == ItemIndex.None)
+            {
+                Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "item", args[0]), args, LogLevel.MessageClientOnly);
+                return;
+            }
+
+            var level = 0;
+            if (args.Count > 1 && args[1] != Lang.DEFAULT_VALUE && !TextSerialization.TryParseInvariant(args[1], out level))
+            {
+                Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "level", "int"), args, LogLevel.MessageClientOnly);
+                return;
+            }
+            if (level < 0)
+            {
+                level = 0;
+                Log.MessageNetworked("'level' cannot be negative. Resetting to 0.", args, LogLevel.WarningClientOnly);
+            }
+
+            var masterPrefab = MasterCatalog.GetMasterPrefab(MasterCatalog.FindMasterIndex("DevotedLemurianMaster"));
+            // If the level is high enough to transform to the Elder Lemurian, there can be issues if we use
+            // master.TransformBody later. Therefore, we bypass this by directly spawning the Elder Lemurian now and
+            // reverting the prefab change before we're done. Incidentally, this also ensures we calculate the correct
+            // spawning distance so the Elder Lemurian doesn't transform on top of us if it starts as the small version.
+            if (level > 1)
+            {
+                masterPrefab.GetComponent<CharacterMaster>().bodyPrefab = CU8Content.BodyPrefabs.DevotedLemurianBruiserBody.gameObject;
+            }
+            GetSpawnPosition(masterPrefab, args.senderBody, false, 1, out var position, out _);
+
+            Log.MessageNetworked($"Spawned a level {level} Devoted Lemurian with {ItemCatalog.GetItemDef(item).name}.", args);
+            var masterGameObject = new MasterSummon
+            {
+                masterPrefab = masterPrefab,
+                position = position,
+                rotation = Quaternion.identity,
+                summonerBodyObject = args.senderBody.gameObject,
+                ignoreTeamMemberLimit = true,
+                useAmbientLevel = true
+            }.Perform();
+
+            if (level > 1)
+            {
+                masterPrefab.GetComponent<CharacterMaster>().bodyPrefab = CU8Content.BodyPrefabs.DevotedLemurianBody.gameObject;
+            }
+
+            if (masterGameObject)
+            {
+                // Temporarily initialise the elite evolution lists if the artifact is disabled.
+                var isDevotionArtifactEnabled = DevotionInventoryController.isDevotionEnable;
+                if (!isDevotionArtifactEnabled)
+                {
+                    DevotionInventoryController.OnDevotionArtifactEnabled(RunArtifactManager.instance, CU8Content.Artifacts.Devotion);
+                }
+                var devotionInventoryController = DevotionInventoryController.GetOrCreateDevotionInventoryController(args.senderBody.GetComponent<Interactor>());
+                devotionInventoryController.GiveItem(item, 1 + level);
+                var devotedLemurianController = masterGameObject.GetComponent<DevotedLemurianController>();
+                devotedLemurianController.InitializeDevotedLemurian(item, devotionInventoryController);
+                devotedLemurianController.DevotedEvolutionLevel = level;
+                // We must implement `DevotionInventoryController.EvolveDevotedLumerian` manually, because the
+                // elite equipment is given via body.inventory, but the body has not been linked to the master yet.
+                // We have also taken care of the body transformation earlier in the method.
+                {
+                    List<EquipmentIndex> eliteUpgradeList = null;
+                    if (level == 1)
+                    {
+                        eliteUpgradeList = DevotionInventoryController.lowLevelEliteBuffs;
+                    }
+                    else if (level >= 3)
+                    {
+                        eliteUpgradeList = DevotionInventoryController.highLevelEliteBuffs;
+                    }
+                    if (eliteUpgradeList != null && eliteUpgradeList.Count > 0)
+                    {
+                        int index = UnityEngine.Random.Range(0, eliteUpgradeList.Count);
+                        masterGameObject.GetComponent<Inventory>().SetEquipmentIndex(eliteUpgradeList[index], isRemovingEquipment: false);
+                    }
+                }
+                devotionInventoryController.UpdateAllMinions(false);
+                if (!isDevotionArtifactEnabled)
+                {
+                    DevotionInventoryController.OnDevotionArtifactDisabled(RunArtifactManager.instance, CU8Content.Artifacts.Devotion);
+                }
+            }
+        }
+
         internal static void InitPortals()
         {
             portals.Add("artifact", Addressables.LoadAssetAsync<GameObject>("RoR2/Base/PortalArtifactworld/PortalArtifactworld.prefab").WaitForCompletion());

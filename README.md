@@ -138,6 +138,7 @@ Spawn Commands:
 * **spawn_as** - Spawn as a new character. `spawn_as {body} *[player:<self>]`
 * **spawn_body** - Spawns a CharacterBody with no AI, inventory, or team alliance: `spawn_body {body}`
 * **spawn_drone** - Spawns a minion Drone. `spawn_drone {drone} [count:1] [tier:0]`
+* **spawn_lemurian** - Spawns a Devoted Lemurian. `spawn_lemurian {item} [level:0]`
 * **change_team** - Change a player's team. `change_team {team} *[player:<self>]`.
 
 Profile Commands:

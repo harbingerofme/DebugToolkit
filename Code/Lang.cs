@@ -63,6 +63,7 @@
             SPAWNBODY_ARGS = "Requires 1 argument: {body}",
             SPAWNDRONE_ARGS = "Requires 1 argument: {drone} [count:1] [tier:0]",
             SPAWNINTERACTABLE_ARGS = "Requires 1 argument: {interactable}",
+            SPAWNLEMURIAN_ARGS = "Requires 1 argument: {item} [level:0]",
             SPAWNPORTAL_ARGS = "Requires 1 argument: {portal ('artifact'|'blue'|'celestial'|'deepvoid'|'gold'|'green'|'null'|'void')}",
             TIMESCALE_ARGS = "Requires 1 argument: {time_scale}",
             TRUEKILL_ARGS = "Requires 0 (1 if from server) arguments: [player:<self>]"
@@ -159,6 +160,7 @@
             SPAWNBODY_HELP = "Spawns the specified dummy body. " + SPAWNBODY_ARGS,
             SPAWNDRONE_HELP = "Spawns the specified drone as a minion at the appropriate tier. " + SPAWNDRONE_ARGS,
             SPAWNINTERACTABLE_HELP = "Spawns the specified interactable. List_Interactable for options. " + SPAWNINTERACTABLE_ARGS,
+            SPAWNLEMURIAN_HELP = "Spawns a Devoted Lemurian. " + SPAWNLEMURIAN_ARGS,
             SPAWNPORTAL_HELP = "Spawns a portal in front of the player. " + SPAWNPORTAL_ARGS,
             STOPTIMER_HELP = "Pause/unpause the run timer. " + ENABLE_ARGS,
             TIMESCALE_HELP = "Sets the Time Delta. " + TIMESCALE_ARGS,

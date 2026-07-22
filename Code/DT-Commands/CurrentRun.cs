@@ -587,10 +587,20 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
                 return;
             }
+            var isDevotionArtifactEnabled = DevotionInventoryController.isDevotionEnable;
+            if (!isDevotionArtifactEnabled)
+            {
+                DevotionInventoryController.OnDevotionArtifactEnabled(RunArtifactManager.instance, CU8Content.Artifacts.Devotion);
+            }
+            // Temporarily initialise the elite evolution lists if the artifact is disabled.
             DevotionInventoryController.ActivateAllDevotedEvolution();
+            if (!isDevotionArtifactEnabled)
+            {
+                DevotionInventoryController.OnDevotionArtifactDisabled(RunArtifactManager.instance, CU8Content.Artifacts.Devotion);
+            }
             if (DevotionInventoryController.InstanceList.Count > 0)
             {
-                Log.MessageNetworked($"Evolved {DevotionInventoryController.InstanceList} Devoted Lemurians.", args);
+                Log.MessageNetworked($"Evolved all Devoted Lemurians.", args);
                 return;
             }
             Log.MessageNetworked($"No Devoted Lemurians found.", args);
