@@ -206,6 +206,62 @@ namespace DebugToolkit.Commands
             Log.MessageNetworked(String.Format(lockExp ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, "lock_exp"), args);
         }
 
+        [ConCommand(commandName = "kill", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.KILL_HELP)]
+        [AutoComplete(Lang.KILL_ARGS)]
+        private static void CCKill(ConCommandArgs args)
+        {
+            if (!Run.instance)
+            {
+                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            if (args.sender == null)
+            {
+                Log.Message(Lang.DS_NOTYETIMPLEMENTED, LogLevel.Error);
+                return;
+            }
+            var body = Hooks.GetPingedTarget(args.senderMaster).body;
+            if (body == null)
+            {
+                Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            var targetName = body.master?.playerCharacterMasterController?.GetDisplayName() ?? body.gameObject.name;
+
+            if (body.healthComponent.godMode)
+            {
+                Log.MessageNetworked($"Cannot kill {targetName} because they have god mode.", args);
+                return;
+            }
+
+            var trueKill = false;
+            if (args.Count > 0 && args[0] != Lang.DEFAULT_VALUE && !Util.TryParseBool(args[0], out trueKill))
+            {
+                Log.MessageNetworked(string.Format(Lang.PARSE_ERROR, "true_kill", "bool"), args, LogLevel.MessageClientOnly);
+                return;
+            }
+
+            if (trueKill)
+            {
+                if (body.master)
+                {
+                    body.master.TrueKill();
+                }
+                else
+                {
+                    // If there is no master, there are no reviving items. We still need to kill the body.
+                    // In theory a pot with the reviving buff can reach this logic path, but there isn't
+                    // much we can do unless we reinvent the wheel for TrueKill. Super niche anyway.
+                    body.healthComponent.Suicide(null);
+                }
+            }
+            else
+            {
+                body.healthComponent.Suicide(null);
+            }
+            Log.MessageNetworked($"Killed {targetName}.", args);
+        }
+
         [ConCommand(commandName = "kill_all", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.KILLALL_HELP)]
         [AutoComplete(Lang.KILLALL_ARGS)]
         private static void CCKillAll(ConCommandArgs args)
