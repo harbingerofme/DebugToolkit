@@ -305,6 +305,75 @@ namespace DebugToolkit.Commands
             Log.MessageNetworked($"Gave {name} to {target.name}", args);
         }
 
+        [ConCommand(commandName = "give_equip_extra", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.GIVEEQUIPEXTRA_HELP)]
+        [AutoComplete(Lang.GIVEEQUIPEXTRA_ARGS)]
+        private static void CCGiveEquipmentExtra(ConCommandArgs args)
+        {
+            if (!Run.instance)
+            {
+                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            bool isDedicatedServer = args.sender == null;
+            if (args.Count < 3 || (isDedicatedServer && (args.Count < 4 || args[3] == Lang.DEFAULT_VALUE)))
+            {
+                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.GIVEEQUIPEXTRA_ARGS, args, LogLevel.MessageClientOnly);
+                return;
+            }
+
+            var target = ParseTarget(args, 3);
+            if (target.failMessage != null)
+            {
+                Log.MessageNetworked(target.failMessage, args, LogLevel.MessageClientOnly);
+                return;
+            }
+
+            var slot = 0U;
+            if (!TextSerialization.TryParseInvariant(args[1], out slot))
+            {
+                Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "slot", "uint"), args, LogLevel.MessageClientOnly);
+                return;
+            }
+
+            var set = 0U;
+            if (!TextSerialization.TryParseInvariant(args[2], out set))
+            {
+                Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "set", "uint"), args, LogLevel.MessageClientOnly);
+                return;
+            }
+
+            var inventory = target.inventory;
+            var equip = EquipmentIndex.None;
+            if (args[0].ToUpperInvariant() == Lang.RANDOM)
+            {
+                var pickupIndex = Run.instance.availableEquipmentDropList[UnityEngine.Random.Range(0, Run.instance.availableEquipmentDropList.Count)];
+                equip = PickupCatalog.GetPickupDef(pickupIndex).equipmentIndex;
+            }
+            else
+            {
+                equip = StringFinder.Instance.GetEquipFromPartial(args[0]);
+                if (equip == EquipmentIndex.None)
+                {
+                    Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "equip", args[0]), args, LogLevel.MessageClientOnly);
+                    return;
+                }
+                if (Run.instance.IsEquipmentExpansionLocked(equip))
+                {
+                    Log.MessageNetworked(string.Format(Lang.EXPANSION_LOCKED, "equipment", Util.GetExpansion(EquipmentCatalog.GetEquipmentDef(equip).requiredExpansion)), args, LogLevel.MessageClientOnly);
+                    return;
+                }
+            }
+            // We need to call this first to properly resize sets due to the ExtraEquipment item,
+            // or else the command may allocate extra sets beyond what the item accounts for.
+            // This is only an issue if we're combining give_item and give_equip_extra in the console,
+            // where Inventory.FixedUpdate doesn't get a chance to run in the between.
+            inventory.UpdateEquipmentSetCount();
+            inventory.SetEquipmentIndexForSlot(equip, slot, set);
+            var name = EquipmentCatalog.GetEquipmentDef(equip).name;
+
+            Log.MessageNetworked($"Gave {name} to {target.name} in position ({slot}, {set})", args);
+        }
+
         [ConCommand(commandName = "create_pickup", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.CREATEPICKUP_HELP)]
         [AutoComplete(Lang.CREATEPICKUP_ARGS)]
         private static void CCCreatePickup(ConCommandArgs args)
@@ -599,6 +668,54 @@ namespace DebugToolkit.Commands
 
             target.inventory.SetEquipmentIndex(EquipmentIndex.None, true);
             Log.MessageNetworked($"Removed current Equipment from {target.name}", args);
+        }
+
+        [ConCommand(commandName = "remove_equip_extra", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.REMOVEEQUIPEXTRA_HELP)]
+        [AutoComplete(Lang.REMOVEEQUIPEXTRA_ARGS)]
+        private static void CCRemoveEquipmentExtra(ConCommandArgs args)
+        {
+            if (!Run.instance)
+            {
+                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            bool isDedicatedServer = args.sender == null;
+            if (args.Count < 2 || (isDedicatedServer && (args.Count < 3 || args[2] == Lang.DEFAULT_VALUE)))
+            {
+                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.REMOVEEQUIPEXTRA_ARGS, args, LogLevel.MessageClientOnly);
+                return;
+            }
+
+            var target = ParseTarget(args, 2);
+            if (target.failMessage != null)
+            {
+                Log.MessageNetworked(target.failMessage, args, LogLevel.MessageClientOnly);
+                return;
+            }
+
+            var slot = 0U;
+            if (!TextSerialization.TryParseInvariant(args[0], out slot))
+            {
+                Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "slot", "uint"), args, LogLevel.MessageClientOnly);
+                return;
+            }
+
+            var set = 0U;
+            if (!TextSerialization.TryParseInvariant(args[1], out set))
+            {
+                Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "set", "uint"), args, LogLevel.MessageClientOnly);
+                return;
+            }
+
+            var inventory = target.inventory;
+            if (inventory._equipmentStateSlots.Length < slot || inventory._equipmentStateSlots[slot].Length < set)
+            {
+                Log.MessageNetworked("Unassigned equipment slot/set. Nothing to remove.", args, LogLevel.MessageClientOnly);
+                return;
+            }
+            inventory.SetEquipmentIndexForSlot(EquipmentIndex.None, slot, set);
+
+            Log.MessageNetworked($"Removed equipment from {target.name} in position ({slot}, {set})", args);
         }
 
         [ConCommand(commandName = "restock_equip", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.RESTOCKEQUIP_HELP)]
