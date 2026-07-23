@@ -62,8 +62,9 @@ Commands:
 * **kill** - Kills the pinged target. `kill [true_kill (0|1):0/false]`
 * **kill_all** - Kills all members of a specified team. `kill_all [team (team|'enemies'):'enemies'] [true_kill (0|1):0/false]`. Enemies includes anything not in Neutral or Player teams.
 * **true_kill** - Truly kill a player, ignoring revival effects. `true_kill *[player:<self>]`
+* **remove_all_minions** - Removes all minions from a target without leaving a trace. `remove_all_minions *[target (player|'pinged'):<self>]`
 * **respawn** - Respawn a player at the map spawnpoint. `respawn *[player:<self>]`
-* **hurt** - Deal generic damage to a target. `hurt {amount} *[target (player|'pinged'):<self>]*`
+* **hurt** - Deal generic damage to a target. `hurt {amount} *[target (player|'pinged'):<self>]`
 * **heal** - Heal a target. `heal {amount} *[target (player|'pinged'):<self>]*`
 * **teleport_on_cursor** -  Teleport you to where your cursor is currently aiming at. `teleport_on_cursor`
 * **time_scale** -  Sets the timescale of the game. 0.5 would mean everything happens at half speed. `time_scale [time_scale]`. If no argument is supplied, gives the current timescale.

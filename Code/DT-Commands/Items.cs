@@ -843,7 +843,7 @@ namespace DebugToolkit.Commands
             return ItemType.Permanent;
         }
 
-        private static CommandTarget ParseTarget(ConCommandArgs args, int index)
+        internal static CommandTarget ParseTarget(ConCommandArgs args, int index)
         {
             string failMessage = null;
             Inventory inventory = null;

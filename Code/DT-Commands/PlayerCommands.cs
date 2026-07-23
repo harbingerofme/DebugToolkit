@@ -335,6 +335,48 @@ namespace DebugToolkit.Commands
             Log.MessageNetworked("Changed to team " + teamIndex, args);
         }
 
+        [ConCommand(commandName = "remove_all_minions", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.REMOVEALLMINIONS_HELP)]
+        [AutoComplete(Lang.REMOVEALLMINIONS_ARGS)]
+        private static void CCRemoveAllMinions(ConCommandArgs args)
+        {
+            if (!Run.instance)
+            {
+                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
+                return;
+            }
+            bool isDedicatedServer = args.sender == null;
+            if (isDedicatedServer && (args.Count < 1 || args[0] == Lang.DEFAULT_VALUE))
+            {
+                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.REMOVEALLMINIONS_ARGS, args, LogLevel.MessageClientOnly);
+                return;
+            }
+
+            var target = Items.ParseTarget(args, 0);
+            if (target.failMessage != null)
+            {
+                Log.MessageNetworked(target.failMessage, args, LogLevel.MessageClientOnly);
+                return;
+            }
+
+            var owner = target.inventory.GetComponent<MinionOwnership.MinionGroup.MinionGroupDestroyer>();
+            if (owner == null || owner.group == null || owner.group.memberCount == 0)
+            {
+                Log.MessageNetworked($"{target.name} has no minions to remove.", args);
+                return;
+            }
+            int removedAmount = 0;
+            foreach (var minion in owner.group.members)
+            {
+                if (minion && minion.TryGetComponent<CharacterMaster>(out var minionMaster))
+                {
+                    minionMaster.DestroyBody();
+                    UnityEngine.Object.Destroy(minionMaster.gameObject, 1f);
+                    removedAmount++;
+                }
+            }
+            Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT, removedAmount, "minions", target.name), args);
+        }
+
         [ConCommand(commandName = "dump_build", flags = ConVarFlags.None, helpText = Lang.DUMPBUILD_HELP)]
         private static void CCDumpBuild(ConCommandArgs args)
         {
