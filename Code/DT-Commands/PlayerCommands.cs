@@ -2,6 +2,8 @@ using RoR2;
 using RoR2.ExpansionManagement;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using UnityEngine;
 using static DebugToolkit.Log;
 
@@ -331,6 +333,110 @@ namespace DebugToolkit.Commands
             master.GetBody().teamComponent.teamIndex = teamIndex;
             master.teamIndex = teamIndex;
             Log.MessageNetworked("Changed to team " + teamIndex, args);
+        }
+
+        [ConCommand(commandName = "dump_build", flags = ConVarFlags.None, helpText = Lang.DUMPBUILD_HELP)]
+        private static void CCDumpBuild(ConCommandArgs args)
+        {
+            if (!args.sender)
+            {
+                Log.Message(Lang.DS_NOTAVAILABLE, LogLevel.Error);
+                return;
+            }
+
+            var sb = new StringBuilder();
+            var master = args.senderMaster;
+            var inventory = master.inventory;
+
+            // Items
+            foreach (var item in inventory.itemAcquisitionOrder)
+            {
+                var name = ItemCatalog.GetItemDef(item).name;
+                var permanentCount = inventory.GetItemCountPermanent(item);
+                if (permanentCount > 0)
+                {
+                    if (permanentCount > 1)
+                    {
+                        sb.Append($"give_item {name} {permanentCount};");
+                    }
+                    else
+                    {
+                        sb.Append($"give_item {name};");
+                    }
+                }
+                var tempCount = inventory.GetItemCountTemp(item);
+                if (tempCount > 0)
+                {
+                    sb.Append($"give_item {name} {tempCount} temp;");
+                }
+            }
+
+            // Equipment
+            var maxSlots = inventory.GetEquipmentSlotCount();
+            for (uint slot = 0U; slot < maxSlots; slot++)
+            {
+                var maxSets = inventory.GetEquipmentSetCount(slot);
+                for (uint set = 0U; set < maxSets; set++)
+                {
+                    var equipmentIndex = inventory.GetEquipment(slot, set).equipmentIndex;
+                    var equipDef = EquipmentCatalog.GetEquipmentDef(equipmentIndex);
+                    if (equipDef != null)
+                    {
+                        sb.Append($"give_equip_extra {equipDef.name} {slot} {set};");
+                    }
+                }
+            }
+
+            // Minions
+            var minionGroup = MinionOwnership.MinionGroup.FindGroup(master.netId);
+            if (minionGroup != null && minionGroup.memberCount > 0)
+            {
+                var devotedLemurianMasterIndex = MasterCatalog.FindMasterIndex("DevotedLemurianMaster");
+                var permanentDroneMasterIndices = new Dictionary<MasterCatalog.MasterIndex, DroneDef>();
+                foreach (var drone in DroneCatalog.allDroneDefs)
+                {
+                    var masterPrefab = drone.masterPrefab;
+                    // Any drones that don't persist to the next stage are conditionally given to you by skills/items. We ignore these.
+                    if (masterPrefab && masterPrefab.GetComponent<SetDontDestroyOnLoad>() && masterPrefab.TryGetComponent<CharacterMaster>(out var minionMaster))
+                    {
+                        permanentDroneMasterIndices[minionMaster.masterIndex] = drone;
+                    }
+                }
+                foreach (var minion in minionGroup.members)
+                {
+                    if (minion && minion.TryGetComponent<CharacterMaster>(out var minionMaster))
+                    {
+                        if (minionMaster.masterIndex == devotedLemurianMasterIndex)
+                        {
+                            var controller = minionMaster.GetComponent<DevotedLemurianController>();
+                            var item = ItemCatalog.GetItemDef(controller.DevotionItem);
+                            var level = controller.DevotedEvolutionLevel;
+                            if (level > 0)
+                            {
+                                sb.Append($"spawn_lemurian {item.name} {level};");
+                            }
+                            else
+                            {
+                                sb.Append($"spawn_lemurian {item.name};");
+                            }
+                        }
+                        else if (permanentDroneMasterIndices.TryGetValue(minionMaster.masterIndex, out var drone))
+                        {
+                            var tier = minionMaster.inventory.GetItemCountPermanent(DLC3Content.Items.DroneUpgradeHidden);
+                            if (tier > 0)
+                            {
+                                sb.Append($"spawn_drone {drone.name} 1 {tier};");
+                            }
+                            else
+                            {
+                                sb.Append($"spawn_drone {drone.name};");
+                            }
+                        }
+                    }
+                }
+            }
+
+            Log.Message(sb.ToString(), LogLevel.Message);
         }
 
         [ConCommand(commandName = "dump_stats", flags = ConVarFlags.None, helpText = Lang.DUMPSTATS_HELP)]

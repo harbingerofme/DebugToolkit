@@ -87,6 +87,7 @@
             CURSORTELEPORT_HELP = "Teleport you to where your cursor is currently aiming at. " + NO_ARGS,
             DELAY_HELP = "Execute any commands after a delay in seconds. " + DELAY_ARGS,
             DUMPBUFFS_HELP = "List the buffs/debuffs of all spawned bodies. " + NO_ARGS,
+            DUMPBUILD_HELP = "Generate a list of commands to replicate your current inventory and minion state. " + NO_ARGS,
             DUMPINVENTORIES_HELP = "List the inventory items and equipment of all spawned bodies. " + NO_ARGS,
             DUMPSTATE_HELP = "List the current stats, entity state, and skill cooldown of a specified body. " + DUMPSTATE_ARGS,
             DUMPSTATS_HELP = "List the base stats of a specific body. " + DUMPSTATS_ARGS,
