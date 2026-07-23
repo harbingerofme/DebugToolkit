@@ -26,8 +26,8 @@ namespace DebugToolkit
         private static int[] autoCompleteIndices;
 
         private static On.RoR2.Console.orig_RunCmd _origRunCmd;
-        private static bool buddha;
-        private static bool god;
+        internal static bool buddha;
+        internal static bool god;
 
         private static GameObject commandSignatureText;
         private static CombatDirector bossDirector;
@@ -867,16 +867,6 @@ namespace DebugToolkit
                 return ping;
             }
             return default;
-        }
-
-        internal static bool ToggleBuddha()
-        {
-            return buddha = !buddha;
-        }
-
-        internal static bool ToggleGod()
-        {
-            return god = !god;
         }
     }
 }

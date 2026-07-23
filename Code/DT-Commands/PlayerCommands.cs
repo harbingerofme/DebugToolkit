@@ -15,25 +15,22 @@ namespace DebugToolkit.Commands
         [AutoComplete(Lang.ENABLE_ARGS)]
         private static void CCGodModeToggle(ConCommandArgs args)
         {
-            bool modeOn;
+            bool enabled = !Hooks.god;
             if (args.Count > 0)
             {
-                if (!Util.TryParseBool(args[0], out modeOn))
+                if (!Util.TryParseBool(args[0], out enabled))
                 {
                     Log.MessageNetworked(string.Format(Lang.PARSE_ERROR, "enable", "bool"), args, LogLevel.MessageClientOnly);
                     return;
                 }
             }
-            else
-            {
-                modeOn = Hooks.ToggleGod();
-            }
+            Hooks.god = enabled;
             foreach (var playerInstance in PlayerCharacterMasterController.instances)
             {
-                playerInstance.master.godMode = modeOn;
+                playerInstance.master.godMode = enabled;
                 playerInstance.master.UpdateBodyGodMode();
             }
-            Log.MessageNetworked(String.Format(modeOn ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, "God mode"), args);
+            Log.MessageNetworked(String.Format(enabled  ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, "God mode"), args);
         }
 
         [ConCommand(commandName = "buddha", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.BUDDHA_HELP)]
@@ -43,20 +40,17 @@ namespace DebugToolkit.Commands
         [AutoComplete(Lang.ENABLE_ARGS)]
         private static void CCBuddhaModeToggle(ConCommandArgs args)
         {
-            bool modeOn;
+            bool enabled = !Hooks.buddha;
             if (args.Count > 0)
             {
-                if (!Util.TryParseBool(args[0], out modeOn))
+                if (!Util.TryParseBool(args[0], out enabled))
                 {
                     Log.MessageNetworked(string.Format(Lang.PARSE_ERROR, "enable", "bool"), args, LogLevel.MessageClientOnly);
                     return;
                 }
             }
-            else
-            {
-                modeOn = Hooks.ToggleBuddha();
-            }
-            Log.MessageNetworked(String.Format(modeOn ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, "Buddha mode"), args);
+            Hooks.buddha = enabled;
+            Log.MessageNetworked(String.Format(enabled ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, "Buddha mode"), args);
         }
 
         [ConCommand(commandName = "noclip", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.NOCLIP_HELP)]
