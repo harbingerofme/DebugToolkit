@@ -369,6 +369,10 @@ namespace DebugToolkit.Commands
                 {
                     sb.Append($"give_item {name} {tempCount} Temp;");
                 }
+                // We explicitly do not include channeled items. These are generally handled by some external
+                // source and should be the sole entity responsible for adding/removing them. These processes
+                // are generally ephemeral in nature and if such items are transferred to a new run, the original
+                // source will not be around to eventually remove them.
             }
 
             // Equipment
