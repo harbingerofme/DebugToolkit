@@ -2,7 +2,7 @@
 
 This mod adds various debugging commands to the console. See below for all commands plus explanation.
 
-[Harb](https://thunderstore.io/package/Harb/), [iDeathHD](https://thunderstore.io/package/xiaoxiao921/) and ['s](https://thunderstore.io/package/paddywan/) reimplementation of [Morris1927's](https://thunderstore.io/package/Morris1927/) [RoR2Cheats](https://thunderstore.io/package/Morris1927/RoR2Cheats/). Derived with permission. 
+[Harb](https://thunderstore.io/package/Harb/), [iDeathHD](https://thunderstore.io/package/xiaoxiao921/), [Chinchi](https://thunderstore.io/package/Chinchi/), and ['s](https://thunderstore.io/package/paddywan/) reimplementation of [Morris1927's](https://thunderstore.io/package/Morris1927/) [RoR2Cheats](https://thunderstore.io/package/Morris1927/RoR2Cheats/). Derived with permission. 
 
 Also adds autocompletion for arguments and networked commands giving their information to the right people to the console. Read [here](https://github.com/harbingerofme/DebugToolkit/tree/master/Code/AutoCompletion) to see how you can use the autocompletion feature for your own mod.
 
@@ -26,9 +26,9 @@ You may contact us at any time through [issues on GitHub](https://github.com/har
 * [DestroyedClone](https://thunderstore.io/package/DestroyedClone/) ([Github](https://github.com/DestroyedClone))
 * [Rays](https://github.com/SuperRayss)
 * [HeyImNoop](https://thunderstore.io/package/Heyimnoob/)
-* [SChinchi](https://github.com/SChinchi)
 * [RandomlyAwesome](https://github.com/yekoc)
 * [Goorakh](https://github.com/Goorakh)
+* [Wolfo](https://github.com/WolfoIsBestWolf)
 
 ---
 
