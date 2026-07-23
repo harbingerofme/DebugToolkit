@@ -192,3 +192,5 @@ Reload Commands:
 * **midgame** - This is the preset HopooGames uses for midgame testing. Gives all users random items, and drops you off in the bazaar. `midgame`
 * **lategame** - This is the preset HopooGames uses for endgame testing. Gives all users random items, and drops you off in the bazaar. `lategame`
 * **dtzoom** - Gives you 20 hooves and 200 feathers to get around the map quickly. Based on a command in the initial release of Risk of Rain 2.
+* **peace** - Kills all enemies, disables enemies spawning, and enables godmode.
+* **scanner** - Gives the Radar Scanner equipment with reduced cooldown to easily search stages. **DO NOT** combine with Gesture of the Drowned.

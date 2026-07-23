@@ -132,6 +132,8 @@
             MACRO_DTZOOM_HELP = "Gives you 20 hooves and 200 feathers for getting around quickly.",
             MACRO_LATEGAME_HELP = "Sets the current run to the 'lategame' as defined by HG. This command is DESTRUCTIVE.",
             MACRO_MIDGAME_HELP = "Sets the current run to the 'midgame' as defined by HG. This command is DESTRUCTIVE.",
+            MACRO_PEACE_HELP = "Kills all enemies, disables enemies spawning, and enables godmode.",
+            MACRO_SCANNER_HELP = "Gives the Radar Scanner equipment with reduced cooldown to easily search stages.",
             NEXTBOSS_HELP = "Sets the next teleporter/simulacrum boss to the specified boss. " + NEXTBOSS_ARGS,
             NEXTSTAGE_HELP = "Forces a stage change to the specified stage. " + NEXTSTAGE_ARGS,
             NEXTWAVE_HELP = "Advance to the next Simulacrum wave. " + NO_ARGS,

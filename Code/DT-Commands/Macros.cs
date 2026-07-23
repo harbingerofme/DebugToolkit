@@ -36,6 +36,21 @@ namespace DebugToolkit.Commands
             Invoke(a, "set_scene", "bazaar");
         }
 
+        [ConCommand(commandName = "peace", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.MACRO_PEACE_HELP)]
+        private static void CCPeace(ConCommandArgs args)
+        {
+            Invoke(args.sender, "kill_all", "enemies", "1");
+            Invoke(args.sender, "no_enemies", "1");
+            Invoke(args.sender, "god", "1");
+        }
+
+        [ConCommand(commandName = "scanner", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.MACRO_SCANNER_HELP)]
+        public static void CCScanner(ConCommandArgs args)
+        {
+            Invoke(args.sender, "give_item", "BoostEquipmentRecharge", "50");
+            Invoke(args.sender, "give_equip", "Scanner");
+        }
+
         [ConCommand(commandName = "dtzoom", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.MACRO_DTZOOM_HELP)]
         private static void Zoom(ConCommandArgs args)
         {
