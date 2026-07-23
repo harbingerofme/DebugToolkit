@@ -89,6 +89,8 @@ namespace DebugToolkit
                 1
             );
 
+            // Skip ItemType.None
+            parser.RegisterStaticVariable("item_type", CollectEnumNames(typeof(Commands.Items.ItemType), typeof(int)).SkipLast(1), 1);
             parser.RegisterStaticVariable("permission_level", CollectEnumNames(typeof(Permissions.Level), typeof(int)), 1);
 
             parser.RegisterDynamicVariable("director_card", StringFinder.Instance.DirectorCards, "spawnCard", autocompleteIndex: 1);

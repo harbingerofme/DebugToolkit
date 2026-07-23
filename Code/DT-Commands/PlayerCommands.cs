@@ -367,7 +367,7 @@ namespace DebugToolkit.Commands
                 var tempCount = inventory.GetItemCountTemp(item);
                 if (tempCount > 0)
                 {
-                    sb.Append($"give_item {name} {tempCount} temp;");
+                    sb.Append($"give_item {name} {tempCount} Temp;");
                 }
             }
 

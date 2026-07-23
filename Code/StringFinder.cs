@@ -1056,17 +1056,28 @@ namespace DebugToolkit
                 }
             }
 
-            var array = Enum.GetValues(typeof(TEnum));
-            foreach (TEnum num in array)
+            name = name.ToUpperInvariant();
+            var matches = new List<MatchSimilarity>();
+            var enumNames = Enum.GetNames(typeof(TEnum));
+            var enumValues = Enum.GetValues(typeof(TEnum));
+            for (int i = 0; i < enumValues.Length; i++)
             {
-                if (Enum.GetName(typeof(TEnum), num).ToUpper().Contains(name.ToUpper()))
+                if (enumNames[i].Contains(name, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    result = (TEnum)num;
-                    return true;
+                    matches.Add(new MatchSimilarity
+                    {
+                        similarity = GetSimilarity(enumNames[i], name),
+                        item = enumValues.GetValue(i)
+                    });
                 }
             }
-            result = default;
-            return false;
+            if (matches.Count == 0)
+            {
+                result = default;
+                return false;
+            }
+            result = (TEnum)matches.OrderByDescending(m => m.similarity).First().item;
+            return true;
         }
     }
 }

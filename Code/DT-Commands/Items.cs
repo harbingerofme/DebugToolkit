@@ -169,13 +169,27 @@ namespace DebugToolkit.Commands
                     return;
                 }
                 GiveItem(inventory, item, amount, type);
-                Log.MessageNetworked(string.Format(Lang.GIVEOBJECT, amount, name, target.name), args);
+                if (type == ItemType.Permanent)
+                {
+                    Log.MessageNetworked(string.Format(Lang.GIVEOBJECT, amount, name, target.name), args);
+                }
+                else
+                {
+                    Log.MessageNetworked(string.Format(Lang.GIVEOBJECT_2, amount, type, name, target.name), args);
+                }
             }
             else if (amount < 0)
             {
                 amount = Math.Min(-amount, GetItemCount(inventory, item, type));
                 RemoveItem(inventory, item, amount, type);
-                Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT, amount, name, target.name), args);
+                if (type == ItemType.Permanent)
+                {
+                    Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT, amount, name, target.name), args);
+                }
+                else
+                {
+                    Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT_2, amount, type, name, target.name), args);
+                }
             }
             else
             {
@@ -247,7 +261,14 @@ namespace DebugToolkit.Commands
                 {
                     target.devotionController.UpdateAllMinions(false);
                 }
-                Log.MessageNetworked($"Generated {iCount} items for {target.name}!", args);
+                if (type == ItemType.Permanent)
+                {
+                    Log.MessageNetworked($"Generated {iCount} items for {target.name}!", args);
+                }
+                else
+                {
+                    Log.MessageNetworked($"Generated {iCount} {type} items for {target.name}!", args);
+                }
             }
             else
             {
@@ -762,7 +783,7 @@ namespace DebugToolkit.Commands
 
         internal enum ItemType
         {
-            None,
+            None = -1,
             Permanent,
             Temp,
         }
@@ -817,7 +838,7 @@ namespace DebugToolkit.Commands
         {
             if (args.Count > index && args[index] != Lang.DEFAULT_VALUE)
             {
-                return Enum.TryParse(args[index], true, out ItemType itemType) ? itemType : ItemType.None;
+                return StringFinder.TryGetEnumFromPartial(args[index], out ItemType itemType) ? itemType : ItemType.None;
             }
             return ItemType.Permanent;
         }
