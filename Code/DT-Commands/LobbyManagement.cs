@@ -14,9 +14,8 @@ namespace DebugToolkit.Commands
         [RequiredLevel]
         private static void CCKick(ConCommandArgs args)
         {
-            if (args.Count == 0)
+            if (!ArgumentParser.AssertRequiredArguments(args, Lang.KICK_ARGS, 1))
             {
-                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.KICK_ARGS, args, LogLevel.Error);
                 return;
             }
             var client = GetClientFromArgs(args);
@@ -33,9 +32,8 @@ namespace DebugToolkit.Commands
         [RequiredLevel]
         private static void CCBan(ConCommandArgs args)
         {
-            if (args.Count == 0)
+            if (!ArgumentParser.AssertRequiredArguments(args, Lang.BAN_ARGS, 1))
             {
-                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.BAN_ARGS, args, LogLevel.Error);
                 return;
             }
             var client = GetClientFromArgs(args);
@@ -50,25 +48,14 @@ namespace DebugToolkit.Commands
         [AutoComplete(Lang.TRUEKILL_ARGS)]
         private static void CCTrueKill(ConCommandArgs args)
         {
-            if (args.sender == null && (args.Count < 1 || args[0] == Lang.DEFAULT_VALUE))
+            if (!ArgumentParser.AssertInARun(args) ||
+                !ArgumentParser.AssertRequiredArguments(args, Lang.TRUEKILL_ARGS, 0, 1) ||
+                !ArgumentParser.TryParsePlayerOrDefault(args, 0, out var master, requireLiving: true))
             {
-                Log.Message(Lang.INSUFFICIENT_ARGS + Lang.TRUEKILL_ARGS, LogLevel.Error);
                 return;
             }
-            CharacterMaster master = args.sender?.master;
-            if (args.Count > 0)
-            {
-                NetworkUser player = Util.GetNetUserFromString(args.userArgs);
-                if (player == null)
-                {
-                    Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
-                    return;
-                }
-                master = player.master;
-            }
-
             master.TrueKill();
-            Log.MessageNetworked(master.name + " was killed by server.", args);
+            Log.MessageNetworked($"{master.playerCharacterMasterController.GetDisplayName()} was killed by server.", args);
         }
 
         private static NetworkConnection GetClientFromArgs(ConCommandArgs args)

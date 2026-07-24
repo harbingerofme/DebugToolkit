@@ -14,21 +14,20 @@ namespace DebugToolkit.Commands
         [AutoComplete(Lang.GIVELUNAR_ARGS)]
         private static void CCGiveLunar(ConCommandArgs args)
         {
-            if (!Run.instance)
+            if (!ArgumentParser.AssertInARun(args))
             {
-                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
                 return;
             }
+
             string coinType = args.commandName.Contains("lunar") ? "lunar" : "void";
             if (args.sender == null)
             {
                 Log.Message($"Can't modify {coinType} coins of other users directly.", LogLevel.MessageClientOnly);
                 return;
             }
-            int amount = 1;
-            if (args.Count > 0 && args[0] != Lang.DEFAULT_VALUE && !TextSerialization.TryParseInvariant(args[0], out amount))
+
+            if (!ArgumentParser.TryParseOptionalInt(args, 0, "amount", 1, out var amount))
             {
-                Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "amount", "int"), args, LogLevel.MessageClientOnly);
                 return;
             }
             string str = "Nothing happened. Big surprise.";
@@ -65,20 +64,11 @@ namespace DebugToolkit.Commands
         [AutoComplete(Lang.GIVEMONEY_ARGS)]
         private static void CCGiveMoney(ConCommandArgs args)
         {
-            if (!Run.instance)
+            if (!ArgumentParser.AssertInARun(args) ||
+                !ArgumentParser.AssertRequiredArguments(args, Lang.GIVEMONEY_ARGS, 1) ||
+                // Technically not optional
+                !ArgumentParser.TryParseOptionalInt(args, 0, "amount", default, out var amount))
             {
-                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            if (args.Count == 0)
-            {
-                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.GIVEMONEY_ARGS, args, LogLevel.MessageClientOnly);
-                return;
-            }
-
-            if (!TextSerialization.TryParseInvariant(args[0], out int result))
-            {
-                Log.MessageNetworked(string.Format(Lang.PARSE_ERROR, "amount", "int"), args, LogLevel.MessageClientOnly);
                 return;
             }
 
@@ -86,7 +76,7 @@ namespace DebugToolkit.Commands
             {
                 if (UseShareSuite())
                 {
-                    ShareSuiteGive(result);
+                    ShareSuiteGive(amount);
                     return;
                 }
             }
@@ -96,7 +86,7 @@ namespace DebugToolkit.Commands
                 NetworkUser player = Util.GetNetUserFromString(args.userArgs, 1);
                 if (player != null)
                 {
-                    GiveMasterMoney(player.master, result);
+                    GiveMasterMoney(player.master, amount);
                 }
                 else
                 {
@@ -107,7 +97,7 @@ namespace DebugToolkit.Commands
             else
             {
                 var teamIndex = args.senderMaster == null ? TeamIndex.Player : args.senderMaster.teamIndex;
-                GiveTeamMoney(teamIndex, result);
+                GiveTeamMoney(teamIndex, amount);
             }
 
             Log.MessageNetworked("$$$", args);

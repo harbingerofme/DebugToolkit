@@ -1,6 +1,5 @@
 ﻿using RoR2;
 using System;
-using static DebugToolkit.Log;
 
 namespace DebugToolkit.Commands
 {
@@ -14,9 +13,9 @@ namespace DebugToolkit.Commands
         {
             if (args.Count > 0)
             {
-                if (!Util.TryParseBool(args[0], out var result))
+                // Not optional technically
+                if (!ArgumentParser.TryParseOptionalBool(args, 0, "enable", default, out var result))
                 {
-                    Log.MessageNetworked(string.Format(Lang.PARSE_ERROR, "'flag'", "'bool'"), args, LogLevel.MessageClientOnly);
                     return;
                 }
                 canSaveProfile = !result;

@@ -2,7 +2,6 @@ using RoR2;
 using RoR2.ExpansionManagement;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using UnityEngine;
 using static DebugToolkit.Log;
@@ -15,14 +14,9 @@ namespace DebugToolkit.Commands
         [AutoComplete(Lang.ENABLE_ARGS)]
         private static void CCGodModeToggle(ConCommandArgs args)
         {
-            bool enabled = !Hooks.god;
-            if (args.Count > 0)
+            if (!ArgumentParser.TryParseOptionalBool(args, 0, "enable", !Hooks.god, out var enabled))
             {
-                if (!Util.TryParseBool(args[0], out enabled))
-                {
-                    Log.MessageNetworked(string.Format(Lang.PARSE_ERROR, "enable", "bool"), args, LogLevel.MessageClientOnly);
-                    return;
-                }
+                return;
             }
             Hooks.god = enabled;
             foreach (var playerInstance in PlayerCharacterMasterController.instances)
@@ -40,14 +34,9 @@ namespace DebugToolkit.Commands
         [AutoComplete(Lang.ENABLE_ARGS)]
         private static void CCBuddhaModeToggle(ConCommandArgs args)
         {
-            bool enabled = !Hooks.buddha;
-            if (args.Count > 0)
+            if (!ArgumentParser.TryParseOptionalBool(args, 0, "enable", !Hooks.buddha, out var enabled))
             {
-                if (!Util.TryParseBool(args[0], out enabled))
-                {
-                    Log.MessageNetworked(string.Format(Lang.PARSE_ERROR, "enable", "bool"), args, LogLevel.MessageClientOnly);
-                    return;
-                }
+                return;
             }
             Hooks.buddha = enabled;
             Log.MessageNetworked(String.Format(enabled ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, "Buddha mode"), args);
@@ -57,14 +46,9 @@ namespace DebugToolkit.Commands
         [AutoComplete(Lang.ENABLE_ARGS)]
         private static void CCNoclip(ConCommandArgs args)
         {
-            if (args.sender == null)
+            if (!ArgumentParser.AssertNotServer(args) ||
+                !ArgumentParser.AssertInARun(args))
             {
-                Log.MessageWarning(Lang.DS_NOTAVAILABLE);
-                return;
-            }
-            if (!Run.instance)
-            {
-                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
                 return;
             }
 
@@ -73,10 +57,9 @@ namespace DebugToolkit.Commands
                 NoclipNet.Invoke(args.sender);
                 return;
             }
-
-            if (!Util.TryParseBool(args[0], out var enabled))
+            // Not optional technically
+            if (!ArgumentParser.TryParseOptionalBool(args, 0, "enable", default, out var enabled))
             {
-                Log.MessageNetworked(string.Format(Lang.PARSE_ERROR, "enable", "bool"), args, LogLevel.MessageClientOnly);
                 return;
             }
             NoclipNet.Invoke(args.sender, enabled); // callback
@@ -85,19 +68,10 @@ namespace DebugToolkit.Commands
         [ConCommand(commandName = "teleport_on_cursor", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.CURSORTELEPORT_HELP)]
         private static void CCCursorTeleport(ConCommandArgs args)
         {
-            if (args.sender == null)
+            if (!ArgumentParser.AssertNotServer(args) ||
+                !ArgumentParser.AssertInARun(args) ||
+                !ArgumentParser.AssertLivingBody(args))
             {
-                Log.MessageWarning(Lang.DS_NOTAVAILABLE);
-                return;
-            }
-            if (!Run.instance)
-            {
-                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            if (!args.senderBody)
-            {
-                Log.MessageNetworked("Can't teleport while you're dead. " + Lang.USE_RESPAWN, args, LogLevel.MessageClientOnly);
                 return;
             }
             TeleportNet.Invoke(args.sender); // callback
@@ -107,35 +81,12 @@ namespace DebugToolkit.Commands
         [AutoComplete(Lang.SPAWNAS_ARGS)]
         private static void CCSpawnAs(ConCommandArgs args)
         {
-            if (!Run.instance)
+            if (!ArgumentParser.AssertInARun(args) ||
+                !ArgumentParser.AssertRequiredArguments(args, Lang.SPAWNAS_ARGS, 1, 2) ||
+                !ArgumentParser.TryParseBody(args, 0, out var newBody) ||
+                !ArgumentParser.TryParsePlayerOrDefault(args, 1, out var master))
             {
-                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
                 return;
-            }
-            if (args.Count == 0 || (args.sender == null && (args.Count < 2 || args[1] == Lang.DEFAULT_VALUE)))
-            {
-                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.SPAWNAS_ARGS, args, LogLevel.MessageClientOnly);
-                return;
-            }
-
-            var bodyIndex = StringFinder.Instance.GetBodyFromPartial(args[0]);
-            if (bodyIndex == BodyIndex.None)
-            {
-                Log.MessageNetworked(Lang.BODY_NOTFOUND, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            GameObject newBody = BodyCatalog.GetBodyPrefab(bodyIndex);
-
-            CharacterMaster master = args.senderMaster;
-            if (args.Count > 1 && args[1] != Lang.DEFAULT_VALUE)
-            {
-                NetworkUser player = Util.GetNetUserFromString(args.userArgs, 1);
-                if (player == null)
-                {
-                    Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
-                    return;
-                }
-                master = player.master;
             }
 
             var expansion = newBody.GetComponent<ExpansionRequirementComponent>();
@@ -147,7 +98,7 @@ namespace DebugToolkit.Commands
 
             master.originalBodyPrefab = newBody;
             master.bodyPrefab = newBody;
-            Log.MessageNetworked(args.sender.userName + " is spawning as " + newBody.name, args);
+            Log.MessageNetworked($"{master.playerCharacterMasterController.GetDisplayName()} is spawning as {newBody.name}.", args);
 
             if (!master.GetBody())
             {
@@ -162,26 +113,11 @@ namespace DebugToolkit.Commands
         [AutoComplete(Lang.RESPAWN_ARGS)]
         private static void CCRespawnPlayer(ConCommandArgs args)
         {
-            if (!Run.instance)
+            if (!ArgumentParser.AssertInARun(args) ||
+                !ArgumentParser.AssertRequiredArguments(args, Lang.RESPAWN_ARGS, 0, 1) ||
+                !ArgumentParser.TryParsePlayerOrDefault(args, 0, out var master))
             {
-                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
                 return;
-            }
-            if (args.sender == null && (args.Count < 1 || args[0] == Lang.DEFAULT_VALUE))
-            {
-                Log.Message(Lang.INSUFFICIENT_ARGS + Lang.RESPAWN_ARGS, LogLevel.Error);
-                return;
-            }
-            CharacterMaster master = args.senderMaster;
-            if (args.Count > 0 && args[0] != Lang.DEFAULT_VALUE)
-            {
-                NetworkUser player = Util.GetNetUserFromString(args.userArgs);
-                if (player == null)
-                {
-                    Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
-                    return;
-                }
-                master = player.master;
             }
 
             var body = master.GetBody() ?? master.bodyPrefab.GetComponent<CharacterBody>();
@@ -209,30 +145,12 @@ namespace DebugToolkit.Commands
         [AutoComplete(Lang.HURT_ARGS)]
         private static void CCHurt(ConCommandArgs args)
         {
-            if (!Run.instance)
+            if (!ArgumentParser.AssertInARun(args) ||
+                !ArgumentParser.AssertRequiredArguments(args, Lang.HURT_ARGS, 1, 2) ||
+                // Not optional technically
+                !ArgumentParser.TryParseOptionalFloat(args, 0, "amount", default, out var amount, min: 0) ||
+                !ArgumentParser.TryParsePlayerOrPingedBodyTarget(args, 1, out var target))
             {
-                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            if (args.Count == 0 || (args.sender == null && (args.Count < 2 || args[1] == Lang.DEFAULT_VALUE)))
-            {
-                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.HURT_ARGS, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            var target = Buffs.ParseTarget(args, 1);
-            if (target.failMessage != null)
-            {
-                Log.MessageNetworked(target.failMessage, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            if (!TextSerialization.TryParseInvariant(args[0], out float amount))
-            {
-                Log.MessageNetworked(string.Format(Lang.PARSE_ERROR, "value", "float"), args, LogLevel.MessageClientOnly);
-                return;
-            }
-            if (amount < 0f)
-            {
-                Log.MessageNetworked(string.Format(Lang.NEGATIVE_ARG, "value"), args, LogLevel.MessageClientOnly);
                 return;
             }
             if (amount == 0f)
@@ -252,30 +170,12 @@ namespace DebugToolkit.Commands
         [AutoComplete(Lang.HEAL_ARGS)]
         private static void CCHeal(ConCommandArgs args)
         {
-            if (!Run.instance)
+            if (!ArgumentParser.AssertInARun(args) ||
+                !ArgumentParser.AssertRequiredArguments(args, Lang.HEAL_ARGS, 1, 2) ||
+                // Not optional technically
+                !ArgumentParser.TryParseOptionalFloat(args, 0, "amount", default, out var amount, min: 0) ||
+                !ArgumentParser.TryParsePlayerOrPingedBodyTarget(args, 1, out var target))
             {
-                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            if (args.Count == 0 || (args.sender == null && (args.Count < 2 || args[1] == Lang.DEFAULT_VALUE)))
-            {
-                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.HEAL_ARGS, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            var target = Buffs.ParseTarget(args, 1);
-            if (target.failMessage != null)
-            {
-                Log.MessageNetworked(target.failMessage, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            if (!TextSerialization.TryParseInvariant(args[0], out float amount))
-            {
-                Log.MessageNetworked(string.Format(Lang.PARSE_ERROR, "amount", "float"), args, LogLevel.MessageClientOnly);
-                return;
-            }
-            if (amount < 0f)
-            {
-                Log.MessageNetworked(string.Format(Lang.NEGATIVE_ARG, "amount"), args, LogLevel.MessageClientOnly);
                 return;
             }
             if (amount == 0f)
@@ -288,67 +188,33 @@ namespace DebugToolkit.Commands
         }
 
         [ConCommand(commandName = "change_team", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.CHANGETEAM_HELP)]
-        [AutoComplete(Lang.CHANGETEAM_HELP)]
+        [AutoComplete(Lang.CHANGETEAM_ARGS)]
         private static void CCChangeTeam(ConCommandArgs args)
         {
-            if (!Run.instance)
+            if (!ArgumentParser.AssertInARun(args) ||
+                !ArgumentParser.AssertRequiredArguments(args, Lang.CHANGETEAM_ARGS, 1, 2) ||
+                !ArgumentParser.TryParseTeam(args, 0, out var teamIndex) ||
+                !ArgumentParser.TryParsePlayerOrDefault(args, 1, out var master))
             {
-                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            if (args.Count == 0 || (args.sender == null && (args.Count < 2 || args[1] == Lang.DEFAULT_VALUE)))
-            {
-                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.CHANGETEAM_ARGS, args, LogLevel.MessageClientOnly);
                 return;
             }
 
-            CharacterMaster master = args.sender?.master;
-            if (args.Count > 1 && args[1] != Lang.DEFAULT_VALUE)
-            {
-                NetworkUser player = Util.GetNetUserFromString(args.userArgs, 1);
-                if (player == null)
-                {
-                    Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
-                    return;
-                }
-                master = player.master;
-            }
-            if (!master.GetBody())
-            {
-                Log.MessageNetworked("Can't change a dead player's team. " + Lang.USE_RESPAWN, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            var teamIndex = StringFinder.Instance.GetTeamFromPartial(args[0]);
-            if (teamIndex == StringFinder.TeamIndex_NotFound)
-            {
-                Log.MessageNetworked(Lang.TEAM_NOTFOUND, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            master.GetBody().teamComponent.teamIndex = teamIndex;
             master.teamIndex = teamIndex;
-            Log.MessageNetworked("Changed to team " + teamIndex, args);
+            if (master.hasBody)
+            {
+                master.GetBody().teamComponent.teamIndex = teamIndex;
+            }
+            Log.MessageNetworked($"Changed {master.playerCharacterMasterController.GetDisplayName()} to team {teamIndex}.", args);
         }
 
         [ConCommand(commandName = "remove_all_minions", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.REMOVEALLMINIONS_HELP)]
         [AutoComplete(Lang.REMOVEALLMINIONS_ARGS)]
         private static void CCRemoveAllMinions(ConCommandArgs args)
         {
-            if (!Run.instance)
+            if (!ArgumentParser.AssertInARun(args) ||
+                !ArgumentParser.AssertRequiredArguments(args, Lang.REMOVEALLMINIONS_ARGS, 0, 1) ||
+                !ArgumentParser.TryParsePlayerOrPingedTarget(args, 0, out var target))
             {
-                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            bool isDedicatedServer = args.sender == null;
-            if (isDedicatedServer && (args.Count < 1 || args[0] == Lang.DEFAULT_VALUE))
-            {
-                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.REMOVEALLMINIONS_ARGS, args, LogLevel.MessageClientOnly);
-                return;
-            }
-
-            var target = Items.ParseTarget(args, 0);
-            if (target.failMessage != null)
-            {
-                Log.MessageNetworked(target.failMessage, args, LogLevel.MessageClientOnly);
                 return;
             }
 
@@ -374,9 +240,9 @@ namespace DebugToolkit.Commands
         [ConCommand(commandName = "dump_build", flags = ConVarFlags.None, helpText = Lang.DUMPBUILD_HELP)]
         private static void CCDumpBuild(ConCommandArgs args)
         {
-            if (!args.sender)
+            if (!ArgumentParser.AssertNotServer(args) ||
+                !ArgumentParser.AssertInARun(args))
             {
-                Log.Message(Lang.DS_NOTAVAILABLE, LogLevel.Error);
                 return;
             }
 
@@ -483,20 +349,13 @@ namespace DebugToolkit.Commands
         [AutoComplete(Lang.DUMPSTATS_ARGS)]
         private static void CCDumpStats(ConCommandArgs args)
         {
-            if (args.Count == 0)
+            if (!ArgumentParser.AssertRequiredArguments(args, Lang.DUMPSTATS_ARGS, 1) ||
+                !ArgumentParser.TryParseBody(args, 0, out var bodyPrefab))
             {
-                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.DUMPSTATS_ARGS, args, LogLevel.ErrorClientOnly);
                 return;
             }
-            var bodyIndex = StringFinder.Instance.GetBodyFromPartial(args[0]);
-            if (bodyIndex == BodyIndex.None)
-            {
-                Log.MessageNetworked(Lang.BODY_NOTFOUND, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            var body = BodyCatalog.GetBodyPrefabBodyComponent(bodyIndex);
-
-            var sb = new System.Text.StringBuilder();
+            var body = bodyPrefab.GetComponent<CharacterBody>();
+            var sb = new StringBuilder();
             sb.AppendLine($"Body: {body.name}");
             sb.AppendLine($"Health: {body.baseMaxHealth} ({FormatLevelStat(body.levelMaxHealth)}/level)");
             sb.AppendLine($"Regen: {body.baseRegen} ({FormatLevelStat(body.levelRegen)}/level)");
@@ -524,37 +383,16 @@ namespace DebugToolkit.Commands
         [AutoComplete(Lang.DUMPSTATE_ARGS)]
         private static void CCDumpState(ConCommandArgs args)
         {
-            if (!Run.instance)
+            if (!ArgumentParser.AssertInARun(args) ||
+                !ArgumentParser.AssertRequiredArguments(args, Lang.DUMPSTATE_ARGS, 0, 1) ||
+                !ArgumentParser.TryParsePlayerOrPingedBodyTarget(args, 0, out var target))
             {
-                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            bool isDedicatedServer = args.sender == null;
-            if (args.Count < 1 && isDedicatedServer)
-            {
-                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.DUMPSTATE_ARGS, args, LogLevel.ErrorClientOnly);
                 return;
             }
 
-            CharacterMaster target = args.senderMaster;
-            if (args.Count > 0 && args[0] != Lang.DEFAULT_VALUE)
-            {
-                target = Util.GetTargetFromArgs(args, 0);
-                if (target == null && !isDedicatedServer && args[0].ToUpperInvariant() == Lang.PINGED)
-                {
-                    Log.MessageNetworked(Lang.PINGEDBODY_NOTFOUND, args, LogLevel.MessageClientOnly);
-                    return;
-                }
-            }
-            if (target == null)
-            {
-                Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
-                return;
-            }
-
-            var body = target.GetBody();
+            var body = target.body;
             var healthComponent = body.GetComponent<HealthComponent>();
-            var sb = new System.Text.StringBuilder();
+            var sb = new StringBuilder();
             var suffix = "(Clone)";
             sb.AppendLine($"Body: {(body.name.EndsWith(suffix) ? body.name.Substring(0, body.name.Length - suffix.Length) : body.name)}");
             sb.AppendLine($"Level: {body.level}");
@@ -645,7 +483,7 @@ namespace DebugToolkit.Commands
             Log.MessageNetworked(sb.ToString().TrimEnd('\n'), args, LogLevel.MessageClientOnly);
         }
 
-        private static void GatherObjectState(System.Text.StringBuilder sb, Component component)
+        private static void GatherObjectState(StringBuilder sb, Component component)
         {
             var esmComponents = component.GetComponents<EntityStateMachine>();
             foreach (var esm in esmComponents)

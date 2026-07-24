@@ -20,32 +20,15 @@ namespace DebugToolkit.Commands
         [AutoComplete(Lang.SPAWNINTERACTABLE_ARGS)]
         private static void CCSpawnInteractable(ConCommandArgs args)
         {
-            if (!Run.instance)
+            if (!ArgumentParser.AssertNotServer(args) ||
+                !ArgumentParser.AssertInARun(args) ||
+                !ArgumentParser.AssertLivingBody(args) ||
+                !ArgumentParser.AssertRequiredArguments(args, Lang.SPAWNINTERACTABLE_ARGS, 1) ||
+                !ArgumentParser.TryParseInteractableCard(args, 0, out var isc))
             {
-                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
                 return;
             }
-            if (args.sender == null)
-            {
-                Log.Message(Lang.DS_NOTYETIMPLEMENTED, LogLevel.Error);
-                return;
-            }
-            if (args.Count == 0)
-            {
-                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.SPAWNINTERACTABLE_ARGS, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            if (!args.senderBody)
-            {
-                Log.MessageNetworked("Can't spawn an object with relation to a dead target.", args, LogLevel.MessageClientOnly);
-                return;
-            }
-            var isc = StringFinder.Instance.GetInteractableSpawnCardFromPartial(args[0]);
-            if (isc == null)
-            {
-                Log.MessageNetworked(Lang.INTERACTABLE_NOTFOUND, args, LogLevel.MessageClientOnly);
-                return;
-            }
+
             // Putting interactables with a collider just far enough to not cause any clipping
             // or spawn under the character's feet. The few exceptions with MeshCollider aren't
             // treated but they aren't much of an issue.
@@ -92,24 +75,11 @@ namespace DebugToolkit.Commands
         [AutoComplete(Lang.SPAWNPORTAL_ARGS)]
         private static void CCSpawnPortal(ConCommandArgs args)
         {
-            if (!Run.instance)
+            if (!ArgumentParser.AssertNotServer(args) ||
+                !ArgumentParser.AssertInARun(args) ||
+                !ArgumentParser.AssertLivingBody(args) ||
+                !ArgumentParser.AssertRequiredArguments(args, Lang.SPAWNPORTAL_ARGS, 1))
             {
-                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            if (args.sender == null)
-            {
-                Log.Message(Lang.DS_NOTYETIMPLEMENTED, LogLevel.Error);
-                return;
-            }
-            if (args.Count == 0)
-            {
-                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.SPAWNPORTAL_ARGS, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            if (!args.senderBody)
-            {
-                Log.MessageNetworked("Can't spawn an object with relation to a dead target.", args, LogLevel.MessageClientOnly);
                 return;
             }
 
@@ -158,84 +128,29 @@ namespace DebugToolkit.Commands
         [AutoComplete(Lang.SPAWNAI_ARGS)]
         private static void CCSpawnAI(ConCommandArgs args)
         {
-            if (!Run.instance)
+            if (!ArgumentParser.AssertNotServer(args) ||
+                !ArgumentParser.AssertInARun(args) ||
+                !ArgumentParser.AssertLivingBody(args) ||
+                !ArgumentParser.AssertRequiredArguments(args, Lang.SPAWNAI_ARGS, 1) ||
+                !ArgumentParser.TryParseMaster(args, 0, out var masterPrefab) ||
+                !ArgumentParser.TryParseOptionalInt(args, 1, "count", 1, out var count, min: 1) ||
+                !ArgumentParser.TryParseEliteOrDefault(args, 2, null, out var eliteDef) ||
+                !ArgumentParser.TryParseOptionalBool(args, 3, "braindead", false, out var braindead))
             {
-                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            if (args.sender == null)
-            {
-                Log.Message(Lang.DS_NOTYETIMPLEMENTED, LogLevel.Error);
-                return;
-            }
-            if (args.Count == 0)
-            {
-                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.SPAWNAI_ARGS, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            if (!args.senderBody)
-            {
-                Log.MessageNetworked("Can't spawn an object with relation to a dead target.", args, LogLevel.MessageClientOnly);
                 return;
             }
 
-            var masterIndex = StringFinder.Instance.GetAiFromPartial(args[0]);
-            if (masterIndex == MasterCatalog.MasterIndex.none)
+            var isAlly = false;
+            TeamIndex teamIndex;
+            var teamArgumentIndex = 4;
+            if (args.Count > teamArgumentIndex && string.Equals(args[teamArgumentIndex], Lang.ALLY, StringComparison.InvariantCultureIgnoreCase))
             {
-                Log.MessageNetworked(Lang.SPAWN_ERROR + args[0], args, LogLevel.MessageClientOnly);
+                isAlly = true;
+                teamIndex = args.senderBody.teamComponent.teamIndex;
+            }
+            else if (!ArgumentParser.TryParseTeamOrDefault(args, teamArgumentIndex, TeamIndex.Monster, out teamIndex))
+            {
                 return;
-            }
-            var masterPrefab = MasterCatalog.GetMasterPrefab(masterIndex);
-
-            int amount = 1;
-            if (args.Count > 1 && args[1] != Lang.DEFAULT_VALUE && !TextSerialization.TryParseInvariant(args[1], out amount))
-            {
-                Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "count", "int"), args, LogLevel.MessageClientOnly);
-                return;
-            }
-
-            EliteDef eliteDef = null;
-            if (args.Count > 2 && args[2] != Lang.DEFAULT_VALUE)
-            {
-                var eliteIndex = StringFinder.Instance.GetEliteFromPartial(args[2]);
-                if (eliteIndex == StringFinder.EliteIndex_NotFound)
-                {
-                    Log.MessageNetworked(Lang.ELITE_NOTFOUND, args, LogLevel.MessageClientOnly);
-                    return;
-                }
-                eliteDef = EliteCatalog.GetEliteDef(eliteIndex);
-                if (eliteDef && eliteDef.eliteEquipmentDef && Run.instance.IsEquipmentExpansionLocked(eliteDef.eliteEquipmentDef.equipmentIndex))
-                {
-                    var expansion = Util.GetExpansion(eliteDef.eliteEquipmentDef.requiredExpansion);
-                    Log.MessageNetworked(string.Format(Lang.EXPANSION_LOCKED, "elite equipment", expansion), args, LogLevel.WarningClientOnly);
-                }
-            }
-
-            bool braindead = false;
-            if (args.Count > 3 && args[3] != Lang.DEFAULT_VALUE && !Util.TryParseBool(args[3], out braindead))
-            {
-                Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "braindead", "int or bool"), args, LogLevel.MessageClientOnly);
-                return;
-            }
-
-            bool isAlly = false;
-            TeamIndex teamIndex = TeamIndex.Monster;
-            if (args.Count > 4 && args[4] != Lang.DEFAULT_VALUE)
-            {
-                if (args[4].ToUpperInvariant() == Lang.ALLY)
-                {
-                    isAlly = true;
-                    teamIndex = args.senderBody.teamComponent.teamIndex;
-                }
-                else
-                {
-                    teamIndex = StringFinder.Instance.GetTeamFromPartial(args[4]);
-                    if (teamIndex == StringFinder.TeamIndex_NotFound)
-                    {
-                        Log.MessageNetworked(Lang.TEAM_NOTFOUND, args, LogLevel.MessageClientOnly);
-                        return;
-                    }
-                }
             }
 
             var spawnCard = StringFinder.Instance.GetDirectorCardFromPartial(masterPrefab.name)?.spawnCard;
@@ -261,15 +176,15 @@ namespace DebugToolkit.Commands
             spawnRequest.ignoreTeamMemberLimit = true;
 
             var isFlyer = spawnCard.nodeGraphType == MapNodeGroup.GraphType.Air;
-            GetSpawnPosition(masterPrefab, args.senderBody, isFlyer, amount, out var position, out var radius);
+            GetSpawnPosition(masterPrefab, args.senderBody, isFlyer, count, out var position, out var radius);
 
-            Log.MessageNetworked(string.Format(Lang.SPAWN_ATTEMPT_2, amount, masterPrefab.name), args);
-            for (int i = 0; i < amount; i++)
+            Log.MessageNetworked(string.Format(Lang.SPAWN_ATTEMPT_2, count, masterPrefab.name), args);
+            for (int i = 0; i < count; i++)
             {
                 var spawnPosition = position;
                 if (isFlyer)
                 {
-                    var direction = Quaternion.AngleAxis(360f * ((float)i / amount), args.senderBody.transform.up) * args.senderBody.transform.forward;
+                    var direction = Quaternion.AngleAxis(360f * ((float)i / count), args.senderBody.transform.up) * args.senderBody.transform.forward;
                     spawnPosition = position + (direction * radius);
                 }
                 var masterGameObject = spawnCard.DoSpawn(spawnPosition, Quaternion.identity, spawnRequest).spawnedInstance;
@@ -298,90 +213,32 @@ namespace DebugToolkit.Commands
         [AutoComplete(Lang.SPAWNBODY_ARGS)]
         private static void CCSpawnBody(ConCommandArgs args)
         {
-            if (!Run.instance)
+            if (!ArgumentParser.AssertNotServer(args) ||
+                !ArgumentParser.AssertInARun(args) ||
+                !ArgumentParser.AssertLivingBody(args) ||
+                !ArgumentParser.AssertRequiredArguments(args, Lang.SPAWNBODY_ARGS, 1) ||
+                !ArgumentParser.TryParseBody(args, 0, out var bodyPrefab))
             {
-                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
                 return;
             }
-            if (args.sender == null)
-            {
-                Log.Message(Lang.DS_NOTYETIMPLEMENTED, LogLevel.Error);
-                return;
-            }
-            if (args.Count == 0)
-            {
-                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.SPAWNBODY_ARGS, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            if (!args.senderBody)
-            {
-                Log.MessageNetworked("Can't spawn an object with relation to a dead target.", args, LogLevel.MessageClientOnly);
-                return;
-            }
-
-            var bodyIndex = StringFinder.Instance.GetBodyFromPartial(args[0]);
-            if (bodyIndex == BodyIndex.None)
-            {
-                Log.MessageNetworked(string.Format(Lang.SPAWN_ERROR, args[0]), args, LogLevel.MessageClientOnly);
-                return;
-            }
-
-            GameObject body = BodyCatalog.GetBodyPrefab(bodyIndex);
-            GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(body, args.senderBody.transform.position, Quaternion.identity);
+            GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(bodyPrefab, args.senderBody.transform.position, Quaternion.identity);
             NetworkServer.Spawn(gameObject);
-            Log.MessageNetworked(string.Format(Lang.SPAWN_ATTEMPT_1, body.name), args);
+            Log.MessageNetworked(string.Format(Lang.SPAWN_ATTEMPT_1, bodyPrefab.name), args);
         }
 
         [ConCommand(commandName = "spawn_drone", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SPAWNDRONE_HELP)]
         [AutoComplete(Lang.SPAWNDRONE_ARGS)]
         private static void CCSpawnDrone(ConCommandArgs args)
         {
-            if (!Run.instance)
+            if (!ArgumentParser.AssertNotServer(args) ||
+                !ArgumentParser.AssertInARun(args) ||
+                !ArgumentParser.AssertLivingBody(args) ||
+                !ArgumentParser.AssertRequiredArguments(args, Lang.SPAWNDRONE_ARGS, 1) ||
+                !ArgumentParser.TryParseDrone(args, 0, out var droneDef) ||
+                !ArgumentParser.TryParseOptionalInt(args, 1, "count", 1, out var amount, min: 0) ||
+                !ArgumentParser.TryParseOptionalInt(args, 2, "tier", 0, out var tier, min: 0))
             {
-                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
                 return;
-            }
-            if (args.sender == null)
-            {
-                Log.Message(Lang.DS_NOTYETIMPLEMENTED, LogLevel.Error);
-                return;
-            }
-            if (args.Count < 1)
-            {
-                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.SPAWNDRONE_ARGS, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            if (!args.senderBody)
-            {
-                Log.MessageNetworked("Can't spawn an object with relation to a dead target.", args, LogLevel.MessageClientOnly);
-                return;
-            }
-
-            var drone = StringFinder.Instance.GetDroneFromPartial(args[0]);
-            if (drone == DroneIndex.None)
-            {
-                Log.MessageNetworked(Lang.SPAWN_ERROR + args[0], args, LogLevel.MessageClientOnly);
-                return;
-            }
-            var droneDef = DroneCatalog.GetDroneDef(drone);
-
-            int amount = 1;
-            if (args.Count > 1 && args[1] != Lang.DEFAULT_VALUE && !TextSerialization.TryParseInvariant(args[1], out amount))
-            {
-                Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "count", "int"), args, LogLevel.MessageClientOnly);
-                return;
-            }
-
-            int tier = 0;
-            if (args.Count > 2 && args[2] != Lang.DEFAULT_VALUE && !TextSerialization.TryParseInvariant(args[2], out tier))
-            {
-                Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "tier", "int"), args, LogLevel.MessageClientOnly);
-                return;
-            }
-            if (tier < 0)
-            {
-                tier = 0;
-                Log.MessageNetworked("'tier' cannot be negative. Resetting to 0.", args, LogLevel.WarningClientOnly);
             }
 
             var isFlyer = GetBodyPrefabGraphType(droneDef.masterPrefab.GetComponent<CharacterMaster>().bodyPrefab) == MapNodeGroup.GraphType.Air;
@@ -420,44 +277,14 @@ namespace DebugToolkit.Commands
         [AutoComplete(Lang.SPAWNLEMURIAN_ARGS)]
         private static void CCSpawnLemurian(ConCommandArgs args)
         {
-            if (!Run.instance)
+            if (!ArgumentParser.AssertNotServer(args) ||
+                !ArgumentParser.AssertInARun(args) ||
+                !ArgumentParser.AssertLivingBody(args) ||
+                !ArgumentParser.AssertRequiredArguments(args, Lang.SPAWNLEMURIAN_ARGS, 1) ||
+                !ArgumentParser.TryParseItem(args, 0, out var itemDef) ||
+                !ArgumentParser.TryParseOptionalInt(args, 1, "level", 0, out var level, min: 0))
             {
-                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
                 return;
-            }
-            if (args.sender == null)
-            {
-                Log.Message(Lang.DS_NOTYETIMPLEMENTED, LogLevel.Error);
-                return;
-            }
-            if (args.Count < 1)
-            {
-                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.SPAWNLEMURIAN_ARGS, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            if (!args.senderBody)
-            {
-                Log.MessageNetworked("Can't spawn an object with relation to a dead target.", args, LogLevel.MessageClientOnly);
-                return;
-            }
-
-            var item = StringFinder.Instance.GetItemFromPartial(args[0]);
-            if (item == ItemIndex.None)
-            {
-                Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "item", args[0]), args, LogLevel.MessageClientOnly);
-                return;
-            }
-
-            var level = 0;
-            if (args.Count > 1 && args[1] != Lang.DEFAULT_VALUE && !TextSerialization.TryParseInvariant(args[1], out level))
-            {
-                Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "level", "int"), args, LogLevel.MessageClientOnly);
-                return;
-            }
-            if (level < 0)
-            {
-                level = 0;
-                Log.MessageNetworked("'level' cannot be negative. Resetting to 0.", args, LogLevel.WarningClientOnly);
             }
 
             var masterPrefab = MasterCatalog.GetMasterPrefab(MasterCatalog.FindMasterIndex("DevotedLemurianMaster"));
@@ -471,7 +298,7 @@ namespace DebugToolkit.Commands
             }
             GetSpawnPosition(masterPrefab, args.senderBody, false, 1, out var position, out _);
 
-            Log.MessageNetworked($"Spawned a level {level} Devoted Lemurian with {ItemCatalog.GetItemDef(item).name}.", args);
+            Log.MessageNetworked($"Spawned a level {level} Devoted Lemurian with {itemDef.name}.", args);
             var masterGameObject = new MasterSummon
             {
                 masterPrefab = masterPrefab,
@@ -496,9 +323,9 @@ namespace DebugToolkit.Commands
                     DevotionInventoryController.OnDevotionArtifactEnabled(RunArtifactManager.instance, CU8Content.Artifacts.Devotion);
                 }
                 var devotionInventoryController = DevotionInventoryController.GetOrCreateDevotionInventoryController(args.senderBody.GetComponent<Interactor>());
-                devotionInventoryController.GiveItem(item, 1 + level);
+                devotionInventoryController.GiveItem(itemDef.itemIndex, 1 + level);
                 var devotedLemurianController = masterGameObject.GetComponent<DevotedLemurianController>();
-                devotedLemurianController.InitializeDevotedLemurian(item, devotionInventoryController);
+                devotedLemurianController.InitializeDevotedLemurian(itemDef.itemIndex, devotionInventoryController);
                 devotedLemurianController.DevotedEvolutionLevel = level;
                 // We must implement `DevotionInventoryController.EvolveDevotedLumerian` manually, because the
                 // elite equipment is given via body.inventory, but the body has not been linked to the master yet.

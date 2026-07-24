@@ -7,7 +7,6 @@ using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.Networking;
 using static DebugToolkit.Log;
-using static DebugToolkit.Util;
 
 namespace DebugToolkit.Commands
 {
@@ -71,9 +70,8 @@ namespace DebugToolkit.Commands
         [ConCommand(commandName = "dump_inventories", flags = ConVarFlags.None, helpText = Lang.DUMPINVENTORIES_HELP)]
         private static void CCDumpInventories(ConCommandArgs args)
         {
-            if (!Run.instance)
+            if (!ArgumentParser.AssertInARun(args))
             {
-                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
                 return;
             }
             var sb = new StringBuilder();
@@ -118,78 +116,33 @@ namespace DebugToolkit.Commands
         [AutoComplete(Lang.GIVEITEM_ARGS)]
         private static void CCGiveItem(ConCommandArgs args)
         {
-            if (!Run.instance)
+            if (!ArgumentParser.AssertInARun(args) ||
+                !ArgumentParser.AssertRequiredArguments(args, Lang.GIVEITEM_ARGS, 1, 4) ||
+                !ArgumentParser.TryParseItem(args, 0, out var itemDef) ||
+                !ArgumentParser.TryParseOptionalInt(args, 1, "count", 1, out var count) ||
+                !TryParseItemType(args, 2, out var itemType) ||
+                !TryParseInventoryTarget(args, 3, out var target))
             {
-                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            bool isDedicatedServer = args.sender == null;
-            if (args.Count == 0 || (isDedicatedServer && (args.Count < 4 || args[3] == Lang.DEFAULT_VALUE)))
-            {
-                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.GIVEITEM_ARGS, args, LogLevel.MessageClientOnly);
-                return;
-            }
-
-            int iCount = 1;
-            if (args.Count > 1 && args[1] != Lang.DEFAULT_VALUE && !TextSerialization.TryParseInvariant(args[1], out iCount))
-            {
-                Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "count", "int"), args, LogLevel.MessageClientOnly);
                 return;
             }
 
-            var type = ParseItemType(args, 2);
-            if (type == ItemType.None)
-            {
-                Log.MessageNetworked(String.Format(Lang.INVALID_ARG_VALUE, "type"), args, LogLevel.MessageClientOnly);
-                return;
-            }
-
-            var target = ParseTarget(args, 3);
-            if (target.failMessage != null)
-            {
-                Log.MessageNetworked(target.failMessage, args, LogLevel.MessageClientOnly);
-                return;
-            }
-
-            var item = StringFinder.Instance.GetItemFromPartial(args[0]);
-            if (item == ItemIndex.None)
-            {
-                Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "item", args[0]), args, LogLevel.MessageClientOnly);
-                return;
-            }
-            var itemDef = ItemCatalog.GetItemDef(item);
             var name = itemDef.name;
-            var amount = (args.commandName == "give_item" ? 1 : -1) * iCount;
+            if (itemType != ItemType.Permanent)
+            {
+                name = $"{itemType} {name}";
+            }
+            var amount = (args.commandName == "give_item" ? 1 : -1) * count;
             var inventory = target.inventory;
             if (amount > 0)
             {
-                if (Run.instance.IsItemExpansionLocked(item))
-                {
-                    Log.MessageNetworked(string.Format(Lang.EXPANSION_LOCKED, "item", Util.GetExpansion(itemDef.requiredExpansion)), args, LogLevel.MessageClientOnly);
-                    return;
-                }
-                GiveItem(inventory, item, amount, type);
-                if (type == ItemType.Permanent)
-                {
-                    Log.MessageNetworked(string.Format(Lang.GIVEOBJECT, amount, name, target.name), args);
-                }
-                else
-                {
-                    Log.MessageNetworked(string.Format(Lang.GIVEOBJECT_2, amount, type, name, target.name), args);
-                }
+                GiveItem(inventory, itemDef.itemIndex, amount, itemType);
+                Log.MessageNetworked(string.Format(Lang.GIVEOBJECT, amount, name, target.name), args);
             }
             else if (amount < 0)
             {
-                amount = Math.Min(-amount, GetItemCount(inventory, item, type));
-                RemoveItem(inventory, item, amount, type);
-                if (type == ItemType.Permanent)
-                {
-                    Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT, amount, name, target.name), args);
-                }
-                else
-                {
-                    Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT_2, amount, type, name, target.name), args);
-                }
+                amount = Math.Min(-amount, GetItemCount(inventory, itemDef.itemIndex, itemType));
+                RemoveItem(inventory, itemDef.itemIndex, amount, itemType);
+                Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT, amount, name, target.name), args);
             }
             else
             {
@@ -205,23 +158,17 @@ namespace DebugToolkit.Commands
         [AutoComplete(Lang.RANDOMITEM_ARGS)]
         private static void CCRandomItems(ConCommandArgs args)
         {
-            if (!Run.instance)
+            if (!ArgumentParser.AssertInARun(args) ||
+                !ArgumentParser.AssertRequiredArguments(args, Lang.RANDOMITEM_ARGS, 1, 4) ||
+                // Not optional technically
+                !ArgumentParser.TryParseOptionalInt(args, 0, "count", default, out var count, min: 1) ||
+                !TryParseDroptable(args, 1, false) ||
+                !TryParseItemType(args, 2, out var itemType) ||
+                !TryParseInventoryTarget(args, 3, out var target))
             {
-                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            bool isDedicatedServer = args.sender == null;
-            if (args.Count == 0 || (isDedicatedServer && (args.Count < 4 || args[3] == Lang.DEFAULT_VALUE)))
-            {
-                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.RANDOMITEM_ARGS, args, LogLevel.MessageClientOnly);
                 return;
             }
 
-            var droptable = ParseDroptable(args, 1, false);
-            if (droptable == null)
-            {
-                return;
-            }
             var weightedSelection = droptable.selector;
             if (weightedSelection.Count == 0)
             {
@@ -229,50 +176,27 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            var type = ParseItemType(args, 2);
-            if (type == ItemType.None)
+            if (count > 0)
             {
-                Log.MessageNetworked(String.Format(Lang.INVALID_ARG_VALUE, "type"), args, LogLevel.MessageClientOnly);
-                return;
-            }
-
-            var target = ParseTarget(args, 3);
-            if (target.failMessage != null)
-            {
-                Log.MessageNetworked(target.failMessage, args, LogLevel.MessageClientOnly);
-                return;
-            }
-
-            if (!TextSerialization.TryParseInvariant(args[0], out int iCount))
-            {
-                Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "count", "int"), args, LogLevel.MessageClientOnly);
-                return;
-            }
-            if (iCount > 0)
-            {
-                for (int i = 0; i < iCount; i++)
+                for (int i = 0; i < count; i++)
                 {
                     var uniquePickup = weightedSelection.Evaluate(UnityEngine.Random.value);
                     var pickupDef = PickupCatalog.GetPickupDef(uniquePickup.pickupIndex);
                     var item = pickupDef?.itemIndex ?? ItemIndex.None;
-                    GiveItem(target.inventory, item, 1, type);
+                    GiveItem(target.inventory, item, 1, itemType);
                 }
                 if (target.devotionController)
                 {
                     target.devotionController.UpdateAllMinions(false);
                 }
-                if (type == ItemType.Permanent)
+                if (itemType == ItemType.Permanent)
                 {
-                    Log.MessageNetworked($"Generated {iCount} items for {target.name}!", args);
+                    Log.MessageNetworked($"Generated {count} items for {target.name}!", args);
                 }
                 else
                 {
-                    Log.MessageNetworked($"Generated {iCount} {type} items for {target.name}!", args);
+                    Log.MessageNetworked($"Generated {count} {itemType} items for {target.name}!", args);
                 }
-            }
-            else
-            {
-                Log.MessageNetworked("'count' should be a non-zero positive integer.", args, LogLevel.MessageClientOnly);
             }
         }
 
@@ -280,157 +204,51 @@ namespace DebugToolkit.Commands
         [AutoComplete(Lang.GIVEEQUIP_ARGS)]
         private static void CCGiveEquipment(ConCommandArgs args)
         {
-            if (!Run.instance)
+            if (!ArgumentParser.AssertInARun(args) ||
+                !ArgumentParser.AssertRequiredArguments(args, Lang.GIVEEQUIP_ARGS, 1, 2) ||
+                !ArgumentParser.TryParseEquipmentOrRandom(args, 0, out var equipmentDef) ||
+                !TryParseInventoryTarget(args, 1, out var target))
             {
-                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
                 return;
             }
-            bool isDedicatedServer = args.sender == null;
-            if (args.Count == 0 || (isDedicatedServer && (args.Count < 2 || args[1] == Lang.DEFAULT_VALUE)))
-            {
-                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.GIVEEQUIP_ARGS, args, LogLevel.MessageClientOnly);
-                return;
-            }
-
-            var target = ParseTarget(args, 1);
-            if (target.failMessage != null)
-            {
-                Log.MessageNetworked(target.failMessage, args, LogLevel.MessageClientOnly);
-                return;
-            }
-
-            var inventory = target.inventory;
-            var equip = EquipmentIndex.None;
-            if (args[0].ToUpperInvariant() == Lang.RANDOM)
-            {
-                inventory.GiveRandomEquipment();
-                equip = inventory.GetEquipmentIndex();
-            }
-            else
-            {
-                equip = StringFinder.Instance.GetEquipFromPartial(args[0]);
-                if (equip == EquipmentIndex.None)
-                {
-                    Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "equip", args[0]), args, LogLevel.MessageClientOnly);
-                    return;
-                }
-                if (Run.instance.IsEquipmentExpansionLocked(equip))
-                {
-                    Log.MessageNetworked(string.Format(Lang.EXPANSION_LOCKED, "equipment", Util.GetExpansion(EquipmentCatalog.GetEquipmentDef(equip).requiredExpansion)), args, LogLevel.MessageClientOnly);
-                    return;
-                }
-                inventory.SetEquipmentIndex(equip, false);
-            }
-            var name = EquipmentCatalog.GetEquipmentDef(equip).name;
-
-            Log.MessageNetworked($"Gave {name} to {target.name}", args);
+            target.inventory.SetEquipmentIndex(equipmentDef.equipmentIndex, false);
+            Log.MessageNetworked($"Gave {equipmentDef.name} to {target.name}", args);
         }
 
         [ConCommand(commandName = "give_equip_extra", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.GIVEEQUIPEXTRA_HELP)]
         [AutoComplete(Lang.GIVEEQUIPEXTRA_ARGS)]
         private static void CCGiveEquipmentExtra(ConCommandArgs args)
         {
-            if (!Run.instance)
+            if (!ArgumentParser.AssertInARun(args) ||
+                !ArgumentParser.AssertRequiredArguments(args, Lang.GIVEEQUIPEXTRA_ARGS, 3, 4) ||
+                !ArgumentParser.TryParseEquipmentOrRandom(args, 0, out var equipmentDef) ||
+                // Slot and set not optional technically
+                !ArgumentParser.TryParseOptionalUInt(args, 1, "slot", default, out var slot) ||
+                !ArgumentParser.TryParseOptionalUInt(args, 2, "set", default, out var set) ||
+                !TryParseInventoryTarget(args, 3, out var target))
             {
-                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
                 return;
             }
-            bool isDedicatedServer = args.sender == null;
-            if (args.Count < 3 || (isDedicatedServer && (args.Count < 4 || args[3] == Lang.DEFAULT_VALUE)))
-            {
-                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.GIVEEQUIPEXTRA_ARGS, args, LogLevel.MessageClientOnly);
-                return;
-            }
-
-            var target = ParseTarget(args, 3);
-            if (target.failMessage != null)
-            {
-                Log.MessageNetworked(target.failMessage, args, LogLevel.MessageClientOnly);
-                return;
-            }
-
-            var slot = 0U;
-            if (!TextSerialization.TryParseInvariant(args[1], out slot))
-            {
-                Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "slot", "uint"), args, LogLevel.MessageClientOnly);
-                return;
-            }
-
-            var set = 0U;
-            if (!TextSerialization.TryParseInvariant(args[2], out set))
-            {
-                Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "set", "uint"), args, LogLevel.MessageClientOnly);
-                return;
-            }
-
             var inventory = target.inventory;
-            var equip = EquipmentIndex.None;
-            if (args[0].ToUpperInvariant() == Lang.RANDOM)
-            {
-                var pickupIndex = Run.instance.availableEquipmentDropList[UnityEngine.Random.Range(0, Run.instance.availableEquipmentDropList.Count)];
-                equip = PickupCatalog.GetPickupDef(pickupIndex).equipmentIndex;
-            }
-            else
-            {
-                equip = StringFinder.Instance.GetEquipFromPartial(args[0]);
-                if (equip == EquipmentIndex.None)
-                {
-                    Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "equip", args[0]), args, LogLevel.MessageClientOnly);
-                    return;
-                }
-                if (Run.instance.IsEquipmentExpansionLocked(equip))
-                {
-                    Log.MessageNetworked(string.Format(Lang.EXPANSION_LOCKED, "equipment", Util.GetExpansion(EquipmentCatalog.GetEquipmentDef(equip).requiredExpansion)), args, LogLevel.MessageClientOnly);
-                    return;
-                }
-            }
             // We need to call this first to properly resize sets due to the ExtraEquipment item,
             // or else the command may allocate extra sets beyond what the item accounts for.
             // This is only an issue if we're combining give_item and give_equip_extra in the console,
             // where Inventory.FixedUpdate doesn't get a chance to run in the between.
             inventory.UpdateEquipmentSetCount();
-            inventory.SetEquipmentIndexForSlot(equip, slot, set);
-            var name = EquipmentCatalog.GetEquipmentDef(equip).name;
-
-            Log.MessageNetworked($"Gave {name} to {target.name} in position ({slot}, {set})", args);
+            inventory.SetEquipmentIndexForSlot(equipmentDef.equipmentIndex, slot, set);
+            Log.MessageNetworked($"Gave {equipmentDef.name} to {target.name} in position ({slot}, {set})", args);
         }
 
         [ConCommand(commandName = "create_pickup", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.CREATEPICKUP_HELP)]
         [AutoComplete(Lang.CREATEPICKUP_ARGS)]
         private static void CCCreatePickup(ConCommandArgs args)
         {
-            if (!Run.instance)
+            if (!ArgumentParser.AssertInARun(args) ||
+                !ArgumentParser.AssertRequiredArguments(args, Lang.CREATEPICKUP_ARGS, 1, 4) ||
+                // The object and search arguments are parsed later due to complex logic.
+                !TryParseItemType(args, 1, out var itemType) ||
+                !ArgumentParser.TryParsePlayerOrDefault(args, 3, out var master, requireLiving: true))
             {
-                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            if (args.Count == 0 || (args.Count < 4 && args.sender == null))
-            {
-                Log.Message(Lang.INSUFFICIENT_ARGS + Lang.CREATEPICKUP_ARGS, LogLevel.MessageClientOnly);
-                return;
-            }
-            NetworkUser player = args.sender;
-            if (args.Count > 3)
-            {
-                player = Util.GetNetUserFromString(args.userArgs, 3);
-                if (player == null)
-                {
-                    Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
-                    return;
-                }
-            }
-            var body = player.GetCurrentBody();
-            if (body == null)
-            {
-                // We could possibly use `player.master.deathFootPosition` instead
-                Log.MessageNetworked("Can't spawn an object with relation to a dead player.", args, LogLevel.MessageClientOnly);
-                return;
-            }
-
-            var type = ParseItemType(args, 1);
-            if (type == ItemType.None)
-            {
-                Log.MessageNetworked(String.Format(Lang.INVALID_ARG_VALUE, "type"), args, LogLevel.MessageClientOnly);
                 return;
             }
 
@@ -494,153 +312,80 @@ namespace DebugToolkit.Commands
                     break;
             }
 
-            Log.MessageNetworked(string.Format(Lang.CREATEPICKUP_SUCCESS_1, final), args);
+            var body = master.GetBody();
             PickupDropletController.CreatePickupDroplet(new GenericPickupController.CreatePickupInfo
             {
                 pickup = new UniquePickup
                 {
                     pickupIndex = final,
-                    decayValue = type == ItemType.Temp ? 1f : 0f,
+                    decayValue = itemType == ItemType.Temp ? 1f : 0f,
                 },
             }, body.transform.position, body.inputBank.aimDirection * 30f);
+            Log.MessageNetworked(string.Format(Lang.CREATEPICKUP_SUCCESS_1, final), args);
         }
 
         [ConCommand(commandName = "create_potential", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.CREATEPOTENTIAL_HELP)]
         [AutoComplete(Lang.CREATEPOTENTIAL_ARGS)]
         private static void CCCreatePotential(ConCommandArgs args)
         {
-            if (!Run.instance)
+            if (!ArgumentParser.AssertInARun(args) ||
+                !ArgumentParser.AssertRequiredArguments(args, Lang.CREATEPOTENTIAL_ARGS, 0, 3) ||
+                !TryParseDroptable(args, 0, true) ||
+                !ArgumentParser.TryParseOptionalInt(args, 1, "count", 3, out var count, min: 1) ||
+                !ArgumentParser.TryParsePlayerOrDefault(args, 2, out var master, requireLiving: true))
             {
-                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            if (args.Count < 3 && args.sender == null)
-            {
-                Log.Message(Lang.INSUFFICIENT_ARGS + Lang.CREATEPOTENTIAL_ARGS, LogLevel.MessageClientOnly);
-                return;
-            }
-            NetworkUser player = args.sender;
-            if (args.Count > 2)
-            {
-                player = Util.GetNetUserFromString(args.userArgs, 2);
-                if (player == null)
-                {
-                    Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
-                    return;
-                }
-            }
-            var body = player.GetCurrentBody();
-            if (body == null)
-            {
-                // We could possibly use `player.master.deathFootPosition` instead
-                Log.MessageNetworked("Can't spawn an object with relation to a dead player.", args, LogLevel.MessageClientOnly);
                 return;
             }
 
-            var iCount = 3;
-            if (args.Count > 1 && args[1] != Lang.DEFAULT_VALUE)
-            {
-                if (!TextSerialization.TryParseInvariant(args[1], out iCount))
-                {
-                    Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "count", "int"), args, LogLevel.MessageClientOnly);
-                    return;
-                }
-            }
-            if (iCount <= 0)
-            {
-                Log.MessageNetworked("'count' should be a non-zero positive integer.", args, LogLevel.MessageClientOnly);
-                return;
-            }
-
-            var droptable = ParseDroptable(args, 0, true);
-            if (droptable == null)
-            {
-                return;
-            }
             var firstItemTier = ItemTier.Tier1;
             if (args.Count > 0 && args[0] != Lang.DEFAULT_VALUE && args[0].ToUpperInvariant() != Lang.ALL)
             {
                 firstItemTier = StringFinder.Instance.GetItemTierFromPartial(args[0].Split(',')[0].Split(':')[0]);
             }
 
+            var body = master.GetBody();
             PickupDropletController.CreatePickupDroplet(new GenericPickupController.CreatePickupInfo
             {
-                pickerOptions = PickupPickerController.GenerateOptionsFromDropTable(iCount, droptable, RoR2Application.rng),
+                pickerOptions = PickupPickerController.GenerateOptionsFromDropTable(count, droptable, RoR2Application.rng),
                 prefabOverride = potentialPrefab,
                 position = body.transform.position,
                 rotation = Quaternion.identity,
                 pickup = new UniquePickup(PickupCatalog.FindPickupIndex(firstItemTier))
             }, body.transform.position, body.inputBank.aimDirection * 30f);
-            Log.MessageNetworked(string.Format(Lang.CREATEPICKUP_SUCCESS_2, Math.Min(iCount, droptable.selector.Count)), args);
+            Log.MessageNetworked(string.Format(Lang.CREATEPICKUP_SUCCESS_2, Math.Min(count, droptable.selector.Count)), args);
         }
 
         [ConCommand(commandName = "remove_item_stacks", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.REMOVEITEMSTACKS_HELP)]
         [AutoComplete(Lang.REMOVEITEMSTACKS_ARGS)]
         private static void CCRemoveItemStacks(ConCommandArgs args)
         {
-            if (!Run.instance)
+            if (!ArgumentParser.AssertInARun(args) ||
+                !ArgumentParser.AssertRequiredArguments(args, Lang.REMOVEITEMSTACKS_ARGS, 1, 2) ||
+                !ArgumentParser.TryParseItem(args, 0, out var itemDef) ||
+                !TryParseInventoryTarget(args, 1, out var target))
             {
-                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            bool isDedicatedServer = args.sender == false;
-            if (args.Count == 0 || (isDedicatedServer && (args.Count < 2 || args[1] == Lang.DEFAULT_VALUE)))
-            {
-                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.REMOVEITEMSTACKS_ARGS, args, LogLevel.MessageClientOnly);
-                return;
-            }
-
-            var target = ParseTarget(args, 1);
-            if (target.failMessage != null)
-            {
-                Log.MessageNetworked(target.failMessage, args, LogLevel.MessageClientOnly);
                 return;
             }
 
             var inventory = target.inventory;
-            var item = StringFinder.Instance.GetItemFromPartial(args[0]);
-            if (item == ItemIndex.None)
-            {
-                Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "item", args[0]), args, LogLevel.MessageClientOnly);
-                return;
-            }
-            var itemDef = ItemCatalog.GetItemDef(item);
-            var name = itemDef.name;
-            int count = inventory.GetItemCountPermanent(item) + inventory.GetItemCountTemp(item);
-            if (Run.instance.IsItemExpansionLocked(item))
-            {
-                Log.MessageNetworked(string.Format(Lang.EXPANSION_LOCKED, "item", Util.GetExpansion(itemDef.requiredExpansion)), args, LogLevel.MessageClientOnly);
-                return;
-            }
-            inventory.RemoveItemPermanent(item, count);
-            inventory.RemoveItemTemp(item, count);
+            int count = inventory.GetItemCountPermanent(itemDef) + inventory.GetItemCountTemp(itemDef);
+            inventory.RemoveItemPermanent(itemDef, count);
+            inventory.RemoveItemTemp(itemDef.itemIndex, count);
             if (target.devotionController)
             {
                 target.devotionController.UpdateAllMinions(false);
             }
-            Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT, count, name, target.name), args);
+            Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT, count, itemDef.name, target.name), args);
         }
 
         [ConCommand(commandName = "remove_all_items", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.REMOVEALLITEMS_HELP)]
         [AutoComplete(Lang.REMOVEALLITEMS_ARGS)]
         private static void CCRemoveAllItems(ConCommandArgs args)
         {
-            if (!Run.instance)
+            if (!ArgumentParser.AssertInARun(args) ||
+                !ArgumentParser.AssertRequiredArguments(args, Lang.REMOVEALLITEMS_ARGS, 0, 1) ||
+                !TryParseInventoryTarget(args, 0, out var target))
             {
-                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            bool isDedicatedServer = args.sender == null;
-            if (isDedicatedServer && (args.Count < 1 || args[0] == Lang.DEFAULT_VALUE))
-            {
-                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.REMOVEALLITEMS_ARGS, args, LogLevel.MessageClientOnly);
-                return;
-            }
-
-            var target = ParseTarget(args, 0);
-            if (target.failMessage != null)
-            {
-                Log.MessageNetworked(target.failMessage, args, LogLevel.MessageClientOnly);
                 return;
             }
 
@@ -668,25 +413,12 @@ namespace DebugToolkit.Commands
         [AutoComplete(Lang.REMOVEEQUIP_ARGS)]
         private static void CCRemoveEquipment(ConCommandArgs args)
         {
-            if (!Run.instance)
+            if (!ArgumentParser.AssertInARun(args) ||
+                !ArgumentParser.AssertRequiredArguments(args, Lang.REMOVEEQUIP_ARGS, 0, 1) ||
+                !TryParseInventoryTarget(args, 0, out var target))
             {
-                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
                 return;
             }
-            bool isDedicatedServer = args.sender == null;
-            if (isDedicatedServer && (args.Count < 1 || args[0] == Lang.DEFAULT_VALUE))
-            {
-                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.REMOVEEQUIP_ARGS, args, LogLevel.MessageClientOnly);
-                return;
-            }
-
-            var target = ParseTarget(args, 0);
-            if (target.failMessage != null)
-            {
-                Log.MessageNetworked(target.failMessage, args, LogLevel.MessageClientOnly);
-                return;
-            }
-
             target.inventory.SetEquipmentIndex(EquipmentIndex.None, true);
             Log.MessageNetworked($"Removed current Equipment from {target.name}", args);
         }
@@ -695,36 +427,13 @@ namespace DebugToolkit.Commands
         [AutoComplete(Lang.REMOVEEQUIPEXTRA_ARGS)]
         private static void CCRemoveEquipmentExtra(ConCommandArgs args)
         {
-            if (!Run.instance)
+            if (!ArgumentParser.AssertInARun(args) ||
+                !ArgumentParser.AssertRequiredArguments(args, Lang.REMOVEEQUIPEXTRA_ARGS, 2, 3) ||
+                // Slot and set not optional technically
+                !ArgumentParser.TryParseOptionalUInt(args, 0, "slot", default, out var slot) ||
+                !ArgumentParser.TryParseOptionalUInt(args, 1, "set", default, out var set) ||
+                !TryParseInventoryTarget(args, 2, out var target))
             {
-                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            bool isDedicatedServer = args.sender == null;
-            if (args.Count < 2 || (isDedicatedServer && (args.Count < 3 || args[2] == Lang.DEFAULT_VALUE)))
-            {
-                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.REMOVEEQUIPEXTRA_ARGS, args, LogLevel.MessageClientOnly);
-                return;
-            }
-
-            var target = ParseTarget(args, 2);
-            if (target.failMessage != null)
-            {
-                Log.MessageNetworked(target.failMessage, args, LogLevel.MessageClientOnly);
-                return;
-            }
-
-            var slot = 0U;
-            if (!TextSerialization.TryParseInvariant(args[0], out slot))
-            {
-                Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "slot", "uint"), args, LogLevel.MessageClientOnly);
-                return;
-            }
-
-            var set = 0U;
-            if (!TextSerialization.TryParseInvariant(args[1], out set))
-            {
-                Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "set", "uint"), args, LogLevel.MessageClientOnly);
                 return;
             }
 
@@ -735,7 +444,6 @@ namespace DebugToolkit.Commands
                 return;
             }
             inventory.SetEquipmentIndexForSlot(EquipmentIndex.None, slot, set);
-
             Log.MessageNetworked($"Removed equipment from {target.name} in position ({slot}, {set})", args);
         }
 
@@ -743,32 +451,11 @@ namespace DebugToolkit.Commands
         [AutoComplete(Lang.RESTOCKEQUIP_ARGS)]
         private static void CCRestockEquip(ConCommandArgs args)
         {
-            if (!Run.instance)
+            if (!ArgumentParser.AssertInARun(args) ||
+                !ArgumentParser.AssertRequiredArguments(args, Lang.RESTOCKEQUIP_ARGS, 0, 2) ||
+                !ArgumentParser.TryParseOptionalInt(args, 0, "count", 1, out var count, min: 0) ||
+                !TryParseInventoryTarget(args, 1, out var target))
             {
-                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            bool isDedicatedServer = args.sender == null;
-            if (isDedicatedServer && (args.Count < 2 || args[1] == Lang.DEFAULT_VALUE))
-            {
-                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.RESTOCKEQUIP_ARGS, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            var iCount = 1;
-            if (args.Count > 0 && !TextSerialization.TryParseInvariant(args[0], out iCount))
-            {
-                Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "count", "int"), args, LogLevel.MessageClientOnly);
-                return;
-            }
-            if (iCount < 0)
-            {
-                Log.MessageNetworked(string.Format(Lang.NEGATIVE_ARG, "count"), args, LogLevel.MessageClientOnly);
-                return;
-            }
-            var target = ParseTarget(args, 1);
-            if (target.failMessage != null)
-            {
-                Log.MessageNetworked(target.failMessage, args, LogLevel.MessageClientOnly);
                 return;
             }
 
@@ -776,7 +463,7 @@ namespace DebugToolkit.Commands
             var currentSlot = inventory.activeEquipmentSlot;
             var currentSet = inventory.activeEquipmentSet[inventory.activeEquipmentSlot];
             var chargesBefore = inventory.GetEquipment(currentSlot, currentSet).charges;
-            inventory.RestockEquipmentCharges(currentSlot, currentSet, iCount);
+            inventory.RestockEquipmentCharges(currentSlot, currentSet, count);
             var chargesAfter = inventory.GetEquipment(currentSlot, currentSet).charges;
             Log.MessageNetworked($"Restocked {chargesAfter - chargesBefore} for the current equipment of {target.name}", args);
         }
@@ -786,6 +473,8 @@ namespace DebugToolkit.Commands
             None = -1,
             Permanent,
             Temp,
+            // If you're here because you're adding a new ItemType, update all the following accordingly! :)
+            // GetItemCount, GiveItem, RemoveItem, create_pickup, remove_item_stacks, and dump_build.
         }
 
         private static int GetItemCount(Inventory inventory, ItemIndex itemIndex, ItemType type)
@@ -834,131 +523,86 @@ namespace DebugToolkit.Commands
             }
         }
 
-        private static ItemType ParseItemType(ConCommandArgs args, int index)
+        private static bool TryParseItemType(ConCommandArgs args, int index, out ItemType itemType)
         {
+            itemType = ItemType.Permanent;
             if (args.Count > index && args[index] != Lang.DEFAULT_VALUE)
             {
-                return StringFinder.TryGetEnumFromPartial(args[index], out ItemType itemType) ? itemType : ItemType.None;
+                if (!StringFinder.TryGetEnumFromPartial(args[index], out itemType) || itemType == ItemType.None)
+                {
+                    Log.MessageNetworked(string.Format(Lang.INVALID_ARG_VALUE, "item_type"), args, LogLevel.MessageClientOnly);
+                    return false;
+                }
             }
-            return ItemType.Permanent;
+            return true;
         }
 
-        internal static CommandTarget ParseTarget(ConCommandArgs args, int index)
+        private static bool TryParseInventoryTarget(ConCommandArgs args, int index, out Util.CommandTarget target)
         {
-            string failMessage = null;
-            Inventory inventory = null;
-            string targetName = null;
-            DevotionInventoryController devotionController = null;
+            target = default;
             if (args.Count > index && args[index] != Lang.DEFAULT_VALUE)
             {
                 var targetArg = args[index].ToUpperInvariant();
-                if (targetArg == Lang.EVOLUTION)
+                switch (targetArg)
                 {
-                    inventory = MonsterTeamGainsItemsArtifactManager.monsterTeamInventory;
-                    targetName = inventory?.gameObject.name;
-                }
-                else if (targetArg == Lang.SIMULACRUM)
-                {
-                    var run = Run.instance as InfiniteTowerRun;
-                    if (!run)
-                    {
-                        failMessage = Lang.NOTINASIMULACRUMRUN_ERROR;
-                    }
-                    else
-                    {
-                        inventory = run.enemyInventory;
-                        targetName = inventory?.gameObject.name;
-                    }
-                }
-                else if (targetArg == Lang.VOIDFIELDS)
-                {
-                    var mission = ArenaMissionController.instance;
-                    if (!mission)
-                    {
-                        failMessage = Lang.NOTINVOIDFIELDS_ERROR;
-                    }
-                    else
-                    {
-                        inventory = mission.inventory;
-                        targetName = inventory?.gameObject.name;
-                    }
-                }
-                else if (targetArg == Lang.DEVOTION)
-                {
-                    if (args.sender == null)
-                    {
-                        failMessage = String.Format(Lang.DS_INVALIDARG, "devotion");
-                    }
-                    else
-                    {
-                        var target = args.senderMaster;
-                        if (target == null)
+                    case Lang.EVOLUTION:
                         {
-                            failMessage = Lang.PLAYER_NOTFOUND;
+                            target.inventory = MonsterTeamGainsItemsArtifactManager.monsterTeamInventory;
+                            target.name = target.inventory.gameObject.name;
+                            return true;
                         }
-                        else
+                    case Lang.SIMULACRUM:
                         {
-                            devotionController = GetDevotionController(target);
-                            inventory = devotionController._devotionMinionInventory;
-                            var player = target.playerCharacterMasterController?.networkUser;
-                            targetName = (player?.masterController.GetDisplayName() ?? target.gameObject.name) + "'s Devotion Inventory";
+                            var run = Run.instance as InfiniteTowerRun;
+                            if (!run)
+                            {
+                                Log.MessageNetworked(Lang.NOTINASIMULACRUMRUN_ERROR, args, LogLevel.MessageClientOnly);
+                                return false;
+                            }
+                            target.inventory = run.enemyInventory;
+                            target.name = target.inventory.gameObject.name;
+                            return true;
                         }
-                    }
-                }
-                else
-                {
-                    var isDedicatedServer = args.sender == null;
-                    var target = Util.GetTargetFromArgs(args, index);
-                    if (target == null && !isDedicatedServer && targetArg == Lang.PINGED)
-                    {
-                        failMessage = Lang.PINGEDBODY_NOTFOUND;
-                    }
-                    else if (target == null)
-                    {
-                        failMessage = Lang.PLAYER_NOTFOUND;
-                    }
-                    else
-                    {
-                        inventory = target.inventory;
-                        var player = target.playerCharacterMasterController?.networkUser;
-                        targetName = player?.masterController.GetDisplayName() ?? target.gameObject.name;
-                    }
+                    case Lang.VOIDFIELDS:
+                        {
+                            var mission = ArenaMissionController.instance;
+                            if (!mission)
+                            {
+                                Log.MessageNetworked(Lang.NOTINVOIDFIELDS_ERROR, args, LogLevel.MessageClientOnly);
+                                return false;
+                            }
+                            target.inventory = mission.inventory;
+                            target.name = target.inventory.gameObject.name;
+                            return true;
+                        }
+                    case Lang.DEVOTION:
+                        {
+                            if (args.sender == null)
+                            {
+                                Log.MessageNetworked(string.Format(Lang.DS_INVALIDARG, "devotion"), args, LogLevel.MessageClientOnly);
+                                return false;
+                            }
+                            var targetMaster = args.senderMaster;
+                            if (targetMaster == null)
+                            {
+                                Log.MessageNetworked(Lang.PLAYER_NOTFOUND, args, LogLevel.MessageClientOnly);
+                                return false;
+                            }
+                            target.devotionController = GetDevotionController(targetMaster);
+                            target.inventory = target.devotionController._devotionMinionInventory;
+                            var player = targetMaster.playerCharacterMasterController;
+                            target.name = (player?.GetDisplayName() ?? targetMaster.gameObject.name) + "'s Devotion Inventory";
+                            return true;
+                        }
+                    default:
+                        // All that is left is PINGED and player which are handled below.
+                        break;
                 }
             }
-            else
-            {
-                var target = args.senderMaster;
-                if (target == null)
-                {
-                    failMessage = Lang.PLAYER_NOTFOUND;
-                }
-                else
-                {
-                    inventory = target.inventory;
-                    var player = target.playerCharacterMasterController?.networkUser;
-                    targetName = player?.masterController.GetDisplayName() ?? target.gameObject.name;
-                }
-            }
-            if (failMessage == null && inventory == null)
-            {
-                failMessage = Lang.INVENTORY_ERROR;
-            }
-            if (failMessage != null)
-            {
-                return new CommandTarget
-                {
-                    failMessage = failMessage
-                };
-            }
-            return new CommandTarget
-            {
-                name = targetName,
-                inventory = inventory,
-                devotionController = devotionController
-            };
+            return ArgumentParser.TryParsePlayerOrPingedTarget(args, index, out target);
         }
 
-        private static BasicPickupDropTable ParseDroptable(ConCommandArgs args, int index, bool canDropBeReplaced)
+        private static bool TryParseDroptable(ConCommandArgs args, int index, bool canDropBeReplaced)
         {
             droptable.selector.Clear();
             droptable.canDropBeReplaced = canDropBeReplaced;
@@ -983,23 +627,23 @@ namespace DebugToolkit.Commands
                     if (itemTier == StringFinder.ItemTier_NotFound)
                     {
                         Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "item tier", data[0]), args, LogLevel.MessageClientOnly);
-                        return null;
+                        return false;
                     }
                     float weight = 1f;
                     if (data.Length > 1 && !TextSerialization.TryParseInvariant(data[1], out weight))
                     {
-                        Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "droptable weight", "float"), args, LogLevel.MessageClientOnly);
-                        return null;
+                        Log.MessageNetworked(string.Format(Lang.PARSE_ERROR, "droptable weight", "float"), args, LogLevel.MessageClientOnly);
+                        return false;
                     }
                     if (weight < 0f)
                     {
                         Log.MessageNetworked(string.Format(Lang.NEGATIVE_ARG, "droptable weight"), args, LogLevel.MessageClientOnly);
-                        return null;
+                        return false;
                     }
                     droptable.Add(availableDropLists[itemTier], weight);
                 }
             }
-            return droptable;
+            return true;
         }
 
         internal static void InitDroptableData()

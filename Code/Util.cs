@@ -70,13 +70,12 @@ namespace DebugToolkit
             return false;
         }
 
-        internal struct CommandTarget
+        public struct CommandTarget
         {
-            internal string failMessage;
-            internal string name;
-            internal CharacterBody body;
-            internal Inventory inventory;
-            internal DevotionInventoryController devotionController;
+            public string name;
+            public CharacterBody body;
+            public Inventory inventory;
+            public DevotionInventoryController devotionController;
         }
     }
 }

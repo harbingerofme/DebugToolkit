@@ -2,7 +2,6 @@ using RoR2;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
@@ -12,7 +11,6 @@ namespace DebugToolkit.Commands
 {
     public static class CurrentRun
     {
-
         internal static bool noEnemies = false;
         internal static bool noInteractables = false;
         internal static bool lockExp = false;
@@ -36,16 +34,12 @@ namespace DebugToolkit.Commands
         [AutoComplete(Lang.ADDPORTAL_ARGS)]
         private static void CCAddPortal(ConCommandArgs args)
         {
-            if (!Run.instance)
+            if (!ArgumentParser.AssertInARun(args) ||
+                !ArgumentParser.AssertRequiredArguments(args, Lang.ADDPORTAL_ARGS, 1))
             {
-                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
                 return;
             }
-            if (args.Count == 0)
-            {
-                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.ADDPORTAL_ARGS, args, LogLevel.MessageClientOnly);
-                return;
-            }
+
             var teleporterInteraction = TeleporterInteraction.instance;
             if (!teleporterInteraction)
             {
@@ -141,14 +135,9 @@ namespace DebugToolkit.Commands
         [AutoComplete(Lang.ENABLE_ARGS)]
         private static void CCNoEnemies(ConCommandArgs args)
         {
-            bool enabled = !noEnemies;
-            if (args.Count > 0)
+            if (!ArgumentParser.TryParseOptionalBool(args, 0, "enable", !noEnemies, out var enabled))
             {
-                if (!Util.TryParseBool(args[0], out enabled))
-                {
-                    Log.MessageNetworked(string.Format(Lang.PARSE_ERROR, "enable", "bool"), args, LogLevel.MessageClientOnly);
-                    return;
-                }
+                return;
             }
             noEnemies = enabled;
             CombatDirector.cvDirectorCombatDisable.SetBool(noEnemies);
@@ -168,14 +157,9 @@ namespace DebugToolkit.Commands
         [AutoComplete(Lang.ENABLE_ARGS)]
         private static void CCNoInteractables(ConCommandArgs args)
         {
-            bool enabled = !noInteractables;
-            if (args.Count > 0)
+            if (!ArgumentParser.TryParseOptionalBool(args, 0, "enable", !noInteractables, out var enabled))
             {
-                if (!Util.TryParseBool(args[0], out enabled))
-                {
-                    Log.MessageNetworked(string.Format(Lang.PARSE_ERROR, "enable", "bool"), args, LogLevel.MessageClientOnly);
-                    return;
-                }
+                return;
             }
             noInteractables = enabled;
             Log.MessageNetworked(String.Format(noInteractables ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, args.commandName), args);
@@ -185,14 +169,9 @@ namespace DebugToolkit.Commands
         [AutoComplete(Lang.ENABLE_ARGS)]
         private static void CCLockExperience(ConCommandArgs args)
         {
-            bool enabled = !lockExp;
-            if (args.Count > 0)
+            if (!ArgumentParser.TryParseOptionalBool(args, 0, "enable", !lockExp, out var enabled))
             {
-                if (!Util.TryParseBool(args[0], out enabled))
-                {
-                    Log.MessageNetworked(string.Format(Lang.PARSE_ERROR, "enable", "bool"), args, LogLevel.MessageClientOnly);
-                    return;
-                }
+                return;
             }
             lockExp = enabled;
             if (lockExp)
@@ -210,16 +189,13 @@ namespace DebugToolkit.Commands
         [AutoComplete(Lang.KILL_ARGS)]
         private static void CCKill(ConCommandArgs args)
         {
-            if (!Run.instance)
+            if (!ArgumentParser.AssertNotServer(args) ||
+                !ArgumentParser.AssertInARun(args) ||
+                !ArgumentParser.TryParseOptionalBool(args, 0, "true_kill", false, out var trueKill))
             {
-                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
                 return;
             }
-            if (args.sender == null)
-            {
-                Log.Message(Lang.DS_NOTYETIMPLEMENTED, LogLevel.Error);
-                return;
-            }
+
             var body = Hooks.GetPingedTarget(args.senderMaster).body;
             if (body == null)
             {
@@ -231,13 +207,6 @@ namespace DebugToolkit.Commands
             if (body.healthComponent.godMode)
             {
                 Log.MessageNetworked($"Cannot kill {targetName} because they have god mode.", args);
-                return;
-            }
-
-            var trueKill = false;
-            if (args.Count > 0 && args[0] != Lang.DEFAULT_VALUE && !Util.TryParseBool(args[0], out trueKill))
-            {
-                Log.MessageNetworked(string.Format(Lang.PARSE_ERROR, "true_kill", "bool"), args, LogLevel.MessageClientOnly);
                 return;
             }
 
@@ -266,31 +235,27 @@ namespace DebugToolkit.Commands
         [AutoComplete(Lang.KILLALL_ARGS)]
         private static void CCKillAll(ConCommandArgs args)
         {
-            if (!Run.instance)
+            if (!ArgumentParser.AssertInARun(args))
             {
-                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
                 return;
             }
+
             var teamMask = TeamMask.AllExcept(TeamIndex.Neutral);
             teamMask.RemoveTeam(TeamIndex.Player);
             var teamName = "enemies";
             if (args.Count > 0 && args[0] != Lang.DEFAULT_VALUE && args[0].ToUpperInvariant() != Lang.ENEMIES)
             {
-                var team = StringFinder.Instance.GetTeamFromPartial(args[0]);
-                if (team == StringFinder.TeamIndex_NotFound)
+                if (!ArgumentParser.TryParseTeam(args, 0, out var teamIndex))
                 {
-                    Log.MessageNetworked(Lang.TEAM_NOTFOUND, args, LogLevel.MessageClientOnly);
                     return;
                 }
                 teamMask = TeamMask.none;
-                teamMask.AddTeam(team);
-                teamName = $"{team} characters";
+                teamMask.AddTeam(teamIndex);
+                teamName = $"{teamIndex} characters";
             }
 
-            var trueKill = false;
-            if (args.Count > 1 && !Util.TryParseBool(args[1], out trueKill))
+            if (!ArgumentParser.TryParseOptionalBool(args, 1, "true_kill", false, out var trueKill))
             {
-                Log.MessageNetworked(string.Format(Lang.PARSE_ERROR, "true_kill", "bool"), args);
                 return;
             }
 
@@ -348,9 +313,8 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            if (!TextSerialization.TryParseInvariant(args[0], out float scale))
+            if (!ArgumentParser.TryParseOptionalFloat(args, 0, "time_scale", 1f, out var scale))
             {
-                Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "time_scale", "float"), args, LogLevel.MessageClientOnly);
                 return;
             }
             Time.timeScale = scale;
@@ -361,9 +325,8 @@ namespace DebugToolkit.Commands
         [AutoComplete(Lang.ENABLE_ARGS)]
         private static void CCPauseTimer(ConCommandArgs args)
         {
-            if (!Run.instance)
+            if (!ArgumentParser.AssertInARun(args))
             {
-                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
                 return;
             }
 
@@ -376,17 +339,12 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            bool enabled = !Run.instance.isRunStopwatchPaused;
-            if (args.Count > 0)
+            if (!ArgumentParser.TryParseOptionalBool(args, 0, "enable", !Run.instance.isRunStopwatchPaused, out var enabled))
             {
-                if (!Util.TryParseBool(args[0], out enabled))
-                {
-                    Log.MessageNetworked(string.Format(Lang.PARSE_ERROR, "enable", "bool"), args, LogLevel.MessageClientOnly);
-                    return;
-                }
+                return;
             }
             Run.instance.SetForcePauseRunStopwatch(enabled);
-            Log.MessageNetworked(String.Format(Run.instance.isRunStopwatchPaused ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, "Paused timer"), args, LogLevel.MessageClientOnly);
+            Log.MessageNetworked(String.Format(Run.instance.isRunStopwatchPaused ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, "Paused timer"), args);
         }
 
         [ConCommand(commandName = "force_family_event", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.FAMILYEVENT_HELP)]
@@ -400,74 +358,34 @@ namespace DebugToolkit.Commands
         [AutoComplete(Lang.NEXTBOSS_ARGS)]
         private static void CCNextBoss(ConCommandArgs args)
         {
-            if (args.Count == 0)
+            if (!ArgumentParser.AssertInARun(args) ||
+                !ArgumentParser.AssertRequiredArguments(args, Lang.NEXTBOSS_ARGS, 1) ||
+                !ArgumentParser.TryParseDirectorCard(args, 0, out nextBoss) ||
+                !ArgumentParser.TryParseOptionalInt(args, 1, "count", 1, out nextBossCount, min: 1, max: Run.instance is InfiniteTowerRun ? 10 : 6) ||
+                !ArgumentParser.TryParseEliteOrDefault(args, 2, null, out nextBossElite))
             {
-                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.NEXTBOSS_ARGS, args, LogLevel.MessageClientOnly);
+                ResetNextBoss();
                 return;
             }
 
-            StringBuilder s = new StringBuilder();
-            nextBoss = StringFinder.Instance.GetDirectorCardFromPartial(args[0]);
-            if (nextBoss == null)
+            string result;
+            if (nextBossElite)
             {
-                Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "director card", args[0]), args, LogLevel.MessageClientOnly);
-                return;
+                result = $"Next boss: {nextBoss.spawnCard.name}, count: {nextBossCount}, elite: {nextBossElite.name}.";
             }
-            s.AppendLine($"Next boss is: {nextBoss.spawnCard.name}. ");
-
-            nextBossCount = 1;
-            if (args.Count > 1 && args[1] != Lang.DEFAULT_VALUE)
+            else
             {
-                if (!TextSerialization.TryParseInvariant(args[1], out int count))
-                {
-                    ResetNextBoss();
-                    Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "count", "int"), args, LogLevel.MessageClientOnly);
-                    return;
-                }
-                var spawnLimit = Run.instance is InfiniteTowerRun ? 10 : 6;
-                if (count > spawnLimit)
-                {
-                    count = spawnLimit;
-                    Log.MessageNetworked($"'count' is capped at {spawnLimit}.", args, LogLevel.WarningClientOnly);
-                }
-                else if (nextBossCount <= 0)
-                {
-                    count = 1;
-                    Log.MessageNetworked("'count' must be non-zero positive. Reseting to 1.", args, LogLevel.WarningClientOnly);
-                }
-                nextBossCount = count;
-                s.Append($"Count:  {nextBossCount}. ");
+                result = $"Next boss: {nextBoss.spawnCard.name}, count: {nextBossCount}.";
             }
-
-            nextBossElite = null;
-            if (args.Count > 2 && args[2] != Lang.DEFAULT_VALUE)
-            {
-                var eliteIndex = StringFinder.Instance.GetEliteFromPartial(args[2]);
-                if (eliteIndex == StringFinder.EliteIndex_NotFound)
-                {
-                    ResetNextBoss();
-                    Log.MessageNetworked(Lang.ELITE_NOTFOUND, args, LogLevel.MessageClientOnly);
-                    return;
-                }
-                var eliteDef = EliteCatalog.GetEliteDef(eliteIndex);
-                if (eliteDef)
-                {
-                    nextBossElite = eliteDef;
-                    s.Append("Elite: " + nextBossElite.name);
-                }
-            }
-
-            // Unsub the last in case the user already used the command and want to change their mind.
-            Log.MessageNetworked(s.ToString(), args);
+            Log.MessageNetworked(result, args);
         }
 
         [ConCommand(commandName = "next_stage", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.NEXTSTAGE_HELP)]
         [AutoComplete(Lang.NEXTSTAGE_ARGS)]
         private static void CCNextStage(ConCommandArgs args)
         {
-            if (!Run.instance)
+            if (!ArgumentParser.AssertInARun(args))
             {
-                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
                 return;
             }
             if (args.Count == 0)
@@ -476,29 +394,19 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked("Stage advanced.", args);
                 return;
             }
-
-            var sceneIndex = StringFinder.Instance.GetSceneFromPartial(args[0], false);
-            if (sceneIndex == SceneIndex.Invalid)
+            if (!ArgumentParser.TryParseScene(args, 0, false, out var sceneDef))
             {
-                Log.MessageNetworked(Lang.STAGE_NOTFOUND, args, LogLevel.MessageClientOnly);
                 return;
             }
-            var def = SceneCatalog.GetSceneDef(sceneIndex);
-            if (def.requiredExpansion != null && !Run.instance.IsExpansionEnabled(def.requiredExpansion))
-            {
-                Log.MessageNetworked(string.Format(Lang.EXPANSION_LOCKED, "scene", Util.GetExpansion(def.requiredExpansion)), args, LogLevel.MessageClientOnly);
-                return;
-            }
-            Run.instance.AdvanceStage(def);
-            Log.MessageNetworked($"Stage advanced to {def.cachedName}.", args);
+            Run.instance.AdvanceStage(sceneDef);
+            Log.MessageNetworked($"Stage advanced to {sceneDef.cachedName}.", args);
         }
 
         [ConCommand(commandName = "next_wave", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.NEXTWAVE_HELP)]
         private static void CCNextWave(ConCommandArgs args)
         {
-            if (!Run.instance || !(Run.instance is InfiniteTowerRun))
+            if (!ArgumentParser.AssertInSimulacrumARun(args))
             {
-                Log.MessageNetworked(Lang.NOTINASIMULACRUMRUN_ERROR, args, LogLevel.MessageClientOnly);
                 return;
             }
             var run = Run.instance as InfiniteTowerRun;
@@ -513,25 +421,12 @@ namespace DebugToolkit.Commands
         [AutoComplete(Lang.RUNSETWAVESCLEARED_ARGS)]
         private static void CCRunSetWavesCleared(ConCommandArgs args)
         {
-            if (!Run.instance || !(Run.instance is InfiniteTowerRun))
+            if (!ArgumentParser.AssertInSimulacrumARun(args) ||
+                !ArgumentParser.AssertRequiredArguments(args, Lang.RUNSETWAVESCLEARED_ARGS, 1) ||
+                // Not optional technically
+                !ArgumentParser.TryParseOptionalInt(args, 0, "wave", default, out var wave, min: 0))
             {
-                Log.MessageNetworked(Lang.NOTINASIMULACRUMRUN_ERROR, args, LogLevel.MessageClientOnly);
                 return;
-            }
-            if (args.Count == 0)
-            {
-                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.RUNSETWAVESCLEARED_ARGS, args, LogLevel.ErrorClientOnly);
-                return;
-            }
-            if (!TextSerialization.TryParseInvariant(args[0], out int wave))
-            {
-                Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "wave", "int"), args, LogLevel.MessageClientOnly);
-                return;
-            }
-            if (wave < 0)
-            {
-                wave = 0;
-                Log.MessageNetworked("'wave' must be positive. Reseting to 0.", args, LogLevel.WarningClientOnly);
             }
             var run = Run.instance as InfiniteTowerRun;
             run.Network_waveIndex = wave;
@@ -541,9 +436,8 @@ namespace DebugToolkit.Commands
         [AutoComplete(Lang.FORCEWAVE_ARGS)]
         private static void CCForceWave(ConCommandArgs args)
         {
-            if (!Run.instance || !(Run.instance is InfiniteTowerRun))
+            if (!ArgumentParser.AssertInSimulacrumARun(args))
             {
-                Log.MessageNetworked(Lang.NOTINASIMULACRUMRUN_ERROR, args, LogLevel.MessageClientOnly);
                 return;
             }
             var run = Run.instance as InfiniteTowerRun;
@@ -569,7 +463,7 @@ namespace DebugToolkit.Commands
                 if (kvp.Key.ToLowerInvariant().Contains(waveName))
                 {
                     selectedWavePrefab = kvp.Value;
-                    Log.MessageNetworked("Selected " + kvp.Key, args, LogLevel.MessageClientOnly);
+                    Log.MessageNetworked("Selected " + kvp.Key, args);
                     return;
                 }
             }
@@ -580,19 +474,12 @@ namespace DebugToolkit.Commands
         [AutoComplete(Lang.CHARGEZONE_ARGS)]
         private static void CCChargeZone(ConCommandArgs args)
         {
-            if (!Run.instance)
+            if (!ArgumentParser.AssertInARun(args) ||
+                !ArgumentParser.TryParseOptionalFloat(args, 0, "charge", 100f, out var charge))
             {
-                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
                 return;
             }
 
-            var fullyCharge = args.Count == 0;
-            var charge = 100f;
-            if (args.Count > 0 && !TextSerialization.TryParseInvariant(args[0], out charge))
-            {
-                Log.MessageNetworked(string.Format(Lang.PARSE_ERROR, "charge", "float"), args, LogLevel.MessageClientOnly);
-                return;
-            }
             charge /= 100f;
 
             foreach (var zone in InstanceTracker.GetInstancesList<HoldoutZoneController>())
@@ -638,9 +525,8 @@ namespace DebugToolkit.Commands
         [ConCommand(commandName = "evolve_lemurians", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.EVOLVELEMURIANS_HELP)]
         private static void CCEvolveLemurians(ConCommandArgs args)
         {
-            if (!Run.instance)
+            if (!ArgumentParser.AssertInARun(args))
             {
-                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
                 return;
             }
             var isDevotionArtifactEnabled = DevotionInventoryController.isDevotionEnable;
@@ -666,29 +552,18 @@ namespace DebugToolkit.Commands
         [AutoComplete(Lang.SETARTIFACT_ARGS)]
         private static void CCSetArtifact(ConCommandArgs args)
         {
-            if (!Run.instance || !RunArtifactManager.instance) // the manager check is superfluous but just in case
+            if (!ArgumentParser.AssertInARun(args) ||
+                !ArgumentParser.AssertRequiredArguments(args, Lang.SETARTIFACT_ARGS, 1) ||
+                // We parse the artifact later since its logic is more complex.
+                // The enable argument's value may also be overriden later so we use a dummy default.
+                !ArgumentParser.TryParseOptionalBool(args, 1, "enable", default, out var enabled))
             {
-                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
-                return;
-            }
-            if (args.Count < 1)
-            {
-                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.SETARTIFACT_ARGS, args, LogLevel.MessageClientOnly);
                 return;
             }
             if (args[0].ToUpperInvariant() == Lang.ALL && args.Count < 2)
             {
                 Log.MessageNetworked("The 'enable' argument is required when using 'all'", args, LogLevel.MessageClientOnly);
                 return;
-            }
-            var enabled = false;
-            if (args.Count > 1)
-            {
-                if (!Util.TryParseBool(args[1], out enabled))
-                {
-                    Log.MessageNetworked(string.Format(Lang.PARSE_ERROR, "enable", "int or bool"), args, LogLevel.MessageClientOnly);
-                    return;
-                }
             }
 
             if (args[0].ToUpperInvariant() == Lang.ALL)
@@ -715,29 +590,21 @@ namespace DebugToolkit.Commands
             }
             else
             {
-                var artifactIndex = StringFinder.Instance.GetArtifactFromPartial(args[0]);
-                if (artifactIndex == ArtifactIndex.None)
+                if (!ArgumentParser.TryParseArtifact(args, 0, out var artifactDef))
                 {
-                    Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "artifact", args[0]), args, LogLevel.MessageClientOnly);
-                    return;
-                }
-                var artifact = ArtifactCatalog.GetArtifactDef(artifactIndex);
-                if (artifact.requiredExpansion && !Run.instance.IsExpansionEnabled(artifact.requiredExpansion))
-                {
-                    Log.MessageNetworked(string.Format(Lang.EXPANSION_LOCKED, "artifact", Util.GetExpansion(artifact.requiredExpansion)), args, LogLevel.MessageClientOnly);
                     return;
                 }
                 if (args.Count < 2)
                 {
-                    enabled = !RunArtifactManager.instance.IsArtifactEnabled(artifact);
+                    enabled = !RunArtifactManager.instance.IsArtifactEnabled(artifactDef);
                 }
-                if (RunArtifactManager.instance.IsArtifactEnabled(artifact) == enabled)
+                if (RunArtifactManager.instance.IsArtifactEnabled(artifactDef) == enabled)
                 {
                     Log.MessageNetworked("Nothing happened", args);
                     return;
                 }
-                RunArtifactManager.instance.SetArtifactEnabled(artifact, enabled);
-                if (artifact == RoR2Content.Artifacts.SingleMonsterType && Stage.instance)
+                RunArtifactManager.instance.SetArtifactEnabled(artifactDef, enabled);
+                if (artifactDef == RoR2Content.Artifacts.SingleMonsterType && Stage.instance)
                 {
                     if (!enabled)
                     {
@@ -745,14 +612,14 @@ namespace DebugToolkit.Commands
                     }
                     RoR2.UI.EnemyInfoPanel.RefreshAll();
                 }
-                else if (artifact == RoR2Content.Artifacts.MixEnemy)
+                else if (artifactDef == RoR2Content.Artifacts.MixEnemy)
                 {
                     if (RunArtifactManager.instance.IsArtifactEnabled(RoR2Content.Artifacts.SingleMonsterType))
                     {
                         RoR2.UI.EnemyInfoPanel.RefreshAll();
                     }
                 }
-                Log.MessageNetworked(String.Format(enabled ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, artifact.cachedName), args);
+                Log.MessageNetworked(String.Format(enabled ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, artifactDef.cachedName), args);
             }
         }
 
@@ -760,22 +627,13 @@ namespace DebugToolkit.Commands
         [AutoComplete(Lang.SETDIFFICULTY_ARGS)]
         private static void CCSetDifficulty(ConCommandArgs args)
         {
-            if (!Run.instance)
+            if (!ArgumentParser.AssertInARun(args) ||
+                !ArgumentParser.AssertRequiredArguments(args, Lang.SETDIFFICULTY_ARGS, 1) ||
+                !ArgumentParser.TryParseDifficulty(args, 0, out var difficultyIndex))
             {
-                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
                 return;
             }
-            if (args.Count < 1)
-            {
-                Log.MessageNetworked(Lang.INSUFFICIENT_ARGS + Lang.SETDIFFICULTY_ARGS, args, LogLevel.ErrorClientOnly);
-                return;
-            }
-            var difficultyIndex = StringFinder.Instance.GetDifficultyFromPartial(args[0]);
-            if (difficultyIndex == DifficultyIndex.Invalid)
-            {
-                Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "difficulty", args[0]), args, LogLevel.MessageClientOnly);
-                return;
-            }
+
             if (Run.instance.selectedDifficulty == difficultyIndex)
             {
                 Log.MessageNetworked("The difficulty remained unchanged.", args);
@@ -833,12 +691,12 @@ namespace DebugToolkit.Commands
                 Log.MessageNetworked(s, args, LogLevel.MessageClientOnly);
                 return;
             }
-            if (!TextSerialization.TryParseInvariant(args[0], out ulong result))
+
+            // Not optional technically
+            if (!ArgumentParser.TryParseOptionalULong(args, 0, "new_seed", default, out ulong result))
             {
-                Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "new_seed", "ulong"), args, LogLevel.MessageClientOnly);
                 return;
             }
-
             if (PreGameController.instance)
             {
                 PreGameController.instance.runSeed = (result == 0) ? RoR2Application.rng.nextUlong : result;
@@ -862,9 +720,8 @@ namespace DebugToolkit.Commands
         [AutoComplete(Lang.FIXEDTIME_ARGS)]
         private static void CCSetTime(ConCommandArgs args)
         {
-            if (!Run.instance)
+            if (!ArgumentParser.AssertInARun(args))
             {
-                Log.MessageNetworked(Lang.NOTINARUN_ERROR, args, LogLevel.MessageClientOnly);
                 return;
             }
             if (args.Count == 0)
@@ -873,9 +730,9 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            if (!TextSerialization.TryParseInvariant(args[0], out float setTime))
+            // Not optional technically
+            if (!ArgumentParser.TryParseOptionalFloat(args, 0, "time", default, out var setTime, min: 0f))
             {
-                Log.MessageNetworked(String.Format(Lang.PARSE_ERROR, "time", "float"), args, LogLevel.MessageClientOnly);
                 return;
             }
             Run.instance.SetRunStopwatch(setTime);
