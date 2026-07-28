@@ -1,6 +1,36 @@
 
 ## Changelog ##
 
+### 3.22 ###
+
+* **3.22.0**
+    * A lot of the new changes have been contributed by [Wolfo](https://github.com/WolfoIsBestWolf), thanks!
+    * Added `no_interactables`: Disables interactable spawning.
+    * Added `set_difficulty`: Changes the difficulty setting mid-run.
+    * Added `list_difficulty`
+    * Added `spawn_drone`: Spawns a Drone/Turret as a minion with the specified tier.
+    * Added `list_drone`
+    * Added `spawn_lemurian`: Spawns a Devoted Lemurian minion with a certain item and Devoted Level.
+    * Added `evolve_lemurians`: Evolve all Devoted Lemurians.
+    * Added `remove_all_minions`: Removes all minions from a target without leaving a trace behind.
+    * Added `give_equip_extra` and `remove_equip_extra`: Modify the equipment in a certain slot/set.
+    * Added `dump_build`: Prints the list of commands required to recreate your inventory and minions.
+    * Added `kill`: Kills the pinged target.
+    * Added `give_void`: Similar to `give_lunar` but for Void Coins.
+    * Added macros similar to some useful vanilla cfg files:
+        * `peace`: Kills all enemies, disables enemy spawning, and turns god mode on.
+        * `scanner`: Gives the Radar Scanner equipment with decreased cooldown for easy stage exploration.
+    * Updated `give_item`, `random_items`, and `create_pickup`: The item type argument can now be partially matched.
+    * Updated `charge_zone`: The charge argument is not required anyore and if omitted it will fully charge all holdout zones.
+    * Updated `kill_all`: By default it now kills all characters not in the Neutral and Player teams with the new `enemies` keyword. An optional `true_kill` argument has also been added to kill any characters without the chance of revival.
+    * Modified `random_items` and `create_potential`: The droptable argument's default value has been changed to `Tier1:100,Tier2:60,Tier3:4`.
+    * Removed `delay`: This command was also introduced in Alloyed Collective with the exact same signature so this shouldn't affect anything.
+    * Fixed `god` and `buddha`: Using an explicit on/off argument now properly updates the command's internal state.
+    * Fixed `no_enemies` and `lock_exp`: Calling the command in the on state multiple times in succession no longer applies the command's hook again.
+    * Fixed `restock_equipment`: Fixed an ArgumentOutOfRangeException when the target has never held an equipment before.
+    * Fixed various command descriptions and moved `give_money` to the money commands in the README.
+    * Refactored any command parsing and argument validation.
+
 ### 3.21 ###
 
 * **3.21.2**
