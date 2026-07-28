@@ -141,14 +141,6 @@ namespace DebugToolkit.Commands
             }
             noEnemies = enabled;
             CombatDirector.cvDirectorCombatDisable.SetBool(noEnemies);
-            if (noEnemies)
-            {
-                On.RoR2.CombatDirector.SpendAllCreditsOnMapSpawns_Transform_WeightedSelection1 += Hooks.DenyMapSpawns;
-            }
-            else
-            {
-                On.RoR2.CombatDirector.SpendAllCreditsOnMapSpawns_Transform_WeightedSelection1 -= Hooks.DenyMapSpawns;
-            }
             Log.MessageNetworked(String.Format(noEnemies ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, "no_enemies"), args);
         }
 
@@ -174,14 +166,6 @@ namespace DebugToolkit.Commands
                 return;
             }
             lockExp = enabled;
-            if (lockExp)
-            {
-                On.RoR2.ExperienceManager.AwardExperience += Hooks.DenyExperience;
-            }
-            else
-            {
-                On.RoR2.ExperienceManager.AwardExperience -= Hooks.DenyExperience;
-            }
             Log.MessageNetworked(String.Format(lockExp ? Lang.SETTING_ENABLED : Lang.SETTING_DISABLED, "lock_exp"), args);
         }
 

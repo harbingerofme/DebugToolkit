@@ -87,6 +87,8 @@ namespace DebugToolkit
 
             // Run related
             SceneDirector.onPrePopulateSceneServer += DenyInteractableSpawns;
+            On.RoR2.CombatDirector.SpendAllCreditsOnMapSpawns_Transform_WeightedSelection1 += DenyMapSpawns;
+            On.RoR2.ExperienceManager.AwardExperience += DenyExperience;
 
             // Networking and noclip hooks
             On.RoR2.NetworkSession.Start += NetworkManager.CreateNetworkObject;
@@ -843,7 +845,10 @@ namespace DebugToolkit
 
         internal static void DenyMapSpawns(On.RoR2.CombatDirector.orig_SpendAllCreditsOnMapSpawns_Transform_WeightedSelection1 orig, CombatDirector self, Transform mapSpawnTarget, WeightedSelection<DirectorCard> list)
         {
-            self.monsterCredit = 0f;
+            if (CurrentRun.noEnemies)
+            {
+                self.monsterCredit = 0f;
+            }
             orig(self, mapSpawnTarget, list);
         }
 
@@ -857,7 +862,10 @@ namespace DebugToolkit
 
         internal static void DenyExperience(On.RoR2.ExperienceManager.orig_AwardExperience orig, ExperienceManager self, Vector3 origin, CharacterBody body, ulong amount)
         {
-            return;
+            if (!CurrentRun.lockExp)
+            {
+                orig(self, origin, body, amount);
+            }
         }
 
         internal static PingCache GetPingedTarget(CharacterMaster player)
