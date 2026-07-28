@@ -69,7 +69,6 @@ Commands:
 * **teleport_on_cursor** -  Teleport yourself to where your cursor is currently aiming at. `teleport_on_cursor`
 * **time_scale** -  Sets the timescale of the game. 0.5 would mean everything happens at half speed. `time_scale [time_scale]`. If no argument is supplied, gives the current timescale.
 * **post_sound_event** - Post a sound event to the AkSoundEngine (WWise) either by its event name or event ID. `post_sound_event {sound_event (event_name|event_id)}`
-* **delay** - Execute any commands after a delay in seconds. `delay {delay} {<consolecommands separated by ;>}`
 
 List Commands:
 

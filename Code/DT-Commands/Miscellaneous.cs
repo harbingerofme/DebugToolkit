@@ -52,24 +52,5 @@ namespace DebugToolkit.Commands
                 }
             }
         }
-
-        [ConCommand(commandName = "delay", flags = ConVarFlags.None, helpText = Lang.DELAY_HELP)]
-        [AutoComplete(Lang.DELAY_ARGS)]
-        private static void CCDelay(ConCommandArgs args)
-        {
-            if (!ArgumentParser.AssertRequiredArguments(args, Lang.DELAY_ARGS, 2) ||
-                !ArgumentParser.TryParseOptionalFloat(args, 0, "delay", 0f, out var delay, min: 0f))
-            {
-                return;
-            }
-
-            DebugToolkit.Instance.StartCoroutine(InvokeRoutine(() => Console.instance.SubmitCmd(args.sender, args[1]), delay));
-
-            static IEnumerator InvokeRoutine(System.Action action, float delay)
-            {
-                yield return new WaitForSeconds(delay);
-                action();
-            }
-        }
     }
 }
