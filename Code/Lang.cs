@@ -16,8 +16,8 @@
             BIND_DELETE_ARGS = "Requires 1 argument: {key}",
             CHANGETEAM_ARGS = "Requires 1 (2 if from server) argument: {team} [player:<self>]",
             CHARGEZONE_ARGS = "Requires 0 argument: [charge]",
-            CREATEPICKUP_ARGS = "Requires 1 (3 if from server) argument: {object (item|equip|'lunarcoin'|'voidcoin')} [item_type:Permanent] [search ('item'|'equip'|'both'):'both'] *[player:<self>]",
-            CREATEPOTENTIAL_ARGS = $"Requires 0 (3 if from server) arguments: [droptable (droptable|'all'):'{DROPTABLE_DEFAULT}'] [count:3] *[player:<self>]",
+            CREATEPICKUP_ARGS = "Requires 1 (3 if from server) argument: {object (item|equip|'lunarcoin'|'voidcoin')} [item_type:Permanent] [search ('item'|'equip'|'both'):'both'] [player:<self>]",
+            CREATEPOTENTIAL_ARGS = $"Requires 0 (3 if from server) arguments: [droptable (droptable|'all'):'{DROPTABLE_DEFAULT}'] [count:3] [player:<self>]",
             DELAY_ARGS = "Requires 2 arguments: {delay} {console_commands}",
             DUMPSTATE_ARGS = "Requires 0 (1 if from server) argument: [target (player|'pinged'):<self>]",
             DUMPSTATS_ARGS = "Requires 1 argument: {body}",
@@ -28,11 +28,11 @@
             GIVEDOT_ARGS = "Requires 1 (4 if from server) argument: {dot} [count:1] [target (player|'pinged'):<self>] [attacker (player|'pinged'):<self>]",
             GIVEEQUIP_ARGS = "Requires 1 (2 if from server) argument: {equip (equip|'random')} [target (player|'pinged'|'evolution'|'simulacrum'|'voidfields'|'devotion'):<self>]",
             GIVEEQUIPEXTRA_ARGS = "Requires 3 (4 if from server) argument: {equip (equip|'random')} {slot} {set} [target (player|'pinged'|'evolution'|'simulacrum'|'voidfields'|'devotion'):<self>]",
-            GIVEITEM_ARGS = "Requires 1 (3 if from server) argument: {item} [count:1] [item_type:Permanent] [target (player|'pinged'|'evolution'|'simulacrum'|'voidfields'|'devotion'):<self>]",
+            GIVEITEM_ARGS = "Requires 1 (4 if from server) argument: {item} [count:1] [item_type:Permanent] [target (player|'pinged'|'evolution'|'simulacrum'|'voidfields'|'devotion'):<self>]",
             GIVELUNAR_ARGS = "Requires 0 arguments: [amount:1]",
             GIVEMONEY_ARGS = "Requires 1 argument: {amount} [target (player|'all')]",
-            HEAL_ARGS = "Requires 1 argument: {amount} [target (player|'pinged'):<self>]",
-            HURT_ARGS = "Requires 1 argument: {amount} [target (player|'pinged'):<self>]",
+            HEAL_ARGS = "Requires 1 (2 if from server) argument: {amount} [target (player|'pinged'):<self>]",
+            HURT_ARGS = "Requires 1 (2 if from server) argument: {amount} [target (player|'pinged'):<self>]",
             KICK_ARGS = "Requires 1 argument: {player}",
             KILL_ARGS = "Requires 0 arguments: [true_kill (0|1):0/false]",
             KILLALL_ARGS = "Requires 0 arguments: [team (team|'enemies'):'enemies'] [true_kill (0|1):0/false]",
@@ -44,7 +44,7 @@
             NO_ARGS = "Requires 0 arguments.",
             PERM_MOD_ARGS = "Requires 2 arguments: {permission_level} {player}",
             POSTSOUNDEVENT_ARGS = "Requires 1 argument: {sound_event (event_name|event_id)}",
-            RANDOMITEM_ARGS = $"Requires 1 (3 if from server) argument: {{count}} [droptable (droptable|'all'):'{DROPTABLE_DEFAULT}'] [item_type:Permanent] [target (player|'pinged'|'evolution'|'simulacrum'|'voidfields'|'devotion'):<self>]",
+            RANDOMITEM_ARGS = $"Requires 1 (4 if from server) argument: {{count}} [droptable (droptable|'all'):'{DROPTABLE_DEFAULT}'] [item_type:Permanent] [target (player|'pinged'|'evolution'|'simulacrum'|'voidfields'|'devotion'):<self>]",
             REMOVEALLBUFFS_ARGS = "Requires 0 (2 if from server) arguments: [timed (0|1):0/false] [target (player|'pinged'):<self>]",
             REMOVEALLDOTS_ARGS = "Requires 0 (1 if from server) arguments: [target (player|'pinged'):<self>]",
             REMOVEALLITEMS_ARGS = "Requires 0 (1 if from server) arguments: [target (player|'pinged'|'evolution'|'simulacrum'|'voidfields'|'devotion'):<self>]",
@@ -57,7 +57,7 @@
             REMOVEEQUIPEXTRA_ARGS = "Requires 2 (3 if from server) arguments: {slot} {set} [target (player|'pinged'|'evolution'|'simulacrum'|'voidfields'|'devotion'):<self>]",
             REMOVEITEMSTACKS_ARGS = "Requires 1 (2 if from server) argument: {item} [target (player|'pinged'|'evolution'|'simulacrum'|'voidfields'|'devotion'):<self>]",
             RESPAWN_ARGS = "Requires 0 (1 if from server) arguments: [player:<self>]",
-            RESTOCKEQUIP_ARGS = "Requires 0 (2 if from server) arguments: [count:1] *[target (player|'pinged'|'evolution'|'simulacrum'|'voidfields'|'devotion'):<self>]",
+            RESTOCKEQUIP_ARGS = "Requires 0 (2 if from server) arguments: [count:1] [target (player|'pinged'|'evolution'|'simulacrum'|'voidfields'|'devotion'):<self>]",
             RUNSETWAVESCLEARED_ARGS = "Requires 1 argument {wave}",
             SEED_ARGS = "Requires 0 or 1 argument: [new_seed]",
             SETARTIFACT_ARGS = "Requires 1 (2 if using 'all') argument: {artifact (artifact|'all')} [enable (0|1)]",
@@ -69,7 +69,7 @@
             SPAWNINTERACTABLE_ARGS = "Requires 1 argument: {interactable}",
             SPAWNLEMURIAN_ARGS = "Requires 1 argument: {item} [level:0]",
             SPAWNPORTAL_ARGS = "Requires 1 argument: {portal ('artifact'|'blue'|'celestial'|'deepvoid'|'gold'|'green'|'null'|'void')}",
-            TIMESCALE_ARGS = "Requires 1 argument: {time_scale}",
+            TIMESCALE_ARGS = "Requires 0 argument: [time_scale]",
             TRUEKILL_ARGS = "Requires 0 (1 if from server) arguments: [player:<self>]"
             ;
 
@@ -83,8 +83,8 @@
             BUDDHA_HELP = "Become immortal. Instead of refusing damage you just refuse to take lethal damage.\nIt works by giving all damage a player takes DamageType.NonLethal. " + ENABLE_ARGS,
             CHANGETEAM_HELP = "Change the specified player to the specified team. " + CHANGETEAM_ARGS,
             CHARGEZONE_HELP = "Set the charge of all active holdout zones. " + CHARGEZONE_ARGS,
-            CREATEPICKUP_HELP = "Creates a PickupDroplet infront of your position. " + CREATEPICKUP_ARGS,
-            CREATEPOTENTIAL_HELP = "Creates a potential PickupDroplet infront of your position. " + CREATEPOTENTIAL_ARGS,
+            CREATEPICKUP_HELP = "Creates a PickupDroplet in front of a player. " + CREATEPICKUP_ARGS,
+            CREATEPOTENTIAL_HELP = "Creates a potential PickupDroplet in front of a player. " + CREATEPOTENTIAL_ARGS,
             CURSORTELEPORT_HELP = "Teleport you to where your cursor is currently aiming at. " + NO_ARGS,
             DELAY_HELP = "Execute any commands after a delay in seconds. " + DELAY_ARGS,
             DUMPBUFFS_HELP = "List the buffs/debuffs of all spawned bodies. " + NO_ARGS,
@@ -196,8 +196,8 @@
             REMOVEOBJECT = "Removed {0} {1} from {2}.",
             REMOVEOBJECT_2 = "Removed {0} {1} {2} from {3}.",
             RUNSETSTAGESCLEARED_HELP = "Sets the amount of stages cleared. This does not change the current stage.",
-            SETTING_ENABLED = "{0} <color=green>enabled</color>",
-            SETTING_DISABLED = "{0} <color=red>disabled</color>",
+            SETTING_ENABLED = "{0} <color=green>enabled</color>.",
+            SETTING_DISABLED = "{0} <color=red>disabled</color>.",
             SPAWN_ATTEMPT_1 = "Attempting to spawn: {0}",
             SPAWN_ATTEMPT_2 = "Attempting to spawn {0}: {1}",
             USE_RESPAWN = "Use 'respawn' to skip the wait."
@@ -258,7 +258,7 @@
         public const string
             DS_INVALIDARG = "This command doesn't support the '{0}' argument from a dedicated server.",
             DS_NOTAVAILABLE = "This command doesn't make sense to run from a dedicated server.",
-            DS_NOTYETIMPLEMENTED = "This command has not yet been implemented to be run from a dedicated server,"
+            DS_NOTYETIMPLEMENTED = "This command has not yet been implemented to be run from a dedicated server."
             ;
 
     }
