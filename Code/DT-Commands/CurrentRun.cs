@@ -562,7 +562,7 @@ namespace DebugToolkit.Commands
             }
             if (args[0].ToUpperInvariant() == Lang.ALL && args.Count < 2)
             {
-                Log.MessageNetworked("The 'enable' argument is required when using 'all'", args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked("The 'enable' argument is required when using 'all'.", args, LogLevel.MessageClientOnly);
                 return;
             }
 
@@ -726,7 +726,7 @@ namespace DebugToolkit.Commands
             }
             if (args.Count == 0)
             {
-                Log.MessageNetworked("Run time is " + Run.instance.GetRunStopwatch().ToString(), args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked($"Run time is {Run.instance.GetRunStopwatch()}.", args, LogLevel.MessageClientOnly);
                 return;
             }
 
@@ -736,7 +736,7 @@ namespace DebugToolkit.Commands
                 return;
             }
             Run.instance.SetRunStopwatch(setTime);
-            Log.MessageNetworked("Run timer set to " + setTime, args);
+            Log.MessageNetworked($"Run timer set to {setTime}.", args);
         }
     }
 
@@ -761,7 +761,7 @@ namespace DebugToolkit.Commands
         private void RpcApplyTimescale(float scale)
         {
             Time.timeScale = scale;
-            Message("Timescale set to: " + scale + ". ");
+            Message($"Timescale set to {scale}.");
         }
 
         internal static void InvokeHudUpdate(DifficultyIndex difficultyIndex)

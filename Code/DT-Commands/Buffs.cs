@@ -94,7 +94,7 @@ namespace DebugToolkit.Commands
                 {
                     body.AddBuff(buffDef);
                 }
-                Log.MessageNetworked(string.Format(Lang.GIVEOBJECT, count, buffName, target.name), args);
+                Log.MessageNetworked(string.Format(Lang.GIVEOBJECT_WITH_STACKS, count, buffName, target.name), args);
             }
             else
             {
@@ -148,14 +148,14 @@ namespace DebugToolkit.Commands
                         body.RemoveOldestTimedBuff(buffDef);
                     }
                 }
-                Log.MessageNetworked($"Removed the {count} oldest timed {name} from {target.name}", args);
+                Log.MessageNetworked($"Removed the {count} oldest timed {name} from {target.name}.", args);
             }
             else
             {
                 var buffStacks = body.GetBuffCount(buffDef);
                 count = Math.Min(count, buffStacks);
                 body.SetBuffCount(buffDef.buffIndex, buffStacks - count);
-                Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT, count, name, target.name), args);
+                Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT_WITH_STACKS, count, name, target.name), args);
             }
         }
 
@@ -185,13 +185,13 @@ namespace DebugToolkit.Commands
                     }
                 }
                 body.ClearTimedBuffs(buffDef);
-                Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT, stacks, "timed " + name, target.name), args);
+                Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT_WITH_STACKS, stacks, "timed " + name, target.name), args);
             }
             else
             {
                 var stacks = body.GetBuffCount(buffDef);
                 body.SetBuffCount(buffDef.buffIndex, 0);
-                Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT, stacks, name, target.name), args);
+                Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT_WITH_STACKS, stacks, name, target.name), args);
             }
         }
 
@@ -214,7 +214,7 @@ namespace DebugToolkit.Commands
                 {
                     body.ClearTimedBuffs((BuffIndex)i);
                 }
-                Log.MessageNetworked($"Reset all timed buffs for {target.name}", args);
+                Log.MessageNetworked(string.Format(Lang.RESETOBJECT, "all timed buffs", target.name), args);
             }
             else
             {
@@ -222,7 +222,7 @@ namespace DebugToolkit.Commands
                 {
                     body.SetBuffCount((BuffIndex)i, 0);
                 }
-                Log.MessageNetworked($"Reset all buffs for {target.name}", args);
+                Log.MessageNetworked(string.Format(Lang.RESETOBJECT, "all buffs", target.name), args);
             }
         }
 
@@ -339,7 +339,7 @@ namespace DebugToolkit.Commands
             {
                 controller.RemoveDotStackAtServer(dotStacks[i].Key);
             }
-            Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT, count, dotIndex, target.name), args);
+            Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT_WITH_STACKS, count, dotIndex, target.name), args);
         }
 
         [ConCommand(commandName = "remove_dot_stacks", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.REMOVEDOTSTACKS_HELP)]
@@ -375,7 +375,7 @@ namespace DebugToolkit.Commands
             {
                 UnityEngine.Object.Destroy(controller.gameObject);
             }
-            Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT, stacks, dotIndex, target.name), args);
+            Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT_WITH_STACKS, stacks, dotIndex, target.name), args);
         }
 
         [ConCommand(commandName = "remove_all_dots", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.REMOVEALLDOTS_HELP)]
@@ -390,7 +390,7 @@ namespace DebugToolkit.Commands
             }
 
             DotController.RemoveAllDots(target.body.gameObject);
-            Log.MessageNetworked($"Reseting DoTs for {target.name}", args);
+            Log.MessageNetworked(string.Format(Lang.RESETOBJECT, "all DoTs", target.name), args);
         }
     }
 }

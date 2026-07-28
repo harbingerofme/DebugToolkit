@@ -234,7 +234,7 @@ namespace DebugToolkit.Commands
                     removedAmount++;
                 }
             }
-            Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT, removedAmount, "minions", target.name), args);
+            Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT_WITH_STACKS, removedAmount, "minions", target.name), args);
         }
 
         [ConCommand(commandName = "dump_build", flags = ConVarFlags.None, helpText = Lang.DUMPBUILD_HELP)]

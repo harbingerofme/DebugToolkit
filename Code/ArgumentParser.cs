@@ -129,7 +129,7 @@ namespace DebugToolkit
             var artifactIndex = StringFinder.Instance.GetArtifactFromPartial(args[index]);
             if (artifactIndex == ArtifactIndex.None)
             {
-                Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "artifact", args[index]), args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "artifact", args[index], "list_artifact"), args, LogLevel.MessageClientOnly);
                 return false;
             }
             artifactDef = ArtifactCatalog.GetArtifactDef(artifactIndex);
@@ -149,7 +149,7 @@ namespace DebugToolkit
             var buffIndex = StringFinder.Instance.GetBuffFromPartial(args[index]);
             if (buffIndex == BuffIndex.None)
             {
-                Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "buff", args[index]), args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "buff", args[index], "list_buff"), args, LogLevel.MessageClientOnly);
                 return false;
             }
             buffDef = BuffCatalog.GetBuffDef(buffIndex);
@@ -168,7 +168,7 @@ namespace DebugToolkit
             dotIndex = StringFinder.Instance.GetDotFromPartial(args[index]);
             if (dotIndex == DotController.DotIndex.None)
             {
-                Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "dot", args[index]), args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "dot", args[index], "list_dot"), args, LogLevel.MessageClientOnly);
                 return false;
             }
             return true;
@@ -187,7 +187,7 @@ namespace DebugToolkit
             var itemIndex = StringFinder.Instance.GetItemFromPartial(args[index]);
             if (itemIndex == ItemIndex.None)
             {
-                Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "item", args[index]), args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "item", args[index], "list_item"), args, LogLevel.MessageClientOnly);
                 return false;
             }
             itemDef = ItemCatalog.GetItemDef(itemIndex);
@@ -213,7 +213,7 @@ namespace DebugToolkit
             var equipmentIndex = StringFinder.Instance.GetEquipFromPartial(args[index]);
             if (equipmentIndex == EquipmentIndex.None)
             {
-                Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "equip", args[index]), args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "equip", args[index], "list_equip"), args, LogLevel.MessageClientOnly);
                 return false;
             }
             equipmentDef = EquipmentCatalog.GetEquipmentDef(equipmentIndex);
@@ -233,7 +233,7 @@ namespace DebugToolkit
             var bodyIndex = StringFinder.Instance.GetBodyFromPartial(args[index]);
             if (bodyIndex == BodyIndex.None)
             {
-                Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "body", args[index]), args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "body", args[index], "list_body"), args, LogLevel.MessageClientOnly);
                 return false;
             }
             bodyPrefab = BodyCatalog.GetBodyPrefab(bodyIndex);
@@ -253,7 +253,7 @@ namespace DebugToolkit
             var droneIndex = StringFinder.Instance.GetDroneFromPartial(args[index]);
             if (droneIndex == DroneIndex.None)
             {
-                Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "drone", args[index]), args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "drone", args[index], "list_drone"), args, LogLevel.MessageClientOnly);
                 return false;
             }
             droneDef = DroneCatalog.GetDroneDef(droneIndex);
@@ -274,7 +274,7 @@ namespace DebugToolkit
             var masterIndex = StringFinder.Instance.GetAiFromPartial(args[index]);
             if (masterIndex == MasterCatalog.MasterIndex.none)
             {
-                Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "ai", args[index]), args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "ai", args[index], "list_ai"), args, LogLevel.MessageClientOnly);
                 return false;
             }
             masterObject = MasterCatalog.GetMasterPrefab(masterIndex);
@@ -297,7 +297,7 @@ namespace DebugToolkit
                 var eliteIndex = StringFinder.Instance.GetEliteFromPartial(args[index]);
                 if (eliteIndex == StringFinder.EliteIndex_NotFound)
                 {
-                    Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "elite", args[index]), args, LogLevel.MessageClientOnly);
+                    Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "elite", args[index], "list_elite"), args, LogLevel.MessageClientOnly);
                     return false;
                 }
                 eliteDef = EliteCatalog.GetEliteDef(eliteIndex);
@@ -317,7 +317,7 @@ namespace DebugToolkit
             teamIndex = StringFinder.Instance.GetTeamFromPartial(args[index]);
             if (teamIndex == StringFinder.TeamIndex_NotFound)
             {
-                Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "team", args[index]), args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "team", args[index], "list_team"), args, LogLevel.MessageClientOnly);
                 return false;
             }
             return true;
@@ -351,7 +351,7 @@ namespace DebugToolkit
             difficultyIndex = StringFinder.Instance.GetDifficultyFromPartial(args[index]);
             if (difficultyIndex == DifficultyIndex.Invalid)
             {
-                Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "difficulty", args[index]), args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "difficulty", args[index], "list_difficulty"), args, LogLevel.MessageClientOnly);
                 return false;
             }
             return true;
@@ -371,7 +371,7 @@ namespace DebugToolkit
             var sceneIndex = StringFinder.Instance.GetSceneFromPartial(args[index], includeOffline);
             if (sceneIndex == SceneIndex.Invalid)
             {
-                Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "scene", args[index]), args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "scene", args[index], "list_scene"), args, LogLevel.MessageClientOnly);
                 return false;
             }
             sceneDef = SceneCatalog.GetSceneDef(sceneIndex);
@@ -390,7 +390,7 @@ namespace DebugToolkit
             isc = StringFinder.Instance.GetInteractableSpawnCardFromPartial(args[index]);
             if (isc == null)
             {
-                Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "isc", args[index]), args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "isc", args[index], "list_interactables"), args, LogLevel.MessageClientOnly);
                 return false;
             }
             return true;
@@ -408,7 +408,7 @@ namespace DebugToolkit
             directorCard = StringFinder.Instance.GetDirectorCardFromPartial(args[index]);
             if (directorCard == null)
             {
-                Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "director_card", args[index]), args, LogLevel.MessageClientOnly);
+                Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "director_card", args[index], "list_directorcards"), args, LogLevel.MessageClientOnly);
                 return false;
             }
             return true;

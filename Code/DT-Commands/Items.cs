@@ -136,13 +136,13 @@ namespace DebugToolkit.Commands
             if (amount > 0)
             {
                 GiveItem(inventory, itemDef.itemIndex, amount, itemType);
-                Log.MessageNetworked(string.Format(Lang.GIVEOBJECT, amount, name, target.name), args);
+                Log.MessageNetworked(string.Format(Lang.GIVEOBJECT_WITH_STACKS, amount, name, target.name), args);
             }
             else if (amount < 0)
             {
                 amount = Math.Min(-amount, GetItemCount(inventory, itemDef.itemIndex, itemType));
                 RemoveItem(inventory, itemDef.itemIndex, amount, itemType);
-                Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT, amount, name, target.name), args);
+                Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT_WITH_STACKS, amount, name, target.name), args);
             }
             else
             {
@@ -212,7 +212,7 @@ namespace DebugToolkit.Commands
                 return;
             }
             target.inventory.SetEquipmentIndex(equipmentDef.equipmentIndex, false);
-            Log.MessageNetworked($"Gave {equipmentDef.name} to {target.name}", args);
+            Log.MessageNetworked(string.Format(Lang.GIVEOBJECT, equipmentDef.name, target.name), args);
         }
 
         [ConCommand(commandName = "give_equip_extra", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.GIVEEQUIPEXTRA_HELP)]
@@ -375,7 +375,7 @@ namespace DebugToolkit.Commands
             {
                 target.devotionController.UpdateAllMinions(false);
             }
-            Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT, count, itemDef.name, target.name), args);
+            Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT_WITH_STACKS, count, itemDef.name, target.name), args);
         }
 
         [ConCommand(commandName = "remove_all_items", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.REMOVEALLITEMS_HELP)]
@@ -406,7 +406,7 @@ namespace DebugToolkit.Commands
             {
                 target.devotionController.UpdateAllMinions(false);
             }
-            Log.MessageNetworked($"Reseting inventory for {target.name}", args);
+            Log.MessageNetworked(string.Format(Lang.RESETOBJECT, "all items", target.name), args);
         }
 
         [ConCommand(commandName = "remove_equip", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.REMOVEEQUIP_HELP)]
@@ -420,7 +420,7 @@ namespace DebugToolkit.Commands
                 return;
             }
             target.inventory.SetEquipmentIndex(EquipmentIndex.None, true);
-            Log.MessageNetworked($"Removed current Equipment from {target.name}", args);
+            Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT, "current Equipment", target.name), args);
         }
 
         [ConCommand(commandName = "remove_equip_extra", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.REMOVEEQUIPEXTRA_HELP)]
@@ -626,7 +626,7 @@ namespace DebugToolkit.Commands
                     var itemTier = StringFinder.Instance.GetItemTierFromPartial(data[0]);
                     if (itemTier == StringFinder.ItemTier_NotFound)
                     {
-                        Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "item tier", data[0]), args, LogLevel.MessageClientOnly);
+                        Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "item tier", data[0], "list_itemtier"), args, LogLevel.MessageClientOnly);
                         return false;
                     }
                     float weight = 1f;
