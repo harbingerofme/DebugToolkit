@@ -461,11 +461,16 @@ namespace DebugToolkit.Commands
 
             var inventory = target.inventory;
             var currentSlot = inventory.activeEquipmentSlot;
-            var currentSet = inventory.activeEquipmentSet[inventory.activeEquipmentSlot];
-            var chargesBefore = inventory.GetEquipment(currentSlot, currentSet).charges;
-            inventory.RestockEquipmentCharges(currentSlot, currentSet, count);
-            var chargesAfter = inventory.GetEquipment(currentSlot, currentSet).charges;
-            Log.MessageNetworked($"Restocked {chargesAfter - chargesBefore} for the current equipment of {target.name}", args);
+            if (inventory.activeEquipmentSet.Length > currentSlot)
+            {
+                var currentSet = inventory.activeEquipmentSet[inventory.activeEquipmentSlot];
+                var chargesBefore = inventory.GetEquipment(currentSlot, currentSet).charges;
+                inventory.RestockEquipmentCharges(currentSlot, currentSet, count);
+                var chargesAfter = inventory.GetEquipment(currentSlot, currentSet).charges;
+                Log.MessageNetworked($"Restocked {chargesAfter - chargesBefore} for the current equipment of {target.name}", args);
+                return;
+            }
+            Log.MessageNetworked($"{target.name} has never held an equipment in the current equipment slot.", args);
         }
 
         internal enum ItemType
