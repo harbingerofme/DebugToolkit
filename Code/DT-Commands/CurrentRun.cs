@@ -1,8 +1,8 @@
-using EntityStates.TeleporterCatastrophe.DLC4.Teleporter;
 using RoR2;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
@@ -640,7 +640,7 @@ namespace DebugToolkit.Commands
             Log.MessageNetworked($"Difficulty changed to {StringFinder.GetLangInvar(difficultyDef.nameToken)}.", args);
 
             // There's nothing we can do for clients that don't have DebugToolkit installed.
-            RunNet.InvokeHudUpdate(difficultyIndex);
+            RunNet.InvokeHudDifficultyUpdate(difficultyIndex);
 
             // A modded difficulty may initialise special functionality at the beginning of the run,
             // which is bypassed here, so a warning is warranted.
@@ -715,6 +715,69 @@ namespace DebugToolkit.Commands
             Run.instance.SetRunStopwatch(setTime);
             Log.MessageNetworked($"Run timer set to {setTime}.", args);
         }
+
+        [ConCommand(commandName = "karma", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.KARMA_HELP)]
+        private static void CCSetKarma(ConCommandArgs args)
+        {
+            if (!ArgumentParser.AssertInARun(args))
+            {
+                return;
+            }
+
+            if (args.Count > 0)
+            {
+                if (!ArgumentParser.TryParseOptionalInt(args, 0, "karma", default, out var karma, max: KarmaManager.maxKarma))
+                {
+                    return;
+                }
+                var setKarmaEnabled = karma >= 0;
+                if (setKarmaEnabled != KarmaManager.instance.isKarmaEnabled)
+                {
+                    KarmaManager.instance.NetworkisKarmaEnabled = setKarmaEnabled;
+                    // There's nothing we can do for clients that don't have DebugToolkit installed.
+                    RunNet.InvokeHudKarmaUpdate(setKarmaEnabled);
+                }
+                KarmaManager.instance.SetKarmaServer(karma);
+            }
+
+            var s = KarmaManager.instance.isKarmaEnabled ? $"Current karma is {KarmaManager.instance.effectiveKarma}." : "Karma is disabled.";
+            Log.MessageNetworked(s, args, LogLevel.MessageClientOnly);
+            return;
+        }
+
+        [ConCommand(commandName = "dump_karma_triggers", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.DUMPKARMATRIGGERS_HELP)]
+        private static void CCDumpKarmaTriggers(ConCommandArgs args)
+        {
+            if (!ArgumentParser.AssertInARun(args))
+            {
+                return;
+            }
+
+            var sb = new StringBuilder();
+            foreach (var trigger in KarmaManager.karmaTriggers)
+            {
+                string status = "";
+                if (KarmaManager.instance.IsRunUsingTrigger(trigger.karmaTriggerIndex))
+                {
+                    var karmaInstance = KarmaManager.instance.FindInstancedTrigger(trigger.karmaTriggerIndex);
+                    if (karmaInstance.isComplete)
+                    {
+                        status = "<style=cIsHealing>completed</style>";
+                    }
+                    else
+                    {
+                        status = karmaInstance.IsRepeatable() ? "<style=cIsUtility>active, repeatable</style>" : "<style=cIsUtility>active</style>";
+                    }
+                }
+                else
+                {
+                    status = "<style=cDeath>inactive</style>";
+                }
+                sb.AppendLine($"[{trigger.karmaTriggerIndex.intValue}] {trigger.identifier} ({status})");
+            }
+
+            Log.MessageNetworked(sb.ToString().TrimEnd('\n'), args, LogLevel.MessageClientOnly);
+        }
     }
 
     // ReSharper disable once ClassNeverInstantiated.Global
@@ -741,7 +804,7 @@ namespace DebugToolkit.Commands
             Message($"Timescale set to {scale}.");
         }
 
-        internal static void InvokeHudUpdate(DifficultyIndex difficultyIndex)
+        internal static void InvokeHudDifficultyUpdate(DifficultyIndex difficultyIndex)
         {
             _instance.RpcUpdateHudDifficulty(difficultyIndex);
         }
@@ -757,6 +820,27 @@ namespace DebugToolkit.Commands
                     if (controller && controller.TryGetComponent<Image>(out var image))
                     {
                         image.sprite = difficultyDef.GetIconSprite();
+                    }
+                }
+            }
+        }
+
+        internal static void InvokeHudKarmaUpdate(bool enabled)
+        {
+            _instance.RpcUpdateHudKarma(enabled);
+        }
+
+        [ClientRpc]
+        private void RpcUpdateHudKarma(bool enabled)
+        {
+            if (Run.instance)
+            {
+                foreach (var ui in Run.instance.uiInstances)
+                {
+                    var icon = ui.GetComponentInChildren<RoR2.UI.KarmaIcon>();
+                    if (icon && icon.holder)
+                    {
+                        icon.holder.gameObject.SetActive(enabled);
                     }
                 }
             }

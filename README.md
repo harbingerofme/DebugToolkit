@@ -57,6 +57,7 @@ Commands:
 * **charge_zone** - Set the charge of all active holdout zones. `charge_zone [charge]`. If no argument is supplied, all zones are fully charged.
 * **evolve_lemurians** - Evolve all Devoted Lemurians. `evolve_lemurians`
 * **seed** - Set the seed for all next runs this session. `seed [new_seed]`. Use `0` to specify the game should generate its own seed. If used without argument, it's equivalent to the vanilla `run_get_seed`.
+* **karma** - Set the karma for the run. `karma [karma]`. Use a negative value to disable it completely. If no argument is supplied, gives the current karma.
 * **set_artifact** - Enable/disable an Artifact. `set_artifact {artifact (artifact|'all')} [enable (0|1)]`. If enable isn't supplied, it will toggle the artifact's current state. However, it is required when using "all".
 * **set_difficulty** - Change the run difficulty. `set_difficulty {difficulty}`
 * **kill** - Kills the pinged target. `kill [true_kill (0|1):0/false]`
@@ -99,6 +100,7 @@ Dump Commands:
 * **dump_state** - List the current stats, entity state, and skill cooldown of a specified body. `dump_state *[target (player|'pinged'):<self>]`
 * **dump_stats** - List the base stats of a specific body.
 * **dump_build** - Generate a string with commands to replicate your current inventory and minion state.
+* **dump_karma_triggers** - List all karma triggers and their current status.
 
 Buff Commands:
 
