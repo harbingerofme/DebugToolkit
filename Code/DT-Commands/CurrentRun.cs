@@ -80,11 +80,6 @@ namespace DebugToolkit.Commands
             void QueuePortal(string portalName)
             {
                 string spawnCardName;
-                // Fix the initial spawning position of an orb in case it overlaps with another.
-                // For example, the void portal copies the celestial portal's starting location
-                // and it is extremely likely they forgot to use a unique value. This should be
-                // revisited when new orbs are added to ensure no interference.
-                Quaternion? rotation = null;
                 switch (portalName)
                 {
                     case "GREEN":
@@ -92,7 +87,6 @@ namespace DebugToolkit.Commands
                         break;
                     case "VOID":
                         spawnCardName = "iscVoidPortal";
-                        rotation = Quaternion.Euler(0f, 0f, 270f);
                         break;
                     default:
                         Log.MessageNetworked(Lang.NOMESSAGE, args, LogLevel.MessageClientOnly);
@@ -120,10 +114,6 @@ namespace DebugToolkit.Commands
                         portal.validStages = [];
                         portal.invalidStages = [];
                         portal.validStageTiers = [];
-                        if (rotation != null)
-                        {
-                            portal.previewChild.transform.localRotation = rotation.Value;
-                        }
                         portal.Start();
                         return;
                     }
