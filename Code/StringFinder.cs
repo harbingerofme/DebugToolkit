@@ -426,6 +426,52 @@ namespace DebugToolkit
         }
 
         /// <summary>
+        /// Returns a KeyItemIndex when provided with an index or partial/invariant.
+        /// </summary>
+        /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>
+        /// <returns>Returns the KeyItemIndex if a match is found, or returns KeyItemIndex.None</returns>
+        public KeyItemIndex GetKeyItemFromPartial(string name)
+        {
+            return GetKeyItemsFromPartial(name).DefaultIfEmpty(KeyItemIndex.None).First();
+        }
+
+        /// <summary>
+        /// Returns an iterator of KeyItemIndex's when provided with an index or partial/invariant.
+        /// </summary>
+        /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>
+        /// <returns>Returns an iterator with all KeyItemIndex's matched</returns>
+        public IEnumerable<KeyItemIndex> GetKeyItemsFromPartial(string name)
+        {
+            if (TextSerialization.TryParseInvariant(name, out int i))
+            {
+                var index = (KeyItemIndex)i;
+                if (KeyItemCatalog.GetKeyItemDef(index))
+                {
+                    yield return index;
+                }
+                yield break;
+            }
+            name = name.ToUpperInvariant();
+            var matches = new List<MatchSimilarity>();
+            foreach (var keyItem in KeyItemCatalog.allKeyItemDefs)
+            {
+                var langInvar = GetLangInvar(keyItem.nameToken).ToUpper();
+                if (keyItem.name.ToUpper().Contains(name) || langInvar.Contains(name))
+                {
+                    matches.Add(new MatchSimilarity
+                    {
+                        similarity = Math.Max(GetSimilarity(keyItem.name, name), GetSimilarity(langInvar, name)),
+                        item = keyItem.keyItemIndex
+                    });
+                }
+            }
+            foreach (var match in matches.OrderByDescending(m => m.similarity))
+            {
+                yield return (KeyItemIndex)match.item;
+            }
+        }
+
+        /// <summary>
         /// Returns a NetworkUser when provided with an index or partial/invariant.
         /// </summary>
         /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>

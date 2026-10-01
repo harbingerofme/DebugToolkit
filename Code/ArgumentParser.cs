@@ -221,6 +221,26 @@ namespace DebugToolkit
         }
 
         /// <summary>
+        /// Match a command argument to a key item.
+        /// </summary>
+        /// <param name="args">The incoming data for this command.</param>
+        /// <param name="index">The argument index for this value.</param>
+        /// <param name="keyItemDef">The parsed value. May be junk if parsing fails.</param>
+        /// <returns>Returns true if the argument is successfully parsed, else false.</returns>
+        public static bool TryParseKeyItem(ConCommandArgs args, int index, out KeyItemDef keyItemDef)
+        {
+            keyItemDef = null;
+            var keyItemIndex = StringFinder.Instance.GetKeyItemFromPartial(args[index]);
+            if (keyItemIndex == KeyItemIndex.None)
+            {
+                Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "key item", args[index], "list_keyitem"), args, LogLevel.MessageClientOnly);
+                return false;
+            }
+            keyItemDef = KeyItemCatalog.GetKeyItemDef(keyItemIndex);
+            return AssertExpansionAvailable(args, keyItemDef.requiredExpansion, "key item");
+        }
+
+        /// <summary>
         /// Match a command argument to a body prefab.
         /// </summary>
         /// <param name="args">The incoming data for this command.</param>

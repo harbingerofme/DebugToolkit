@@ -67,6 +67,24 @@ namespace DebugToolkit.Commands
             Log.MessageNetworked(s, args, LogLevel.MessageClientOnly);
         }
 
+        [ConCommand(commandName = "list_keyitem", flags = ConVarFlags.None, helpText = Lang.LISTKEYITEM_HELP)]
+        [AutoComplete(Lang.LISTQUERY_ARGS)]
+        private static void CCListKeyItem(ConCommandArgs args)
+        {
+            var sb = new StringBuilder();
+            var arg = args.Count > 0 ? args[0] : "";
+            var indices = StringFinder.Instance.GetKeyItemsFromPartial(arg);
+            foreach (var index in indices)
+            {
+                var definition = KeyItemCatalog.GetKeyItemDef(index);
+                var realName = Language.currentLanguage.GetLocalizedStringByToken(definition.nameToken);
+                bool enabled = Run.instance && Run.instance.IsKeyItemAvailable(index);
+                sb.AppendLine($"[{(int)index}]{definition.name} \"{realName}\" (enabled={enabled})");
+            }
+            var s = sb.Length > 0 ? sb.ToString().TrimEnd('\n') : string.Format(Lang.NOMATCH_ERROR, "key items", arg);
+            Log.MessageNetworked(s, args, LogLevel.MessageClientOnly);
+        }
+
         [ConCommand(commandName = "dump_inventories", flags = ConVarFlags.None, helpText = Lang.DUMPINVENTORIES_HELP)]
         private static void CCDumpInventories(ConCommandArgs args)
         {
@@ -482,6 +500,35 @@ namespace DebugToolkit.Commands
             inventory.RestockEquipmentCharges(equipmentLocation, count);
             var chargesAfter = inventory.GetEquipment(equipmentLocation).charges;
             Log.MessageNetworked($"Restocked {chargesAfter - chargesBefore} for the current equipment of {target.name}", args);
+        }
+
+        [ConCommand(commandName = "give_keyitem", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.GIVEKEYITEM_HELP)]
+        [AutoComplete(Lang.GIVEKEYITEM_ARGS)]
+        private static void CCGiveKeyItem(ConCommandArgs args)
+        {
+            if (!ArgumentParser.AssertInARun(args) ||
+                !ArgumentParser.AssertRequiredArguments(args, Lang.GIVEKEYITEM_ARGS, 1, 2) ||
+                !ArgumentParser.TryParseKeyItem(args, 0, out var keyItemDef) ||
+                !TryParseInventoryTarget(args, 1, out var target))
+            {
+                return;
+            }
+            target.inventory.SetKeyItem(keyItemDef.keyItemIndex);
+            Log.MessageNetworked(string.Format(Lang.GIVEOBJECT, keyItemDef.name, target.name), args);
+        }
+
+        [ConCommand(commandName = "remove_keyitem", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.REMOVEKEYITEM_HELP)]
+        [AutoComplete(Lang.REMOVEKEYITEM_ARGS)]
+        private static void CCRemoveKeyItem(ConCommandArgs args)
+        {
+            if (!ArgumentParser.AssertInARun(args) ||
+                !ArgumentParser.AssertRequiredArguments(args, Lang.REMOVEKEYITEM_ARGS, 0, 1) ||
+                !TryParseInventoryTarget(args, 0, out var target))
+            {
+                return;
+            }
+            target.inventory.SetKeyItem(KeyItemIndex.None);
+            Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT, "key item", target.name), args);
         }
 
         internal enum ItemType
