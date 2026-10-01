@@ -107,7 +107,7 @@ namespace DebugToolkit.Commands
         {
             if (amount > 0)
             {
-                master.GiveMoney((uint)amount);
+                master.GiveMoney((uint)amount, false);
                 return;
             }
             master.money = (uint)Math.Max(0, master.money + amount);

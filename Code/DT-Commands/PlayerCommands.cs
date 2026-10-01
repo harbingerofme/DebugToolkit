@@ -281,10 +281,15 @@ namespace DebugToolkit.Commands
             var maxSlots = inventory.GetEquipmentSlotCount();
             for (uint slot = 0U; slot < maxSlots; slot++)
             {
-                var maxSets = inventory.GetEquipmentSetCount(slot);
+                var maxSets = inventory.GetEquipmentSetCount();
                 for (uint set = 0U; set < maxSets; set++)
                 {
-                    var equipmentIndex = inventory.GetEquipment(slot, set).equipmentIndex;
+                    var equipmentLocation = new EquipmentLocation
+                    {
+                        slot = slot,
+                        set = set
+                    };
+                    var equipmentIndex = inventory.GetEquipment(equipmentLocation).equipmentIndex;
                     var equipDef = EquipmentCatalog.GetEquipmentDef(equipmentIndex);
                     if (equipDef != null)
                     {
@@ -453,9 +458,14 @@ namespace DebugToolkit.Commands
             {
                 for (uint slot = 0; slot < inventory.GetEquipmentSlotCount(); slot++)
                 {
-                    for (uint set = 0; set < inventory.GetEquipmentSetCount(slot); set++)
+                    for (uint set = 0; set < inventory.GetEquipmentSetCount(); set++)
                     {
-                        var state = inventory.GetEquipment(slot, set);
+                        var equipmentLocation = new EquipmentLocation
+                        {
+                            slot = slot,
+                            set = set
+                        };
+                        var state = inventory.GetEquipment(equipmentLocation);
                         var equip = state.equipmentDef;
                         if (equip != null)
                         {

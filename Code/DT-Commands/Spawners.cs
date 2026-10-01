@@ -64,7 +64,7 @@ namespace DebugToolkit.Commands
                 var direction = args.senderBody.inputBank.aimDirection;
                 position = position + (args.senderBody.radius + distance) * new Vector3(direction.x, 0f, direction.z);
             }
-            var result = isc.DoSpawn(position, new Quaternion(), new DirectorSpawnRequest(isc, null, RoR2Application.rng));
+            var result = isc.DoSpawn(position, new Quaternion(), new DirectorSpawnRequest(isc, new DirectorPlacementRule(), RoR2Application.rng));
             if (!result.success)
             {
                 Log.MessageNetworked("Failed to spawn interactable.", args, LogLevel.MessageClientOnly);
@@ -193,9 +193,10 @@ namespace DebugToolkit.Commands
                     CharacterMaster master = masterGameObject.GetComponent<CharacterMaster>();
                     if (eliteDef)
                     {
-                        master.inventory.SetEquipmentIndex(eliteDef.eliteEquipmentDef.equipmentIndex, false);
-                        master.inventory.GiveItemPermanent(RoR2Content.Items.BoostHp, Mathf.RoundToInt((eliteDef.healthBoostCoefficient - 1) * 10));
-                        master.inventory.GiveItemPermanent(RoR2Content.Items.BoostDamage, Mathf.RoundToInt(eliteDef.damageBoostCoefficient - 1) * 10);
+                        var inventory = master.inventory;
+                        inventory.SetEquipmentIndex(eliteDef.eliteEquipmentDef.equipmentIndex, inventory.activeEquipmentLocation);
+                        inventory.GiveItemPermanent(RoR2Content.Items.BoostHp, Mathf.RoundToInt((eliteDef.healthBoostCoefficient - 1) * 10));
+                        inventory.GiveItemPermanent(RoR2Content.Items.BoostDamage, Mathf.RoundToInt(eliteDef.damageBoostCoefficient - 1) * 10);
                     }
                     if (braindead)
                     {
@@ -343,7 +344,8 @@ namespace DebugToolkit.Commands
                     if (eliteUpgradeList != null && eliteUpgradeList.Count > 0)
                     {
                         int index = UnityEngine.Random.Range(0, eliteUpgradeList.Count);
-                        masterGameObject.GetComponent<Inventory>().SetEquipmentIndex(eliteUpgradeList[index], isRemovingEquipment: false);
+                        var inventory = masterGameObject.GetComponent<Inventory>();
+                        inventory.SetEquipmentIndex(eliteUpgradeList[index], inventory.activeEquipmentLocation);
                     }
                 }
                 devotionInventoryController.UpdateAllMinions(false);

@@ -98,9 +98,14 @@ namespace DebugToolkit.Commands
                 }
                 for (uint slot = 0; slot < inventory.GetEquipmentSlotCount(); slot++)
                 {
-                    for (uint set = 0; set < inventory.GetEquipmentSetCount(slot); set++)
+                    for (uint set = 0; set < inventory.GetEquipmentSetCount(); set++)
                     {
-                        var equipmentDef = inventory.GetEquipment(slot, set).equipmentDef;
+                        var equipmentLocation = new EquipmentLocation
+                        {
+                            slot = slot,
+                            set = set
+                        };
+                        var equipmentDef = inventory.GetEquipment(equipmentLocation).equipmentDef;
                         var colorHexString = ColorCatalog.GetColorHexString(ColorCatalog.ColorIndex.Equipment);
                         var name = (equipmentDef != null) ? Language.GetString(equipmentDef.nameToken) : "<NONE>";
                         sb.AppendLine($"<color=#{colorHexString}>{name}</color>");
@@ -211,7 +216,7 @@ namespace DebugToolkit.Commands
             {
                 return;
             }
-            target.inventory.SetEquipmentIndex(equipmentDef.equipmentIndex, false);
+            target.inventory.SetEquipmentIndex(equipmentDef.equipmentIndex, target.inventory.activeEquipmentLocation);
             Log.MessageNetworked(string.Format(Lang.GIVEOBJECT, equipmentDef.name, target.name), args);
         }
 
@@ -234,8 +239,13 @@ namespace DebugToolkit.Commands
             // or else the command may allocate extra sets beyond what the item accounts for.
             // This is only an issue if we're combining give_item and give_equip_extra in the console,
             // where Inventory.FixedUpdate doesn't get a chance to run in the between.
-            inventory.UpdateEquipmentSetCount();
-            inventory.SetEquipmentIndexForSlot(equipmentDef.equipmentIndex, slot, set);
+            inventory.RecalculateEquipmentSetsServer();
+            var equipmentLocation = new EquipmentLocation
+            {
+                slot = slot,
+                set = set
+            };
+            inventory.SetEquipmentIndex(equipmentDef.equipmentIndex, equipmentLocation);
             Log.MessageNetworked($"Gave {equipmentDef.name} to {target.name} in position ({slot}, {set})", args);
         }
 
@@ -419,7 +429,7 @@ namespace DebugToolkit.Commands
             {
                 return;
             }
-            target.inventory.SetEquipmentIndex(EquipmentIndex.None, true);
+            target.inventory.SetEquipmentIndex(EquipmentIndex.None, target.inventory.activeEquipmentLocation);
             Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT, "current Equipment", target.name), args);
         }
 
@@ -438,12 +448,17 @@ namespace DebugToolkit.Commands
             }
 
             var inventory = target.inventory;
-            if (inventory._equipmentStateSlots.Length < slot || inventory._equipmentStateSlots[slot].Length < set)
+            if ((uint)inventory.equipmentSlotCount < slot || (uint)inventory.equipmentSetCount < set)
             {
                 Log.MessageNetworked("Unassigned equipment slot/set. Nothing to remove.", args, LogLevel.MessageClientOnly);
                 return;
             }
-            inventory.SetEquipmentIndexForSlot(EquipmentIndex.None, slot, set);
+            var equipmentLocation = new EquipmentLocation
+            {
+                slot = slot,
+                set = set
+            };
+            inventory.SetEquipmentIndex(EquipmentIndex.None, equipmentLocation);
             Log.MessageNetworked($"Removed equipment from {target.name} in position ({slot}, {set})", args);
         }
 
@@ -460,17 +475,11 @@ namespace DebugToolkit.Commands
             }
 
             var inventory = target.inventory;
-            var currentSlot = inventory.activeEquipmentSlot;
-            if (inventory.activeEquipmentSet.Length > currentSlot)
-            {
-                var currentSet = inventory.activeEquipmentSet[inventory.activeEquipmentSlot];
-                var chargesBefore = inventory.GetEquipment(currentSlot, currentSet).charges;
-                inventory.RestockEquipmentCharges(currentSlot, currentSet, count);
-                var chargesAfter = inventory.GetEquipment(currentSlot, currentSet).charges;
-                Log.MessageNetworked($"Restocked {chargesAfter - chargesBefore} for the current equipment of {target.name}", args);
-                return;
-            }
-            Log.MessageNetworked($"{target.name} has never held an equipment in the current equipment slot.", args);
+            var equipmentLocation = inventory.activeEquipmentLocation;
+            var chargesBefore = inventory.GetEquipment(equipmentLocation).charges;
+            inventory.RestockEquipmentCharges(equipmentLocation, count);
+            var chargesAfter = inventory.GetEquipment(equipmentLocation).charges;
+            Log.MessageNetworked($"Restocked {chargesAfter - chargesBefore} for the current equipment of {target.name}", args);
         }
 
         internal enum ItemType
