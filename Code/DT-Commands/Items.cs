@@ -329,6 +329,7 @@ namespace DebugToolkit.Commands
                 {
                     pickupIndex = final,
                     decayValue = itemType == ItemType.Temp ? 1f : 0f,
+                    isRental = itemType == ItemType.Ethereal,
                 },
             }, body.transform.position, body.inputBank.aimDirection * 30f);
             Log.MessageNetworked(string.Format(Lang.CREATEPICKUP_SUCCESS_1, final), args);
@@ -378,9 +379,10 @@ namespace DebugToolkit.Commands
             }
 
             var inventory = target.inventory;
-            int count = inventory.GetItemCountPermanent(itemDef) + inventory.GetItemCountTemp(itemDef);
+            int count = inventory.GetItemCountPermanent(itemDef) + inventory.GetItemCountTemp(itemDef) + inventory.GetItemCountRented(itemDef);
             inventory.RemoveItemPermanent(itemDef, count);
             inventory.RemoveItemTemp(itemDef.itemIndex, count);
+            inventory.RemoveItemRented(itemDef.itemIndex, count);
             if (target.devotionController)
             {
                 target.devotionController.UpdateAllMinions(false);
@@ -487,6 +489,7 @@ namespace DebugToolkit.Commands
             None = -1,
             Permanent,
             Temp,
+            Ethereal,
             // If you're here because you're adding a new ItemType, update all the following accordingly! :)
             // GetItemCount, GiveItem, RemoveItem, create_pickup, remove_item_stacks, and dump_build.
         }
@@ -499,6 +502,8 @@ namespace DebugToolkit.Commands
                     return inventory.GetItemCountPermanent(itemIndex);
                 case ItemType.Temp:
                     return inventory.GetItemCountTemp(itemIndex);
+                case ItemType.Ethereal:
+                    return inventory.GetItemCountRented(itemIndex);
                 default:
                     Log.Message(Lang.NOMESSAGE, LogLevel.Warning);
                     return 0;
@@ -515,6 +520,9 @@ namespace DebugToolkit.Commands
                 case ItemType.Temp:
                     inventory.GiveItemTemp(itemIndex, count);
                     break;
+                case ItemType.Ethereal:
+                    inventory.GiveItemRented(itemIndex, count);
+                    break;
                 default:
                     Log.Message(Lang.NOMESSAGE, LogLevel.Warning);
                     break;
@@ -530,6 +538,9 @@ namespace DebugToolkit.Commands
                     break;
                 case ItemType.Temp:
                     inventory.RemoveItemTemp(itemIndex, count);
+                    break;
+                case ItemType.Ethereal:
+                    inventory.RemoveItemRented(itemIndex, count);
                     break;
                 default:
                     Log.Message(Lang.NOMESSAGE, LogLevel.Warning);
