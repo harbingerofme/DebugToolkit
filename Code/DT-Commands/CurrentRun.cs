@@ -1,3 +1,4 @@
+using EntityStates.TeleporterCatastrophe.DLC4.Teleporter;
 using RoR2;
 using System;
 using System.Collections.Generic;
@@ -449,19 +450,21 @@ namespace DebugToolkit.Commands
         private static void CCChargeZone(ConCommandArgs args)
         {
             if (!ArgumentParser.AssertInARun(args) ||
-                !ArgumentParser.TryParseOptionalFloat(args, 0, "charge", 100f, out var charge))
+                !ArgumentParser.TryParseOptionalFloat(args, 0, "charge", float.MaxValue, out var charge))
             {
                 return;
             }
 
+            var isMaxCharge = charge == float.MaxValue;
             charge /= 100f;
 
             foreach (var zone in InstanceTracker.GetInstancesList<HoldoutZoneController>())
             {
+                charge = isMaxCharge ? zone.maxCharge : charge;
                 zone.charge = charge;
                 // Trigger the onCharged event manually, since Pillars of Soul discharging means the
                 // zone will be deactivated without updating the mission tracker successfully.
-                var charged = charge >= 1f;
+                var charged = charge >= zone.maxCharge;
                 if (charged && zone.wasCharged != charged && zone.onCharged != null)
                 {
                     zone.wasCharged = charged;
@@ -473,7 +476,7 @@ namespace DebugToolkit.Commands
                 // This also means that if a mod subscribes an event which removes itself
                 // upon getting triggered, we have no way of resubscribing it.
                 var teleporterInteraction = zone.GetComponent<TeleporterInteraction>();
-                if (teleporterInteraction && charge < 1f)
+                if (teleporterInteraction && charge < zone.maxCharge)
                 {
                     teleporterInteraction.bonusDirector.enabled = true;
                 }
