@@ -23,6 +23,7 @@
             DUMPSTATS_ARGS = "Requires 1 argument: {body}",
             ENABLE_ARGS = "Requires 0 or 1 arguments: [enable (0|1)]",
             FIXEDTIME_ARGS = "Requires 0 or 1 argument: [time]",
+            FORCETRIAL_ARGS = "Requests 1 argument: [identifier]",
             FORCEWAVE_ARGS = "Requires 0 or 1 argument [wave_prefab]",
             GIVEBUFF_ARGS = "Requires 1 (4 if from server) arguments: {buff} [count:1] [duration:0] [target (player|'pinged'):<self>]",
             GIVEDOT_ARGS = "Requires 1 (4 if from server) argument: {dot} [count:1] [target (player|'pinged'):<self>] [attacker (player|'pinged'):<self>]",
@@ -74,6 +75,7 @@
             SPAWNPORTAL_ARGS = "Requires 1 argument: {portal ('artifact'|'blue'|'celestial'|'deepvoid'|'gold'|'green'|'null'|'void')}",
             STARTQUEST_ARGS = "Requests 1 argument: {quest (quest|'random')}",
             TIMESCALE_ARGS = "Requires 0 argument: [time_scale]",
+            TRIALTIMER_ARGS = "Requests 1 argument: [time]",
             TRUEKILL_ARGS = "Requires 0 (1 if from server) arguments: [player:<self>]"
             ;
 
@@ -97,9 +99,11 @@
             DUMPKARMATRIGGERS_HELP = "List all karma triggers and their current status. " + NO_ARGS,
             DUMPSTATE_HELP = "List the current stats, entity state, and skill cooldown of a specified body. " + DUMPSTATE_ARGS,
             DUMPSTATS_HELP = "List the base stats of a specific body. " + DUMPSTATS_ARGS,
+            DUMPTRIALVARIANTS_HELP = "List all trial variants for the current stage. " + NO_ARGS,
             EVOLVELEMURIANS_HELP = "Evolve all Devoted Lemurians. " + NO_ARGS,
             FAMILYEVENT_HELP = "Forces a family event to occur during the next stage. " + NO_ARGS,
             FIXEDTIME_HELP = "Sets the run timer to the specified value. " + FIXEDTIME_ARGS,
+            FORCETRIAL_HELP = "Sets the trial variant override for the next trial stage. Use either a trial index or partial name." + FORCETRIAL_ARGS,
             FORCEWAVE_HELP = "Set the next wave prefab. Leave empty to see all options. " + FORCEWAVE_ARGS,
             GIVEBUFF_HELP = "Gives the specified buff to a character. A duration of 0 means permanent. " + GIVEBUFF_ARGS,
             GIVEDOT_HELP = "Gives the specified DoT to a character. " + GIVEDOT_ARGS,
@@ -188,6 +192,7 @@
             STARTQUEST_HELP = "Start a Compulsion Quest. " + STARTQUEST_ARGS,
             STOPTIMER_HELP = "Pause/unpause the run timer. " + ENABLE_ARGS,
             TIMESCALE_HELP = "Sets the Time Delta. " + TIMESCALE_ARGS,
+            TRIALTIMER_HELP = "Sets the trial remaining timer. " + TRIALTIMER_ARGS,
             TRUEKILL_HELP = "Ignore Dio's and kill the entity. " + TRUEKILL_ARGS
             ;
 

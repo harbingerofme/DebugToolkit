@@ -331,6 +331,69 @@ namespace DebugToolkit.Commands
             Log.MessageNetworked("The next stage will contain a family event if available!", args);
         }
 
+        [ConCommand(commandName = "force_trial", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.FORCETRIAL_HELP)]
+        [AutoComplete(Lang.FORCETRIAL_ARGS)]
+        private static void CCForceTrial(ConCommandArgs args)
+        {
+            if (!ArgumentParser.AssertRequiredArguments(args, Lang.FORCETRIAL_ARGS, 1))
+            {
+                return;
+            }
+
+            TrialController._preassignedVariantIndex = null;
+            TrialController._preassignedVariantName = null;
+            if (TextSerialization.TryParseInvariant(args[0], out int trialIndex))
+            {
+                TrialController._preassignedVariantIndex = trialIndex;
+                Log.MessageNetworked($"The next trial stage will attempt to use the trial variant at index {trialIndex}.", args, LogLevel.MessageClientOnly);
+                return;
+            }
+            else
+            {
+                TrialController._preassignedVariantName = args[0];
+                Log.MessageNetworked($"The next trial stage will attempt to use the trial variant with partial name {trialIndex}.", args, LogLevel.MessageClientOnly);
+                return;
+            }
+        }
+
+        [ConCommand(commandName = "trial_timer", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.TRIALTIMER_HELP)]
+        [AutoComplete(Lang.TRIALTIMER_ARGS)]
+        private static void CCTrialTimer(ConCommandArgs args)
+        {
+            if (!ArgumentParser.AssertInARun(args) ||
+                !ArgumentParser.AssertRequiredArguments(args, Lang.TRIALTIMER_ARGS, 1) ||
+                !ArgumentParser.TryParseOptionalFloat(args, 0, "time", default, out var time))
+            {
+                return;
+            }
+
+            if (DLC4ProgressionController.instance && DLC4ProgressionController.instance.trialSelector)
+            {
+                DLC4ProgressionController.instance.trialSelector.SetRemainingTrialTimeServer(time);
+            }
+        }
+
+        [ConCommand(commandName = "dump_trial_variants", flags = ConVarFlags.None, helpText = Lang.DUMPTRIALVARIANTS_HELP)]
+        private static void CCDumpTrialVariants(ConCommandArgs args)
+        {
+            if (!ArgumentParser.AssertInARun(args))
+            {
+                return;
+            }
+            var controller = InstanceTracker.FirstOrNull<TrialController>();
+            if (controller)
+            {
+                var sb = new StringBuilder();
+                for (int i = 0; i < controller.trialVariants.Length; i++)
+                {
+                    sb.AppendLine($"[{i}]{controller.trialVariants[i].name}");
+                }
+                Log.MessageNetworked(sb.ToString().TrimEnd('\n'), args, LogLevel.MessageClientOnly);
+                return;
+            }
+            Log.MessageNetworked("Not a trial stage.", args, LogLevel.MessageClientOnly);
+        }
+
         [ConCommand(commandName = "start_quest", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.STARTQUEST_HELP)]
         [AutoComplete(Lang.STARTQUEST_ARGS)]
         private static void CCStartQuest(ConCommandArgs args)

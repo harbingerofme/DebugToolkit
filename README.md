@@ -58,6 +58,8 @@ Commands:
 * **charge_zone** - Set the charge of all active holdout zones. `charge_zone [charge]`. If no argument is supplied, all zones are fully charged.
 * **evolve_lemurians** - Evolve all Devoted Lemurians. `evolve_lemurians`
 * **start_quest** - Start a Compulsion Quest. `start_quest {quest (quest|'random')}`
+* **force_trial** - Set the trial variant override for the next trial stage. `force_trial {identifier}`. Use either an index or partial name obtained from `dump_trial_variants`.
+* **trial_timer** - Set the trial remaining timer. `trial_timer {time}`. Must be set from a non-trial stage.
 * **seed** - Set the seed for all next runs this session. `seed [new_seed]`. Use `0` to specify the game should generate its own seed. If used without argument, it's equivalent to the vanilla `run_get_seed`.
 * **karma** - Set the karma for the run. `karma [karma]`. Use a negative value to disable it completely. If no argument is supplied, gives the current karma.
 * **set_artifact** - Enable/disable an Artifact. `set_artifact {artifact (artifact|'all')} [enable (0|1)]`. If enable isn't supplied, it will toggle the artifact's current state. However, it is required when using "all".
@@ -105,6 +107,7 @@ Dump Commands:
 * **dump_stats** - List the base stats of a specific body.
 * **dump_build** - Generate a string with commands to replicate your current inventory and minion state.
 * **dump_karma_triggers** - List all karma triggers and their current status.
+* **dump_trial_variants** - List all the trial variants for the current stage.
 
 Buff Commands:
 
