@@ -127,6 +127,7 @@ Item Commands:
 * **restock_equip** - Restock charges for the current equipment. `restock_equip [count:1] *[target (player|'pinged'|'evolution'|'simulacrum'|'voidfields'|'devotion'):<self>]`
 * **give_key_item** - Give a key item directly to a target's inventory. `give_keyitem {key_item} *[target (player|'pinged'|'evolution'|'simulacrum'|'voidfields'|'devotion'):<self>]`
 * **remove_key_item** - Removes the key item directly from a target's inventory. `remove_keyitem *[target (player|'pinged'|'evolution'|'simulacrum'|'voidfields'|'devotion'):<self>]`
+* **clean_inventory** - Removes all items, equipment, and key item from a target's inventory. `clean_inventory *[target (player|'pinged'|'evolution'|'simulacrum'|'voidfields'|'devotion'):<self>]`
 * **create_pickup** - Creates a pickup in front of a player. Pickups are items, equipment, or coins. When the pickup is an item or equipment, the search argument 'item' or 'equip' may be specified to only search that list. `create_pickup {object (item|equip|'lunarcoin'|'voidcoin')} [item_type:Permanent] [search ('item'|'equip'|'both'):'both'] *[player:<self>]`
 * **create_potential** - Creates a potential in front of a player. The first item tier defined in the droptable decides the color of the droplet and what items will be available with the Artifact of Command. `create_potential [droptable (droptable|'all')] [count:3] *[player:<self>]`
 

@@ -536,6 +536,22 @@ namespace DebugToolkit.Commands
             Log.MessageNetworked(string.Format(Lang.REMOVEOBJECT, "key item", target.name), args);
         }
 
+        [ConCommand(commandName = "clean_inventory", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.CLEANINVENTORY_HELP)]
+        [AutoComplete(Lang.CLEANINVENTORY_ARGS)]
+        private static void CCCleanInventory(ConCommandArgs args)
+        {
+            if (!ArgumentParser.AssertInARun(args) ||
+                !ArgumentParser.AssertRequiredArguments(args, Lang.CLEANINVENTORY_ARGS, 0, 1) ||
+                !TryParseInventoryTarget(args, 0, out var target))
+            {
+                return;
+            }
+            var cleanInventoryArgs = Inventory.CleanInventoryArgs.All();
+            cleanInventoryArgs = cleanInventoryArgs.SetFilter((ItemIndex x) => true);
+            target.inventory.CleanInventory(cleanInventoryArgs);
+            Log.MessageNetworked(string.Format(Lang.RESETOBJECT, "inventory state", target.name), args);
+        }
+
         internal enum ItemType
         {
             None = -1,
