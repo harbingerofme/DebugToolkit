@@ -1,4 +1,5 @@
 ﻿using RoR2;
+using RoR2.Quests;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine.Networking;
@@ -157,6 +158,21 @@ namespace DebugToolkit.Commands
                 sb.AppendLine($"[{(int)index}]{langInvar}");
             }
             var s = sb.Length > 0 ? sb.ToString().TrimEnd('\n') : string.Format(Lang.NOMATCH_ERROR, "difficulties", arg);
+            Log.MessageNetworked(s, args, LogLevel.MessageClientOnly);
+        }
+
+        [ConCommand(commandName = "list_quest", flags = ConVarFlags.None, helpText = Lang.LISTQUEST_HELP)]
+        private static void CCListQuests(ConCommandArgs args)
+        {
+            StringBuilder sb = new StringBuilder();
+            var arg = args.Count > 0 ? args[0] : "";
+            var indices = StringFinder.Instance.GetQuestsFromPartial(arg);
+            foreach (var index in indices)
+            {
+                var quest = QuestCatalog.GetRegisteredQuest(index).Value.identifier;
+                sb.AppendLine($"[{(int)index}]{quest}");
+            }
+            var s = sb.Length > 0 ? sb.ToString().TrimEnd('\n') : string.Format(Lang.NOMATCH_ERROR, "quests", arg);
             Log.MessageNetworked(s, args, LogLevel.MessageClientOnly);
         }
 

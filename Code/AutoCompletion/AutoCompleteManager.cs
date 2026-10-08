@@ -1,4 +1,6 @@
 ﻿using RoR2;
+using RoR2.Quests;
+using RoR2.Quests.CompulsionQuests;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -89,6 +91,9 @@ namespace DebugToolkit
                 Concat(TeamCatalog.teamDefs.Select((t, i) => $"{i}|{(TeamIndex)i}")),
                 1
             );
+            var quests = new List<QuestCatalog.RegisteredQuest>();
+            QuestCatalog.GetRegisteredQuestsOfType<BaseCompulsionQuest>(quests);
+            parser.RegisterStaticVariable("quest", quests.Select(i => $"{(int)i.questIndex}|{i.identifier}"), 1);
 
             // Skip ItemType.None
             parser.RegisterStaticVariable("item_type", CollectEnumNames(typeof(Commands.Items.ItemType), typeof(int)).SkipLast(1), 1);

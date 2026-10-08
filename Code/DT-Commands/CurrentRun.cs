@@ -1,4 +1,6 @@
 using RoR2;
+using RoR2.Quests;
+using RoR2.Quests.CompulsionQuests;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -327,6 +329,50 @@ namespace DebugToolkit.Commands
         {
             forceFamilyEvent = true;
             Log.MessageNetworked("The next stage will contain a family event if available!", args);
+        }
+
+        [ConCommand(commandName = "start_quest", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.STARTQUEST_HELP)]
+        [AutoComplete(Lang.STARTQUEST_ARGS)]
+        private static void CCStartQuest(ConCommandArgs args)
+        {
+            if (!ArgumentParser.AssertInARun(args) ||
+                !ArgumentParser.AssertRequiredArguments(args, Lang.STARTQUEST_ARGS, 1) ||
+                !ArgumentParser.TryParseQuestOrRandom(args, 0, out var questIndex))
+            {
+                return;
+            }
+
+            if (!DLC4ProgressionController.instance)
+            {
+                Log.MessageNetworked($"{Language.GetString(DLC4Content.DLC4.nameToken)} must be enabled for this.", args, LogLevel.MessageClientOnly);
+                return;
+            }
+            var questTracker = DLC4ProgressionController.instance.GetOrCreateQuestTracker();
+            QuestCatalog.RegisteredQuest quest;
+            if (questIndex == QuestIndex.None)
+            {
+                // Random quest
+                var questSelection = questTracker._compulsionQuests;
+                QuestCatalog.PopulateWeightedSelectionWithQuestsOfType<BaseCompulsionQuest>(questSelection, questTracker.questRunner);
+                if (questSelection.Count == 0)
+                {
+                    Log.MessageNetworked($"No valid random compulsion quest was found.", args, LogLevel.MessageClientOnly);
+                    return;
+                }
+                quest = questSelection.Evaluate(DLC4ProgressionController.instance.rng.nextNormalizedFloat);
+            }
+            else
+            {
+                quest = QuestCatalog.GetRegisteredQuest(questIndex).Value;
+                // Random quests filter for validity, but for explicit ones we must check ourselves
+                if (quest.canStartQuest(questTracker.questRunner) == false)
+                {
+                    Log.MessageNetworked($"Cannot start {quest.identifier}.", args, LogLevel.MessageClientOnly);
+                    return;
+                }
+            }
+            questTracker.BeginQuest(args.senderBody, quest);
+            Log.MessageNetworked($"Started {quest.identifier}.", args, LogLevel.MessageClientOnly);
         }
 
         [ConCommand(commandName = "next_boss", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.NEXTBOSS_HELP)]

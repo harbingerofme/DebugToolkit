@@ -1,4 +1,6 @@
 ﻿using RoR2;
+using RoR2.Quests;
+using RoR2.Quests.CompulsionQuests;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -667,6 +669,56 @@ namespace DebugToolkit
             {
                 yield return (DifficultyIndex)match.item;
             }
+        }
+
+        /// <summary>
+        /// Returns a QuestIndex when provided with an index or partial/invariant.
+        /// </summary>
+        /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>
+        /// <returns>Returns the QuestIndex if a match is found, or returns QuestIndex.None</returns>
+        public QuestIndex GetQuestFromPartial(string name)
+        {
+            return GetQuestsFromPartial(name).DefaultIfEmpty(QuestIndex.None).First();
+        }
+
+        /// <summary>
+        /// Returns an iterator of QuestIndex's when provided with an index or partial/invariant.
+        /// </summary>
+        /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>
+        /// <returns>Returns an iterator with all QuestIndex's matched</returns>
+        public IEnumerable<QuestIndex> GetQuestsFromPartial(string name)
+        {
+            if (TextSerialization.TryParseInvariant(name, out int i))
+            {
+                var index = (QuestIndex)i;
+                if (QuestCatalog.IsQuestIndexValid(index) &&
+                    QuestCatalog.GetRegisteredQuest(index).Value.questType.IsSubclassOf(typeof(BaseCompulsionQuest)))
+                {
+                    yield return index;
+                }
+                yield break;
+            }
+            name = name.ToUpperInvariant();
+            var matches = new List<MatchSimilarity>();
+            var compulsionQuests = HG.CollectionPool<QuestCatalog.RegisteredQuest, List<QuestCatalog.RegisteredQuest>>.RentCollection();
+            QuestCatalog.GetRegisteredQuestsOfType<BaseCompulsionQuest>(compulsionQuests);
+            foreach (var quest in compulsionQuests)
+            {
+                var langInvar = GetLangInvar(quest.identifier).ToUpper();
+                if (langInvar.Contains(name))
+                {
+                    matches.Add(new MatchSimilarity
+                    {
+                        similarity = GetSimilarity(langInvar, name),
+                        item = quest.questIndex
+                    });
+                }
+            }
+            foreach (var match in matches.OrderByDescending(m => m.similarity))
+            {
+                yield return (QuestIndex)match.item;
+            }
+            HG.CollectionPool<QuestCatalog.RegisteredQuest, List<QuestCatalog.RegisteredQuest>>.ReturnCollection(compulsionQuests);
         }
 
         /// <summary>

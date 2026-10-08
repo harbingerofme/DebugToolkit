@@ -1,4 +1,5 @@
 ﻿using RoR2;
+using RoR2.Quests;
 using System;
 using UnityEngine;
 using static DebugToolkit.Log;
@@ -372,6 +373,30 @@ namespace DebugToolkit
             if (difficultyIndex == DifficultyIndex.Invalid)
             {
                 Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "difficulty", args[index], "list_difficulty"), args, LogLevel.MessageClientOnly);
+                return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Match a command argument to either the string 'random' or a compulsion quest.
+        /// </summary>
+        /// <param name="args">The incoming data for this command.</param>
+        /// <param name="index">The argument index for this value.</param>
+        /// <param name="questIndex">The parsed value. May be junk if parsing fails. If the argument is 'random', this will be QuestIndex.None and the parsing successful.</param>
+        /// <returns>Returns true if the argument is successfully parsed, else false.</returns>
+        public static bool TryParseQuestOrRandom(ConCommandArgs args, int index, out QuestIndex questIndex)
+        {
+            // We don't select a random quest at this point, so return QuestIndex.None with successful parsing.
+            if (string.Equals(args[index], Lang.RANDOM, StringComparison.InvariantCultureIgnoreCase))
+            {
+                questIndex = QuestIndex.None;
+                return true;
+            }
+            questIndex = StringFinder.Instance.GetQuestFromPartial(args[index]);
+            if (questIndex == QuestIndex.None)
+            {
+                Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "quest", args[index], "list_quest"), args, LogLevel.MessageClientOnly);
                 return false;
             }
             return true;

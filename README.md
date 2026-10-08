@@ -57,6 +57,7 @@ Commands:
 * **add_portal** - Add a portal to the current Teleporter on completion. `add_portal {portal ('blue'|'celestial'|'gold'|'green'|'void'|'all')}`.
 * **charge_zone** - Set the charge of all active holdout zones. `charge_zone [charge]`. If no argument is supplied, all zones are fully charged.
 * **evolve_lemurians** - Evolve all Devoted Lemurians. `evolve_lemurians`
+* **start_quest** - Start a Compulsion Quest. `start_quest {quest (quest|'random')}`
 * **seed** - Set the seed for all next runs this session. `seed [new_seed]`. Use `0` to specify the game should generate its own seed. If used without argument, it's equivalent to the vanilla `run_get_seed`.
 * **karma** - Set the karma for the run. `karma [karma]`. Use a negative value to disable it completely. If no argument is supplied, gives the current karma.
 * **set_artifact** - Enable/disable an Artifact. `set_artifact {artifact (artifact|'all')} [enable (0|1)]`. If enable isn't supplied, it will toggle the artifact's current state. However, it is required when using "all".
@@ -91,6 +92,7 @@ List Commands:
 * **list_equip** - List all Equipment, their language invariants, and if they are in the current drop pool.
 * **list_interactables/list_interactibles** List all Interactables.
 * **list_directorcards** List all Director Cards. Mainly used for the `next_boss` command.
+* **list_quest** List all Compulsions Quests.
 * **list_scene** List all Scenes, their language invariants, and if are they an offline scene.
 * **list_skins** List all Body Skins and the language invariant of the current one in use.
 * **list_survivor** List all Survivors and their body/ai names.

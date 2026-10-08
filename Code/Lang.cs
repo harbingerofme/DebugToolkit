@@ -72,6 +72,7 @@
             SPAWNINTERACTABLE_ARGS = "Requires 1 argument: {interactable}",
             SPAWNLEMURIAN_ARGS = "Requires 1 argument: {item} [level:0]",
             SPAWNPORTAL_ARGS = "Requires 1 argument: {portal ('artifact'|'blue'|'celestial'|'deepvoid'|'gold'|'green'|'null'|'void')}",
+            STARTQUEST_ARGS = "Requests 1 argument: {quest (quest|'random')}",
             TIMESCALE_ARGS = "Requires 0 argument: [time_scale]",
             TRUEKILL_ARGS = "Requires 0 (1 if from server) arguments: [player:<self>]"
             ;
@@ -136,6 +137,7 @@
             LISTSKIN_HELP = "List all bodies with skins. " + LISTSKIN_ARGS,
             LISTSURVIVOR_HELP = "List all survivors and their body/ai names. " + LISTQUERY_ARGS,
             LISTTEAM_HELP = "List all Teams and their language invariants. " + LISTQUERY_ARGS,
+            LISTQUEST_HELP = "List all compulsion quests. " + LISTQUERY_ARGS,
             LOADOUTSKIN_HELP = "Change your loadout's skin.  " + LOADOUTSKIN_ARGS,
             LOCKEXP_HELP = "Prevent Experience gain. " + ENABLE_ARGS,
             MACRO_DTZOOM_HELP = "Gives you 20 hooves and 200 feathers for getting around quickly.",
@@ -183,6 +185,7 @@
             SPAWNINTERACTABLE_HELP = "Spawns the specified interactable. List_Interactable for options. " + SPAWNINTERACTABLE_ARGS,
             SPAWNLEMURIAN_HELP = "Spawns a Devoted Lemurian. " + SPAWNLEMURIAN_ARGS,
             SPAWNPORTAL_HELP = "Spawns a portal in front of the player. " + SPAWNPORTAL_ARGS,
+            STARTQUEST_HELP = "Start a Compulsion Quest. " + STARTQUEST_ARGS,
             STOPTIMER_HELP = "Pause/unpause the run timer. " + ENABLE_ARGS,
             TIMESCALE_HELP = "Sets the Time Delta. " + TIMESCALE_ARGS,
             TRUEKILL_HELP = "Ignore Dio's and kill the entity. " + TRUEKILL_ARGS
