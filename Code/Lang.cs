@@ -155,6 +155,7 @@
             PREVENT_PROFILE_WRITING_HELP = "Prevent saving the user profile to avoid bogus data. " + ENABLE_ARGS,
             RANDOMITEM_HELP = "Generate random items from the available item tiers. " + RANDOMITEM_ARGS,
             RELOADCONFIG_HELP = "Reload all default config files from all loaded plugins.",
+            RELOADSTAGE_HELP = "Reload the current stage.",
             REMOVEALLBUFFS_HELP = "Removes all buffs from a character. " + REMOVEALLBUFFS_ARGS,
             REMOVEALLDOTS_HELP = "Removes all DoTs from a character. " + REMOVEALLDOTS_ARGS,
             REMOVEALLITEMS_HELP = "Removes all items from a target. " + REMOVEALLITEMS_ARGS,

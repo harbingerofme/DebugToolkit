@@ -45,6 +45,7 @@ Verbiage:
 
 Commands:
 
+* **reload_stage** - Reload the current stage. `reload_stage`_
 * **next_stage** - Advance to the next stage. `next_stage [specific_stage]`. If no stage is entered, the next stage in progression is selected.
 * **force_family_event** - Forces a Family Event to happen in the next stage, takes no arguments. `force_family_event`
 * **next_boss** - Sets the next teleporter/simulacrum boss to the specified boss. Get a list of potential boss with `list_directorcards`. `next_boss {director_card} [count:1] [elite:None]`

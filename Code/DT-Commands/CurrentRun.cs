@@ -445,6 +445,21 @@ namespace DebugToolkit.Commands
             Log.MessageNetworked("Wave prefab not found. You can choose from: " + string.Join(", ", waves.Keys), args, LogLevel.MessageClientOnly);
         }
 
+        [ConCommand(commandName = "reload_stage", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.RELOADSTAGE_HELP)]
+        private static void CCReloadStage(ConCommandArgs args)
+        {
+            if (!ArgumentParser.AssertInARun(args))
+            {
+                return;
+            }
+            var networkManager = UnityEngine.Networking.NetworkManager.singleton;
+            var currentScene = SceneCatalog.GetSceneDefForCurrentScene();
+            if (networkManager && currentScene)
+            {
+                networkManager.ServerChangeScene(currentScene.cachedName);
+            }
+        }
+
         [ConCommand(commandName = "charge_zone", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.CHARGEZONE_HELP)]
         [AutoComplete(Lang.CHARGEZONE_ARGS)]
         private static void CCChargeZone(ConCommandArgs args)
