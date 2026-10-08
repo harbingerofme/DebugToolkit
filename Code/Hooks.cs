@@ -288,6 +288,10 @@ namespace DebugToolkit
             RemoveCheatFlag(self.FindConVar("bag_disable_breakout"));
             RemoveCheatFlag(self.FindConVar("bounce_velocity"));
             RemoveCheatFlag(self.FindConVar("junk_unlimited"));
+            RemoveCheatFlag(self.FindConVar("acolyte_infinite_soul"));
+            RemoveCheatFlag(self.FindConVar("champrush_skip"));
+            RemoveCheatFlag(self.FindConVar("slipperyHexMult"));
+            RemoveCheatFlag(self.FindConVar("slipperyHexSub"));
 
             const string MOD_MESSAGE = " Let the DebugToolkit team know if you need this convar.";
             ExpandHelpText(self.FindConVar("timescale"), " Use time_scale instead!");
@@ -296,9 +300,10 @@ namespace DebugToolkit
             ExpandHelpText(self.FindConVar("cmotor_safe_collision_step_threshold"), MOD_MESSAGE);
             ExpandHelpText(self.FindConVar("ai_update_interval"), MOD_MESSAGE);
             ExpandHelpText(self.FindConVar("contact_damage_update_interval"), MOD_MESSAGE);
+            ExpandHelpText(self.FindConVar("override_run_seed"), " Use seed instead!");
             ExpandHelpText(self.FindConVar("log_async_assets"), MOD_MESSAGE);
             ExpandHelpText(self.FindConVar("preload_scenes"), MOD_MESSAGE);
-            ExpandHelpText(self.FindConVar("hitbox_show"), MOD_MESSAGE); // doesn't do anything, hence why not unlocking
+            ExpandHelpText(self.FindConVar("preload_scene_slice_size"), MOD_MESSAGE);
             ExpandHelpText(self.FindConVar("cheats"), " But you already have the DebugToolkit mod installed...");
         }
 
