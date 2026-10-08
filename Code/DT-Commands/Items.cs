@@ -347,7 +347,7 @@ namespace DebugToolkit.Commands
                 {
                     pickupIndex = final,
                     decayValue = itemType == ItemType.Temp ? 1f : 0f,
-                    isRental = itemType == ItemType.Ethereal,
+                    isRental = itemType == ItemType.Rental,
                 },
             }, body.transform.position, body.inputBank.aimDirection * 30f);
             Log.MessageNetworked(string.Format(Lang.CREATEPICKUP_SUCCESS_1, final), args);
@@ -536,7 +536,7 @@ namespace DebugToolkit.Commands
             None = -1,
             Permanent,
             Temp,
-            Ethereal,
+            Rental,
             // If you're here because you're adding a new ItemType, update all the following accordingly! :)
             // GetItemCount, GiveItem, RemoveItem, create_pickup, remove_item_stacks, and dump_build.
         }
@@ -549,7 +549,7 @@ namespace DebugToolkit.Commands
                     return inventory.GetItemCountPermanent(itemIndex);
                 case ItemType.Temp:
                     return inventory.GetItemCountTemp(itemIndex);
-                case ItemType.Ethereal:
+                case ItemType.Rental:
                     return inventory.GetItemCountRented(itemIndex);
                 default:
                     Log.Message(Lang.NOMESSAGE, LogLevel.Warning);
@@ -567,7 +567,7 @@ namespace DebugToolkit.Commands
                 case ItemType.Temp:
                     inventory.GiveItemTemp(itemIndex, count);
                     break;
-                case ItemType.Ethereal:
+                case ItemType.Rental:
                     inventory.GiveItemRented(itemIndex, count);
                     break;
                 default:
@@ -586,7 +586,7 @@ namespace DebugToolkit.Commands
                 case ItemType.Temp:
                     inventory.RemoveItemTemp(itemIndex, count);
                     break;
-                case ItemType.Ethereal:
+                case ItemType.Rental:
                     inventory.RemoveItemRented(itemIndex, count);
                     break;
                 default:

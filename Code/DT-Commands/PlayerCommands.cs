@@ -275,10 +275,10 @@ namespace DebugToolkit.Commands
                 // source and should be the sole entity responsible for adding/removing them. These processes
                 // are generally ephemeral in nature and if such items are transferred to a new run, the original
                 // source will not be around to eventually remove them.
-                var etherealCount = inventory.GetItemCountRented(item);
-                if (etherealCount > 0)
+                var rentalCount = inventory.GetItemCountRented(item);
+                if (rentalCount > 0)
                 {
-                    sb.Append($"give_item {name} {tempCount} Ethereal;");
+                    sb.Append($"give_item {name} {tempCount} Rental;");
                 }
             }
 
