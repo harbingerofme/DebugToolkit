@@ -96,7 +96,7 @@ List Commands:
 Dump Commands:
 
 * **dump_buffs** - List the buffs/debuffs of all spawned bodies.
-* **dump_inventories** - List the inventory items and equipment of all spawned bodies.
+* **dump_inventories** - List the inventory items, equipment, and key items of all spawned bodies.
 * **dump_state** - List the current stats, entity state, and skill cooldown of a specified body. `dump_state *[target (player|'pinged'):<self>]`
 * **dump_stats** - List the base stats of a specific body.
 * **dump_build** - Generate a string with commands to replicate your current inventory and minion state.

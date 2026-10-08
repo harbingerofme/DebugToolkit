@@ -303,6 +303,12 @@ namespace DebugToolkit.Commands
                 }
             }
 
+            // Key item
+            if (inventory.keyItem != null)
+            {
+                sb.Append($"give_keyitem {inventory.keyItem.name};");
+            }
+
             // Minions
             var minionGroup = MinionOwnership.MinionGroup.FindGroup(master.netId);
             if (minionGroup != null && minionGroup.memberCount > 0)

@@ -129,6 +129,11 @@ namespace DebugToolkit.Commands
                         sb.AppendLine($"<color=#{colorHexString}>{name}</color>");
                     }
                 }
+                if (inventory.keyItem)
+                {
+                    var colorHexString = ColorCatalog.GetColorHexString(inventory.keyItem.colorIndex);
+                    sb.AppendLine($"<color=#{colorHexString}>{inventory.keyItem.name}</color>");
+                }
                 sb.AppendLine();
             }
             Log.MessageNetworked(sb.ToString().TrimEnd('\n'), args, LogLevel.MessageClientOnly);
