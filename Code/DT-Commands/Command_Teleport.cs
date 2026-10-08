@@ -15,7 +15,7 @@ namespace DebugToolkit.Commands
             NetworkManager.DebugToolKitComponents.AddComponent<TeleportNet>();
         }
 
-        internal static void InternalActivation()
+        internal static void TeleportOnCursor()
         {
             if (PlayerCommands.UpdateCurrentPlayerBody(out _, out _currentBody))
             {
@@ -27,6 +27,22 @@ namespace DebugToolkit.Commands
                         var footOffset = _currentBody.transform.position - _currentBody.footPosition;
                         TeleportHelper.TeleportGameObject(_currentBody.gameObject, hit.point + footOffset);
                     }
+                }
+            }
+        }
+
+        internal static void GotoBoss()
+        {
+            if (PlayerCommands.UpdateCurrentPlayerBody(out _, out _currentBody))
+            {
+                if (SkipToBossZone.instance)
+                {
+                    Vector3 pos = SkipToBossZone.instance.transform.position;
+                    TeleportHelper.TeleportGameObject(_currentBody.gameObject, pos);
+                }
+                else
+                {
+                    Log.Message("No SkipToBossZone found.");
                 }
             }
         }
@@ -45,15 +61,26 @@ namespace DebugToolkit.Commands
             _instance = this;
         }
 
-        internal static void Invoke(NetworkUser argsSender)
+        internal static void InvokeTeleportOnCursor(NetworkUser argsSender)
         {
-            _instance.TargetToggle(argsSender.connectionToClient);
+            _instance.TargetTeleportOnCursor(argsSender.connectionToClient);
         }
 
         [TargetRpc]
-        private void TargetToggle(NetworkConnection _)
+        private void TargetTeleportOnCursor(NetworkConnection _)
         {
-            Command_Teleport.InternalActivation();
+            Command_Teleport.TeleportOnCursor();
+        }
+
+        internal static void InvokeGotoBoss(NetworkUser argsSender)
+        {
+            _instance.TargetGotoBoss(argsSender.connectionToClient);
+        }
+
+        [TargetRpc]
+        private void TargetGotoBoss(NetworkConnection _)
+        {
+            Command_Teleport.GotoBoss();
         }
     }
 }

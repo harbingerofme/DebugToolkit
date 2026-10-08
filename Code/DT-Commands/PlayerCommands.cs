@@ -74,7 +74,19 @@ namespace DebugToolkit.Commands
             {
                 return;
             }
-            TeleportNet.Invoke(args.sender); // callback
+            TeleportNet.InvokeTeleportOnCursor(args.sender); // callback
+        }
+
+        [ConCommand(commandName = "goto_boss", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.GOTOBOSS_HELP)]
+        private static void CCGotoBoss(ConCommandArgs args)
+        {
+            if (!ArgumentParser.AssertNotServer(args) ||
+                !ArgumentParser.AssertInARun(args) ||
+                !ArgumentParser.AssertLivingBody(args))
+            {
+                return;
+            }
+            TeleportNet.InvokeGotoBoss(args.sender);
         }
 
         [ConCommand(commandName = "spawn_as", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.SPAWNAS_HELP)]

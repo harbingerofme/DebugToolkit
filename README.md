@@ -69,6 +69,7 @@ Commands:
 * **hurt** - Deal generic damage to a target. `hurt {amount} *[target (player|'pinged'):<self>]`
 * **heal** - Heal a target. `heal {amount} *[target (player|'pinged'):<self>]*`
 * **teleport_on_cursor** -  Teleport yourself to where your cursor is currently aiming at. `teleport_on_cursor`
+* **goto_boss** - Teleport yourself to a boss zone if one exists. `goto_boss`
 * **time_scale** -  Sets the timescale of the game. 0.5 would mean everything happens at half speed. `time_scale [time_scale]`. If no argument is supplied, gives the current timescale.
 * **post_sound_event** - Post a sound event to the AkSoundEngine (WWise) either by its event name or event ID. `post_sound_event {sound_event (event_name|event_id)}`
 
