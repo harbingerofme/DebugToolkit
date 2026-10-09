@@ -92,6 +92,7 @@ List Commands:
 * **list_itemtier** - List all Item Tiers.
 * **list_item** - List all Items, their language invariants, and if they are in the current drop pool.
 * **list_equip** - List all Equipment, their language invariants, and if they are in the current drop pool.
+* **list_keyitem** - List all Key Items and their language invariants.
 * **list_interactables/list_interactibles** List all Interactables.
 * **list_directorcards** List all Director Cards. Mainly used for the `next_boss` command.
 * **list_quest** List all Compulsions Quests.
