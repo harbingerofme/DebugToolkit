@@ -1,6 +1,7 @@
 using RoR2;
 using RoR2.Quests;
 using RoR2.Quests.CompulsionQuests;
+using RoR2.Quests.TrialQuests;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -360,17 +361,35 @@ namespace DebugToolkit.Commands
         [AutoComplete(Lang.TRIALTIMER_ARGS)]
         private static void CCTrialTimer(ConCommandArgs args)
         {
-            if (!ArgumentParser.AssertInARun(args) ||
-                !ArgumentParser.AssertRequiredArguments(args, Lang.TRIALTIMER_ARGS, 1) ||
-                !ArgumentParser.TryParseOptionalFloat(args, 0, "time", default, out var time))
+            if (!ArgumentParser.AssertInARun(args))
             {
                 return;
             }
-
-            if (DLC4ProgressionController.instance && DLC4ProgressionController.instance.trialSelector)
+            if (!DLC4ProgressionController.instance || !DLC4ProgressionController.instance.trialSelector)
             {
-                DLC4ProgressionController.instance.trialSelector.SetRemainingTrialTimeServer(time);
+                Log.MessageNetworked($"{Language.GetString(DLC4Content.DLC4.nameToken)} must be enabled for this.", args, LogLevel.MessageClientOnly);
+                return;
             }
+
+            if (args.Count == 0)
+            {
+                Log.MessageNetworked($"Trial time is {DLC4ProgressionController.instance.trialSelector.GetRemainingTrialTimeServer()}.", args, LogLevel.MessageClientOnly);
+                return;
+            }
+
+            // Not optional technically
+            if (!ArgumentParser.TryParseOptionalFloat(args, 0, "time", default, out var time, min: 0f))
+            {
+                return;
+            }
+            DLC4ProgressionController.instance.trialSelector.SetRemainingTrialTimeServer(time);
+            var trialController = InstanceTracker.FirstOrNull<TrialController>();
+            if (trialController && trialController.TryGetComponent<QuestRunner>(out var runner) && runner.quest is BaseTrialQuest trialQuest)
+            {
+                trialQuest.SpawnTrialTimersOnPlayersServer();
+            }
+            RunNet.InvokeTrialPortalTimerUpdate(time);
+            Log.MessageNetworked($"Trial timer set to {time}.", args);
         }
 
         [ConCommand(commandName = "dump_trial_variants", flags = ConVarFlags.None, helpText = Lang.DUMPTRIALVARIANTS_HELP)]
@@ -966,6 +985,25 @@ namespace DebugToolkit.Commands
                     {
                         icon.holder.gameObject.SetActive(enabled);
                     }
+                }
+            }
+        }
+
+        internal static void InvokeTrialPortalTimerUpdate(float seconds)
+        {
+            _instance.RpcUpdateTrialPortalTimer(seconds);
+        }
+
+        [ClientRpc]
+        private void RpcUpdateTrialPortalTimer(float seconds)
+        {
+            var sceneExitControllers = InstanceTracker.GetInstancesList<SceneExitController>();
+            foreach (var controller in sceneExitControllers)
+            {
+                var timeProvider = controller.GetComponentInChildren<TrialTimeProvider>();
+                if (timeProvider)
+                {
+                    timeProvider.timerText.seconds = seconds;
                 }
             }
         }

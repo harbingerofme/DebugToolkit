@@ -23,7 +23,7 @@
             DUMPSTATS_ARGS = "Requires 1 argument: {body}",
             ENABLE_ARGS = "Requires 0 or 1 arguments: [enable (0|1)]",
             FIXEDTIME_ARGS = "Requires 0 or 1 argument: [time]",
-            FORCETRIAL_ARGS = "Requests 1 argument: [identifier]",
+            FORCETRIAL_ARGS = "Requires 1 argument: [identifier]",
             FORCEWAVE_ARGS = "Requires 0 or 1 argument [wave_prefab]",
             GIVEBUFF_ARGS = "Requires 1 (4 if from server) arguments: {buff} [count:1] [duration:0] [target (player|'pinged'):<self>]",
             GIVEDOT_ARGS = "Requires 1 (4 if from server) argument: {dot} [count:1] [target (player|'pinged'):<self>] [attacker (player|'pinged'):<self>]",
@@ -73,9 +73,9 @@
             SPAWNINTERACTABLE_ARGS = "Requires 1 argument: {interactable}",
             SPAWNLEMURIAN_ARGS = "Requires 1 argument: {item} [level:0]",
             SPAWNPORTAL_ARGS = "Requires 1 argument: {portal ('artifact'|'blue'|'celestial'|'deepvoid'|'gold'|'green'|'null'|'void')}",
-            STARTQUEST_ARGS = "Requests 1 argument: {quest (quest|'random')}",
+            STARTQUEST_ARGS = "Requires 1 argument: {quest (quest|'random')}",
             TIMESCALE_ARGS = "Requires 0 argument: [time_scale]",
-            TRIALTIMER_ARGS = "Requests 1 argument: [time]",
+            TRIALTIMER_ARGS = "Requires 0 argument: [time]",
             TRUEKILL_ARGS = "Requires 0 (1 if from server) arguments: [player:<self>]"
             ;
 

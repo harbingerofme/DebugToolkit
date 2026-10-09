@@ -59,7 +59,7 @@ Commands:
 * **evolve_lemurians** - Evolve all Devoted Lemurians. `evolve_lemurians`
 * **start_quest** - Start a Compulsion Quest. `start_quest {quest (quest|'random')}`
 * **force_trial** - Set the trial variant override for the next trial stage. `force_trial {identifier}`. Use either an index or partial name obtained from `dump_trial_variants`.
-* **trial_timer** - Set the trial remaining timer. `trial_timer {time}`. Must be set from a non-trial stage.
+* **trial_timer** - Set the trial remaining timer. `trial_timer [time]`. If no time is supplied, prints the current time to console.
 * **seed** - Set the seed for all next runs this session. `seed [new_seed]`. Use `0` to specify the game should generate its own seed. If used without argument, it's equivalent to the vanilla `run_get_seed`.
 * **karma** - Set the karma for the run. `karma [karma]`. Use a negative value to disable it completely. If no argument is supplied, gives the current karma.
 * **set_artifact** - Enable/disable an Artifact. `set_artifact {artifact (artifact|'all')} [enable (0|1)]`. If enable isn't supplied, it will toggle the artifact's current state. However, it is required when using "all".
