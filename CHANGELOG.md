@@ -1,6 +1,36 @@
 
 ## Changelog ##
 
+### 3.23 ###
+
+* **3.23.0**
+    * Updated for Hallowed Concepts.
+        * Added support for the `Rental` item type for any item commands that make use of it.
+        * Modified `dump_build` and `dump_inventories` to als include key item information.
+        * Modified `charge_zone`: The max charge now uses the max charge of the target zone instead of always using 100%.
+    * Added key item commands:
+        * `give_keyitem`
+        * `remove_keyitem`
+        * `list_keyitem`
+    * Added karma commands:
+        * `karma`: Change the current karma. A negative value disables it.
+        * `dump_karma_triggers`: List all available karma triggers and their completion status.
+    * Added quest commands:
+        * `start_quest`
+        * `list_quest`
+    * Added trial commands:
+        * `force_trial`: Set the next trial variant override either by index or partial variant name.
+        * `dump_trial_variants`: List all trial variants for the current stage.
+        * `trial_timer`: Change the remaining trial time.
+    * Added `reload_stage`: Reload the current stage. Effectively a shortcut for `set_scene currentstage`.
+    * Added `goto_boss`: Teleport outside the arena of the final boss for the current stage. This is also works when the Voidling runs away to a new location.
+    * Added `clean_inventory`: Clear all items, equipment, and key item from a target.
+    * Unlocked new cheat ConVars:
+        * `acolyte_infinite_soul`
+        * `champrush_skip`
+        * `slipperyHexMult`
+        * `slipperyHexSub`
+
 ### 3.22 ###
 
 * **3.22.0**
