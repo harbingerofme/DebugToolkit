@@ -346,11 +346,14 @@ namespace DebugToolkit
                 Log.Message("Failed to patch RoR2.Console.RunCmd", Log.LogLevel.Error, Log.Target.Bepinex);
                 return;
             }
-            var nextInstruction = c.Next;
-            c.Emit<NetworkSession>(OpCodes.Call, "get_instance");
-            c.Emit(OpCodes.Brtrue_S, nextInstruction);
-            c.Emit(OpCodes.Ldstr, "This command requires a network or game session.");
-            c.Emit<Debug>(OpCodes.Call, "Log");
+            c.Emit(OpCodes.Ldarg_2);
+            c.EmitDelegate<Action<string>>(commandName =>
+            {
+                if (!NetworkSession.instance)
+                {
+                    Log.Message($"The ConCommand or ConVar \"{commandName}\" requires a network session.");
+                }
+            });
         }
 
         private static void AddConCommandSignatureHint(On.RoR2.UI.ConsoleWindow.orig_Start orig, RoR2.UI.ConsoleWindow self)
