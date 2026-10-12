@@ -294,72 +294,12 @@ namespace DebugToolkit.Commands
         private static void CCCreatePickup(ConCommandArgs args)
         {
             if (!ArgumentParser.AssertInARun(args) ||
-                !ArgumentParser.AssertRequiredArguments(args, Lang.CREATEPICKUP_ARGS, 1, 4) ||
-                // The object and search arguments are parsed later due to complex logic.
+                !ArgumentParser.AssertRequiredArguments(args, Lang.CREATEPICKUP_ARGS, 1, 3) ||
+                !ArgumentParser.TryParsePickup(args, 0, out var pickup) ||
                 !TryParseItemType(args, 1, out var itemType) ||
-                !ArgumentParser.TryParsePlayerOrDefault(args, 3, out var master, requireLiving: true))
+                !ArgumentParser.TryParsePlayerOrDefault(args, 2, out var master, requireLiving: true))
             {
                 return;
-            }
-
-            bool searchEquip = true, searchItem = true;
-            if (args.Count > 2 && args[2] != Lang.DEFAULT_VALUE)
-            {
-                switch (args[2].ToUpperInvariant())
-                {
-                    case Lang.BOTH:
-                        break;
-                    case Lang.ITEM:
-                        searchEquip = false;
-                        break;
-                    case Lang.EQUIP:
-                        searchItem = false;
-                        break;
-                    default:
-                        Log.MessageNetworked(String.Format(Lang.INVALID_ARG_VALUE, "search"), args, LogLevel.MessageClientOnly);
-                        return;
-                }
-            }
-            PickupIndex final = PickupIndex.none;
-            EquipmentIndex equipment = EquipmentIndex.None;
-            ItemIndex item = ItemIndex.None;
-
-            switch (args[0].ToUpperInvariant())
-            {
-                case Lang.COIN_LUNAR:
-                    final = PickupCatalog.FindPickupIndex("LunarCoin.Coin0");
-                    break;
-                case Lang.COIN_VOID:
-                    final = PickupCatalog.FindPickupIndex("MiscPickupIndex.VoidCoin");
-                    break;
-                default:
-                    if (searchEquip)
-                    {
-                        equipment = StringFinder.Instance.GetEquipFromPartial(args[0]);
-                    }
-                    if (searchItem)
-                    {
-                        item = StringFinder.Instance.GetItemFromPartial(args[0]);
-                    }
-                    if (item == ItemIndex.None && equipment == EquipmentIndex.None)
-                    {
-                        Log.MessageNetworked(Lang.CREATEPICKUP_NOTFOUND, args, LogLevel.MessageClientOnly);
-                        return;
-                    }
-                    else if (item != ItemIndex.None && equipment != EquipmentIndex.None)
-                    {
-                        Log.MessageNetworked(string.Format(Lang.CREATEPICKUP_AMBIGIOUS_2, item, equipment), args, LogLevel.MessageClientOnly);
-                        return;
-                    }
-                    else if (equipment != EquipmentIndex.None)
-                    {
-                        final = PickupCatalog.FindPickupIndex(equipment);
-                    }
-                    else
-                    {
-                        final = PickupCatalog.FindPickupIndex(item);
-                    }
-                    break;
             }
 
             var body = master.GetBody();
@@ -367,12 +307,12 @@ namespace DebugToolkit.Commands
             {
                 pickup = new UniquePickup
                 {
-                    pickupIndex = final,
+                    pickupIndex = pickup.pickupIndex,
                     decayValue = itemType == ItemType.Temp ? 1f : 0f,
                     isRental = itemType == ItemType.Rental,
                 },
             }, body.transform.position, body.inputBank.aimDirection * 30f);
-            Log.MessageNetworked(string.Format(Lang.CREATEPICKUP_SUCCESS_1, final), args);
+            Log.MessageNetworked(string.Format(Lang.CREATEPICKUP_SUCCESS_1, pickup.internalName), args);
         }
 
         [ConCommand(commandName = "create_potential", flags = ConVarFlags.ExecuteOnServer, helpText = Lang.CREATEPOTENTIAL_HELP)]

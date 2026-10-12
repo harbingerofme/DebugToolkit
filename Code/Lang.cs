@@ -17,7 +17,7 @@
             CHANGETEAM_ARGS = "Requires 1 (2 if from server) argument: {team} [player:<self>]",
             CHARGEZONE_ARGS = "Requires 0 argument: [charge]",
             CLEANINVENTORY_ARGS = "Requires 0 (1 if from server) arguments: [target (player|'pinged'|'evolution'|'simulacrum'|'voidfields'|'devotion'):<self>]",
-            CREATEPICKUP_ARGS = "Requires 1 (3 if from server) argument: {object (item|equip|'lunarcoin'|'voidcoin')} [item_type:Permanent] [search ('item'|'equip'|'both'):'both'] [player:<self>]",
+            CREATEPICKUP_ARGS = "Requires 1 (3 if from server) argument: {pickup} [item_type:Permanent] [player:<self>]",
             CREATEPOTENTIAL_ARGS = $"Requires 0 (3 if from server) arguments: [droptable (droptable|'all'):'{DROPTABLE_DEFAULT}'] [count:3] [player:<self>]",
             DUMPSTATE_ARGS = "Requires 0 (1 if from server) argument: [target (player|'pinged'):<self>]",
             DUMPSTATS_ARGS = "Requires 1 argument: {body}",
