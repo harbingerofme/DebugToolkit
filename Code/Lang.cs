@@ -136,6 +136,7 @@
             LISTITEMTIER_HELP = "List all item tiers. " + LISTQUERY_ARGS,
             LISTITEM_HELP = "List all items and their availability. " + LISTQUERY_ARGS,
             LISTKEYITEM_HELP = "List all key items and their availability. " + LISTQUERY_ARGS,
+            LISTPICKUP_HELP = "List all pickups and their language invariants. " + LISTQUERY_ARGS,
             LISTPLAYER_HELP = "List all players and their ID. " + LISTQUERY_ARGS,
             LISTSCENE_HELP = "List all scenes and their language invariants. " + LISTQUERY_ARGS,
             LISTSKIN_HELP = "List all bodies with skins. " + LISTSKIN_ARGS,

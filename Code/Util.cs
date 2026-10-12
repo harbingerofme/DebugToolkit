@@ -77,5 +77,23 @@ namespace DebugToolkit
             public Inventory inventory;
             public DevotionInventoryController devotionController;
         }
+
+        /// <summary>
+        /// Get the user-friendly pickup name. Item tiers don't have one so they return their internal name.
+        /// </summary>
+        /// <param name="pickupDef"></param>
+        /// <returns>The pickup name or "???" for a null pickup.</returns>
+        internal static string GetPickupName(PickupDef pickupDef)
+        {
+            if (pickupDef == null)
+            {
+                return StringFinder.NAME_NOTFOUND;
+            }
+            if (pickupDef.internalName.StartsWith("ItemTier"))
+            {
+                return pickupDef.internalName;
+            }
+            return StringFinder.GetLangInvar(pickupDef.nameToken);
+        }
     }
 }

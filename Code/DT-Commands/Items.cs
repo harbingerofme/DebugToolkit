@@ -85,6 +85,23 @@ namespace DebugToolkit.Commands
             Log.MessageNetworked(s, args, LogLevel.MessageClientOnly);
         }
 
+        [ConCommand(commandName = "list_pickup", flags = ConVarFlags.None, helpText = Lang.LISTPICKUP_HELP)]
+        [AutoComplete(Lang.LISTQUERY_ARGS)]
+        private static void CCListPickup(ConCommandArgs args)
+        {
+            var sb = new StringBuilder();
+            var arg = args.Count > 0 ? args[0] : "";
+            var indices = StringFinder.Instance.GetPickupsFromPartial(arg);
+            foreach (var index in indices)
+            {
+                var pickup = PickupCatalog.GetPickupDef(index);
+                var realName = Util.GetPickupName(pickup);
+                sb.AppendLine($"[{index.value}]{pickup.internalName} \"{realName}\"");
+            }
+            var s = sb.Length > 0 ? sb.ToString().TrimEnd('\n') : string.Format(Lang.NOMATCH_ERROR, "pickups", arg);
+            Log.MessageNetworked(s, args, LogLevel.MessageClientOnly);
+        }
+
         [ConCommand(commandName = "dump_inventories", flags = ConVarFlags.None, helpText = Lang.DUMPINVENTORIES_HELP)]
         private static void CCDumpInventories(ConCommandArgs args)
         {

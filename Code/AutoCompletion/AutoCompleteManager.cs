@@ -86,6 +86,7 @@ namespace DebugToolkit
             parser.RegisterStaticVariable("equip", EquipmentCatalog.equipmentDefs.Select(i => $"{(int)i.equipmentIndex}|{i.name}|{StringFinder.GetLangInvar(i.nameToken)}"), 1);
             parser.RegisterStaticVariable("item", ItemCatalog.allItemDefs.Select(i => $"{(int)i.itemIndex}|{i.name}|{StringFinder.GetLangInvar(i.nameToken)}"), 1);
             parser.RegisterStaticVariable("key_item", KeyItemCatalog.allKeyItemDefs.Select(i => $"{(int)i.keyItemIndex}|{i.name}|{StringFinder.GetLangInvar(i.nameToken)}"), 1);
+            parser.RegisterStaticVariable("pickup", PickupCatalog.allPickups.Select(i => $"{i.pickupIndex.value}|{i.internalName}|{Util.GetPickupName(i)}"), 1);
             parser.RegisterStaticVariable("specific_stage", SceneCatalog.allSceneDefs.Where(i => !i.isOfflineScene).Select(i => $"{(int)i.sceneDefIndex}|{i.cachedName}|{StringFinder.GetLangInvar(i.nameToken)}"), 1);
             parser.RegisterStaticVariable("team", new string[] { "-1|None" }.
                 Concat(TeamCatalog.teamDefs.Select((t, i) => $"{i}|{(TeamIndex)i}")),

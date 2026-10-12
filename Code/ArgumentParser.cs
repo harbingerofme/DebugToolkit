@@ -242,6 +242,28 @@ namespace DebugToolkit
         }
 
         /// <summary>
+        /// Match a command argument to a pickup.
+        /// </summary>
+        /// <param name="args">The incoming data for this command.</param>
+        /// <param name="index">The argument index for this value.</param>
+        /// <param name="pickupDef">The parsed value. May be junk if parsing fails.</param>
+        /// <returns>Returns true if the argument is successfully parsed, else false.</returns>
+        public static bool TryParsePickup(ConCommandArgs args, int index, out PickupDef pickupDef)
+        {
+            pickupDef = null;
+            var pickupIndex = StringFinder.Instance.GetPickupFromPartial(args[index]);
+            if (pickupIndex == PickupIndex.none)
+            {
+                Log.MessageNetworked(string.Format(Lang.OBJECT_NOTFOUND, "pickup", args[index], "list_pickup"), args, LogLevel.MessageClientOnly);
+                return false;
+            }
+            pickupDef = PickupCatalog.GetPickupDef(pickupIndex);
+            // No need to check for item/equipment/etc required expansion; the models can be inspected
+            // on the ground and the inventory will filter them if attempted to be collected.
+            return true;
+        }
+
+        /// <summary>
         /// Match a command argument to a body prefab.
         /// </summary>
         /// <param name="args">The incoming data for this command.</param>

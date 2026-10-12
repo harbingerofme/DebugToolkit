@@ -474,6 +474,52 @@ namespace DebugToolkit
         }
 
         /// <summary>
+        /// Returns a PickupIndex when provided with an index or partial/invariant.
+        /// </summary>
+        /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>
+        /// <returns>Returns the PickupIndex if a match is found, or returns PickupIndex.none</returns>
+        public PickupIndex GetPickupFromPartial(string name)
+        {
+            return GetPickupsFromPartial(name).DefaultIfEmpty(PickupIndex.none).First();
+        }
+
+        /// <summary>
+        /// Returns an iterator of PickupIndex's when provided with an index or partial/invariant.
+        /// </summary>
+        /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>
+        /// <returns>Returns an iterator with all PickupIndex's matched</returns>
+        public IEnumerable<PickupIndex> GetPickupsFromPartial(string name)
+        {
+            if (TextSerialization.TryParseInvariant(name, out int i))
+            {
+                var index = new PickupIndex(i);
+                if (PickupCatalog.GetPickupDef(index).pickupIndex != PickupIndex.none)
+                {
+                    yield return index;
+                }
+                yield break;
+            }
+            name = name.ToUpperInvariant();
+            var matches = new List<MatchSimilarity>();
+            foreach (var pickup in PickupCatalog.allPickups)
+            {
+                var langInvar = GetLangInvar(pickup.nameToken).ToUpper();
+                if (pickup.internalName.ToUpper().Contains(name) || langInvar.Contains(name))
+                {
+                    matches.Add(new MatchSimilarity
+                    {
+                        similarity = Math.Max(GetSimilarity(pickup.internalName, name), GetSimilarity(langInvar, name)),
+                        item = pickup.pickupIndex
+                    });
+                }
+            }
+            foreach (var match in matches.OrderByDescending(m => m.similarity))
+            {
+                yield return (PickupIndex)match.item;
+            }
+        }
+
+        /// <summary>
         /// Returns a NetworkUser when provided with an index or partial/invariant.
         /// </summary>
         /// <param name="name">Matches either the exact (int)Index or Partial Invariant</param>
