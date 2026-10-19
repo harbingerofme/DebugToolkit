@@ -296,7 +296,7 @@ namespace DebugToolkit.Commands
             if (!ArgumentParser.AssertInARun(args) ||
                 !ArgumentParser.AssertRequiredArguments(args, Lang.CREATEPICKUP_ARGS, 1, 3) ||
                 !ArgumentParser.TryParsePickup(args, 0, out var pickup) ||
-                !TryParseItemType(args, 1, out var itemType) ||
+                !TryParsePickupType(args, 1, out var pickupType) ||
                 !ArgumentParser.TryParsePlayerOrDefault(args, 2, out var master, requireLiving: true))
             {
                 return;
@@ -308,8 +308,8 @@ namespace DebugToolkit.Commands
                 pickup = new UniquePickup
                 {
                     pickupIndex = pickup.pickupIndex,
-                    decayValue = itemType == ItemType.Temp ? 1f : 0f,
-                    isRental = itemType == ItemType.Rental,
+                    decayValue = pickupType == PickupType.Temp ? 1f : 0f,
+                    isRental = pickupType == PickupType.Rental,
                 },
             }, body.transform.position, body.inputBank.aimDirection * 30f);
             Log.MessageNetworked(string.Format(Lang.CREATEPICKUP_SUCCESS_1, pickup.internalName), args);
@@ -359,9 +359,10 @@ namespace DebugToolkit.Commands
             }
 
             var inventory = target.inventory;
-            int count = inventory.GetItemCountPermanent(itemDef) + inventory.GetItemCountTemp(itemDef) + inventory.GetItemCountRented(itemDef);
+            int count = inventory.GetItemCountTotal(itemDef);
             inventory.RemoveItemPermanent(itemDef, count);
             inventory.RemoveItemTemp(itemDef.itemIndex, count);
+            inventory.RemoveItemChanneled(itemDef.itemIndex, count);
             inventory.RemoveItemRented(itemDef.itemIndex, count);
             if (target.devotionController)
             {
@@ -381,19 +382,15 @@ namespace DebugToolkit.Commands
                 return;
             }
 
-            using (new Inventory.InventoryChangeScope(target.inventory))
+            var cleanInventoryArgs = new Inventory.CleanInventoryArgs
             {
-                // CleanInventory does not reset temp items, so we have to do it ourselves
-                target.inventory.CleanInventory();
-                using (HG.CollectionPool<ItemIndex, List<ItemIndex>>.RentCollection(out var itemList))
-                {
-                    target.inventory.tempItemsStorage.GetNonZeroIndices(itemList);
-                    foreach (var itemIndex in itemList)
-                    {
-                        target.inventory.ResetItemTemp(itemIndex);
-                    }
-                }
-            }
+                cleanPermanentItemStacks = true,
+                cleanTemporaryItemStacks = true,
+                cleanRentalItemStacks = true,
+            };
+            cleanInventoryArgs.SetFilter((itemIndex) => true);
+            target.inventory.CleanInventory(cleanInventoryArgs);
+            CleanChanneledItemStacks(target.inventory);
             if (target.devotionController)
             {
                 target.devotionController.UpdateAllMinions(false);
@@ -506,6 +503,7 @@ namespace DebugToolkit.Commands
             var cleanInventoryArgs = Inventory.CleanInventoryArgs.All();
             cleanInventoryArgs = cleanInventoryArgs.SetFilter((ItemIndex x) => true);
             target.inventory.CleanInventory(cleanInventoryArgs);
+            CleanChanneledItemStacks(target.inventory);
             Log.MessageNetworked(string.Format(Lang.RESETOBJECT, "inventory state", target.name), args);
         }
 
@@ -514,9 +512,18 @@ namespace DebugToolkit.Commands
             None = -1,
             Permanent,
             Temp,
+            Channeled,
             Rental,
             // If you're here because you're adding a new ItemType, update all the following accordingly! :)
-            // GetItemCount, GiveItem, RemoveItem, create_pickup, remove_item_stacks, and dump_build.
+            // PickupType, GetItemCount, GiveItem, RemoveItem, create_pickup, remove_item_stacks, remove_all_items, and dump_build.
+        }
+
+        internal enum PickupType
+        {
+            None = -1,
+            Permanent,
+            Temp,
+            Rental,
         }
 
         private static int GetItemCount(Inventory inventory, ItemIndex itemIndex, ItemType type)
@@ -527,6 +534,8 @@ namespace DebugToolkit.Commands
                     return inventory.GetItemCountPermanent(itemIndex);
                 case ItemType.Temp:
                     return inventory.GetItemCountTemp(itemIndex);
+                case ItemType.Channeled:
+                    return inventory.GetItemCountChanneled(itemIndex);
                 case ItemType.Rental:
                     return inventory.GetItemCountRented(itemIndex);
                 default:
@@ -544,6 +553,9 @@ namespace DebugToolkit.Commands
                     break;
                 case ItemType.Temp:
                     inventory.GiveItemTemp(itemIndex, count);
+                    break;
+                case ItemType.Channeled:
+                    inventory.GiveItemChanneled(itemIndex, count);
                     break;
                 case ItemType.Rental:
                     inventory.GiveItemRented(itemIndex, count);
@@ -564,12 +576,32 @@ namespace DebugToolkit.Commands
                 case ItemType.Temp:
                     inventory.RemoveItemTemp(itemIndex, count);
                     break;
+                case ItemType.Channeled:
+                    inventory.RemoveItemChanneled(itemIndex, count);
+                    break;
                 case ItemType.Rental:
                     inventory.RemoveItemRented(itemIndex, count);
                     break;
                 default:
                     Log.Message(Lang.NOMESSAGE, LogLevel.Warning);
                     break;
+            }
+        }
+
+        // CleanInventory does not reset channeled items, so we have to do it ourselves
+        private static void CleanChanneledItemStacks(Inventory inventory)
+        {
+            using (new Inventory.InventoryChangeScope(inventory))
+            {
+                using (HG.CollectionPool<ItemIndex, List<ItemIndex>>.RentCollection(out var itemList))
+                {
+                    inventory.channeledItemStacks.GetNonZeroIndices(itemList);
+                    foreach (var itemIndex in itemList)
+                    {
+                        var stack = inventory.channeledItemStacks.GetStackValue(itemIndex);
+                        inventory.RemoveItemChanneled(itemIndex, stack);
+                    }
+                }
             }
         }
 
@@ -581,6 +613,20 @@ namespace DebugToolkit.Commands
                 if (!StringFinder.TryGetEnumFromPartial(args[index], out itemType) || itemType == ItemType.None)
                 {
                     Log.MessageNetworked(string.Format(Lang.INVALID_ARG_VALUE, "item_type"), args, LogLevel.MessageClientOnly);
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        private static bool TryParsePickupType(ConCommandArgs args, int index, out PickupType pickupType)
+        {
+            pickupType = PickupType.Permanent;
+            if (args.Count > index && args[index] != Lang.DEFAULT_VALUE)
+            {
+                if (!StringFinder.TryGetEnumFromPartial(args[index], out pickupType) || pickupType == PickupType.None)
+                {
+                    Log.MessageNetworked(string.Format(Lang.INVALID_ARG_VALUE, "pickup_type"), args, LogLevel.MessageClientOnly);
                     return false;
                 }
             }

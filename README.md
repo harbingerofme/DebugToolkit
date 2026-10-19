@@ -137,7 +137,7 @@ Item Commands:
 * **give_key_item** - Give a key item directly to a target's inventory. `give_keyitem {key_item} *[target (player|'pinged'|'evolution'|'simulacrum'|'voidfields'|'devotion'):<self>]`
 * **remove_key_item** - Removes the key item directly from a target's inventory. `remove_keyitem *[target (player|'pinged'|'evolution'|'simulacrum'|'voidfields'|'devotion'):<self>]`
 * **clean_inventory** - Removes all items, equipment, and key item from a target's inventory. `clean_inventory *[target (player|'pinged'|'evolution'|'simulacrum'|'voidfields'|'devotion'):<self>]`
-* **create_pickup** - Creates a pickup in front of a player. `create_pickup {pickup} [item_type:Permanent] *[player:<self>]`
+* **create_pickup** - Creates a pickup in front of a player. `create_pickup {pickup} [pickup_type:Permanent] *[player:<self>]`
 * **create_potential** - Creates a potential in front of a player. The first item tier defined in the droptable decides the color of the droplet and what items will be available with the Artifact of Command. `create_potential [droptable (droptable|'all')] [count:3] *[player:<self>]`
 
 ***Note:*** Some commands support a weighted item selection, referred to as _droptable_. The syntax for it is `<itemtier:weight>` tokens separated by comma>. The weight should be a positive float and is an optional argument with a default value of 1.0. If a comma or decimal point is used, the whole argument must be surrounded in double quotes. The keyword `all` uses all available item tiers with a default weight. For example, any of the following are valid inputs: `tier1`, `"tier1:5,tier2,tier3:0.4"`, `all`. The default value is `"tier1:100,tier2:60,tier3:4"`, which is the same as the item distribution for the `midgame` and `lategame` macros.
