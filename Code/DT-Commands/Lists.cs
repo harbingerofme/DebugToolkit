@@ -221,7 +221,10 @@ namespace DebugToolkit.Commands
                 var card = StringFinder.Instance.DirectorCards[i];
                 if (cards.Contains(card))
                 {
-                    var langInvar = StringFinder.GetLangInvar(StringFinder.GetMasterName(card.spawnCard.prefab.GetComponent<CharacterMaster>()));
+                    var prefab = card.spawnCard.prefab;
+                    var langInvar = prefab ?
+                        StringFinder.GetLangInvar(StringFinder.GetMasterName(card.spawnCard.prefab.GetComponent<CharacterMaster>())) :
+                        StringFinder.NAME_NOTFOUND;
                     sb.AppendLine($"[{i}]{card.spawnCard.name}={langInvar}");
                 }
             }
