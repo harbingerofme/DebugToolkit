@@ -66,6 +66,9 @@ namespace DebugToolkit.Commands
                 case "CELESTIAL":
                     teleporterInteraction.shouldAttemptToSpawnMSPortal = true;
                     break;
+                case "VIRTUAL":
+                    QueuePortalVirtual();
+                    break;
                 case "VOID":
                     QueuePortal("VOID");
                     break;
@@ -74,6 +77,7 @@ namespace DebugToolkit.Commands
                     teleporterInteraction.shouldAttemptToSpawnMSPortal = true;
                     teleporterInteraction.shouldAttemptToSpawnGoldshoresPortal = true;
                     QueuePortal("GREEN");
+                    QueuePortalVirtual();
                     QueuePortal("VOID");
                     break;
                 default:
@@ -105,7 +109,7 @@ namespace DebugToolkit.Commands
                     {
                         if (portal.requiredExpansion && !Run.instance.IsExpansionEnabled(portal.requiredExpansion))
                         {
-                            Log.MessageNetworked($"The {portalName.ToLower()} portal requires an expansion to be enabled.", args, LogLevel.MessageClientOnly);
+                            Log.MessageNetworked(string.Format(Lang.PORTAL_EXPANSION_LOCKED, portalName.ToLower(), Util.GetExpansion(portal.requiredExpansion)), args, LogLevel.MessageClientOnly);
                             return;
                         }
                         if (!string.IsNullOrEmpty(portal.bannedEventFlag) && Run.instance.GetEventFlag(portal.bannedEventFlag))
@@ -121,6 +125,34 @@ namespace DebugToolkit.Commands
                         portal.Start();
                         return;
                     }
+                }
+            }
+
+            void QueuePortalVirtual()
+            {
+                if (teleporterInteraction.shouldAttemptToSpawnHiddenRealmsPortal)
+                {
+                    // Already enabled
+                    return;
+                }
+                var solusFight = UnityEngine.Object.FindObjectOfType<SolusFight>();
+                if (solusFight == null)
+                {
+                    Log.MessageNetworked($"The virtual portal is not available on this stage.", args, LogLevel.MessageClientOnly);
+                    return;
+                }
+                if (solusFight.RunHasRequiredExpansion() == false)
+                {
+                    Log.MessageNetworked(string.Format(Lang.PORTAL_EXPANSION_LOCKED, "virtual", Util.GetExpansion(DLC3Content.DLC3)), args, LogLevel.MessageClientOnly);
+                    return;
+                }
+                if (Stage.instance.sceneDef.cachedName == "shipgraveyard")
+                {
+                    solusFight.TriggerSirensCallPortal();
+                }
+                else
+                {
+                    solusFight.TriggerServer();
                 }
             }
         }

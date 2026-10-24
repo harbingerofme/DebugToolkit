@@ -54,7 +54,7 @@ Commands:
 * **next_wave** - Advance to the next Simulacrum wave. `next_wave`
 * **force_wave** - Set the next wave prefab. `force_wave [wave_prefab]`. If no input is supplied, prints all available options and clears any previous selection.
 * **run_set_waves_cleared** - Set the Simulacrum waves cleared. Must be positive. `set_run_waves_cleared {wave}`
-* **add_portal** - Add a portal to the current Teleporter on completion. `add_portal {portal ('blue'|'celestial'|'gold'|'green'|'void'|'all')}`.
+* **add_portal** - Add a portal to the current Teleporter on completion. `add_portal {portal ('blue'|'celestial'|'gold'|'green'|'virtual'|'void'|'all')}`.
 * **charge_zone** - Set the charge of all active holdout zones. `charge_zone [charge]`. If no argument is supplied, all zones are fully charged.
 * **evolve_lemurians** - Evolve all Devoted Lemurians. `evolve_lemurians`
 * **start_quest** - Start a Compulsion Quest. `start_quest {quest (quest|'random')}`

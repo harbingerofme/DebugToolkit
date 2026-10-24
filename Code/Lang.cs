@@ -10,7 +10,7 @@
 
         // Command arguments
         public const string
-            ADDPORTAL_ARGS = "Requires 1 argument: {portal ('blue'|'celestial'|'gold'|'green'|'void'|'all')}",
+            ADDPORTAL_ARGS = "Requires 1 argument: {portal ('blue'|'celestial'|'gold'|'green'|'virtual'|'void'|'all')}",
             BAN_ARGS = "Requires 1 argument: {player}",
             BIND_ARGS = "Requires 2 arguments: {key} [console_commands]",
             BIND_DELETE_ARGS = "Requires 1 argument: {key}",
@@ -239,7 +239,8 @@
             OBJECT_NOTFOUND = "No {0} with the name \"{1}\" could be found. Please use {2} for options.",
             PARSE_ERROR = "Unable to parse {0} to {1}.",
             PINGEDBODY_NOTFOUND = "Pinged target not found. Either the last ping was not a character, or it has been destroyed since.",
-            PLAYER_NOTFOUND = "Specified player not found or isn't alive. Please use list_player for options."
+            PLAYER_NOTFOUND = "Specified player not found or isn't alive. Please use list_player for options.",
+            PORTAL_EXPANSION_LOCKED = "The {0} portal requires an expansion: {1}"
             ;
 
         // Keywords
