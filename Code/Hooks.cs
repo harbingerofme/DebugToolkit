@@ -58,7 +58,6 @@ namespace DebugToolkit
             On.RoR2.Console.AutoComplete.SetSearchString += BetterAutoCompletion;
             RoR2Application.onLoad += Items.InitDroptableData;
             RoR2Application.onLoad += Spawners.InitPortals;
-            RoR2Application.onLoad += AutoCompleteManager.RegisterAutoCompleteCommands;
             Run.onRunStartGlobal += Items.CollectItemTiers;
             On.RoR2.UI.ConsoleWindow.Start += AddConCommandSignatureHint;
             On.RoR2.UI.ConsoleWindow.OnInputFieldValueChanged += UpdateCommandSignature;
@@ -100,6 +99,10 @@ namespace DebugToolkit
             //Buddha Mode hook
             On.RoR2.HealthComponent.TakeDamage += NonLethalDamage;
             On.RoR2.CharacterMaster.Awake += SetGodMode;
+
+            // Command autocompletion registration
+            RoR2Application.onLoad += AutoCompleteParser.RegisterVariablesOnLoad;
+            Language.onCurrentLanguageChanged += AutoCompleteParser.RefreshVariablesOnLanguageChanged;
         }
 
         private static void ToggleConsoleWindowWithCustomKey(ILContext il)

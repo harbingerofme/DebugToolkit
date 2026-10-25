@@ -39,6 +39,7 @@ namespace DebugToolkit
             PermissionSystem.Init();
             Hooks.InitializeHooks();
             NetworkManager.Init();
+            AutoCompleteManager.RegisterAutoCompleteCommands();
 
             ConsoleWindow.cvConsoleEnabled.defaultValue = "1";
             ConsoleWindow.cvConsoleEnabled.SetBool(true);

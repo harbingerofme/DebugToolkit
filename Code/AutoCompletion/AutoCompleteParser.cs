@@ -12,10 +12,20 @@ namespace DebugToolkit
     /// </summary>
     public sealed class AutoCompleteParser
     {
+        private static readonly List<AutoCompleteParser> instancesList = new List<AutoCompleteParser>();
+
         private readonly Dictionary<string, StaticCatalog> staticVariables = new Dictionary<string, StaticCatalog>();
         private readonly Dictionary<string, DynamicCatalog> dynamicVariables = new Dictionary<string, DynamicCatalog>();
 
-        public AutoCompleteParser() { }
+        /// <summary>
+        /// Register autocompletion variables. Called both in RoR2Application.onLoad and Language.onCurrentLanguageChanged.
+        /// </summary>
+        public Action registerVariables;
+
+        public AutoCompleteParser()
+        {
+            instancesList.Add(this);
+        }
 
         /// <summary>
         /// Register a variable name to represent a string.
@@ -119,6 +129,29 @@ namespace DebugToolkit
                             AutoCompleteManager.RegisterCommand(conCommand.commandName, p);
                         }
                     }
+                }
+            }
+        }
+
+        private static bool hasLoaded = false;
+
+        internal static void RegisterVariablesOnLoad()
+        {
+            foreach (var parser in instancesList)
+            {
+                parser.registerVariables?.Invoke();
+            }
+            hasLoaded = true;
+        }
+
+        internal static void RefreshVariablesOnLanguageChanged()
+        {
+            // The language is initially set before we reach RoR2Application.onLoad, which is too early to trigger this.
+            if (hasLoaded)
+            {
+                foreach (var parser in instancesList)
+                {
+                    parser.registerVariables?.Invoke();
                 }
             }
         }

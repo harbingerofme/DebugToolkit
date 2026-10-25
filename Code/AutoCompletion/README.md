@@ -55,9 +55,9 @@ using DebugToolkit;
 
 private void Awake()
 {
-    RoR2Application.onLoad += delegate()
+    var parser = new AutoCompleteParser();
+    parser.registerVariables += () =>
     {
-        var parser = new AutoCompleteParser();
         parser.RegisterStaticVariable("action", new string[] { "1", "2", "3" });
         parser.RegisterDynamicVariable("player", NetworkUser.instancesList, "userName");
         parser.Scan(System.Reflection.Assembly.GetExecutingAssembly());

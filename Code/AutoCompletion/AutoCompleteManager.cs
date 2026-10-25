@@ -69,43 +69,46 @@ namespace DebugToolkit
         internal static void RegisterAutoCompleteCommands()
         {
             var parser = new AutoCompleteParser();
-            parser.RegisterStaticVariable("0", "0");
-            parser.RegisterStaticVariable("1", "1");
-            parser.RegisterStaticVariable("ai", MasterCatalog.allAiMasters.Select(i => $"{(int)i.masterIndex}|{i.name}|{StringFinder.GetLangInvar(StringFinder.GetMasterName(i))}"), 1);
-            parser.RegisterStaticVariable("artifact", ArtifactCatalog.artifactDefs.Select(i => $"{(int)i.artifactIndex}|{i.cachedName}|{StringFinder.GetLangInvar(i.nameToken)}"), 1);
-            parser.RegisterStaticVariable("body", BodyCatalog.allBodyPrefabBodyBodyComponents.Select(i => $"{(int)i.bodyIndex}|{i.name}|{StringFinder.GetLangInvar(i.baseNameToken)}"), 1);
-            parser.RegisterStaticVariable("buff", BuffCatalog.buffDefs.Select(i => $"{(int)i.buffIndex}|{StringFinder.GetLangInvar(i.name)}"), 1);
-            parser.RegisterStaticVariable("difficulty", StringFinder.difficultyDefs.OrderBy(kv => kv.Key).Select((kv) => $"{(int)kv.Key}|{StringFinder.GetLangInvar(kv.Value.nameToken)}"), 1);
-            parser.RegisterStaticVariable("drone", DroneCatalog.allDroneDefs.Select(i => $"{(int)i.droneIndex}|{i.name}|{StringFinder.GetLangInvar(i.nameToken)}"), 1);
-            parser.RegisterStaticVariable("droptable", ItemTierCatalog.allItemTierDefs.OrderBy(i => i.tier).Select(i => $"{(int)i.tier}|{i.name}"), 1);
-            parser.RegisterStaticVariable("dot", DotController.dotDefs.Select((d, i) => $"{i}|{(DotController.DotIndex)i}"), 1);
-            parser.RegisterStaticVariable("elite", new string[] { "-1|None" }.
-                Concat(EliteCatalog.eliteDefs.Select(i => $"{(int)i.eliteIndex}|{i.name}|{StringFinder.GetLangInvar(i.modifierToken)}")),
-                1
-            );
-            parser.RegisterStaticVariable("equip", EquipmentCatalog.equipmentDefs.Select(i => $"{(int)i.equipmentIndex}|{i.name}|{StringFinder.GetLangInvar(i.nameToken)}"), 1);
-            parser.RegisterStaticVariable("item", ItemCatalog.allItemDefs.Select(i => $"{(int)i.itemIndex}|{i.name}|{StringFinder.GetLangInvar(i.nameToken)}"), 1);
-            parser.RegisterStaticVariable("key_item", KeyItemCatalog.allKeyItemDefs.Select(i => $"{(int)i.keyItemIndex}|{i.name}|{StringFinder.GetLangInvar(i.nameToken)}"), 1);
-            parser.RegisterStaticVariable("pickup", PickupCatalog.allPickups.Select(i => $"{i.pickupIndex.value}|{i.internalName}|{Util.GetPickupName(i)}"), 1);
-            parser.RegisterStaticVariable("specific_stage", SceneCatalog.allSceneDefs.Where(i => !i.isOfflineScene).Select(i => $"{(int)i.sceneDefIndex}|{i.cachedName}|{StringFinder.GetLangInvar(i.nameToken)}"), 1);
-            parser.RegisterStaticVariable("team", new string[] { "-1|None" }.
-                Concat(TeamCatalog.teamDefs.Select((t, i) => $"{i}|{(TeamIndex)i}")),
-                1
-            );
-            var quests = new List<QuestCatalog.RegisteredQuest>();
-            QuestCatalog.GetRegisteredQuestsOfType<BaseCompulsionQuest>(quests);
-            parser.RegisterStaticVariable("quest", quests.Select(i => $"{(int)i.questIndex}|{i.identifier}"), 1);
+            parser.registerVariables = () =>
+            {
+                parser.RegisterStaticVariable("0", "0");
+                parser.RegisterStaticVariable("1", "1");
+                parser.RegisterStaticVariable("ai", MasterCatalog.allAiMasters.Select(i => $"{(int)i.masterIndex}|{i.name}|{StringFinder.GetLangInvar(StringFinder.GetMasterName(i))}"), 1);
+                parser.RegisterStaticVariable("artifact", ArtifactCatalog.artifactDefs.Select(i => $"{(int)i.artifactIndex}|{i.cachedName}|{StringFinder.GetLangInvar(i.nameToken)}"), 1);
+                parser.RegisterStaticVariable("body", BodyCatalog.allBodyPrefabBodyBodyComponents.Select(i => $"{(int)i.bodyIndex}|{i.name}|{StringFinder.GetLangInvar(i.baseNameToken)}"), 1);
+                parser.RegisterStaticVariable("buff", BuffCatalog.buffDefs.Select(i => $"{(int)i.buffIndex}|{StringFinder.GetLangInvar(i.name)}"), 1);
+                parser.RegisterStaticVariable("difficulty", StringFinder.difficultyDefs.OrderBy(kv => kv.Key).Select((kv) => $"{(int)kv.Key}|{StringFinder.GetLangInvar(kv.Value.nameToken)}"), 1);
+                parser.RegisterStaticVariable("drone", DroneCatalog.allDroneDefs.Select(i => $"{(int)i.droneIndex}|{i.name}|{StringFinder.GetLangInvar(i.nameToken)}"), 1);
+                parser.RegisterStaticVariable("droptable", ItemTierCatalog.allItemTierDefs.OrderBy(i => i.tier).Select(i => $"{(int)i.tier}|{i.name}"), 1);
+                parser.RegisterStaticVariable("dot", DotController.dotDefs.Select((d, i) => $"{i}|{(DotController.DotIndex)i}"), 1);
+                parser.RegisterStaticVariable("elite", new string[] { "-1|None" }.
+                    Concat(EliteCatalog.eliteDefs.Select(i => $"{(int)i.eliteIndex}|{i.name}|{StringFinder.GetLangInvar(i.modifierToken)}")),
+                    1
+                );
+                parser.RegisterStaticVariable("equip", EquipmentCatalog.equipmentDefs.Select(i => $"{(int)i.equipmentIndex}|{i.name}|{StringFinder.GetLangInvar(i.nameToken)}"), 1);
+                parser.RegisterStaticVariable("item", ItemCatalog.allItemDefs.Select(i => $"{(int)i.itemIndex}|{i.name}|{StringFinder.GetLangInvar(i.nameToken)}"), 1);
+                parser.RegisterStaticVariable("key_item", KeyItemCatalog.allKeyItemDefs.Select(i => $"{(int)i.keyItemIndex}|{i.name}|{StringFinder.GetLangInvar(i.nameToken)}"), 1);
+                parser.RegisterStaticVariable("pickup", PickupCatalog.allPickups.Select(i => $"{i.pickupIndex.value}|{i.internalName}|{Util.GetPickupName(i)}"), 1);
+                parser.RegisterStaticVariable("specific_stage", SceneCatalog.allSceneDefs.Where(i => !i.isOfflineScene).Select(i => $"{(int)i.sceneDefIndex}|{i.cachedName}|{StringFinder.GetLangInvar(i.nameToken)}"), 1);
+                parser.RegisterStaticVariable("team", new string[] { "-1|None" }.
+                    Concat(TeamCatalog.teamDefs.Select((t, i) => $"{i}|{(TeamIndex)i}")),
+                    1
+                );
+                var quests = new List<QuestCatalog.RegisteredQuest>();
+                QuestCatalog.GetRegisteredQuestsOfType<BaseCompulsionQuest>(quests);
+                parser.RegisterStaticVariable("quest", quests.Select(i => $"{(int)i.questIndex}|{i.identifier}"), 1);
 
-            // Skip ItemType.None and PickupType.None
-            parser.RegisterStaticVariable("item_type", CollectEnumNames(typeof(Commands.Items.ItemType), typeof(int)).SkipLast(1), 1);
-            parser.RegisterStaticVariable("pickup_type", CollectEnumNames(typeof(Commands.Items.PickupType), typeof(int)).SkipLast(1), 1);
-            parser.RegisterStaticVariable("permission_level", CollectEnumNames(typeof(Permissions.Level), typeof(int)), 1);
+                // Skip ItemType.None and PickupType.None
+                parser.RegisterStaticVariable("item_type", CollectEnumNames(typeof(Commands.Items.ItemType), typeof(int)).SkipLast(1), 1);
+                parser.RegisterStaticVariable("pickup_type", CollectEnumNames(typeof(Commands.Items.PickupType), typeof(int)).SkipLast(1), 1);
+                parser.RegisterStaticVariable("permission_level", CollectEnumNames(typeof(Permissions.Level), typeof(int)), 1);
 
-            parser.RegisterDynamicVariable("director_card", StringFinder.Instance.DirectorCards, "spawnCard", autocompleteIndex: 1);
-            parser.RegisterDynamicVariable("interactable", StringFinder.Instance.InteractableSpawnCards, autocompleteIndex: 1);
-            parser.RegisterDynamicVariable("player", NetworkUser.instancesList, "userName");
+                parser.RegisterDynamicVariable("director_card", StringFinder.Instance.DirectorCards, "spawnCard", autocompleteIndex: 1);
+                parser.RegisterDynamicVariable("interactable", StringFinder.Instance.InteractableSpawnCards, autocompleteIndex: 1);
+                parser.RegisterDynamicVariable("player", NetworkUser.instancesList, "userName");
 
-            parser.Scan(System.Reflection.Assembly.GetExecutingAssembly());
+                parser.Scan(System.Reflection.Assembly.GetExecutingAssembly());
+            };
         }
 
         private static IEnumerable<string> CollectEnumNames(Type enumType, Type castTo)
