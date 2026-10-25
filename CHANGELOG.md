@@ -1,6 +1,20 @@
 
 ## Changelog ##
 
+### 3.24 ###
+
+* **3.24.0**
+    * Added `list_pickup`
+    * Modified `create_pickup`: The arguments have changed to `{pickup} [pickup_type] [player]`. Since `pickup` uniquely identifies all pickups, the `search` argument has been removed. This is technically a breaking change, but we assume this argument wasn't widely used. This also fixes key items not being supported previously.
+    * Updated item commands to differentiate between `item_type` and `pickup_type`, where the former now supports Channeled items as well.
+        * `give_item`, `remove_item`, and `random_items` continue using `item_type` which has been extended.
+        * `create_pickup` has switched to `pickup_type` which is the old `item_type`.
+        * `remove_item_stacks`, `remove_all_items`, and `clean_inventory` now remove Channeled stacks as well.
+    * Updated `add_portal`: The `virtual` portal is now also supported.
+    * Updated the message when a server command is run without a network session to include the name of said command.
+    * Fixed `list_directorcards`: Fixed an NRE for spawn cards with missing prefabs.
+    * Fixed autocompletion names not updating when the language changes. For developers who use this feature, the updated usage can be found [here](https://github.com/harbingerofme/DebugToolkit/blob/c216230e59b3006ce084bd9f9a0f8aca1daf0300/Code/AutoCompletion/README.md?plain=1#L58-L64).
+
 ### 3.23 ###
 
 * **3.23.0**
