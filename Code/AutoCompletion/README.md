@@ -20,6 +20,14 @@ Download the dll and include it in your project file
 </ItemGroup>
 ```
 
+OR
+
+Include the following line in your nuget.config and so you can install it with it
+
+```
+<add key="Thunderstore" value="https://nuget.windows10ce.com/nuget/v3/index.json" />
+```
+
 Pair `AutoCompleteAttribute` with any `ConCommandAttribute`s in your mod and then use `AutoCompleteParser` to register the autocompletion options. See [example](#example) at the bottom.
 
 Finally add a dependency in your manifest for `"IHarbHD-DebugToolkit-x.y.z"`.
@@ -42,9 +50,11 @@ Any of the following are valid examples (assume `x` represents the list of value
 
 A **static variable** is a shorthand for a fixed collection of strings, e.g., items, true/false, etc.
 
-**Dynamic variables** represent collections whose contents may change during runtime, e.g., number of players. These can be constructed as and when needed using reflection. Simply provide the collection object along with any futher nested field(s) if needed concatenated with `"/"`. For example `(list, "a/b/c")` is the same as accessing `list[i].a.b.c`. The optional argument `"isToken"` decides whether the resulting value will be matched against any language tokens.
+**Dynamic variables** represent collections whose contents may change during runtime, e.g., number of players. These can be constructed as and when needed using reflection. Simply provide the collection object along with any further nested field(s) if needed, concatenated with `"/"`. For example `(list, "a/b/c")` is the same as accessing `list[i].a.b.c`. The optional argument `"isToken"` decides whether the resulting value will be matched against any language tokens.
 
 Each string in a variable can contain multiple values concatenated with `"|"`, which point to the same selection. This is useful for enum values, e.g., `"0|This"`, `"1|That"`, etc. For a dynamic variable use the optional argument `"showIndex"` to toggle this behavior.
+
+Both static and dynamic variables on registration also accept the optional `autocompleteIndex` argument. This is used to decide which string will be used for the autocompletion in the console input when it has multiple values. For example, `"A|B|C"` with `autocompleteIndex = 1` will use `"B"`.
 
 While scanning the assembly any unregistered variables encountered will be ignored. This is useful for inputs where autofill options would be counterproductive or unnecessary, e.g., all integers.
 
