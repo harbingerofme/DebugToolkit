@@ -3,6 +3,9 @@
 
 ### 3.24 ###
 
+* **3.24.1**
+    * Fixed `midgame` and `lategame`: Fixed the commands not working without MultiplayerModTesting.
+
 * **3.24.0**
     * Added `list_pickup`
     * Modified `create_pickup`: The arguments have changed to `{pickup} [pickup_type] [player]`. Since `pickup` uniquely identifies all pickups, the `search` argument has been removed. This is technically a breaking change, but we assume this argument wasn't widely used. This also fixes key items not being supported previously.
